@@ -1,0 +1,12 @@
+[build]
+  builder = "python"
+  buildCommand = "cd backend && pip install -r requirements.txt"
+
+[start]
+  command = "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+
+[healthcheck]
+  path = "/api/health"
+  interval = 30
+  timeout = 10
+  retries = 3
