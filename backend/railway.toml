@@ -1,19 +1,5 @@
 [build]
-  builder = "python"
   buildCommand = "pip install -r requirements.txt"
 
 [start]
   command = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
-
-[redirects]
-  # Redirect root to health check or docs
-  [[redirects]]
-    from = "/"
-    to = "/docs"
-    status = 307
-
-[healthcheck]
-  path = "/health"
-  interval = 30
-  timeout = 10
-  retries = 3
