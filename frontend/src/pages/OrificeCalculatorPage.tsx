@@ -118,7 +118,7 @@ export default function OrificeCalculatorPage() {
     doc.text('Orifice Calculator Report', 20, 20)
     doc.setFontSize(12)
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text(`Mode: ${currentMode === 'restricting' ? 'Restricting Orifice' : 'Flow Meter`, 20, 40)
+    doc.text(`Mode: ${currentMode === 'restricting' ? 'Restricting Orifice' : 'Flow Meter'}`, 20, 40)
     doc.text(`Gas Type: ${gasProperties[gasType]?.name || 'Custom'}`, 20, 50)
     doc.text(`Flow Rate: ${flowRate} m³/h`, 20, 60)
     doc.text(`Pressure Drop: ${pressureValue} mbar`, 20, 70)
@@ -320,7 +320,7 @@ export default function OrificeCalculatorPage() {
                     <p>• Discharge coefficient C = 0.61 (typical value)</p>
                     <p>• Expansion coefficient ε = 0.98 (for gases)</p>
                     <p>• Beta ratio should ideally be between 0.2 and 0.7</p>
-                    <p>• Reynolds number should be > 5000 for accurate measurement</p>
+                    <p>• Reynolds number should be &gt; 5000 for accurate measurement</p>
                   </div>
                 </div>
               </>

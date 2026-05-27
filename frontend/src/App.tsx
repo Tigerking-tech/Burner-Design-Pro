@@ -11,7 +11,7 @@ import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
 import FuelManagerPage from './pages/FuelManagerPage'
 import FlameTemperaturePage from './pages/FlameTemperaturePage'
-// import OrificeCalculatorPage from './pages/OrificeCalculatorPage'
+import OrificeCalculatorPage from './pages/OrificeCalculatorPage'
 import AccountPage from './pages/AccountPage'
 import AdminPage from './pages/AdminPage'
 import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
@@ -39,7 +39,7 @@ function App() {
         <Route path="/subscription" element={<SubscriptionPage />} />
         <Route path="/fuel-manager" element={<FuelManagerPage />} />
         <Route path="/flame-temperature" element={<FlameTemperaturePage />} />
-        {/* <Route path="/orifice-calculator" element={<OrificeCalculatorPage />} /> */}
+        <Route path="/orifice-calculator" element={<OrificeCalculatorPage />} />
         <Route path="/gas-calculator" element={<CustomGasCalculator />} />
         <Route path="/unit-converter" element={<UnitConverterPage />} />
         <Route path="/emission" element={<EmissionPage />} />
