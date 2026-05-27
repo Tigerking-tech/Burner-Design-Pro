@@ -260,7 +260,7 @@ export default function OrificeCalculatorPage() {
 
               <div className="flex gap-4 pt-4">
                 <button
-                  onClick={handleProAction(performCalculation)}
+                  onClick={() => handleProAction(performCalculation)}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition"
                 >
                   Calculate
@@ -305,7 +305,7 @@ export default function OrificeCalculatorPage() {
 
                   <div className="flex gap-4">
                     <button
-                      onClick={handleProAction(exportToPDF)}
+                      onClick={() => handleProAction(exportToPDF)}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition"
                     >
                       Export to PDF
