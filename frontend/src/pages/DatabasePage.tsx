@@ -3,9 +3,9 @@ import ModulePage from './ModulePage'
 export default function DatabasePage() {
   return (
     <ModulePage
-      title="燃料数据库"
+      title="Fuel Database"
       icon="📚"
-      description="标准燃料属性数据库查询"
+      description="Standard fuel properties database lookup"
       comingSoon
     />
   )

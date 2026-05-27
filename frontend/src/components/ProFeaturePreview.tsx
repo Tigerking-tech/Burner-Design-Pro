@@ -1,0 +1,157 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { authAPI } from '../services/api'
+
+interface ProFeaturePreviewProps {
+  title: string
+  description: string
+  icon: React.ReactNode
+  children: React.ReactNode
+}
+
+export default function ProFeaturePreview({ 
+  title, 
+  description, 
+  icon, 
+  children 
+}: ProFeaturePreviewProps) {
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const navigate = useNavigate()
+  
+  const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+  
+  const handleProAction = (e: React.MouseEvent) => {
+    if (!isProUser) {
+      e.preventDefault()
+      e.stopPropagation()
+      setShowSubscriptionModal(true)
+    }
+  }
+  
+  const handleSubscribeClick = () => {
+    setShowSubscriptionModal(false)
+    navigate('/subscription')
+  }
+  
+  // 重写 children 中的按钮和交互元素，添加拦截
+  const renderWithProGuard = (child: React.ReactNode): React.ReactNode => {
+    if (!React.isValidElement(child)) {
+      return child
+    }
+    
+    // 如果是按钮类型的元素，添加点击拦截
+    const element = child as React.ReactElement
+    const tagName = element.type
+    
+    // 判断是否是可点击的元素
+    const isClickableElement = 
+      tagName === 'button' || 
+      (typeof tagName === 'string' && ['button', 'a', 'input'].includes(tagName)) ||
+      element.props.onClick ||
+      element.props.type === 'submit'
+    
+    if (isClickableElement && !isProUser) {
+      return React.cloneElement(element, {
+        onClick: (e: React.MouseEvent) => {
+          handleProAction(e)
+          if (element.props.onClick) {
+            element.props.onClick(e)
+          }
+        },
+        style: {
+          ...element.props.style,
+          cursor: isProUser ? element.props.style?.cursor : 'pointer'
+        }
+      })
+    }
+    
+    // 递归处理子元素
+    if (element.props.children) {
+      return React.cloneElement(element, {
+        children: React.Children.map(element.props.children, renderWithProGuard)
+      })
+    }
+    
+    return child
+  }
+  
+  return (
+    <div className="relative">
+      {/* Pro 标记横幅 */}
+      {!isProUser && (
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 flex items-center justify-center gap-3">
+          <div className="text-2xl">{icon}</div>
+          <div>
+            <h3 className="font-bold text-lg">{title}</h3>
+            <p className="text-sm opacity-90">Preview Mode - Upgrade to use</p>
+          </div>
+          <button
+            onClick={handleSubscribeClick}
+            className="ml-auto bg-white text-amber-600 px-5 py-2 rounded-lg font-semibold hover:bg-amber-50 transition-colors"
+          >
+            Upgrade to Pro
+          </button>
+        </div>
+      )}
+      
+      {/* 主内容区域 */}
+      <div className={!isProUser ? 'opacity-90' : ''}>
+        {React.Children.map(children, renderWithProGuard)}
+      </div>
+      
+      {/* 订阅提示模态框 */}
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="text-4xl">{icon}</div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Unlock {title}</h2>
+              <p className="text-gray-600">
+                Upgrade to Pro to use this calculator and unlock all premium features
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-xl p-5 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Pro Features:</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <span className="text-green-500 font-bold">✓</span>
+                  Full access to {title}
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <span className="text-green-500 font-bold">✓</span>
+                  All Pro calculators
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <span className="text-green-500 font-bold">✓</span>
+                  PDF report export
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <span className="text-green-500 font-bold">✓</span>
+                  Calculation history
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSubscriptionModal(false)}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Continue Preview
+              </button>
+              <button
+                onClick={handleSubscribeClick}
+                className="flex-1 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+              >
+                Upgrade Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,11 +1,12 @@
 import ModulePage from './ModulePage'
+import { Flame } from 'lucide-react'
 
 export default function ThermodynamicPage() {
   return (
     <ModulePage
-      title="热力学计算"
-      icon="⚡"
-      description="燃烧热力学参数分析"
+      title="Thermodynamic Calculation"
+      icon={<Flame size={48} />}
+      description="Combustion thermodynamic parameter analysis"
       comingSoon
     />
   )

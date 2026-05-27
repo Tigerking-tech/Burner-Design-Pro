@@ -1,153 +1,325 @@
-import { Link } from 'react-router-dom'
+import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { authAPI } from '../services/api'
+import { 
+  Flame, 
+  Leaf, 
+  RefreshCw, 
+  Gauge, 
+  Thermometer, 
+  BrickWall 
+} from 'lucide-react'
 
 interface Feature {
   id: string
   title: string
   description: string
-  icon: string
-  color: string
-  bgColor: string
+  icon: React.ReactNode
+  pro?: boolean
   to: string
+}
+
+interface PricingPlan {
+  name: string
+  price: string
+  period: string
+  description: string
+  features: Array<{ text: string; available: boolean }>
+  popular?: boolean
+  buttonText: string
+  buttonPrimary?: boolean
 }
 
 const features: Feature[] = [
   {
-    id: 'gas-calculator',
-    title: 'Calculate the combustion values',
-    description: 'Configure gas composition and calculate combustion parameters',
-    icon: '⚙️',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    to: '/gas-calculator'
-  },
-  {
-    id: 'unit-converter',
-    title: 'Unit Converter',
-    description: 'Engineering unit conversion tool',
-    icon: '📐',
-    color: 'text-slate-600',
-    bgColor: 'bg-slate-50',
-    to: '/unit-converter'
+    id: 'fuel',
+    title: 'Fuel Manager',
+    description: 'Calculate gas properties, Wobbe index, and manage fuel mixtures for optimal combustion.',
+    icon: <Flame size={48} />,
+    to: '/fuel-manager'
   },
   {
     id: 'emission',
-    title: 'Emission Conversion',
-    description: 'Calculate and convert combustion emissions',
-    icon: '📊',
-    color: 'text-teal-600',
-    bgColor: 'bg-teal-50',
+    title: 'Emission Analysis',
+    description: 'NOx, CO, SO₂ emission calculations with EPA and EU IED compliance checking.',
+    icon: <Leaf size={48} />,
     to: '/emission'
   },
   {
-    id: 'thermodynamic',
-    title: 'Thermodynamic Calculation',
-    description: 'Combustion thermodynamic parameter analysis',
-    icon: '🌡️',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50',
-    to: '/thermodynamic'
+    id: 'conversion',
+    title: 'Unit Conversion',
+    description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
+    icon: <RefreshCw size={48} />,
+    to: '/unit-converter'
   },
   {
-    id: 'efficiency',
-    title: 'Efficiency Analysis',
-    description: 'Equipment efficiency calculation and optimization',
-    icon: '📈',
-    color: 'text-cyan-600',
-    bgColor: 'bg-cyan-50',
-    to: '/efficiency'
+    id: 'orifice',
+    title: 'Orifice Calculator',
+    description: 'Design restricting or measuring orifice plates for gas and air flow applications.',
+    icon: <Gauge size={48} />,
+    pro: true,
+    to: '/orifice-calculator'
   },
   {
-    id: 'database',
-    title: 'Fuel Database',
-    description: 'Standard fuel property database query',
-    icon: '📚',
-    color: 'text-slate-700',
-    bgColor: 'bg-slate-100',
-    to: '/database'
+    id: 'flame',
+    title: 'Flame Temperature',
+    description: 'Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations.',
+    icon: <Thermometer size={48} />,
+    pro: true,
+    to: '/flame-temperature'
+  },
+  {
+    id: 'insulation',
+    title: 'Insulation Calculator',
+    description: 'Calculate optimal insulation thickness for pipes and flat surfaces with ISO 12241 & ASTM C680 standards.',
+    icon: <BrickWall size={48} />,
+    pro: true,
+    to: '/insulation-calculator'
+  }
+]
+
+const pricingPlans: PricingPlan[] = [
+  {
+    name: 'Free',
+    price: '$0',
+    period: '/month',
+    description: 'Perfect for trying out',
+    features: [
+      { text: 'Fuel Manager', available: true },
+      { text: 'Emission Analysis', available: true },
+      { text: 'Unit Converter', available: true },
+      { text: 'Orifice Calculator (Preview)', available: true },
+      { text: 'Flame Temperature (Preview)', available: true },
+      { text: 'Insulation Calculator (Preview)', available: true }
+    ],
+    buttonText: 'Get Started Free',
+    buttonPrimary: false
+  },
+  {
+    name: 'Pro',
+    price: '$19',
+    period: '/month',
+    description: 'For professional engineers',
+    features: [
+      { text: 'All calculators - full access', available: true },
+      { text: 'Orifice Calculator (Full)', available: true },
+      { text: 'Flame Temperature (Full)', available: true },
+      { text: 'Insulation Calculator (Full)', available: true },
+      { text: 'Custom fuel mixtures', available: true },
+      { text: 'Standard compliance checks', available: true }
+    ],
+    popular: true,
+    buttonText: 'Start 14-Day Free Trial',
+    buttonPrimary: true
   }
 ]
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-800 rounded-2xl mb-6 shadow-lg">
-            <span className="text-4xl">🔥</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            Burner Design Pro
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Professional burner design and calculation tool for precise thermal analysis
-          </p>
-        </div>
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const navigate = useNavigate()
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+  }
+
+  const handleStartFreeClick = (e: React.MouseEvent) => {
+    if (isLoggedIn) {
+      e.preventDefault()
+      const featuresSection = document.getElementById('features')
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
+        <Link to="/" className="text-2xl font-semibold tracking-tight">
+          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
+        </Link>
+        <div className="flex gap-6 items-center">
+          <a href="#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
+          <a href="#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
+          <a href="#about" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">About</a>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && (
+                <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                  Admin
+                </Link>
+              )}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                Account
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Login</Link>
+              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md"
+              >
+                Start Free
+              </Link>
+            </>
+          )}
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-20 px-6 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-5xl font-semibold mb-6 leading-tight">
+            Professional Thermal Design Tools<br/>for Burner Engineers
+          </h1>
+          <p className="text-lg text-[#bdc3c7] mb-8 max-w-2xl mx-auto">
+            Accurate combustion calculations, emission analysis, and unit conversion for industrial applications.
+          </p>
+          <div className="flex gap-4 justify-center mb-8">
+            {isLoggedIn ? (
+              <a 
+                href="#features" 
+                onClick={handleStartFreeClick}
+                className="bg-[#f39c12] hover:bg-[#e67e22] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg"
+              >
+                Start Free
+              </a>
+            ) : (
+              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg">
+                Start Free
+              </Link>
+            )}
+            <a href="#pricing" className="border-2 border-[#7f8c8d] hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded font-semibold text-lg transition-all">
+              View Pricing
+            </a>
+          </div>
+          <div className="text-[#95a5a6] text-sm">
+            <span className="text-[#f39c12]">✓</span> Free plan available &nbsp;|&nbsp; 
+            <span className="text-[#f39c12]">✓</span> No credit card required &nbsp;|&nbsp; 
+            <span className="text-[#f39c12]">✓</span> Upgrade anytime
+          </div>
+        </div>
+      </section>
+
+      {/* Product Highlights */}
+      <section className="max-w-5xl mx-auto px-5 -mt-10 relative z-10 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-4xl mb-3">🔥</div>
+            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Combustion Tools</h3>
+            <p className="text-[#7f8c8d] text-sm">Fuel management, flame temperature, orifice design - all in one place</p>
+          </div>
+          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-4xl mb-3">📊</div>
+            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Emission Analysis</h3>
+            <p className="text-[#7f8c8d] text-sm">NOx, CO, SO₂ calculations with industry-standard compliance checks</p>
+          </div>
+          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-4xl mb-3">🧱</div>
+            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Insulation Design</h3>
+            <p className="text-[#7f8c8d] text-sm">Optimal insulation thickness for pipes and flat surfaces per ISO/ASTM</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="max-w-5xl mx-auto px-5 py-20">
+        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-3">Simple, Transparent Pricing</h2>
+        <p className="text-center text-[#7f8c8d] mb-12">Start free, upgrade when you need more</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {pricingPlans.map((plan, index) => (
+            <div 
+              key={index} 
+              className={`bg-white rounded-lg p-8 border text-center transition-shadow hover:shadow-lg ${
+                plan.popular ? 'border-2 border-[#f39c12] relative' : 'border border-gray-300'
+              }`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#f39c12] text-white px-4 py-1 rounded-full text-xs font-semibold">
+                  Most Popular
+                </div>
+              )}
+              <h3 className="text-2xl font-semibold text-[#2c3e50] mb-2">{plan.name}</h3>
+              <div className="text-5xl font-bold text-[#2c3e50] mb-1">{plan.price}<span className="text-sm font-normal text-[#7f8c8d]">{plan.period}</span></div>
+              <p className="text-[#7f8c8d] text-sm mb-6">{plan.description}</p>
+              <ul className="text-left mb-6">
+                {plan.features.map((feature, i) => (
+                  <li 
+                    key={i} 
+                    className={`py-2 text-sm flex items-center gap-2 border-b border-gray-100 ${
+                      feature.available ? 'text-[#555]' : 'text-[#bdc3c7]'
+                    }`}
+                  >
+                    <span className={feature.available ? 'text-green-600 font-bold' : 'text-[#bdc3c7]'}>
+                      {feature.available ? '✓' : '–'}
+                    </span>
+                    {feature.text}
+                  </li>
+                ))}
+              </ul>
+              <button className={`w-full py-3 rounded font-semibold text-sm transition-all ${
+                plan.buttonPrimary 
+                  ? 'bg-[#f39c12] hover:bg-[#e67e22] text-white shadow-md' 
+                  : 'bg-gray-200 hover:bg-gray-300 text-[#2c3e50] border border-[#bdc3c7]'
+              }`}>
+                {plan.buttonText}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="max-w-5xl mx-auto px-5 py-20">
+        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-12">Everything You Need for Burner Design</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((feature) => (
             <Link
               key={feature.id}
               to={feature.to}
-              className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+              className="bg-white rounded-lg p-6 border border-gray-300 hover:shadow-lg transition-shadow group"
             >
-              <div className="h-1 bg-slate-300"></div>
-              <div className="p-6">
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 text-2xl ${feature.bgColor} ${feature.color} transition-transform group-hover:scale-110`}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-2 group-hover:text-blue-700 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-slate-600 mb-4">
-                  {feature.description}
-                </p>
-                <div className="flex items-center text-blue-600 font-medium text-sm">
-                  <span>Enter Module</span>
-                  <svg className="w-4 h-4 ml-2 group-hover:ml-3 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md">
+                {React.cloneElement(feature.icon as React.ReactElement, { className: 'text-white' })}
               </div>
+              <h3 className="text-lg font-semibold text-[#2c3e50] mb-2 flex items-center">
+                {feature.title}
+                {feature.pro && (
+                  <span className="ml-2 bg-[#f39c12] text-white px-2 py-0.5 rounded text-xs font-semibold">PRO</span>
+                )}
+              </h3>
+              <p className="text-[#7f8c8d] text-sm leading-relaxed">{feature.description}</p>
             </Link>
           ))}
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-slate-200">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-3">
-                <span className="text-lg">⚙️</span>
-              </div>
-              <h4 className="text-base font-semibold text-slate-800">Precise Calculation</h4>
-            </div>
-            <p className="text-sm text-slate-600">Accurate calculation engine based on scientific combustion theory</p>
-          </div>
-          
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-slate-200">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 mr-3">
-                <span className="text-lg">📊</span>
-              </div>
-              <h4 className="text-base font-semibold text-slate-800">Professional Interface</h4>
-            </div>
-            <p className="text-sm text-slate-600">Industrial style design with intuitive operation</p>
-          </div>
-          
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-slate-200">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600 mr-3">
-                <span className="text-lg">⚡</span>
-              </div>
-              <h4 className="text-base font-semibold text-slate-800">Fast Response</h4>
-            </div>
-            <p className="text-sm text-slate-600">Real-time calculation with instant results</p>
-          </div>
+      {/* Footer */}
+      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
+        <div className="flex justify-center gap-8 mb-5 flex-wrap">
+          <a href="#features" className="text-sm hover:text-white transition-colors">Features</a>
+          <a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
+          <a href="#about" className="text-sm hover:text-white transition-colors">About</a>
+          <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
+          <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
         </div>
-
-        <footer className="mt-12 pt-6 border-t border-slate-200 text-center text-slate-500 text-sm">
-          <p>© 2025 Burner Design Pro. Designed for industrial combustion.</p>
-        </footer>
-      </div>
+        <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
+      </footer>
     </div>
   )
 }
