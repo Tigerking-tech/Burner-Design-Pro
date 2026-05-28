@@ -55,112 +55,138 @@ const gasTypes = [
 
 function RestrictingOrificeDiagram() {
   return (
-    <svg viewBox="0 0 450 300" className="w-full h-auto">
-      <rect x="50" y="70" width="350" height="110" fill="#E0C84F" stroke="#000" strokeWidth="2.5" rx="1"/>
+    <svg viewBox="0 0 480 320" className="w-full h-auto">
+      <rect x="50" y="80" width="380" height="110" fill="#E8C44A" stroke="#000" strokeWidth="2.5" rx="1"/>
       
-      <line x1="195" y1="70" x2="195" y2="180" stroke="#000" strokeWidth="3"/>
-      <line x1="212" y1="85" x2="212" y2="165" stroke="#000" strokeWidth="3"/>
+      <line x1="200" y1="55" x2="200" y2="215" stroke="#000" strokeWidth="4"/>
+      <line x1="218" y1="70" x2="218" y2="200" stroke="#000" strokeWidth="4"/>
       
-      <path d="M 188 165 L 178 182 L 198 182 Z" fill="#000"/>
-      <path d="M 219 165 L 229 182 L 209 182 Z" fill="#000"/>
+      <line x1="197" y1="125" x2="221" y2="125" stroke="#000" strokeWidth="1.5"/>
 
       <defs>
         <marker id="arrow-up-d" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
-          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
+          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-down-d" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
-          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
+          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-left" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
-          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
+          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-right" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
-          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
+          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
-        <marker id="arrow-right-q" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-          <polygon points="10 0, 0 4, 10 8" fill="#000"/>
+        <marker id="arrow-right-q" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
+        </marker>
+        <marker id="arrow-left-dp" markerWidth="10" markerHeight="9" refX="1" refY="4.5" orient="auto-start-reverse">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
+        </marker>
+        <marker id="arrow-right-dp" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
         </marker>
       </defs>
 
-      <line x1="58" y1="95" x2="58" y2="155" stroke="#000" strokeWidth="1.2"
+      <line x1="60" y1="105" x2="60" y2="165" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
-      <text x="35" y="130" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
+      <text x="35" y="140" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
 
-      <line x1="197" y1="105" x2="210" y2="145" stroke="#000" strokeWidth="1.2"
+      <line x1="203" y1="115" x2="215" y2="155" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
-      <text x="218" y="130" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
+      <text x="223" y="140" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
 
-      <line x1="320" y1="125" x2="365" y2="125" stroke="#000" strokeWidth="1.5"
+      <line x1="340" y1="135" x2="395" y2="135" stroke="#000" strokeWidth="1.5"
             markerEnd="url(#arrow-right-q)"/>
-      <text x="338" y="115" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
+      <text x="363" y="125" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
 
-      <line x1="80" y1="210" x2="155" y2="210" stroke="#000" strokeWidth="1.2"
+      <path d="M 120 190 L 118 205 Q 116 212 120 215 L 145 215 Q 149 212 147 205 L 145 190 Z" 
+            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
+      <line x1="132" y1="215" x2="132" y2="225" stroke="#000" strokeWidth="1.5"/>
+      
+      <path d="M 330 190 L 328 205 Q 326 212 330 215 L 355 215 Q 359 212 357 205 L 355 190 Z" 
+            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
+      <line x1="342" y1="215" x2="342" y2="225" stroke="#000" strokeWidth="1.5"/>
+
+      <line x1="95" y1="235" x2="165" y2="235" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
-      <text x="102" y="228" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
+      <text x="113" y="255" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
 
-      <line x1="255" y1="210" x2="330" y2="210" stroke="#000" strokeWidth="1.2"
+      <line x1="310" y1="235" x2="380" y2="235" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
-      <text x="277" y="228" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
+      <text x="328" y="255" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
 
-      <rect x="105" y="180" width="22" height="12" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
-      <rect x="278" y="180" width="22" height="12" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
+      <line x1="132" y1="275" x2="342" y2="275" stroke="#000" strokeWidth="1.8"
+            markerStart="url(#arrow-left-dp)" markerEnd="url(#arrow-right-dp)"/>
+      <text x="230" y="267" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
 
-      <line x1="108" y1="255" x2="305" y2="255" stroke="#000" strokeWidth="1.8"
-            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
-      <text x="195" y="248" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
+      <line x1="132" y1="225" x2="132" y2="270" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="342" y1="225" x2="342" y2="270" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
 
-      <text x="120" y="280" fontSize="14" fill="#333" fontFamily="Arial, sans-serif">Medium temperature 10 – 30°C</text>
+      <text x="135" y="300" fontSize="14" fill="#333" fontFamily="Arial, sans-serif">Medium temperature 10 – 30°C</text>
     </svg>
   )
 }
 
 function MeasuringOrificeDiagram() {
   return (
-    <svg viewBox="0 0 400 260" className="w-full h-auto">
-      <rect x="50" y="70" width="300" height="110" fill="#E0C84F" stroke="#000" strokeWidth="2.5" rx="1"/>
+    <svg viewBox="0 0 420 280" className="w-full h-auto">
+      <rect x="50" y="80" width="320" height="110" fill="#E8C44A" stroke="#000" strokeWidth="2.5" rx="1"/>
       
-      <line x1="195" y1="70" x2="195" y2="180" stroke="#000" strokeWidth="3"/>
-      <line x1="212" y1="85" x2="212" y2="165" stroke="#000" strokeWidth="3"/>
+      <line x1="195" y1="55" x2="195" y2="215" stroke="#000" strokeWidth="4"/>
+      <line x1="213" y1="70" x2="213" y2="200" stroke="#000" strokeWidth="4"/>
       
-      <path d="M 188 165 L 178 182 L 198 182 Z" fill="#000"/>
-      <path d="M 219 165 L 229 182 L 209 182 Z" fill="#000"/>
+      <line x1="192" y1="125" x2="216" y2="125" stroke="#000" strokeWidth="1.5"/>
 
       <defs>
         <marker id="arrow-up-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
-          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
+          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-down-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
-          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
+          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-left2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
-          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
+          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
         <marker id="arrow-right2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
-          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
+          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
         </marker>
-        <marker id="arrow-right-q2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-          <polygon points="10 0, 0 4, 10 8" fill="#000"/>
+        <marker id="arrow-right-q2" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
+        </marker>
+        <marker id="arrow-left-dp2" markerWidth="10" markerHeight="9" refX="1" refY="4.5" orient="auto-start-reverse">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
+        </marker>
+        <marker id="arrow-right-dp2" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
+          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
         </marker>
       </defs>
 
-      <line x1="58" y1="95" x2="58" y2="155" stroke="#000" strokeWidth="1.2"
+      <line x1="58" y1="105" x2="58" y2="165" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
-      <text x="35" y="130" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
+      <text x="33" y="140" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
 
-      <line x1="197" y1="105" x2="210" y2="145" stroke="#000" strokeWidth="1.2"
+      <line x1="198" y1="115" x2="210" y2="155" stroke="#000" strokeWidth="1.2"
             markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
-      <text x="218" y="130" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
+      <text x="218" y="140" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
 
-      <line x1="270" y1="125" x2="315" y2="125" stroke="#000" strokeWidth="1.5"
+      <line x1="290" y1="135" x2="345" y2="135" stroke="#000" strokeWidth="1.5"
             markerEnd="url(#arrow-right-q2)"/>
-      <text x="288" y="115" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
+      <text x="313" y="125" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
 
-      <rect x="178" y="180" width="16" height="11" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
-      <rect x="213" y="180" width="16" height="11" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
+      <path d="M 185 190 L 183 205 Q 181 212 185 215 L 203 215 Q 207 212 205 205 L 203 190 Z" 
+            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
+      <line x1="194" y1="215" x2="194" y2="225" stroke="#000" strokeWidth="1.5"/>
+      
+      <path d="M 208 190 L 206 205 Q 204 212 208 215 L 226 215 Q 230 212 228 205 L 226 190 Z" 
+            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
+      <line x1="217" y1="215" x2="217" y2="225" stroke="#000" strokeWidth="1.5"/>
 
-      <line x1="175" y1="225" x2="232" y2="225" stroke="#000" strokeWidth="1.8"
-            markerStart="url(#arrow-left2)" markerEnd="url(#arrow-right2)"/>
-      <text x="196" y="217" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
+      <line x1="194" y1="240" x2="217" y2="240" stroke="#000" strokeWidth="1.8"
+            markerStart="url(#arrow-left-dp2)" markerEnd="url(#arrow-right-dp2)"/>
+      <text x="198" y="232" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
+
+      <line x1="194" y1="225" x2="194" y2="237" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
+      <line x1="217" y1="225" x2="217" y2="237" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
     </svg>
   )
 }
