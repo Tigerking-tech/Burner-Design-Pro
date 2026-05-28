@@ -55,56 +55,61 @@ const gasTypes = [
 
 function RestrictingOrificeDiagram() {
   return (
-    <svg viewBox="0 0 400 280" className="w-full h-auto">
-      <rect x="40" y="60" width="320" height="120" fill="#F4C430" stroke="#000" strokeWidth="3" rx="2"/>
+    <svg viewBox="0 0 450 300" className="w-full h-auto">
+      <rect x="50" y="70" width="350" height="110" fill="#E0C84F" stroke="#000" strokeWidth="2.5" rx="1"/>
       
-      <line x1="190" y1="60" x2="190" y2="180" stroke="#000" strokeWidth="5"/>
-      <line x1="205" y1="75" x2="205" y2="165" stroke="#000" strokeWidth="5"/>
+      <line x1="195" y1="70" x2="195" y2="180" stroke="#000" strokeWidth="3"/>
+      <line x1="212" y1="85" x2="212" y2="165" stroke="#000" strokeWidth="3"/>
       
-      <path d="M 185 165 L 175 180 L 195 180 Z" fill="#000"/>
-      <path d="M 210 165 L 220 180 L 200 180 Z" fill="#000"/>
-      
+      <path d="M 188 165 L 178 182 L 198 182 Z" fill="#000"/>
+      <path d="M 219 165 L 229 182 L 209 182 Z" fill="#000"/>
+
       <defs>
-        <marker id="arrowhead-left" markerWidth="8" markerHeight="8" refX="0" refY="3" orient="auto">
-          <polygon points="8 0, 0 3, 8 6" fill="#000"/>
+        <marker id="arrow-up-d" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
+          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-right" markerWidth="8" markerHeight="8" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="#000"/>
+        <marker id="arrow-down-d" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
+          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-up" markerWidth="8" markerHeight="8" refX="3" refY="0" orient="auto">
-          <polygon points="0 8, 3 0, 6 8" fill="#000"/>
+        <marker id="arrow-left" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-down" markerWidth="8" markerHeight="8" refX="3" refY="8" orient="auto">
-          <polygon points="0 0, 3 8, 6 0" fill="#000"/>
+        <marker id="arrow-right" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-q" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-          <polygon points="0 0, 10 3, 0 6" fill="#000"/>
+        <marker id="arrow-right-q" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="10 0, 0 4, 10 8" fill="#000"/>
         </marker>
       </defs>
 
-      <line x1="45" y1="90" x2="45" y2="150" stroke="#000" strokeWidth="1.5"
-            markerStart="url(#arrowhead-up)" markerEnd="url(#arrowhead-down)"/>
-      <text x="25" y="125" fontSize="16" fill="#000" fontWeight="bold">D</text>
+      <line x1="58" y1="95" x2="58" y2="155" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
+      <text x="35" y="130" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
 
-      <line x1="192" y1="100" x2="203" y2="140" stroke="#000" strokeWidth="1.5"
-            markerStart="url(#arrowhead-up)" markerEnd="url(#arrowhead-down)"/>
-      <text x="212" y="125" fontSize="14" fill="#000" fontWeight="bold">d</text>
+      <line x1="197" y1="105" x2="210" y2="145" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
+      <text x="218" y="130" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
 
-      <line x1="300" y1="115" x2="340" y2="115" stroke="#000" strokeWidth="2"
-            markerEnd="url(#arrowhead-q)"/>
-      <text x="315" y="105" fontSize="16" fill="#000" fontWeight="bold">Q</text>
+      <line x1="320" y1="125" x2="365" y2="125" stroke="#000" strokeWidth="1.5"
+            markerEnd="url(#arrow-right-q)"/>
+      <text x="338" y="115" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
 
-      <line x1="70" y1="200" x2="140" y2="200" stroke="#000" strokeWidth="1.5"/>
-      <text x="85" y="218" fontSize="12" fill="#000" fontWeight="bold">5×DN</text>
+      <line x1="80" y1="210" x2="155" y2="210" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
+      <text x="102" y="228" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
 
-      <line x1="260" y1="200" x2="330" y2="200" stroke="#000" strokeWidth="1.5"/>
-      <text x="275" y="218" fontSize="12" fill="#000" fontWeight="bold">5×DN</text>
+      <line x1="255" y1="210" x2="330" y2="210" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
+      <text x="277" y="228" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
 
-      <line x1="95" y1="240" x2="305" y2="240" stroke="#000" strokeWidth="2"
-            markerStart="url(#arrowhead-left)" markerEnd="url(#arrowhead-right)"/>
-      <text x="185" y="235" fontSize="18" fill="#000" fontWeight="bold">Δp</text>
+      <rect x="105" y="180" width="22" height="12" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
+      <rect x="278" y="180" width="22" height="12" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
 
-      <text x="110" y="265" fontSize="11" fill="#333">Medium temperature 10 – 30°C</text>
+      <line x1="108" y1="255" x2="305" y2="255" stroke="#000" strokeWidth="1.8"
+            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
+      <text x="195" y="248" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
+
+      <text x="120" y="280" fontSize="14" fill="#333" fontFamily="Arial, sans-serif">Medium temperature 10 – 30°C</text>
     </svg>
   )
 }
@@ -112,49 +117,50 @@ function RestrictingOrificeDiagram() {
 function MeasuringOrificeDiagram() {
   return (
     <svg viewBox="0 0 400 260" className="w-full h-auto">
-      <rect x="40" y="60" width="320" height="120" fill="#F4C430" stroke="#000" strokeWidth="3" rx="2"/>
+      <rect x="50" y="70" width="300" height="110" fill="#E0C84F" stroke="#000" strokeWidth="2.5" rx="1"/>
       
-      <line x1="190" y1="60" x2="190" y2="180" stroke="#000" strokeWidth="5"/>
-      <line x1="205" y1="75" x2="205" y2="165" stroke="#000" strokeWidth="5"/>
+      <line x1="195" y1="70" x2="195" y2="180" stroke="#000" strokeWidth="3"/>
+      <line x1="212" y1="85" x2="212" y2="165" stroke="#000" strokeWidth="3"/>
       
-      <path d="M 185 165 L 175 180 L 195 180 Z" fill="#000"/>
-      <path d="M 210 165 L 220 180 L 200 180 Z" fill="#000"/>
+      <path d="M 188 165 L 178 182 L 198 182 Z" fill="#000"/>
+      <path d="M 219 165 L 229 182 L 209 182 Z" fill="#000"/>
 
       <defs>
-        <marker id="arrowhead-left2" markerWidth="8" markerHeight="8" refX="0" refY="3" orient="auto">
-          <polygon points="8 0, 0 3, 8 6" fill="#000"/>
+        <marker id="arrow-up-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
+          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-right2" markerWidth="8" markerHeight="8" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="#000"/>
+        <marker id="arrow-down-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
+          <polygon points="3.5 0, 0 7, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-up2" markerWidth="8" markerHeight="8" refX="3" refY="0" orient="auto">
-          <polygon points="0 8, 3 0, 6 8" fill="#000"/>
+        <marker id="arrow-left2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-down2" markerWidth="8" markerHeight="8" refX="3" refY="8" orient="auto">
-          <polygon points="0 0, 3 8, 6 0" fill="#000"/>
+        <marker id="arrow-right2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+          <polygon points="7 0, 0 3.5, 7 7" fill="#000"/>
         </marker>
-        <marker id="arrowhead-q2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-          <polygon points="0 0, 10 3, 0 6" fill="#000"/>
+        <marker id="arrow-right-q2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="10 0, 0 4, 10 8" fill="#000"/>
         </marker>
       </defs>
 
-      <line x1="45" y1="90" x2="45" y2="150" stroke="#000" strokeWidth="1.5"
-            markerStart="url(#arrowhead-up2)" markerEnd="url(#arrowhead-down2)"/>
-      <text x="25" y="125" fontSize="16" fill="#000" fontWeight="bold">D</text>
+      <line x1="58" y1="95" x2="58" y2="155" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
+      <text x="35" y="130" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
 
-      <line x1="192" y1="100" x2="203" y2="140" stroke="#000" strokeWidth="1.5"
-            markerStart="url(#arrowhead-up2)" markerEnd="url(#arrowhead-down2)"/>
-      <text x="212" y="125" fontSize="14" fill="#000" fontWeight="bold">d</text>
+      <line x1="197" y1="105" x2="210" y2="145" stroke="#000" strokeWidth="1.2"
+            markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
+      <text x="218" y="130" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
 
-      <line x1="300" y1="115" x2="340" y2="115" stroke="#000" strokeWidth="2"
-            markerEnd="url(#arrowhead-q2)"/>
-      <text x="315" y="105" fontSize="16" fill="#000" fontWeight="bold">Q</text>
+      <line x1="270" y1="125" x2="315" y2="125" stroke="#000" strokeWidth="1.5"
+            markerEnd="url(#arrow-right-q2)"/>
+      <text x="288" y="115" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
 
-      <line x1="170" y1="225" x2="230" y2="225" stroke="#000" strokeWidth="2"
-            markerStart="url(#arrowhead-left2)" markerEnd="url(#arrowhead-right2)"/>
-      <text x="188" y="218" fontSize="18" fill="#000" fontWeight="bold">Δp</text>
+      <rect x="178" y="180" width="16" height="11" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
+      <rect x="213" y="180" width="16" height="11" fill="#E0C84F" stroke="#000" strokeWidth="1.5"/>
 
-      <text x="130" y="248" fontSize="11" fill="#333">Medium temperature 10 – 30°C</text>
+      <line x1="175" y1="225" x2="232" y2="225" stroke="#000" strokeWidth="1.8"
+            markerStart="url(#arrow-left2)" markerEnd="url(#arrow-right2)"/>
+      <text x="196" y="217" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
     </svg>
   )
 }
@@ -349,7 +355,7 @@ export default function OrificeCalculatorPage() {
           </div>
         </nav>
 
-        <section className="bg-gradient-to-br from-[#2B6FA0] to-[#1e4d73] text-white py-16 px-6 text-center">
+        <section className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4d73] text-white py-16 px-6 text-center border-r-4 border-r-[#2B8BD6]">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-semibold mb-4 leading-tight">
               Determining the Orifices
@@ -362,9 +368,9 @@ export default function OrificeCalculatorPage() {
 
         <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-8">
 
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-            <div className="bg-[#2B6FA0] text-white px-6 py-4">
-              <h2 className="text-xl font-semibold">
+          <div className="bg-white rounded shadow overflow-hidden border border-gray-200">
+            <div className="bg-[#2B6BA0] text-white px-6 py-3">
+              <h2 className="text-base font-normal">
                 Determining the {calculationMode === 'restricting' ? 'restricting' : 'measuring'} orifice
               </h2>
             </div>
@@ -372,12 +378,12 @@ export default function OrificeCalculatorPage() {
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
                 <div className="space-y-4">
-                  <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex flex-col md:flex-row gap-3">
                     <button
                       onClick={() => setCalculationMode('restricting')}
-                      className={`flex-1 py-3 px-4 rounded font-medium transition-all ${
+                      className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
                         calculationMode === 'restricting'
-                          ? 'bg-[#2B6FA0] text-white shadow-md'
+                          ? 'bg-[#2B6BA0] text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -385,9 +391,9 @@ export default function OrificeCalculatorPage() {
                     </button>
                     <button
                       onClick={() => setCalculationMode('measuring')}
-                      className={`flex-1 py-3 px-4 rounded font-medium transition-all ${
+                      className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
                         calculationMode === 'measuring'
-                          ? 'bg-[#2B6FA0] text-white shadow-md'
+                          ? 'bg-[#2B6BA0] text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -396,7 +402,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       Gas type
                     </label>
                     <select
@@ -405,7 +411,7 @@ export default function OrificeCalculatorPage() {
                         const gas = gasTypes.find(g => g.name === e.target.value)
                         if (gas) setSelectedGasType(gas)
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     >
                       {gasTypes.map((gas) => (
                         <option key={gas.name} value={gas.name}>
@@ -416,7 +422,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       Density (kg/m³)
                     </label>
                     <input
@@ -424,18 +430,18 @@ export default function OrificeCalculatorPage() {
                       value={customDensity}
                       onChange={(e) => setCustomDensity(e.target.value)}
                       step="0.01"
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       Nominal size DN
                     </label>
                     <select
                       value={selectedPipeDN}
                       onChange={(e) => setSelectedPipeDN(parseFloat(e.target.value))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     >
                       {pipeDiameters.map((pipe) => (
                         <option key={pipe.value} value={pipe.value}>
@@ -446,7 +452,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       Tube internal diameter D (mm, max 325)
                     </label>
                     <input
@@ -454,12 +460,12 @@ export default function OrificeCalculatorPage() {
                       value={internalDiameter}
                       onChange={(e) => setInternalDiameter(e.target.value)}
                       max="325"
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       Max. flow rate Q (m³/h, max 10000)
                     </label>
                     <input
@@ -467,12 +473,12 @@ export default function OrificeCalculatorPage() {
                       value={maxFlowRate}
                       onChange={(e) => setMaxFlowRate(e.target.value)}
                       max="10000"
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-normal text-black mb-1.5">
                       {calculationMode === 'restricting' 
                         ? 'Pressure loss Δp (mbar, max 100)' 
                         : 'Differential pressure Δp (mbar, max 100)'
@@ -483,12 +489,12 @@ export default function OrificeCalculatorPage() {
                       value={pressureDrop}
                       onChange={(e) => setPressureDrop(e.target.value)}
                       max="100"
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#2B6FA0] focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-start justify-center bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-start justify-center bg-white p-4 rounded border border-gray-200">
                   {calculationMode === 'restricting' ? (
                     <RestrictingOrificeDiagram />
                   ) : (
@@ -497,16 +503,16 @@ export default function OrificeCalculatorPage() {
                 </div>
               </div>
 
-              <div className="border-t pt-6 mt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Output</h3>
+              <div className="border-t pt-5 mt-5">
+                <h3 className="text-base font-semibold text-gray-800 mb-3">Output</h3>
                 
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-3 mb-5">
                   <button
                     onClick={() => setOutputMode('orifice')}
-                    className={`px-6 py-2 rounded font-medium transition-all ${
+                    className={`px-5 py-2 rounded text-sm font-medium transition-all ${
                       outputMode === 'orifice'
-                        ? 'bg-[#2B6FA0] text-white'
-                        : 'bg-white border-2 border-[#2B6FA0] text-[#2B6FA0]'
+                        ? 'bg-[#2B6BA0] text-white'
+                        : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
                     }`}
                   >
                     Orifice diameter d
@@ -514,10 +520,10 @@ export default function OrificeCalculatorPage() {
                   
                   <button
                     onClick={() => setOutputMode('pressure')}
-                    className={`px-6 py-2 rounded font-medium transition-all ${
+                    className={`px-5 py-2 rounded text-sm font-medium transition-all ${
                       outputMode === 'pressure'
-                        ? 'bg-[#2B6FA0] text-white'
-                        : 'bg-white border-2 border-[#2B6FA0] text-[#2B6FA0]'
+                        ? 'bg-[#2B6BA0] text-white'
+                        : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
                     }`}
                   >
                     {calculationMode === 'restricting' ? 'Pressure loss Δp' : 'Differential pressure Δp'}
@@ -526,10 +532,10 @@ export default function OrificeCalculatorPage() {
                   {calculationMode === 'restricting' && (
                     <button
                       onClick={() => setOutputMode('flowrate')}
-                      className={`px-6 py-2 rounded font-medium transition-all ${
+                      className={`px-5 py-2 rounded text-sm font-medium transition-all ${
                         outputMode === 'flowrate'
-                          ? 'bg-[#2B6FA0] text-white'
-                          : 'bg-white border-2 border-[#2B6FA0] text-[#2B6FA0]'
+                          ? 'bg-[#2B6BA0] text-white'
+                          : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
                       }`}
                     >
                       Max. flow rate Q
@@ -537,24 +543,24 @@ export default function OrificeCalculatorPage() {
                   )}
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <button
                     onClick={() => handleProAction(calculateOrifice)}
-                    className="flex-1 bg-[#2B6FA0] hover:bg-[#1e4d73] text-white py-3 rounded font-semibold transition-all shadow-md"
+                    className="flex-1 bg-[#2B6BA0] hover:bg-[#1e4d73] text-white py-2.5 rounded text-base font-medium transition-all shadow-md"
                   >
                     Calculate
                   </button>
                   <button
                     onClick={resetForm}
-                    className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded font-semibold transition-all"
+                    className="px-5 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2.5 rounded text-base font-medium transition-all"
                   >
                     Reset
                   </button>
                 </div>
 
                 {showResults && results && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <div className="text-3xl font-bold text-[#2B6FA0] mb-2">
+                  <div className="mt-5 p-4 bg-gray-50 rounded border border-gray-200">
+                    <div className="text-3xl font-bold text-[#2B6BA0] mb-1">
                       {outputMode === 'orifice' && `${results.orificeDiameter}`}
                       {outputMode === 'pressure' && `${results.pressureDrop}`}
                       {outputMode === 'flowrate' && results.massFlowRate.toFixed(2)}
@@ -565,30 +571,32 @@ export default function OrificeCalculatorPage() {
                       {outputMode === 'flowrate' && 'kg/s'}
                     </div>
                     
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                      <div><span className="font-semibold">Beta Ratio:</span> {results.betaRatio}</div>
-                      <div><span className="font-semibold">Cd:</span> {results.dischargeCoef}</div>
-                      <div><span className="font-semibold">Re:</span> {results.reynoldsNum.toLocaleString()}</div>
-                      <div><span className="font-semibold">Velocity:</span> {results.velocity.toFixed(2)} m/s</div>
+                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      <div><span className="font-medium">Beta Ratio:</span> {results.betaRatio}</div>
+                      <div><span className="font-medium">Cd:</span> {results.dischargeCoef}</div>
+                      <div><span className="font-medium">Re:</span> {results.reynoldsNum.toLocaleString()}</div>
+                      <div><span className="font-medium">Velocity:</span> {results.velocity.toFixed(2)} m/s</div>
                     </div>
 
                     <button
                       onClick={() => handleProAction(exportToPDF)}
-                      className="mt-4 bg-[#27ae60] hover:bg-[#229954] text-white py-2 px-6 rounded font-semibold transition-all inline-flex items-center gap-2"
+                      className="mt-3 bg-[#27ae60] hover:bg-[#229954] text-white py-2 px-5 rounded text-sm font-medium transition-all inline-flex items-center gap-2"
                     >
-                      <Download size={16} />
+                      <Download size={14} />
                       Export to PDF
                     </button>
                   </div>
                 )}
 
-                <div className="mt-4 text-sm text-gray-600">
-                  Medium temperature 10 – 30°C
-                </div>
+                {calculationMode === 'restricting' && (
+                  <div className="mt-3 text-sm text-gray-600">
+                    Medium temperature 10 – 30°C
+                  </div>
+                )}
 
                 {calculationMode === 'measuring' && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-[#2B6FA0]">
-                    <a href="#" className="text-[#2B6FA0] hover:underline font-medium">
+                  <div className="mt-3 p-2.5 bg-blue-50 rounded border-l-3 border-[#2B6BA0]">
+                    <a href="#" className="text-[#2B6BA0] hover:underline text-sm font-medium">
                       To calculate the measuring orifice VMO, please use the app 'Nominal size DN'.
                     </a>
                   </div>
@@ -598,8 +606,8 @@ export default function OrificeCalculatorPage() {
           </div>
 
           {showResults && curveData.length > 0 && (
-            <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">
+            <div className="bg-white rounded p-6 shadow border border-gray-200">
+              <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
                 Discharge Coefficient vs Beta Ratio
               </h2>
               <ResponsiveContainer width="100%" height={350}>
@@ -627,7 +635,7 @@ export default function OrificeCalculatorPage() {
                   <Line 
                     type="monotone" 
                     dataKey="dischargeCoef" 
-                    stroke="#2B6FA0" 
+                    stroke="#2B6BA0" 
                     strokeWidth={2}
                     dot={false}
                     name="Cd"
@@ -638,52 +646,56 @@ export default function OrificeCalculatorPage() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
-                <Info className="text-[#2B6FA0]" />
+            <div className="bg-white rounded p-6 shadow border border-gray-200">
+              <h3 className="text-base font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
+                <Info className="text-[#2B6BA0]" />
                 Standards & References
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-[#27ae60] rounded-full mt-2"></div>
                   <div>
-                    <div className="font-semibold text-gray-800">ISO 5167-1:2003</div>
+                    <div className="font-medium text-gray-800">ISO 5167-1:2003</div>
                     <div className="text-gray-600">Measurement of fluid flow by means of orifice plates</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-[#27ae60] rounded-full mt-2"></div>
                   <div>
-                    <div className="font-semibold text-gray-800">DIN EN ISO 5167</div>
+                    <div className="font-medium text-gray-800">DIN EN ISO 5167</div>
                     <div className="text-gray-600">German standard for orifice plate measurements</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
+            <div className="bg-white rounded p-6 shadow border border-gray-200">
+              <h3 className="text-base font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
                 <AlertCircle className="text-[#e67e22]" />
                 Application Notes
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="p-3 bg-yellow-50 rounded border-l-4 border-yellow-400">
-                  <div className="font-semibold text-yellow-800">Temperature Range</div>
+                  <div className="font-medium text-yellow-800">Temperature Range</div>
                   <div className="text-yellow-700">Medium temperature should be between 10-30°C</div>
                 </div>
                 <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                  <div className="font-semibold text-blue-800">Flow Limits</div>
+                  <div className="font-medium text-blue-800">Flow Limits</div>
                   <div className="text-blue-700">Maximum flow rate: 10,000 m³/h<br/>Maximum pressure drop: 100 mbar<br/>Maximum pipe diameter: 325 mm</div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="text-xs text-gray-500 text-center pb-4">
+            Edition 10.24 &nbsp;&nbsp;&nbsp;&nbsp; © 2026 Elster GmbH &nbsp;&nbsp;&nbsp;&nbsp; Imprint &nbsp;&nbsp;&nbsp;&nbsp; Privacy Policy
           </div>
         </div>
       </div>
 
       {showSubscriptionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+          <div className="bg-white rounded shadow-2xl max-w-md w-full p-6">
             <h3 className="text-2xl font-bold text-[#2c3e50] mb-4">Pro Feature</h3>
             <p className="text-gray-600 mb-6">
               This feature is available for Pro users. Upgrade your account to unlock advanced calculations and PDF export features.
@@ -691,7 +703,7 @@ export default function OrificeCalculatorPage() {
             <div className="flex gap-4">
               <button
                 onClick={() => window.location.href = '/subscription'}
-                className="flex-1 bg-[#2B6FA0] hover:bg-[#1e4d73] text-white py-3 rounded-lg font-semibold transition-all"
+                className="flex-1 bg-[#2B6BA0] hover:bg-[#1e4d73] text-white py-3 rounded-lg font-semibold transition-all"
               >
                 Upgrade Now
               </button>
