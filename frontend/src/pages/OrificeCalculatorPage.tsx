@@ -477,7 +477,7 @@ export default function OrificeCalculatorPage() {
                         const gas = gasTypes.find(g => g.name === e.target.value)
                         if (gas) setSelectedGasType(gas)
                       }}
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     >
                       {gasTypes.map((gas) => (
                         <option key={gas.name} value={gas.name}>
@@ -507,7 +507,7 @@ export default function OrificeCalculatorPage() {
                     <select
                       value={selectedPipeDN}
                       onChange={(e) => setSelectedPipeDN(parseFloat(e.target.value))}
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     >
                       {pipeDiameters.map((pipe) => (
                         <option key={pipe.value} value={pipe.value}>
