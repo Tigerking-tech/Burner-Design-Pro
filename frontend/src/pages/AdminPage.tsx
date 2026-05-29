@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authAPI, adminAPI, User, Order, WithdrawalRequest } from "../services/api"
+import PasswordInput from "../components/PasswordInput"
 
 type AdminTab = "users" | "orders" | "revenue" | "withdrawals"
 
@@ -195,12 +196,10 @@ export default function AdminPage() {
                   </h3>
                   <form onSubmit={handleChangeUserPassword} className="flex flex-col md:flex-row gap-3 items-end">
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                      <input
-                        type="password"
+                      <PasswordInput
+                        label="New Password"
                         value={newUserPassword}
-                        onChange={(e) => setNewUserPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                        onChange={setNewUserPassword}
                         required
                         minLength={8}
                       />
@@ -208,12 +207,10 @@ export default function AdminPage() {
                     </div>
                     
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                      <input
-                        type="password"
+                      <PasswordInput
+                        label="Confirm Password"
                         value={confirmNewPassword}
-                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                        onChange={setConfirmNewPassword}
                         required
                         minLength={8}
                       />

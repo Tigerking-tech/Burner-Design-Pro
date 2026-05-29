@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order } from "../services/api"
+import PasswordInput from "../components/PasswordInput"
 
 export default function AccountPage() {
   const navigate = useNavigate()
@@ -188,41 +189,31 @@ export default function AccountPage() {
           <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
             <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Change Password</h2>
             <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0] text-gray-900"
-                  required
-                />
-              </div>
+              <PasswordInput
+                label="Current Password"
+                value={currentPassword}
+                onChange={setCurrentPassword}
+                required
+              />
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                <input
-                  type="password"
+                <PasswordInput
+                  label="New Password"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0] text-gray-900"
+                  onChange={setNewPassword}
                   required
                   minLength={8}
                 />
                 <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0] text-gray-900"
-                  required
-                  minLength={8}
-                />
-              </div>
+              <PasswordInput
+                label="Confirm New Password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                required
+                minLength={8}
+              />
               
               <button
                 type="submit"

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import PasswordInput from '../components/PasswordInput'
 
 export default function SignUpPage() {
   const navigate = useNavigate()
@@ -57,10 +58,10 @@ export default function SignUpPage() {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('userEmail', email)
-      
+
       navigate('/gas-calculator')
     } catch (error) {
       console.error('Registration failed:', error)
@@ -111,24 +112,14 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#555] mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
+              <PasswordInput
+                label="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
-                  errors.password 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
-                }`}
+                onChange={setPassword}
                 placeholder="Min. 8 characters"
+                error={!!errors.password}
+                errorMessage={errors.password}
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
               
               {password.length > 0 && (
                 <div className="mt-2">
@@ -155,26 +146,14 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#555] mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
-                  errors.confirmPassword 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
-                }`}
-                placeholder="Re-enter your password"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-              )}
-            </div>
+            <PasswordInput
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Re-enter your password"
+              error={!!errors.confirmPassword}
+              errorMessage={errors.confirmPassword}
+            />
 
             <button
               type="submit"

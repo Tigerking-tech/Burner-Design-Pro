@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authAPI } from "../services/api"
+import PasswordInput from "../components/PasswordInput"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -63,20 +64,13 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#555] mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+            <PasswordInput
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Enter your password"
+              required
+            />
 
             <button
               type="submit"
