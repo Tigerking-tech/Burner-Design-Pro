@@ -447,7 +447,7 @@ export default function FuelManagerPage() {
                     type="text"
                     value={gas1MixturePercent}
                     onChange={(e) => handleGasMixturePercentChange(e.target.value)}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center"
+                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center text-gray-900"
                   />
                   <span className="text-sm text-[#7f8c8d]">%</span>
                 </div>
@@ -461,7 +461,7 @@ export default function FuelManagerPage() {
                     setSelectedGas1Preset(e.target.value)
                     if (e.target.value) applyGasPreset(e.target.value, 1)
                   }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                 >
                   <option value="">Select gas type...</option>
                   {gasPresets.map(preset => (
@@ -480,7 +480,7 @@ export default function FuelManagerPage() {
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
                         placeholder="0"
                       />
                       <span className="text-xs text-[#7f8c8d]">%</span>
@@ -544,7 +544,7 @@ export default function FuelManagerPage() {
                     type="text"
                     value={(100 - (parseFloat(gas1MixturePercent) || 0)).toString()}
                     readOnly
-                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center bg-gray-100"
+                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center bg-gray-100 text-gray-900"
                   />
                   <span className="text-sm text-[#7f8c8d]">%</span>
                 </div>
@@ -558,7 +558,7 @@ export default function FuelManagerPage() {
                     setSelectedGas2Preset(e.target.value)
                     if (e.target.value) applyGasPreset(e.target.value, 2)
                   }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                 >
                   <option value="">Select gas type...</option>
                   {gasPresets.map(preset => (
@@ -577,7 +577,7 @@ export default function FuelManagerPage() {
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
                         placeholder="0"
                       />
                       <span className="text-xs text-[#7f8c8d]">%</span>
@@ -680,7 +680,7 @@ export default function FuelManagerPage() {
               <select
                 value={selectedOil}
                 onChange={(e) => handleOilTypeChange(parseInt(e.target.value))}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
               >
                 {oilPresets.map((oil, index) => (
                   <option key={index} value={index}>{oil.name}</option>
@@ -699,7 +699,7 @@ export default function FuelManagerPage() {
                         type="text"
                         value={element.percentage}
                         onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
                         placeholder="0"
                       />
                       <span className="text-xs text-[#7f8c8d]">%</span>

@@ -98,7 +98,7 @@ export default function SignUpPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors ${
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
                   errors.email 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
@@ -119,7 +119,7 @@ export default function SignUpPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors ${
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
                   errors.password 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
@@ -164,7 +164,7 @@ export default function SignUpPage() {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors ${
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
                   errors.confirmPassword 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'

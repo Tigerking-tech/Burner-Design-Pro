@@ -360,7 +360,7 @@ export default function FlameTemperaturePage() {
                     setSelectedPreset(e.target.value)
                     if (e.target.value) applyPreset(e.target.value)
                   }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                 >
                   <option value="">Select gas type...</option>
                   {gasPresets.map((preset, i) => (
@@ -379,7 +379,7 @@ export default function FlameTemperaturePage() {
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
                         placeholder="0"
                       />
                       <span className="text-xs text-[#7f8c8d]">%</span>
@@ -409,7 +409,7 @@ export default function FlameTemperaturePage() {
                     type="text"
                     value={fuelTemperature}
                     onChange={(e) => setFuelTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                     placeholder="0"
                   />
                   <span className="text-sm text-[#7f8c8d]">°C</span>
@@ -504,7 +504,7 @@ export default function FlameTemperaturePage() {
                     type="text"
                     value={oxidizerTemperature}
                     onChange={(e) => setOxidizerTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                     placeholder="0"
                   />
                   <span className="text-sm text-[#7f8c8d]">°C</span>
@@ -518,7 +518,7 @@ export default function FlameTemperaturePage() {
                     type="text"
                     value={excessOxygen}
                     onChange={(e) => setExcessOxygen(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12]"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                     placeholder="0"
                   />
                   <span className="text-sm text-[#7f8c8d]">%</span>
