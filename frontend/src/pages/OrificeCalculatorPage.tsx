@@ -749,7 +749,6 @@ export default function OrificeCalculatorPage() {
           </div>
 
           <div className="text-xs text-gray-500 text-center pb-4">
-            Edition 10.24 &nbsp;&nbsp;&nbsp;&nbsp; © 2026 Elster GmbH &nbsp;&nbsp;&nbsp;&nbsp; Imprint &nbsp;&nbsp;&nbsp;&nbsp; Privacy Policy
           </div>
         </div>
       </div>
