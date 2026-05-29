@@ -23,6 +23,17 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ChangePassword(BaseModel):
+    """Model for changing password by user"""
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+
+
+class AdminChangePassword(BaseModel):
+    """Model for changing user password by admin"""
+    new_password: str = Field(..., min_length=8)
+
+
 class User(UserBase):
     """Full User model"""
     id: str

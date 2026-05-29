@@ -9,6 +9,7 @@ import uuid
 
 from app.models.user import (
     User, UserCreate, UserLogin, Token, TokenData,
+    ChangePassword, AdminChangePassword,
     in_memory_users, in_memory_passwords, email_to_user_id
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
@@ -170,4 +171,60 @@ async def get_pricing():
             }
             for tier_id, tier in SUBSCRIPTION_TIERS.items()
         ]
+    }
+
+
+@router.post("/change-password")
+async def change_password(
+    password_data: ChangePassword,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Change current user's password"""
+    # Verify current password
+    user_id = current_user.id
+    hashed_password = in_memory_passwords.get(user_id)
+    
+    if not hashed_password or not verify_password(password_data.current_password, hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Current password is incorrect"
+        )
+    
+    # Update with new password
+    new_hashed_password = get_password_hash(password_data.new_password)
+    in_memory_passwords[user_id] = new_hashed_password
+    
+    # Update user's updated_at timestamp
+    in_memory_users[user_id].updated_at = datetime.utcnow()
+    
+    return {
+        "success": True,
+        "message": "Password changed successfully"
+    }
+
+
+@router.post("/admin/users/{user_id}/change-password")
+async def admin_change_user_password(
+    user_id: str,
+    password_data: AdminChangePassword,
+    current_user: User = Depends(get_admin_user)
+):
+    """Change any user's password (admin only)"""
+    # Check if user exists
+    if user_id not in in_memory_users:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Update with new password
+    new_hashed_password = get_password_hash(password_data.new_password)
+    in_memory_passwords[user_id] = new_hashed_password
+    
+    # Update user's updated_at timestamp
+    in_memory_users[user_id].updated_at = datetime.utcnow()
+    
+    return {
+        "success": True,
+        "message": "User password changed successfully"
     }

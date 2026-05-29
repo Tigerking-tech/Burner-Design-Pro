@@ -10,8 +10,14 @@ export default function AccountPage() {
   const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [processingPayment, setProcessingPayment] = useState(false)
+  const [changingPassword, setChangingPassword] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  
+  // Password change form state
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
   useEffect(() => {
     if (!authAPI.isAuthenticated()) {
@@ -82,6 +88,43 @@ export default function AccountPage() {
     }
   }
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setSuccess("")
+    
+    // Validation
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters")
+      return
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setError("New passwords do not match")
+      return
+    }
+    
+    if (currentPassword === newPassword) {
+      setError("New password must be different from current password")
+      return
+    }
+    
+    setChangingPassword(true)
+    
+    try {
+      const result = await authAPI.changePassword(currentPassword, newPassword)
+      setSuccess(result.message)
+      // Reset form
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Password change failed")
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center">
@@ -139,6 +182,56 @@ export default function AccountPage() {
                 <p><strong>Expires:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
               )}
             </div>
+          </div>
+
+          {/* Change Password */}
+          <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
+            <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Change Password</h2>
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]"
+                  required
+                  minLength={8}
+                />
+                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]"
+                  required
+                  minLength={8}
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={changingPassword}
+                className="px-4 py-2 bg-[#2B6BA0] text-white rounded hover:bg-[#1e4d73] disabled:opacity-50 transition-colors"
+              >
+                {changingPassword ? "Changing..." : "Change Password"}
+              </button>
+            </form>
           </div>
 
           {/* Subscription Management */}

@@ -314,6 +314,19 @@ export const authAPI = {
     localStorage.removeItem('user')
   },
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Password change failed')
+    }
+    return response.json()
+  },
+
   async getCurrentUser(): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
       headers: getHeaders(),
@@ -500,6 +513,19 @@ export const adminAPI = {
     })
     if (!response.ok) {
       throw new Error('Failed to get users')
+    }
+    return response.json()
+  },
+
+  async changeUserPassword(userId: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/admin/users/${userId}/change-password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ new_password: newPassword }),
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Failed to change user password')
     }
     return response.json()
   },

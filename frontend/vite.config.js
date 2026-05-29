@@ -9,12 +9,12 @@ export default defineConfig({
             '/api': {
                 target: 'http://localhost:8000',
                 changeOrigin: true,
-                rewrite: function (path) { return path; },
+                rewrite: (path) => path,
             },
             '/health': {
                 target: 'http://localhost:8000',
                 changeOrigin: true,
-                rewrite: function (path) { return path; },
+                rewrite: (path) => path,
             },
         },
     },

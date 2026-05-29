@@ -18,6 +18,12 @@ export default function AdminPage() {
   // Withdrawal form state
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const [withdrawNotes, setWithdrawNotes] = useState("")
+  
+  // Password change form state
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [newUserPassword, setNewUserPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
+  const [changingUserPassword, setChangingUserPassword] = useState(false)
 
   useEffect(() => {
     if (!authAPI.isAuthenticated() || !authAPI.isAdmin()) {
@@ -79,6 +85,40 @@ export default function AdminPage() {
       await loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update withdrawal")
+    }
+  }
+  
+  const handleChangeUserPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedUserId) return
+    
+    setError("")
+    
+    // Validation
+    if (newUserPassword.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+    
+    if (newUserPassword !== confirmNewPassword) {
+      setError("Passwords do not match")
+      return
+    }
+    
+    setChangingUserPassword(true)
+    
+    try {
+      const result = await adminAPI.changeUserPassword(selectedUserId, newUserPassword)
+      setError(result.message) // Use error state for success message
+      // Reset form
+      setSelectedUserId(null)
+      setNewUserPassword("")
+      setConfirmNewPassword("")
+      await loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to change password")
+    } finally {
+      setChangingUserPassword(false)
     }
   }
 
@@ -146,6 +186,63 @@ export default function AdminPage() {
           {activeTab === "users" && (
             <div>
               <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">User Management</h2>
+              
+              {/* Password Change Form */}
+              {selectedUserId && (
+                <div className="mb-6 p-4 bg-blue-50 rounded border-l-4 border-blue-500">
+                  <h3 className="font-semibold text-blue-800 mb-3">
+                    Change Password for {users.find(u => u.id === selectedUserId)?.email}
+                  </h3>
+                  <form onSubmit={handleChangeUserPassword} className="flex flex-col md:flex-row gap-3 items-end">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        value={newUserPassword}
+                        onChange={(e) => setNewUserPassword(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        minLength={8}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        minLength={8}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={changingUserPassword}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                      >
+                        {changingUserPassword ? "Changing..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUserId(null)
+                          setNewUserPassword("")
+                          setConfirmNewPassword("")
+                        }}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+              
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-[#555]">
                   <thead className="bg-gray-50">
@@ -166,7 +263,7 @@ export default function AdminPage() {
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 flex flex-col sm:flex-row gap-2">
                         <select
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
                           value={user.subscription_tier}
@@ -176,6 +273,16 @@ export default function AdminPage() {
                           <option value="pro">Pro</option>
                           <option value="team">Team</option>
                         </select>
+                        <button
+                          onClick={() => {
+                            setSelectedUserId(user.id)
+                            setNewUserPassword("")
+                            setConfirmNewPassword("")
+                          }}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors"
+                        >
+                          Change Password
+                        </button>
                       </td>
                     </tr>
                   ))}
