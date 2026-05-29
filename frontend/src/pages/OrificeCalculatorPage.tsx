@@ -324,26 +324,30 @@ export default function OrificeCalculatorPage() {
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(D / 1000, rho, Q || 500, targetDeltaP)
+    generateCurveData(finalOrificeDiameter, D, rho, Q || 500, targetDeltaP, beta, C)
     setResults(finalResults)
     setShowResults(true)
   }
 
-  const generateCurveData = (D: number, rho: number, Q: number, deltaP: number) => {
+  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, C: number) => {
     const points: CurvePoint[] = []
     
-    for (let beta = 0.2; beta <= 0.75; beta += 0.01) {
-      const d = beta * D
-      const C = 0.5959 + 0.0312 * Math.pow(beta, 2.1) - 0.184 * Math.pow(beta, 8)
+    const maxDeltaP = deltaP * 1.5
+    const steps = 50
+    
+    for (let i = 0; i <= steps; i++) {
+      const currentDeltaP = (maxDeltaP / steps) * i
       const epsilon = 0.98
+      const d = d_mm / 1000
       
-      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * deltaP)
+      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP)
+      const Q_calc = (qm_calc / rho) * 3600
 
       points.push({
-        beta: Math.round(beta * 1000) / 1000,
-        dischargeCoef: Math.round(C * 10000) / 10000,
-        pressureDrop: Math.round(deltaP / 100 * 100) / 100,
-        flowRate: Math.round(qm_calc / rho * 3600 * 100) / 100
+        beta: beta,
+        dischargeCoef: C,
+        pressureDrop: Math.round(currentDeltaP * 100) / 100,
+        flowRate: Math.round(Q_calc * 100) / 100
       })
     }
     
@@ -669,37 +673,43 @@ export default function OrificeCalculatorPage() {
           {showResults && curveData.length > 0 && (
             <div className="bg-white rounded p-6 shadow border border-gray-200">
               <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
-                Discharge Coefficient vs Beta Ratio
+                Pressure Drop vs Flow Rate
               </h2>
               <ResponsiveContainer width="100%" height={350}>
                 <LineChart data={curveData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                   <XAxis 
-                    dataKey="beta" 
-                    label={{ value: 'Beta Ratio (β)', position: 'bottom' }}
-                    domain={[0.2, 0.75]}
+                    dataKey="pressureDrop" 
+                    label={{ value: 'Pressure Drop Δp (mbar)', position: 'bottom' }}
                   />
                   <YAxis 
-                    label={{ value: 'Cd', angle: -90, position: 'insideLeft' }}
-                    domain={[0.59, 0.63]}
+                    label={{ value: 'Flow Rate Q (m³/h)', angle: -90, position: 'insideLeft' }}
                   />
-                  <Tooltip formatter={(value: number) => value.toFixed(4)} />
+                  <Tooltip />
                   <Legend />
                   {results && (
                     <ReferenceLine 
-                      x={results.betaRatio} 
+                      x={results.pressureDrop} 
                       stroke="#e74c3c" 
                       strokeWidth={2}
-                      label={{ value: `Selected β=${results.betaRatio}`, position: 'top' }}
+                      label={{ value: `Selected Δp=${results.pressureDrop} mbar`, position: 'top' }}
+                    />
+                  )}
+                  {results && (
+                    <ReferenceLine 
+                      y={parseFloat(maxFlowRate) || 0} 
+                      stroke="#27ae60" 
+                      strokeWidth={2}
+                      label={{ value: `Selected Q=${maxFlowRate} m³/h`, position: 'right' }}
                     />
                   )}
                   <Line 
                     type="monotone" 
-                    dataKey="dischargeCoef" 
+                    dataKey="flowRate" 
                     stroke="#2B6BA0" 
                     strokeWidth={2}
                     dot={false}
-                    name="Cd"
+                    name="Q (m³/h)"
                   />
                 </LineChart>
               </ResponsiveContainer>
