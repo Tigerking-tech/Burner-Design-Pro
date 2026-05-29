@@ -55,138 +55,184 @@ const gasTypes = [
 
 function RestrictingOrificeDiagram() {
   return (
-    <svg viewBox="0 0 480 320" className="w-full h-auto">
-      <rect x="50" y="80" width="380" height="110" fill="#E8C44A" stroke="#000" strokeWidth="2.5" rx="1"/>
-      
-      <line x1="200" y1="55" x2="200" y2="215" stroke="#000" strokeWidth="4"/>
-      <line x1="218" y1="70" x2="218" y2="200" stroke="#000" strokeWidth="4"/>
-      
-      <line x1="197" y1="125" x2="221" y2="125" stroke="#000" strokeWidth="1.5"/>
-
-      <defs>
-        <marker id="arrow-up-d" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
-          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-down-d" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
-          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-left" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
-          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-right" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
-          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-right-q" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-        <marker id="arrow-left-dp" markerWidth="10" markerHeight="9" refX="1" refY="4.5" orient="auto-start-reverse">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-        <marker id="arrow-right-dp" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-      </defs>
-
-      <line x1="60" y1="105" x2="60" y2="165" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
-      <text x="35" y="140" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
-
-      <line x1="203" y1="115" x2="215" y2="155" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-up-d)" markerEnd="url(#arrow-down-d)"/>
-      <text x="223" y="140" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
-
-      <line x1="340" y1="135" x2="395" y2="135" stroke="#000" strokeWidth="1.5"
-            markerEnd="url(#arrow-right-q)"/>
-      <text x="363" y="125" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
-
-      <path d="M 120 190 L 118 205 Q 116 212 120 215 L 145 215 Q 149 212 147 205 L 145 190 Z" 
-            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
-      <line x1="132" y1="215" x2="132" y2="225" stroke="#000" strokeWidth="1.5"/>
-      
-      <path d="M 330 190 L 328 205 Q 326 212 330 215 L 355 215 Q 359 212 357 205 L 355 190 Z" 
-            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
-      <line x1="342" y1="215" x2="342" y2="225" stroke="#000" strokeWidth="1.5"/>
-
-      <line x1="95" y1="235" x2="165" y2="235" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
-      <text x="113" y="255" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
-
-      <line x1="310" y1="235" x2="380" y2="235" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-left)" markerEnd="url(#arrow-right)"/>
-      <text x="328" y="255" fontSize="15" fill="#000" fontFamily="Arial, sans-serif" fontWeight="normal">5×DN</text>
-
-      <line x1="132" y1="275" x2="342" y2="275" stroke="#000" strokeWidth="1.8"
-            markerStart="url(#arrow-left-dp)" markerEnd="url(#arrow-right-dp)"/>
-      <text x="230" y="267" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
-
-      <line x1="132" y1="225" x2="132" y2="270" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
-      <line x1="342" y1="225" x2="342" y2="270" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
-
-      <text x="135" y="300" fontSize="14" fill="#333" fontFamily="Arial, sans-serif">Medium temperature 10 – 30°C</text>
+    <svg 
+      version="1.1" 
+      xmlns="http://www.w3.org/2000/svg" 
+      xmlnsXlink="http://www.w3.org/1999/xlink" 
+      x="0px" y="0px"
+      viewBox="0 0 244.333 218.667" 
+      className="w-full h-auto"
+    >
+      <g id="Drosselblende">
+        <polygon fill="#EDD330" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 209.886,134.162 209.827,151.098 207.81,160.15 201.542,160.15 199.521,150.817 199.647,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 44.942,134.162 44.958,151.378 43.031,160.13 36.626,160.13 35.014,151.068 35.139,134.162 19.503,134.162"/>
+        <text transform="matrix(1 0 0 1 52.0493 171.8242)" fill="#101111" fontFamily="ArialMT" fontSize="20">5xDN</text>
+        <polygon fill="#101111" points="130.242,168.033 136.242,168.033 136.242,137.162 200.673,137.162 200.673,131.162 130.242,131.162"/>
+        <polygon fill="#101111" points="200.427,160.363 202.392,159.988 200.659,150.91 200.676,131.162 198.676,131.162 198.676,151.098"/>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="53.181" y1="149.598" x2="100.929" y2="149.598"/>
+            <g>
+              <polygon fill="#101111" points="54.64,154.556 46.004,149.57 54.64,144.584"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="99.47,154.556 108.105,149.57 99.47,144.584"/>
+            </g>
+          </g>
+        </g>
+        <text transform="matrix(1 0 0 1 142.6206 171.8242)" fill="#101111" fontFamily="ArialMT" fontSize="20">5xDN</text>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="143.752" y1="149.598" x2="191.5" y2="149.598"/>
+            <g>
+              <polygon fill="#101111" points="145.211,154.556 136.576,149.57 145.211,144.584"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="190.041,154.556 198.676,149.57 190.041,144.584"/>
+            </g>
+          </g>
+        </g>
+        <polygon fill="#101111" points="35.755,160.363 34.022,151.285 34.004,131.162 36.004,131.162 36.004,151.098 37.72,159.988"/>
+        <rect x="19.503" y="131.162" fill="#101111" width="16.501" height="6"/>
+        <polygon fill="#101111" points="208.925,160.363 210.659,151.285 210.676,131.162 208.676,131.162 208.676,151.098 206.96,159.988"/>
+        <rect x="208.676" y="131.162" fill="#101111" width="16.501" height="6"/>
+        <polygon fill="#101111" points="114.439,168.033 108.439,168.033 108.439,137.162 44.007,137.162 44.007,131.162 114.439,131.162"/>
+        <polygon fill="#101111" points="44.253,160.363 42.289,159.988 44.022,150.91 44.004,131.162 46.004,131.162 46.004,151.098"/>
+        <text transform="matrix(1 0 0 1 110.7485 208.3584)" fill="#101111" fontFamily="ArialMT" fontSize="20">∆p</text>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="50.033" y1="191.142" x2="194.439" y2="191.142"/>
+            <g>
+              <polygon fill="#101111" points="52.075,198.083 39.986,191.104 52.075,184.123"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="192.396,198.083 204.486,191.104 192.396,184.123"/>
+            </g>
+          </g>
+        </g>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="39.986" y1="160.363" x2="39.986" y2="199.642"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="204.486" y1="160.363" x2="204.486" y2="199.642"/>
+      </g>
+      <g id="Allg_vorne">
+        <text transform="matrix(1 0 0 1 41.7593 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">D</text>
+        <text transform="matrix(1 0 0 1 108.9556 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">d</text>
+        <text transform="matrix(1 0 0 1 196.5532 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">Q</text>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="148.503" y1="87.017" x2="182.913" y2="87.017"/>
+            <g>
+              <polygon fill="#101111" points="180.87,93.958 192.959,86.979 180.87,79.998"/>
+            </g>
+          </g>
+        </g>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="61.069" y1="121.115" x2="61.069" y2="52.607"/>
+            <g>
+              <polygon fill="#101111" points="68.01,119.073 61.031,131.162 54.05,119.073"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="68.01,54.65 61.031,42.561 54.05,54.65"/>
+            </g>
+          </g>
+        </g>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="99.432" y1="95.161" x2="99.432" y2="78.872"/>
+            <g>
+              <polygon fill="#101111" points="104.39,93.702 99.405,102.337 94.418,93.702"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="104.39,80.331 99.405,71.695 94.418,80.331"/>
+            </g>
+          </g>
+        </g>
+        <polygon fill="#101111" points="117.949,6 117.949,71.491 126.908,62.532 126.908,6"/>
+        <polygon fill="#101111" points="117.949,168.033 117.949,102.542 126.908,111.501 126.908,168.033"/>
+        <polygon fill="#101111" points="114.439,42.871 19.503,42.871 19.503,36.871 108.439,36.871 108.439,6 114.439,6"/>
+        <polygon fill="#101111" points="225.177,42.871 130.242,42.871 130.242,6 136.242,6 136.242,36.871 225.177,36.871"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="117.949" y1="70.356" x2="94.331" y2="70.356"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="117.949" y1="103.677" x2="94.331" y2="103.677"/>
+      </g>
     </svg>
   )
 }
 
 function MeasuringOrificeDiagram() {
   return (
-    <svg viewBox="0 0 420 280" className="w-full h-auto">
-      <rect x="50" y="80" width="320" height="110" fill="#E8C44A" stroke="#000" strokeWidth="2.5" rx="1"/>
-      
-      <line x1="195" y1="55" x2="195" y2="215" stroke="#000" strokeWidth="4"/>
-      <line x1="213" y1="70" x2="213" y2="200" stroke="#000" strokeWidth="4"/>
-      
-      <line x1="192" y1="125" x2="216" y2="125" stroke="#000" strokeWidth="1.5"/>
-
-      <defs>
-        <marker id="arrow-up-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="6" orient="auto-start-reverse">
-          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-down-d2" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto">
-          <polyline points="3.5 0, 0 7, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-left2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
-          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-right2" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
-          <polyline points="7 0, 0 3.5, 7 7" fill="none" stroke="#000" strokeWidth="1.2"/>
-        </marker>
-        <marker id="arrow-right-q2" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-        <marker id="arrow-left-dp2" markerWidth="10" markerHeight="9" refX="1" refY="4.5" orient="auto-start-reverse">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-        <marker id="arrow-right-dp2" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto">
-          <polygon points="10 0, 0 4.5, 10 9" fill="#000"/>
-        </marker>
-      </defs>
-
-      <line x1="58" y1="105" x2="58" y2="165" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
-      <text x="33" y="140" fontSize="22" fill="#000" fontFamily="Arial, sans-serif">D</text>
-
-      <line x1="198" y1="115" x2="210" y2="155" stroke="#000" strokeWidth="1.2"
-            markerStart="url(#arrow-up-d2)" markerEnd="url(#arrow-down-d2)"/>
-      <text x="218" y="140" fontSize="17" fill="#000" fontFamily="Arial, sans-serif">d</text>
-
-      <line x1="290" y1="135" x2="345" y2="135" stroke="#000" strokeWidth="1.5"
-            markerEnd="url(#arrow-right-q2)"/>
-      <text x="313" y="125" fontSize="19" fill="#000" fontFamily="Arial, sans-serif">Q</text>
-
-      <path d="M 185 190 L 183 205 Q 181 212 185 215 L 203 215 Q 207 212 205 205 L 203 190 Z" 
-            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
-      <line x1="194" y1="215" x2="194" y2="225" stroke="#000" strokeWidth="1.5"/>
-      
-      <path d="M 208 190 L 206 205 Q 204 212 208 215 L 226 215 Q 230 212 228 205 L 226 190 Z" 
-            fill="#E8C44A" stroke="#000" strokeWidth="1.5"/>
-      <line x1="217" y1="215" x2="217" y2="225" stroke="#000" strokeWidth="1.5"/>
-
-      <line x1="194" y1="240" x2="217" y2="240" stroke="#000" strokeWidth="1.8"
-            markerStart="url(#arrow-left-dp2)" markerEnd="url(#arrow-right-dp2)"/>
-      <text x="198" y="232" fontSize="19" fill="#000" fontFamily="Arial, sans-serif" fontWeight="bold">Δp</text>
-
-      <line x1="194" y1="225" x2="194" y2="237" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
-      <line x1="217" y1="225" x2="217" y2="237" stroke="#000" strokeWidth="1" strokeDasharray="3,2"/>
+    <svg 
+      version="1.1" 
+      xmlns="http://www.w3.org/2000/svg" 
+      xmlnsXlink="http://www.w3.org/1999/xlink" 
+      x="0px" y="0px"
+      viewBox="0 0 244.333 218.667" 
+      className="w-full h-auto"
+    >
+      <g id="Messblende">
+        <polygon fill="#EDD330" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 157.646,134.162 157.586,151.098 155.57,160.15 149.302,160.15 147.281,150.817 147.407,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 97.182,134.162 97.198,151.378 95.271,160.13 88.867,160.13 87.254,151.068 87.379,134.162 19.503,134.162"/>
+        <polygon fill="#101111" points="130.242,168.033 136.242,168.033 136.242,137.162 148.433,137.162 148.433,131.162 130.242,131.162"/>
+        <polygon fill="#101111" points="148.187,160.363 150.152,159.988 148.418,150.91 148.436,131.162 146.436,131.162 146.436,151.098"/>
+        <polygon fill="#101111" points="87.996,160.363 86.262,151.285 86.245,131.162 88.245,131.162 88.245,151.098 89.96,159.988"/>
+        <rect x="19.503" y="131.162" fill="#101111" width="68.741" height="6"/>
+        <polygon fill="#101111" points="156.685,160.363 158.418,151.285 158.436,131.162 156.436,131.162 156.436,151.098 154.72,159.988"/>
+        <rect x="156.436" y="131.162" fill="#101111" width="68.741" height="6"/>
+        <polygon fill="#101111" points="114.439,168.033 108.439,168.033 108.439,137.162 96.248,137.162 96.248,131.162 114.439,131.162"/>
+        <polygon fill="#101111" points="96.494,160.363 94.529,159.988 96.262,150.91 96.245,131.162 98.245,131.162 98.245,151.098"/>
+        <text transform="matrix(1 0 0 1 110.7485 208.3584)" fill="#101111" fontFamily="ArialMT" fontSize="20">∆p</text>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="102.273" y1="191.142" x2="142.199" y2="191.142"/>
+            <g>
+              <polygon fill="#101111" points="104.315,198.083 92.226,191.104 104.315,184.123"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="140.156,198.083 152.246,191.104 140.156,184.123"/>
+            </g>
+          </g>
+        </g>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="92.226" y1="160.363" x2="92.226" y2="199.642"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="152.246" y1="160.363" x2="152.246" y2="199.642"/>
+      </g>
+      <g id="Allg_vorne">
+        <text transform="matrix(1 0 0 1 41.7593 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">D</text>
+        <text transform="matrix(1 0 0 1 108.9556 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">d</text>
+        <text transform="matrix(1 0 0 1 196.5532 92.0869)" fill="#101111" fontFamily="ArialMT" fontSize="20">Q</text>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="148.503" y1="87.017" x2="182.913" y2="87.017"/>
+            <g>
+              <polygon fill="#101111" points="180.87,93.958 192.959,86.979 180.87,79.998"/>
+            </g>
+          </g>
+        </g>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="61.069" y1="121.115" x2="61.069" y2="52.607"/>
+            <g>
+              <polygon fill="#101111" points="68.01,119.073 61.031,131.162 54.05,119.073"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="68.01,54.65 61.031,42.561 54.05,54.65"/>
+            </g>
+          </g>
+        </g>
+        <g>
+          <g>
+            <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="99.432" y1="95.161" x2="99.432" y2="78.872"/>
+            <g>
+              <polygon fill="#101111" points="104.39,93.702 99.405,102.337 94.418,93.702"/>
+            </g>
+            <g>
+              <polygon fill="#101111" points="104.39,80.331 99.405,71.695 94.418,80.331"/>
+            </g>
+          </g>
+        </g>
+        <polygon fill="#101111" points="117.949,6 117.949,71.491 126.908,62.532 126.908,6"/>
+        <polygon fill="#101111" points="117.949,168.033 117.949,102.542 126.908,111.501 126.908,168.033"/>
+        <polygon fill="#101111" points="114.439,42.871 19.503,42.871 19.503,36.871 108.439,36.871 108.439,6 114.439,6"/>
+        <polygon fill="#101111" points="225.177,42.871 130.242,42.871 130.242,6 136.242,6 136.242,36.871 225.177,36.871"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="117.949" y1="70.356" x2="94.331" y2="70.356"/>
+        <line fill="none" stroke="#101111" strokeWidth="2" strokeMiterlimit="10" x1="117.949" y1="103.677" x2="94.331" y2="103.677"/>
+      </g>
     </svg>
   )
 }
@@ -256,35 +302,29 @@ export default function OrificeCalculatorPage() {
     const epsilon = 0.98
     const qm = (Q / 3600) * rho
     const A_orifice = qm / (C * epsilon * Math.sqrt(2 * rho * targetDeltaP))
-    const d = Math.sqrt(A_orifice * 4 / Math.PI)
+    const d = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
     const beta = d / D
-    const Re = (4 * (Q / 3600) * rho) / (Math.PI * (D/1000) * 0.000017)
+    const Re = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * 0.000017)
 
     let finalPressureDrop = deltaP
-    let finalFlowRate = Q
     let finalOrificeDiameter = d
 
     if (outputMode === 'pressure') {
       finalOrificeDiameter = parseFloat(internalDiameter) * 0.5
-      finalPressureDrop = (qm * qm) / (rho * C * C * Math.pow((Math.PI / 4) * (finalOrificeDiameter/1000), 2)) / 2 / 100
-      finalFlowRate = Q
-    } else if (outputMode === 'flowrate') {
-      finalPressureDrop = deltaP
-      finalOrificeDiameter = d
-      finalFlowRate = Q
+      finalPressureDrop = (qm * qm) / (rho * C * C * Math.pow((Math.PI / 4) * ((finalOrificeDiameter / 1000) * (finalOrificeDiameter / 1000)), 2)) / 2 / 100
     }
 
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
-      betaRatio: Math.round((finalOrificeDiameter/D) * 10000) / 10000,
+      betaRatio: Math.round(beta * 10000) / 10000,
       dischargeCoef: C,
       reynoldsNum: Math.round(Re),
-      velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D/1000, 2)),
+      velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D / 1000, 2)),
       massFlowRate: qm,
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(D/1000, rho, Q || 500, targetDeltaP)
+    generateCurveData(D / 1000, rho, Q || 500, targetDeltaP)
     setResults(finalResults)
     setShowResults(true)
   }
@@ -587,14 +627,9 @@ export default function OrificeCalculatorPage() {
                 {showResults && results && (
                   <div className="mt-5 p-4 bg-gray-50 rounded border border-gray-200">
                     <div className="text-3xl font-bold text-[#2B6BA0] mb-1">
-                      {outputMode === 'orifice' && `${results.orificeDiameter}`}
-                      {outputMode === 'pressure' && `${results.pressureDrop}`}
-                      {outputMode === 'flowrate' && results.massFlowRate.toFixed(2)}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {outputMode === 'orifice' && 'mm'}
-                      {outputMode === 'pressure' && 'mbar'}
-                      {outputMode === 'flowrate' && 'kg/s'}
+                      {outputMode === 'orifice' && `${results.orificeDiameter} mm`}
+                      {outputMode === 'pressure' && `${results.pressureDrop} mbar`}
+                      {outputMode === 'flowrate' && `${results.massFlowRate.toFixed(2)} kg/s`}
                     </div>
                     
                     <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
