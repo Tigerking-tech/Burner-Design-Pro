@@ -200,7 +200,7 @@ export default function AdminPage() {
                         type="password"
                         value={newUserPassword}
                         onChange={(e) => setNewUserPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                         required
                         minLength={8}
                       />
@@ -213,7 +213,7 @@ export default function AdminPage() {
                         type="password"
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                         required
                         minLength={8}
                       />
@@ -363,7 +363,7 @@ export default function AdminPage() {
                       step="0.01"
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded"
+                      className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900"
                       placeholder="Enter amount"
                       disabled={processing}
                     />
@@ -374,7 +374,7 @@ export default function AdminPage() {
                       type="text"
                       value={withdrawNotes}
                       onChange={(e) => setWithdrawNotes(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded"
+                      className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900"
                       placeholder="Optional notes"
                       disabled={processing}
                     />

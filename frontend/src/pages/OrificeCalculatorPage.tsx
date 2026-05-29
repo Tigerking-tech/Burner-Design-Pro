@@ -496,7 +496,7 @@ export default function OrificeCalculatorPage() {
                       value={customDensity}
                       onChange={(e) => setCustomDensity(e.target.value)}
                       step="0.01"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     />
                   </div>
 
@@ -526,7 +526,7 @@ export default function OrificeCalculatorPage() {
                       value={internalDiameter}
                       onChange={(e) => setInternalDiameter(e.target.value)}
                       max="325"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     />
                   </div>
 
@@ -539,7 +539,7 @@ export default function OrificeCalculatorPage() {
                       value={maxFlowRate}
                       onChange={(e) => setMaxFlowRate(e.target.value)}
                       max="10000"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     />
                   </div>
 
@@ -555,7 +555,7 @@ export default function OrificeCalculatorPage() {
                       value={pressureDrop}
                       onChange={(e) => setPressureDrop(e.target.value)}
                       max="100"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     />
                   </div>
                 </div>
