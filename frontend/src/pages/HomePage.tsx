@@ -56,7 +56,7 @@ const features: Feature[] = [
   {
     id: 'orifice',
     title: 'Orifice Calculator',
-    description: 'Design restricting or measuring orifice plates for gas and air flow applications.',
+    description: 'Design restricting or measuring orifice plates with ISO 5167 standard support.',
     icon: <Gauge size={48} />,
     pro: true,
     to: '/orifice-calculator'
@@ -86,12 +86,11 @@ const pricingPlans: PricingPlan[] = [
     period: '/month',
     description: 'Perfect for trying out',
     features: [
+      { text: '20 calculations per month', available: true },
       { text: 'Fuel Manager', available: true },
       { text: 'Emission Analysis', available: true },
       { text: 'Unit Converter', available: true },
-      { text: 'Orifice Calculator (Preview)', available: true },
-      { text: 'Flame Temperature (Preview)', available: true },
-      { text: 'Insulation Calculator (Preview)', available: true }
+      { text: 'Professional tools preview', available: true }
     ],
     buttonText: 'Get Started Free',
     buttonPrimary: false
@@ -100,17 +99,17 @@ const pricingPlans: PricingPlan[] = [
     name: 'Pro',
     price: '$19',
     period: '/month',
-    description: 'For professional engineers',
+    description: 'All-in-one engineering workflow',
     features: [
-      { text: 'All calculators - full access', available: true },
-      { text: 'Orifice Calculator (Full)', available: true },
-      { text: 'Flame Temperature (Full)', available: true },
-      { text: 'Insulation Calculator (Full)', available: true },
-      { text: 'Custom fuel mixtures', available: true },
-      { text: 'Standard compliance checks', available: true }
+      { text: 'Unlimited calculations', available: true },
+      { text: 'Full access to all tools', available: true },
+      { text: 'Advanced orifice calculator', available: true },
+      { text: 'PDF report export', available: true },
+      { text: 'EPA & EU compliance reports', available: true },
+      { text: 'One-stop workflow', available: true }
     ],
     popular: true,
-    buttonText: 'Start 14-Day Free Trial',
+    buttonText: 'Start Pro',
     buttonPrimary: true
   }
 ]
@@ -305,6 +304,39 @@ export default function HomePage() {
               <p className="text-[#7f8c8d] text-sm leading-relaxed">{feature.description}</p>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* One-Stop Workflow Advantage */}
+      <section className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-16 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-semibold mb-6">Why Choose Burner-Design-Pro?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+            <div className="bg-white/10 rounded-lg p-6">
+              <div className="text-4xl mb-4">🚀</div>
+              <h3 className="text-xl font-semibold mb-3">All-in-One Platform</h3>
+              <p className="text-[#bdc3c7] text-sm">
+                No more switching between multiple websites. Fuel calculations, emissions analysis, 
+                orifice design, and compliance reports - everything in one place.
+              </p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-6">
+              <div className="text-4xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold mb-3">Professional Workflow</h3>
+              <p className="text-[#bdc3c7] text-sm">
+                From fuel selection to combustion calculations to emission compliance - 
+                complete your entire engineering workflow seamlessly.
+              </p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-6">
+              <div className="text-4xl mb-4">✅</div>
+              <h3 className="text-xl font-semibold mb-3">Standards Compliant</h3>
+              <p className="text-[#bdc3c7] text-sm">
+                All calculations follow international standards: ISO 5167, ISO 12241, 
+                EPA, and EU IED. Professional reports for your projects.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

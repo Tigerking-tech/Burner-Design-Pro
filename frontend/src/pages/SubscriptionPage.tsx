@@ -163,24 +163,24 @@ const SubscriptionPage: React.FC = () => {
           <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
             <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
             <div className="text-4xl font-bold text-white mb-6">$0</div>
-            <p className="text-gray-400 mb-6">Perfect for getting started</p>
+            <p className="text-gray-400 mb-6">Perfect for trying out</p>
             
             <ul className="space-y-3 mb-6">
+              <li className="flex items-center text-gray-300">
+                <span className="text-green-500 mr-2">✓</span>
+                20 calculations per month
+              </li>
               <li className="flex items-center text-gray-300">
                 <span className="text-green-500 mr-2">✓</span>
                 Basic calculators
               </li>
               <li className="flex items-center text-gray-300">
                 <span className="text-green-500 mr-2">✓</span>
-                Limited calculations
+                Preview professional tools
               </li>
               <li className="flex items-center text-gray-500">
                 <span className="text-red-500 mr-2">✗</span>
                 PDF export
-              </li>
-              <li className="flex items-center text-gray-500">
-                <span className="text-red-500 mr-2">✗</span>
-                Pro calculators
               </li>
             </ul>
 

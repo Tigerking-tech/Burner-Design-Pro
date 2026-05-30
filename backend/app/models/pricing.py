@@ -10,12 +10,12 @@ FREE_TIER = SubscriptionTier(
     price_display="$0",
     period="/month",
     features=[
-        "10 calculations per month",
+        "20 calculations per month",
         "Basic combustion calculator",
         "Unit converter",
         "Emission calculator"
     ],
-    max_calculations=10,
+    max_calculations=20,
     has_pdf_export=False,
     has_pro_calculators=False,
     has_team_features=False,
@@ -24,16 +24,17 @@ FREE_TIER = SubscriptionTier(
 
 PRO_TIER = SubscriptionTier(
     name="Pro",
-    price=2900,  # $29.00 in cents
-    price_display="$29",
+    price=1900,  # $19.00 in cents
+    price_display="$19",
     period="/month",
-    stripe_price_id="price_pro_monthly",  # Replace with real Stripe price ID
+    stripe_price_id="price_pro_monthly",
     features=[
         "Unlimited calculations",
         "All calculators included",
         "PDF report export",
         "Calculation history",
         "Multiple fuel types",
+        "Advanced orifice calculator",
         "EPA & EU IED compliance"
     ],
     max_calculations=None,  # unlimited
@@ -45,13 +46,13 @@ PRO_TIER = SubscriptionTier(
 
 TEAM_TIER = SubscriptionTier(
     name="Team",
-    price=5900,  # $59.00 in cents
-    price_display="$59",
+    price=4900,  # $49.00 in cents
+    price_display="$49",
     period="/month",
-    stripe_price_id="price_team_monthly",  # Replace with real Stripe price ID
+    stripe_price_id="price_team_monthly",
     features=[
         "Everything in Pro",
-        "Up to 3 team members",
+        "Up to 5 team members",
         "Shared team projects",
         "Team collaboration",
         "Member management",
@@ -62,7 +63,7 @@ TEAM_TIER = SubscriptionTier(
     has_pdf_export=True,
     has_pro_calculators=True,
     has_team_features=True,
-    max_team_members=3
+    max_team_members=5
 )
 
 SUBSCRIPTION_TIERS = {
