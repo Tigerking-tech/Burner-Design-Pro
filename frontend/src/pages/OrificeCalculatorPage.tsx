@@ -262,6 +262,7 @@ export default function OrificeCalculatorPage() {
   const [operatingTemperature, setOperatingTemperature] = useState('20')
   const [compressibilityZ, setCompressibilityZ] = useState('1.0')
   const [isentropicExponentK, setIsentropicExponentK] = useState('1.4')
+  const [pressureType, setPressureType] = useState<'gauge' | 'absolute'>('absolute')
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
@@ -290,7 +291,11 @@ export default function OrificeCalculatorPage() {
       if (selectedGasType.name === 'Enter density') {
         return parseFloat(customDensity) || 0.78
       }
-      const P = parseFloat(operatingPressure) * 100000
+      const atmPressure = 1.01325
+      const absolutePressure = pressureType === 'gauge' 
+        ? parseFloat(operatingPressure) + atmPressure 
+        : parseFloat(operatingPressure)
+      const P = absolutePressure * 100000
       const T = parseFloat(operatingTemperature) + 273.15
       const Z = parseFloat(compressibilityZ)
       const M = selectedGasType.density * 28.96
@@ -309,7 +314,11 @@ export default function OrificeCalculatorPage() {
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
-    const P1 = featureMode === 'advanced' ? parseFloat(operatingPressure) * 100000 : 101325
+    const atmPressure = 1.01325
+    const absolutePressure = featureMode === 'advanced' && pressureType === 'gauge'
+      ? parseFloat(operatingPressure) + atmPressure
+      : (featureMode === 'advanced' ? parseFloat(operatingPressure) : 1.01325)
+    const P1 = absolutePressure * 100000
     const k = parseFloat(isentropicExponentK)
 
     if (!D || D > 325) {
@@ -618,13 +627,44 @@ export default function OrificeCalculatorPage() {
                         <label className="block text-sm font-normal text-black mb-1.5">
                           Operating Pressure (bar)
                         </label>
-                        <input
-                          type="number"
-                          value={operatingPressure}
-                          onChange={(e) => setOperatingPressure(e.target.value)}
-                          step="0.001"
-                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            value={operatingPressure}
+                            onChange={(e) => setOperatingPressure(e.target.value)}
+                            step="0.001"
+                            className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          />
+                          <div className="flex border border-gray-300 rounded overflow-hidden">
+                            <button
+                              type="button"
+                              onClick={() => setPressureType('gauge')}
+                              className={`px-3 py-2 text-xs font-medium transition-colors ${
+                                pressureType === 'gauge'
+                                  ? 'bg-[#2B6BA0] text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                              }`}
+                            >
+                              Gauge
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setPressureType('absolute')}
+                              className={`px-3 py-2 text-xs font-medium transition-colors ${
+                                pressureType === 'absolute'
+                                  ? 'bg-[#2B6BA0] text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                              }`}
+                            >
+                              Absolute
+                            </button>
+                          </div>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {pressureType === 'gauge' 
+                            ? 'Gauge pressure (relative to atmospheric pressure)' 
+                            : 'Absolute pressure (total pressure including atmosphere)'}
+                        </p>
                       </div>
 
                       <div>
@@ -837,7 +877,9 @@ export default function OrificeCalculatorPage() {
 
                 {calculationMode === 'restricting' && (
                   <div className="mt-3 text-sm text-gray-600">
-                    Medium temperature 10 – 30°C
+                    {featureMode === 'basic' 
+                      ? 'Standard conditions: 1 atm (1.01325 bar), 20°C'
+                      : 'Using operating conditions with specified pressure and temperature'}
                   </div>
                 )}
 
