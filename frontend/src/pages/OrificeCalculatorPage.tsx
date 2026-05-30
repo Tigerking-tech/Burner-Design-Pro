@@ -59,11 +59,12 @@ const gasTypes = [
   { name: 'Enter density', density: 0 }
 ]
 
-type PressureUnit = 'bar' | 'Pa' | 'kPa' | 'MPa' | 'psi' | 'atm'
+type PressureUnit = 'bar' | 'mbar' | 'Pa' | 'kPa' | 'MPa' | 'psi' | 'atm'
 type TemperatureUnit = 'C' | 'K' | 'F'
 
 const pressureUnits: { value: PressureUnit; label: string; toBar: (val: number) => number }[] = [
   { value: 'bar', label: 'bar', toBar: (v) => v },
+  { value: 'mbar', label: 'mbar', toBar: (v) => v / 1000 },
   { value: 'Pa', label: 'Pa', toBar: (v) => v / 100000 },
   { value: 'kPa', label: 'kPa', toBar: (v) => v / 100 },
   { value: 'MPa', label: 'MPa', toBar: (v) => v * 10 },
