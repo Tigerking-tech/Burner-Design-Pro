@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
@@ -23,23 +23,29 @@ interface CurvePoint {
   flowRate: number
 }
 
-const pipeDiameters = [
-  { label: 'DN 6', value: 6 },
-  { label: 'DN 8', value: 8 },
-  { label: 'DN 10', value: 10 },
-  { label: 'DN 15', value: 15 },
-  { label: 'DN 20', value: 20 },
-  { label: 'DN 25', value: 25 },
-  { label: 'DN 32', value: 32 },
-  { label: 'DN 40', value: 40 },
-  { label: 'DN 50', value: 50 },
-  { label: 'DN 65', value: 65 },
-  { label: 'DN 80', value: 80 },
-  { label: 'DN 100', value: 100 },
-  { label: 'DN 125', value: 125 },
-  { label: 'DN 150', value: 150 },
-  { label: 'DN 200', value: 200 },
-  { label: 'DN 250', value: 250 },
+interface PipeSize {
+  dn: number
+  label: string
+  internalDiameter: number
+}
+
+const pipeSizes: PipeSize[] = [
+  { dn: 6, label: 'DN 6', internalDiameter: 7 },
+  { dn: 8, label: 'DN 8', internalDiameter: 9 },
+  { dn: 10, label: 'DN 10', internalDiameter: 11.6 },
+  { dn: 15, label: 'DN 15', internalDiameter: 17.3 },
+  { dn: 20, label: 'DN 20', internalDiameter: 22.3 },
+  { dn: 25, label: 'DN 25', internalDiameter: 28.8 },
+  { dn: 32, label: 'DN 32', internalDiameter: 37.2 },
+  { dn: 40, label: 'DN 40', internalDiameter: 43.1 },
+  { dn: 50, label: 'DN 50', internalDiameter: 54.5 },
+  { dn: 65, label: 'DN 65', internalDiameter: 70.3 },
+  { dn: 80, label: 'DN 80', internalDiameter: 82.5 },
+  { dn: 100, label: 'DN 100', internalDiameter: 107.1 },
+  { dn: 125, label: 'DN 125', internalDiameter: 132.6 },
+  { dn: 150, label: 'DN 150', internalDiameter: 160.4 },
+  { dn: 200, label: 'DN 200', internalDiameter: 210.1 },
+  { dn: 250, label: 'DN 250', internalDiameter: 263 },
 ]
 
 const gasTypes = [
@@ -240,11 +246,12 @@ function MeasuringOrificeDiagram() {
 export default function OrificeCalculatorPage() {
   const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
   const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
-  const [customDensity, setCustomDensity] = useState('0.8')
-  const [selectedPipeDN, setSelectedPipeDN] = useState(pipeDiameters[2].value)
-  const [internalDiameter, setInternalDiameter] = useState('7')
+  const [customDensity, setCustomDensity] = useState('0.78')
+  const [selectedPipeDN, setSelectedPipeDN] = useState(pipeSizes[3].dn)
+  const [internalDiameter, setInternalDiameter] = useState(pipeSizes[3].internalDiameter.toString())
   const [maxFlowRate, setMaxFlowRate] = useState('')
   const [pressureDrop, setPressureDrop] = useState('')
+  const [orificeDiameterInput, setOrificeDiameterInput] = useState('')
   const [outputMode, setOutputMode] = useState<'orifice' | 'pressure' | 'flowrate'>('orifice')
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<CalculationResult | null>(null)
@@ -252,6 +259,13 @@ export default function OrificeCalculatorPage() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+
+  useEffect(() => {
+    const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
+    if (pipe) {
+      setInternalDiameter(pipe.internalDiameter.toString())
+    }
+  }, [selectedPipeDN])
 
   const handleProAction = (action: () => void) => {
     if (!isProUser) {
@@ -271,48 +285,73 @@ export default function OrificeCalculatorPage() {
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
-    const Q = parseFloat(maxFlowRate)
-    const deltaP = parseFloat(pressureDrop)
 
-    if (!D || !rho || D > 325) {
+    if (!D || D > 325) {
       alert('Please enter valid internal diameter (max 325 mm)')
       return
     }
 
-    if (!Q || Q <= 0 || Q > 10000) {
-      alert('Please enter valid flow rate (max 10000 m³/h)')
-      return
-    }
+    const C = calculationMode === 'restricting' ? 0.61 : 0.62
+    const epsilon = 0.98
+    let finalOrificeDiameter: number
+    let finalPressureDrop: number
+    let Q: number
 
-    let targetDeltaP = deltaP
-    
     if (outputMode === 'orifice') {
-      if (!targetDeltaP || targetDeltaP <= 0 || targetDeltaP > 100) {
+      Q = parseFloat(maxFlowRate)
+      const deltaP = parseFloat(pressureDrop)
+      
+      if (!Q || Q <= 0 || Q > 10000) {
+        alert('Please enter valid flow rate (max 10000 m³/h)')
+        return
+      }
+      if (!deltaP || deltaP <= 0 || deltaP > 100) {
         alert(`Please enter valid ${calculationMode === 'restricting' ? 'pressure loss' : 'differential pressure'} (max 100 mbar)`)
         return
       }
-      targetDeltaP = targetDeltaP * 100
+
+      const qm = (Q / 3600) * rho
+      const A_orifice = qm / (C * epsilon * Math.sqrt(2 * rho * deltaP * 100))
+      finalOrificeDiameter = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
+      finalPressureDrop = deltaP
     } else if (outputMode === 'pressure') {
-      targetDeltaP = 50 * 100
+      Q = parseFloat(maxFlowRate)
+      const d = parseFloat(orificeDiameterInput)
+      
+      if (!Q || Q <= 0 || Q > 10000) {
+        alert('Please enter valid flow rate (max 10000 m³/h)')
+        return
+      }
+      if (!d || d <= 0 || d > 325) {
+        alert('Please enter valid orifice diameter (max 325 mm)')
+        return
+      }
+
+      finalOrificeDiameter = d
+      const qm = (Q / 3600) * rho
+      finalPressureDrop = (qm * qm) / (rho * C * C * Math.pow((Math.PI / 4) * Math.pow(d / 1000, 2), 2)) / 2 / 100
     } else {
-      targetDeltaP = 50 * 100
+      const d = parseFloat(orificeDiameterInput)
+      const deltaP = parseFloat(pressureDrop)
+      
+      if (!d || d <= 0 || d > 325) {
+        alert('Please enter valid orifice diameter (max 325 mm)')
+        return
+      }
+      if (!deltaP || deltaP <= 0 || deltaP > 100) {
+        alert('Please enter valid pressure loss (max 100 mbar)')
+        return
+      }
+
+      finalOrificeDiameter = d
+      finalPressureDrop = deltaP
+      const qm = C * epsilon * (Math.PI / 4) * Math.pow(d / 1000, 2) * Math.sqrt(2 * rho * deltaP * 100)
+      Q = (qm / rho) * 3600
     }
 
-    const C = calculationMode === 'restricting' ? 0.61 : 0.62
-    const epsilon = 0.98
+    const beta = finalOrificeDiameter / D
     const qm = (Q / 3600) * rho
-    const A_orifice = qm / (C * epsilon * Math.sqrt(2 * rho * targetDeltaP))
-    const d = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
-    const beta = d / D
     const Re = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * 0.000017)
-
-    let finalPressureDrop = deltaP
-    let finalOrificeDiameter = d
-
-    if (outputMode === 'pressure') {
-      finalOrificeDiameter = parseFloat(internalDiameter) * 0.5
-      finalPressureDrop = (qm * qm) / (rho * C * C * Math.pow((Math.PI / 4) * ((finalOrificeDiameter / 1000) * (finalOrificeDiameter / 1000)), 2)) / 2 / 100
-    }
 
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
@@ -324,7 +363,7 @@ export default function OrificeCalculatorPage() {
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(finalOrificeDiameter, D, rho, Q || 500, targetDeltaP, beta, C)
+    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, C)
     setResults(finalResults)
     setShowResults(true)
   }
@@ -340,7 +379,7 @@ export default function OrificeCalculatorPage() {
       const epsilon = 0.98
       const d = d_mm / 1000
       
-      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP)
+      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP * 100)
       const Q_calc = (qm_calc / rho) * 3600
 
       points.push({
@@ -399,6 +438,7 @@ export default function OrificeCalculatorPage() {
   const resetForm = () => {
     setMaxFlowRate('')
     setPressureDrop('')
+    setOrificeDiameterInput('')
     setShowResults(false)
     setResults(null)
     setCurveData([])
@@ -419,7 +459,7 @@ export default function OrificeCalculatorPage() {
             <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
             <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
             <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            <Link to="/gas-calculator" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+            <Link to="/gas-calculator" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-all shadow-md">
               Get Started
             </Link>
           </div>
@@ -479,7 +519,12 @@ export default function OrificeCalculatorPage() {
                       value={selectedGasType.name}
                       onChange={(e) => {
                         const gas = gasTypes.find(g => g.name === e.target.value)
-                        if (gas) setSelectedGasType(gas)
+                        if (gas) {
+                          setSelectedGasType(gas)
+                          if (gas.name !== 'Enter density') {
+                            setCustomDensity(gas.density.toString())
+                          }
+                        }
                       }}
                       className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     >
@@ -513,8 +558,8 @@ export default function OrificeCalculatorPage() {
                       onChange={(e) => setSelectedPipeDN(parseFloat(e.target.value))}
                       className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     >
-                      {pipeDiameters.map((pipe) => (
-                        <option key={pipe.value} value={pipe.value}>
+                      {pipeSizes.map((pipe) => (
+                        <option key={pipe.dn} value={pipe.dn}>
                           {pipe.label}
                         </option>
                       ))}
@@ -534,34 +579,52 @@ export default function OrificeCalculatorPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
-                      Max. flow rate Q (m³/h, max 10000)
-                    </label>
-                    <input
-                      type="number"
-                      value={maxFlowRate}
-                      onChange={(e) => setMaxFlowRate(e.target.value)}
-                      max="10000"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
-                    />
-                  </div>
+                  {(outputMode === 'orifice' || outputMode === 'pressure') && (
+                    <div>
+                      <label className="block text-sm font-normal text-black mb-1.5">
+                        Max. flow rate Q (m³/h, max 10000)
+                      </label>
+                      <input
+                        type="number"
+                        value={maxFlowRate}
+                        onChange={(e) => setMaxFlowRate(e.target.value)}
+                        max="10000"
+                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      />
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
-                      {calculationMode === 'restricting' 
-                        ? 'Pressure loss Δp (mbar, max 100)' 
-                        : 'Differential pressure Δp (mbar, max 100)'
-                      }
-                    </label>
-                    <input
-                      type="number"
-                      value={pressureDrop}
-                      onChange={(e) => setPressureDrop(e.target.value)}
-                      max="100"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
-                    />
-                  </div>
+                  {(outputMode === 'orifice' || outputMode === 'flowrate') && (
+                    <div>
+                      <label className="block text-sm font-normal text-black mb-1.5">
+                        {calculationMode === 'restricting' 
+                          ? 'Pressure loss Δp (mbar, max 100)' 
+                          : 'Differential pressure Δp (mbar, max 100)'}
+                      </label>
+                      <input
+                        type="number"
+                        value={pressureDrop}
+                        onChange={(e) => setPressureDrop(e.target.value)}
+                        max="100"
+                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      />
+                    </div>
+                  )}
+
+                  {(outputMode === 'pressure' || outputMode === 'flowrate') && (
+                    <div>
+                      <label className="block text-sm font-normal text-black mb-1.5">
+                        Orifice diameter d (mm, max 325)
+                      </label>
+                      <input
+                        type="number"
+                        value={orificeDiameterInput}
+                        onChange={(e) => setOrificeDiameterInput(e.target.value)}
+                        max="325"
+                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-start justify-center bg-white p-4 rounded border border-gray-200">
@@ -633,7 +696,7 @@ export default function OrificeCalculatorPage() {
                     <div className="text-3xl font-bold text-[#2B6BA0] mb-1">
                       {outputMode === 'orifice' && `${results.orificeDiameter} mm`}
                       {outputMode === 'pressure' && `${results.pressureDrop} mbar`}
-                      {outputMode === 'flowrate' && `${results.massFlowRate.toFixed(2)} kg/s`}
+                      {outputMode === 'flowrate' && `${(results.massFlowRate / getDensity() * 3600).toFixed(2)} m³/h`}
                     </div>
                     
                     <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
@@ -697,10 +760,10 @@ export default function OrificeCalculatorPage() {
                   )}
                   {results && (
                     <ReferenceLine 
-                      y={parseFloat(maxFlowRate) || 0} 
+                      y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)} 
                       stroke="#27ae60" 
                       strokeWidth={2}
-                      label={{ value: `Selected Q=${maxFlowRate} m³/h`, position: 'right' }}
+                      label={{ value: `Selected Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))} m³/h`, position: 'right' }}
                     />
                   )}
                   <Line 
