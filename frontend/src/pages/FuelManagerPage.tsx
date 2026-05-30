@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { AlertTriangle } from 'lucide-react'
 
 interface GasComponent {
   name: string
@@ -410,6 +411,18 @@ export default function FuelManagerPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        {/* Inline Disclaimer */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+          <div className="text-sm">
+            <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+            <p className="text-yellow-700 mt-1">
+              Results are for reference only. All fuel properties should be verified with laboratory analysis
+              and reviewed by qualified combustion engineers before application.
+            </p>
+          </div>
+        </div>
+
         <div className="flex mb-8 bg-white rounded-lg shadow-lg overflow-hidden">
           <button
             onClick={() => setActiveTab('gas')}

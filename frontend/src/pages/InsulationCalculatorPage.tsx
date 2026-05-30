@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import './InsulationCalculatorPage.css'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
-import { Cylinder, Square, BrickWall } from 'lucide-react'
+import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -412,6 +412,18 @@ function InsulationCalculatorPage() {
           <div className="page-title">
             <h1>Insulation Thickness Calculator</h1>
             <p>ISO 12241 & ASTM C680 Standards | Pipe & Flat Surface | Anti-Condensation</p>
+          </div>
+
+          {/* Inline Disclaimer */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+              <p className="text-yellow-700 mt-1">
+                Results are for reference only. Insulation specifications should be verified with material suppliers
+                and reviewed by qualified thermal engineers to ensure compliance with local codes and standards.
+              </p>
+            </div>
           </div>
 
           <div className="calc-card">

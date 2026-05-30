@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
-import { Thermometer } from 'lucide-react'
+import { Thermometer, AlertTriangle } from 'lucide-react'
 
 interface GasComponent {
   name: string
@@ -345,6 +345,18 @@ export default function FlameTemperaturePage() {
         </section>
 
         <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          {/* Inline Disclaimer */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+              <p className="text-yellow-700 mt-1">
+                Results are for reference only. Actual flame temperatures depend on many factors including 
+                burner design, heat transfer, and combustion efficiency. Consult qualified combustion engineers.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg p-6 border border-gray-300 shadow-lg overflow-hidden">
               <h2 className="text-2xl font-bold text-[#2c3e50] mb-6 flex items-center">

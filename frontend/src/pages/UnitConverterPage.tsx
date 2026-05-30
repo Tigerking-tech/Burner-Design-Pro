@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 
 const UNITS = {
   "Pressure": {
@@ -262,6 +263,18 @@ export default function UnitConverterPage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-5 py-10">
+        {/* Inline Disclaimer */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+          <div className="text-sm">
+            <p className="font-semibold text-yellow-800">⚠️ Reference Only</p>
+            <p className="text-yellow-700 mt-1">
+              Unit conversions are provided for convenience. Always verify critical values with authoritative sources
+              and engineering standards before use in professional applications.
+            </p>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden">
           <div className="flex flex-col lg:flex-row">
             <div className="w-full lg:w-64 bg-gray-100 border-b lg:border-b-0 lg:border-r border-gray-300">

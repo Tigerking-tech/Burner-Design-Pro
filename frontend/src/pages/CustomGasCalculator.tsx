@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { AlertTriangle } from 'lucide-react'
 
 const GAS_COMPONENTS = [
   { name: 'Methane', formula: 'CH₄', key: 'ch4' },
@@ -128,6 +129,18 @@ export default function CustomGasCalculator() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-5 py-10">
+        {/* Inline Disclaimer */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+          <div className="text-sm">
+            <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+            <p className="text-yellow-700 mt-1">
+              Results are for reference only. Gas properties should be verified with laboratory analysis
+              and reviewed by qualified combustion engineers before use in burner design.
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Input Section */}
           <div className="bg-white rounded-lg p-8 border border-gray-300 shadow-lg">
