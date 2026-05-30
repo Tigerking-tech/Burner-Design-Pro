@@ -245,6 +245,7 @@ function MeasuringOrificeDiagram() {
 
 export default function OrificeCalculatorPage() {
   const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
+  const [featureMode, setFeatureMode] = useState<'basic' | 'advanced'>('basic')
   const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
   const [customDensity, setCustomDensity] = useState('0.78')
   const [selectedPipeDN, setSelectedPipeDN] = useState(pipeSizes[3].dn)
@@ -257,6 +258,10 @@ export default function OrificeCalculatorPage() {
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [curveData, setCurveData] = useState<CurvePoint[]>([])
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const [operatingPressure, setOperatingPressure] = useState('1.013')
+  const [operatingTemperature, setOperatingTemperature] = useState('20')
+  const [compressibilityZ, setCompressibilityZ] = useState('1.0')
+  const [isentropicExponentK, setIsentropicExponentK] = useState('1.4')
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
@@ -276,15 +281,36 @@ export default function OrificeCalculatorPage() {
   }
 
   const getDensity = () => {
-    if (selectedGasType.name === 'Enter density') {
-      return parseFloat(customDensity) || 0.78
+    if (featureMode === 'basic') {
+      if (selectedGasType.name === 'Enter density') {
+        return parseFloat(customDensity) || 0.78
+      }
+      return selectedGasType.density
+    } else {
+      if (selectedGasType.name === 'Enter density') {
+        return parseFloat(customDensity) || 0.78
+      }
+      const P = parseFloat(operatingPressure) * 100000
+      const T = parseFloat(operatingTemperature) + 273.15
+      const Z = parseFloat(compressibilityZ)
+      const M = selectedGasType.density * 28.96
+      const R = 8314
+      return (P * M) / (Z * R * T)
     }
-    return selectedGasType.density
+  }
+
+  const calculateExpansibilityFactor = (beta: number, deltaP: number, P1: number, k: number) => {
+    if (featureMode === 'basic') {
+      return 0.98
+    }
+    return 1 - (0.41 + 0.35 * Math.pow(beta, 4)) * deltaP / (P1 * k)
   }
 
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
+    const P1 = featureMode === 'advanced' ? parseFloat(operatingPressure) * 100000 : 101325
+    const k = parseFloat(isentropicExponentK)
 
     if (!D || D > 325) {
       alert('Please enter valid internal diameter (max 325 mm)')
@@ -292,10 +318,10 @@ export default function OrificeCalculatorPage() {
     }
 
     const C = calculationMode === 'restricting' ? 0.61 : 0.62
-    const epsilon = 0.98
     let finalOrificeDiameter: number
     let finalPressureDrop: number
     let Q: number
+    let epsilon: number
 
     if (outputMode === 'orifice') {
       Q = parseFloat(maxFlowRate)
@@ -311,9 +337,12 @@ export default function OrificeCalculatorPage() {
       }
 
       const qm = (Q / 3600) * rho
-      const A_orifice = qm / (C * epsilon * Math.sqrt(2 * rho * deltaP * 100))
+      const epsilon_est = 0.98
+      const A_orifice = qm / (C * epsilon_est * Math.sqrt(2 * rho * deltaP * 100))
       finalOrificeDiameter = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
       finalPressureDrop = deltaP
+      const beta = finalOrificeDiameter / D
+      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
     } else if (outputMode === 'pressure') {
       Q = parseFloat(maxFlowRate)
       const d = parseFloat(orificeDiameterInput)
@@ -328,8 +357,11 @@ export default function OrificeCalculatorPage() {
       }
 
       finalOrificeDiameter = d
+      const beta = d / D
+      epsilon = 0.98
       const qm = (Q / 3600) * rho
-      finalPressureDrop = (qm * qm) / (rho * C * C * Math.pow((Math.PI / 4) * Math.pow(d / 1000, 2), 2)) / 2 / 100
+      finalPressureDrop = (qm * qm) / (rho * C * C * epsilon * epsilon * Math.pow((Math.PI / 4) * Math.pow(d / 1000, 2), 2)) / 2 / 100
+      epsilon = calculateExpansibilityFactor(beta, finalPressureDrop * 100, P1, k)
     } else {
       const d = parseFloat(orificeDiameterInput)
       const deltaP = parseFloat(pressureDrop)
@@ -345,6 +377,8 @@ export default function OrificeCalculatorPage() {
 
       finalOrificeDiameter = d
       finalPressureDrop = deltaP
+      const beta = d / D
+      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
       const qm = C * epsilon * (Math.PI / 4) * Math.pow(d / 1000, 2) * Math.sqrt(2 * rho * deltaP * 100)
       Q = (qm / rho) * 3600
     }
@@ -363,12 +397,12 @@ export default function OrificeCalculatorPage() {
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, C)
+    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, C, P1, k)
     setResults(finalResults)
     setShowResults(true)
   }
 
-  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, C: number) => {
+  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, C: number, P1: number, k: number) => {
     const points: CurvePoint[] = []
     
     const maxDeltaP = deltaP * 1.5
@@ -376,7 +410,7 @@ export default function OrificeCalculatorPage() {
     
     for (let i = 0; i <= steps; i++) {
       const currentDeltaP = (maxDeltaP / steps) * i
-      const epsilon = 0.98
+      const epsilon = calculateExpansibilityFactor(beta, currentDeltaP * 100, P1, k)
       const d = d_mm / 1000
       
       const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP * 100)
@@ -486,6 +520,35 @@ export default function OrificeCalculatorPage() {
             </div>
 
             <div className="p-6">
+              <div className="mb-6">
+                <div className="flex flex-col md:flex-row gap-3">
+                  <button
+                    onClick={() => setFeatureMode('basic')}
+                    className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                      featureMode === 'basic'
+                        ? 'bg-[#27ae60] text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Basic Mode
+                  </button>
+                  <button
+                    onClick={() => setFeatureMode('advanced')}
+                    className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                      featureMode === 'advanced'
+                        ? 'bg-[#27ae60] text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Advanced Mode
+                  </button>
+                </div>
+                {featureMode === 'advanced' && (
+                  <div className="mt-2 text-xs text-gray-600">
+                    Advanced mode includes pressure, temperature, compressibility, and isentropic exponent calculations.
+                  </div>
+                )}
+              </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
                 <div className="space-y-4">
                   <div className="flex flex-col md:flex-row gap-3">
@@ -548,6 +611,62 @@ export default function OrificeCalculatorPage() {
                       className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                     />
                   </div>
+
+                  {featureMode === 'advanced' && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-normal text-black mb-1.5">
+                          Operating Pressure (bar)
+                        </label>
+                        <input
+                          type="number"
+                          value={operatingPressure}
+                          onChange={(e) => setOperatingPressure(e.target.value)}
+                          step="0.001"
+                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-normal text-black mb-1.5">
+                          Operating Temperature (°C)
+                        </label>
+                        <input
+                          type="number"
+                          value={operatingTemperature}
+                          onChange={(e) => setOperatingTemperature(e.target.value)}
+                          step="0.1"
+                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-normal text-black mb-1.5">
+                          Compressibility Factor Z
+                        </label>
+                        <input
+                          type="number"
+                          value={compressibilityZ}
+                          onChange={(e) => setCompressibilityZ(e.target.value)}
+                          step="0.001"
+                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-normal text-black mb-1.5">
+                          Isentropic Exponent κ
+                        </label>
+                        <input
+                          type="number"
+                          value={isentropicExponentK}
+                          onChange={(e) => setIsentropicExponentK(e.target.value)}
+                          step="0.01"
+                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <label className="block text-sm font-normal text-black mb-1.5">
