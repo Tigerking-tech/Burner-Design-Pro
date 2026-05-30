@@ -59,6 +59,24 @@ const gasTypes = [
   { name: 'Enter density', density: 0 }
 ]
 
+type PressureUnit = 'bar' | 'Pa' | 'kPa' | 'MPa' | 'psi' | 'atm'
+type TemperatureUnit = 'C' | 'K' | 'F'
+
+const pressureUnits: { value: PressureUnit; label: string; toBar: (val: number) => number }[] = [
+  { value: 'bar', label: 'bar', toBar: (v) => v },
+  { value: 'Pa', label: 'Pa', toBar: (v) => v / 100000 },
+  { value: 'kPa', label: 'kPa', toBar: (v) => v / 100 },
+  { value: 'MPa', label: 'MPa', toBar: (v) => v * 10 },
+  { value: 'psi', label: 'psi', toBar: (v) => v * 0.0689476 },
+  { value: 'atm', label: 'atm', toBar: (v) => v * 1.01325 }
+]
+
+const temperatureUnits: { value: TemperatureUnit; label: string; toCelsius: (val: number) => number }[] = [
+  { value: 'C', label: '°C', toCelsius: (v) => v },
+  { value: 'K', label: 'K', toCelsius: (v) => v - 273.15 },
+  { value: 'F', label: '°F', toCelsius: (v) => (v - 32) * 5 / 9 }
+]
+
 function RestrictingOrificeDiagram() {
   return (
     <svg 
@@ -263,6 +281,8 @@ export default function OrificeCalculatorPage() {
   const [compressibilityZ, setCompressibilityZ] = useState('1.0')
   const [isentropicExponentK, setIsentropicExponentK] = useState('1.4')
   const [pressureType, setPressureType] = useState<'gauge' | 'absolute'>('absolute')
+  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
+  const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
@@ -291,12 +311,14 @@ export default function OrificeCalculatorPage() {
       if (selectedGasType.name === 'Enter density') {
         return parseFloat(customDensity) || 0.78
       }
+      const pressureInBar = pressureUnits.find(p => p.value === pressureUnit)?.toBar(parseFloat(operatingPressure)) || 1.013
       const atmPressure = 1.01325
       const absolutePressure = pressureType === 'gauge' 
-        ? parseFloat(operatingPressure) + atmPressure 
-        : parseFloat(operatingPressure)
+        ? pressureInBar + atmPressure 
+        : pressureInBar
       const P = absolutePressure * 100000
-      const T = parseFloat(operatingTemperature) + 273.15
+      const tempInCelsius = temperatureUnits.find(t => t.value === temperatureUnit)?.toCelsius(parseFloat(operatingTemperature)) || 20
+      const T = tempInCelsius + 273.15
       const Z = parseFloat(compressibilityZ)
       const M = selectedGasType.density * 28.96
       const R = 8314
@@ -314,10 +336,13 @@ export default function OrificeCalculatorPage() {
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
+    const pressureInBar = featureMode === 'advanced' 
+      ? (pressureUnits.find(p => p.value === pressureUnit)?.toBar(parseFloat(operatingPressure)) || 1.013)
+      : 1.01325
     const atmPressure = 1.01325
     const absolutePressure = featureMode === 'advanced' && pressureType === 'gauge'
-      ? parseFloat(operatingPressure) + atmPressure
-      : (featureMode === 'advanced' ? parseFloat(operatingPressure) : 1.01325)
+      ? pressureInBar + atmPressure
+      : pressureInBar
     const P1 = absolutePressure * 100000
     const k = parseFloat(isentropicExponentK)
 
@@ -625,9 +650,9 @@ export default function OrificeCalculatorPage() {
                     <>
                       <div>
                         <label className="block text-sm font-normal text-black mb-1.5">
-                          Operating Pressure (bar)
+                          Operating Pressure
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mb-2">
                           <input
                             type="number"
                             value={operatingPressure}
@@ -635,6 +660,19 @@ export default function OrificeCalculatorPage() {
                             step="0.001"
                             className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
                           />
+                          <select
+                            value={pressureUnit}
+                            onChange={(e) => setPressureUnit(e.target.value as PressureUnit)}
+                            className="px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          >
+                            {pressureUnits.map(unit => (
+                              <option key={unit.value} value={unit.value}>
+                                {unit.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex gap-2">
                           <div className="flex border border-gray-300 rounded overflow-hidden">
                             <button
                               type="button"
@@ -669,15 +707,31 @@ export default function OrificeCalculatorPage() {
 
                       <div>
                         <label className="block text-sm font-normal text-black mb-1.5">
-                          Operating Temperature (°C)
+                          Operating Temperature
                         </label>
-                        <input
-                          type="number"
-                          value={operatingTemperature}
-                          onChange={(e) => setOperatingTemperature(e.target.value)}
-                          step="0.1"
-                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            value={operatingTemperature}
+                            onChange={(e) => setOperatingTemperature(e.target.value)}
+                            step="0.1"
+                            className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          />
+                          <select
+                            value={temperatureUnit}
+                            onChange={(e) => setTemperatureUnit(e.target.value as TemperatureUnit)}
+                            className="px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          >
+                            {temperatureUnits.map(unit => (
+                              <option key={unit.value} value={unit.value}>
+                                {unit.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Select temperature unit: Celsius, Kelvin, or Fahrenheit
+                        </p>
                       </div>
 
                       <div>
