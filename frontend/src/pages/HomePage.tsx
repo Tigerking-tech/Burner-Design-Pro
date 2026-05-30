@@ -8,7 +8,8 @@ import {
   RefreshCw, 
   Gauge, 
   Thermometer, 
-  BrickWall 
+  BrickWall,
+  AlertTriangle 
 } from 'lucide-react'
 
 interface Feature {
@@ -342,15 +343,41 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
-        <div className="flex justify-center gap-8 mb-5 flex-wrap">
-          <a href="#features" className="text-sm hover:text-white transition-colors">Features</a>
-          <a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
-          <a href="#about" className="text-sm hover:text-white transition-colors">About</a>
-          <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
-          <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
+        <div className="max-w-5xl mx-auto">
+          {/* Disclaimer Section */}
+          <div className="bg-[#34495e] rounded-lg p-6 mb-8 text-left border border-[#4a5d6e]">
+            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <AlertTriangle className="text-yellow-500" size={18} />
+              Disclaimer
+            </h4>
+            <div className="text-xs text-[#95a5a6] space-y-2 leading-relaxed">
+              <p>
+                The calculators and tools provided on this website are for <strong className="text-white">informational and reference purposes only</strong>.
+              </p>
+              <p>
+                While every effort has been made to ensure accuracy based on recognized engineering standards (ISO 5167, ISO 12241, EPA, EU IED), 
+                <strong className="text-white"> Burner-Design-Pro makes no warranty or guarantee</strong> regarding the accuracy, reliability, or applicability of the results.
+              </p>
+              <p className="text-yellow-500">
+                ⚠️ <strong className="text-yellow-400">All results should be reviewed and validated by a qualified professional engineer</strong> before application to any real-world project.
+              </p>
+              <p className="text-red-400">
+                ⚠️ <strong className="text-red-300">Burner-Design-Pro shall not be liable</strong> for any direct, indirect, incidental, special, or consequential damages arising from the use of these calculators.
+              </p>
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex justify-center gap-8 mb-5 flex-wrap">
+            <a href="#features" className="text-sm hover:text-white transition-colors">Features</a>
+            <a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
+            <a href="#about" className="text-sm hover:text-white transition-colors">About</a>
+            <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
+            <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
+          </div>
+          <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
         </div>
-        <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
       </footer>
     </div>
   )

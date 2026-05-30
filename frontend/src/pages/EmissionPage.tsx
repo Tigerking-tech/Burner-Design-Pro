@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -222,6 +223,18 @@ export default function EmissionPage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-5 py-10">
+        {/* Inline Disclaimer */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+          <div className="text-sm">
+            <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+            <p className="text-yellow-700 mt-1">
+              Results are for reference only. Ensure compliance with local EPA and EU IED regulations 
+              by consulting qualified environmental engineers.
+            </p>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6 mb-6">
           <h2 className="text-2xl font-semibold text-[#2c3e50] mb-6">Emissions Estimation & Compliance</h2>
 

@@ -500,6 +500,61 @@ export default function OrificeCalculatorPage() {
     doc.text(`Beta Ratio β: ${results.betaRatio}`, 120, 68)
     doc.text(`Discharge Coefficient Cd: ${results.dischargeCoef}`, 120, 74)
     doc.text(`Reynolds Number Re: ${results.reynoldsNum.toLocaleString()}`, 120, 80)
+
+    // Add Disclaimer Page
+    doc.addPage()
+    doc.setFillColor(255, 255, 230)
+    doc.rect(0, 0, 210, 297, 'F')
+    
+    doc.setFontSize(16)
+    doc.setFont(undefined, 'bold')
+    doc.setTextColor(180, 0, 0)
+    doc.text('IMPORTANT DISCLAIMER', 105, 30, { align: 'center' })
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    doc.setTextColor(0, 0, 0)
+    
+    const disclaimerLines = [
+      'This calculation is provided for informational and reference purposes only.',
+      '',
+      'WHILE EVERY EFFORT HAS BEEN MADE TO ENSURE ACCURACY based on ISO 5167 standards,',
+      'BURNER-DESIGN-PRO MAKES NO WARRANTY regarding the accuracy, reliability,',
+      'or applicability of these results.',
+      '',
+      '⚠️ PROFESSIONAL ENGINEERING JUDGMENT REQUIRED:',
+      '',
+      'All results should be reviewed and validated by a qualified professional engineer',
+      'BEFORE APPLICATION to any real-world project.',
+      '',
+      '⚠️ NO LIABILITY:',
+      '',
+      'In no event shall Burner-Design-Pro be liable for any direct, indirect,',
+      'incidental, special, or consequential damages arising from the use of these calculations.',
+      '',
+      'The user is solely responsible for:',
+      '• Verifying all input parameters',
+      '• Confirming results with independent calculations',
+      '• Ensuring compliance with local regulations',
+      '• Obtaining professional engineering consultation',
+      '',
+      'For questions or concerns, consult a licensed professional engineer.'
+    ]
+    
+    let yPos = 50
+    disclaimerLines.forEach(line => {
+      if (line === '') {
+        yPos += 4
+      } else if (line.startsWith('⚠️')) {
+        doc.setFont(undefined, 'bold')
+        doc.text(line, 20, yPos)
+        yPos += 6
+      } else {
+        doc.setFont(undefined, 'normal')
+        doc.text(line, 20, yPos)
+        yPos += 5
+      }
+    })
     
     doc.save(`orifice-${calculationMode}-report.pdf`)
   }
@@ -546,6 +601,17 @@ export default function OrificeCalculatorPage() {
         </section>
 
         <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-8">
+          {/* Inline Disclaimer */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3">
+            <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
+              <p className="text-yellow-700 mt-1">
+                Results are for reference only. All calculations should be reviewed and validated by a qualified 
+                professional engineer before application to any real-world project.
+              </p>
+            </div>
+          </div>
 
           <div className="bg-white rounded shadow overflow-hidden border border-gray-200">
             <div className="bg-[#2B6BA0] text-white px-6 py-3">
