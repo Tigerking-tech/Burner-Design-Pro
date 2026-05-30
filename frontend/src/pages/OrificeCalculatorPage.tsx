@@ -534,12 +534,12 @@ export default function OrificeCalculatorPage() {
           </div>
         </nav>
 
-        <section className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4d73] text-white py-16 px-6 text-center border-r-4 border-r-[#2B8BD6]">
+        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 px-6 text-center">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-semibold mb-4 leading-tight">
+            <h1 className="text-4xl font-semibold mb-4">
               Determining the Orifices
             </h1>
-            <p className="text-lg opacity-90 max-w-2xl mx-auto">
+            <p className="text-[#bdc3c7] max-w-2xl mx-auto">
               Calculate restricting and measuring orifices according to ISO 5167 and DIN EN ISO 5167 standards.
             </p>
           </div>
@@ -1025,10 +1025,6 @@ export default function OrificeCalculatorPage() {
                 Application Notes
               </h3>
               <div className="space-y-3 text-sm">
-                <div className="p-3 bg-yellow-50 rounded border-l-4 border-yellow-400">
-                  <div className="font-medium text-yellow-800">Temperature Range</div>
-                  <div className="text-yellow-700">Medium temperature should be between 10-30°C</div>
-                </div>
                 <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-400">
                   <div className="font-medium text-blue-800">Flow Limits</div>
                   <div className="text-blue-700">Maximum flow rate: 10,000 m³/h<br/>Maximum pressure drop: 100 mbar<br/>Maximum pipe diameter: 325 mm</div>
