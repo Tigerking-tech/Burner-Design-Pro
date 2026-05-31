@@ -44,30 +44,7 @@ PRO_TIER = SubscriptionTier(
     max_team_members=1
 )
 
-TEAM_TIER = SubscriptionTier(
-    name="Team",
-    price=4900,  # $49.00 in cents
-    price_display="$49",
-    period="/month",
-    stripe_price_id="price_team_monthly",
-    features=[
-        "Everything in Pro",
-        "Up to 5 team members",
-        "Shared team projects",
-        "Team collaboration",
-        "Member management",
-        "Shared calculation history",
-        "Priority support"
-    ],
-    max_calculations=None,  # unlimited
-    has_pdf_export=True,
-    has_pro_calculators=True,
-    has_team_features=True,
-    max_team_members=5
-)
-
 SUBSCRIPTION_TIERS = {
     "free": FREE_TIER,
-    "pro": PRO_TIER,
-    "team": TEAM_TIER
+    "pro": PRO_TIER
 }

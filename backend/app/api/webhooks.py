@@ -58,8 +58,6 @@ async def handle_checkout_completed(event_data: Dict[str, Any]):
     # You need to configure this mapping based on your Creem products
     tier_mapping = {
         os.getenv("CREEM_PRO_PRODUCT_ID", ""): "pro",
-        os.getenv("CREEM_TEAM_PRODUCT_ID", ""): "team",
-        os.getenv("CREEM_PRO_PLUS_PRODUCT_ID", ""): "pro_plus",
     }
     
     tier = tier_mapping.get(product_id, "pro")
@@ -97,8 +95,6 @@ async def handle_subscription_active(event_data: Dict[str, Any]):
     # Map product to tier
     tier_mapping = {
         os.getenv("CREEM_PRO_PRODUCT_ID", ""): "pro",
-        os.getenv("CREEM_TEAM_PRODUCT_ID", ""): "team",
-        os.getenv("CREEM_PRO_PLUS_PRODUCT_ID", ""): "pro_plus",
     }
     
     tier = tier_mapping.get(product_id, "pro")

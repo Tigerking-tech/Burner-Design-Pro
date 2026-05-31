@@ -104,8 +104,6 @@ async def create_checkout(
     # Get Creem product ID based on tier
     creem_product_ids = {
         "pro": os.getenv("CREEM_PRO_PRODUCT_ID", ""),
-        "team": os.getenv("CREEM_TEAM_PRODUCT_ID", ""),
-        "pro_plus": os.getenv("CREEM_PRO_PLUS_PRODUCT_ID", ""),
     }
     
     product_id = creem_product_ids.get(order_data.tier)
@@ -324,8 +322,6 @@ async def get_products():
         
         creem_product_ids = {
             "pro": os.getenv("CREEM_PRO_PRODUCT_ID", ""),
-            "team": os.getenv("CREEM_TEAM_PRODUCT_ID", ""),
-            "pro_plus": os.getenv("CREEM_PRO_PLUS_PRODUCT_ID", ""),
         }
         
         products.append({
