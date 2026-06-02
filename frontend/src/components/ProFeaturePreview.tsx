@@ -39,33 +39,16 @@ export default function ProFeaturePreview({
       return child
     }
     
-    // 如果是按钮类型的元素，添加点击拦截
     const element = child as React.ReactElement
     const tagName = element.type
     
-    // 判断是否是可点击的元素
     const isClickableElement = 
       tagName === 'button' || 
       (typeof tagName === 'string' && ['button', 'a', 'input'].includes(tagName)) ||
       element.props.onClick ||
       element.props.type === 'submit'
     
-    if (isClickableElement && !isProUser) {
-      return React.cloneElement(element, {
-        onClick: (e: React.MouseEvent) => {
-          handleProAction(e)
-          if (element.props.onClick) {
-            element.props.onClick(e)
-          }
-        },
-        style: {
-          ...element.props.style,
-          cursor: isProUser ? element.props.style?.cursor : 'pointer'
-        }
-      })
-    }
-    
-    // 递归处理子元素
+    // 不再拦截所有点击，只在模态框中提示
     if (element.props.children) {
       return React.cloneElement(element, {
         children: React.Children.map(element.props.children, renderWithProGuard)
