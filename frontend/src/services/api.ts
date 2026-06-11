@@ -418,7 +418,7 @@ export interface Product {
   price: number
   price_display: string
   features: string[]
-  creem_product_id?: string
+  ls_variant_id?: string
   is_configured: boolean
 }
 

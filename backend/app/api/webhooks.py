@@ -1,244 +1,234 @@
 """
-Creem Webhook Handler
-Handles subscription events from Creem
+Lemon Squeezy Webhook Handler
+Handles subscription, order, and checkout events from Lemon Squeezy.
+
+Payload reference: https://docs.lemonsqueezy.com/api/webhooks
+
+Key events:
+  - subscription_created
+  - subscription_updated
+  - subscription_cancelled
+  - subscription_expired
+  - order_created
+  - order_refunded
+
+The webhook payload is always a JSON:API document under `data` with nested
+`attributes`. The user id / email we pass as custom data lives in
+`meta.custom_data`.
 """
 from fastapi import APIRouter, Request, HTTPException, status
-from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import os
 import json
+from datetime import datetime, timedelta
 
-from app.models.user import in_memory_users
-from app.services.creem_client import get_creem_client
+from app.models.user import (
+    User,
+    in_memory_users,
+    in_memory_orders,
+    email_to_user_id,
+)
+from app.services.lemon_squeezy_client import LemonSqueezyClient
 
-router = APIRouter(prefix="/api/webhooks/creem", tags=["Creem Webhooks"])
+router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 
 
-class CreemWebhookEvent(BaseModel):
-    """Webhook event model"""
-    event: str
-    object: Dict[str, Any]
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def _get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
+    """
+    Try to resolve a User from an incoming webhook payload.
 
+    Resolution order:
+      1. ``meta.custom_data.user_id`` (attached at checkout creation time)
+      2. ``data.attributes.user_email`` (for orders)
+      3. ``data.attributes.user_name`` / look up email via LS API if available
+    """
+    meta = payload.get("meta") or {}
+    custom = meta.get("custom_data") or {}
+    user_id = custom.get("user_id")
 
-def get_user_by_creem_customer_id(customer_id: str):
-    """Find user by Creem customer ID"""
-    for user in in_memory_users.values():
-        if hasattr(user, 'creem_customer_id') and user.creem_customer_id == customer_id:
-            return user
+    if user_id and user_id in in_memory_users:
+        return in_memory_users[user_id]
+
+    # Fall back to the user's email on the order / subscription
+    attrs = (payload.get("data") or {}).get("attributes") or {}
+    email = attrs.get("user_email") or custom.get("user_email")
+    if email:
+        uid = email_to_user_id.get(email.lower())
+        if uid and uid in in_memory_users:
+            return in_memory_users[uid]
+
     return None
 
 
-def get_user_by_email(email: str):
-    """Find user by email"""
-    for user in in_memory_users.values():
-        if user.email == email:
-            return user
+def _get_order_from_payload(payload: Dict[str, Any]) -> Optional[Any]:
+    """
+    Orders carry the Lemon Squeezy ``identifier`` but our checkout session ids
+    are stored on orders differently. For our needs we look up locally by the
+    checkout identifier we get on an order's ``first_order_item`` / via
+    ``attributes.checkout_id`` (LS does not include it directly but sometimes
+    ``identifier`` on order matches the checkout id from the checkout payload).
+    We fall back to the LS subscription id / order id stored by user.
+    """
+    attrs = (payload.get("data") or {}).get("attributes") or {}
+    identifier = attrs.get("identifier") or attrs.get("order_number")
+    subscription_id = attrs.get("subscription_id")
+
+    for order in in_memory_orders.values():
+        if identifier and getattr(order, "ls_checkout_id", None) == str(identifier):
+            return order
+        if (
+            subscription_id
+            and getattr(order, "ls_order_id", None) == str(subscription_id)
+        ):
+            return order
+
     return None
 
 
-async def handle_checkout_completed(event_data: Dict[str, Any]):
-    """Handle checkout.completed event"""
-    checkout = event_data.get("object", {})
-    customer_id = checkout.get("customer_id")
-    customer_email = checkout.get("customer_email")
-    product_id = checkout.get("product_id")
-    
-    # Find user
-    user = None
-    if customer_id:
-        user = get_user_by_creem_customer_id(customer_id)
-    if not user and customer_email:
-        user = get_user_by_email(customer_email)
-    
-    if not user:
-        print(f"Webhook: User not found for checkout {checkout.get('id')}")
-        return {"success": False, "message": "User not found"}
-    
-    # Map Creem product to subscription tier
-    # You need to configure this mapping based on your Creem products
-    tier_mapping = {
-        os.getenv("CREEM_PRO_PRODUCT_ID", ""): "pro",
-    }
-    
-    tier = tier_mapping.get(product_id, "pro")
-    
-    # Update user subscription
-    from datetime import datetime, timedelta
-    user.subscription_tier = tier
-    user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
-    user.updated_at = datetime.utcnow()
-    
-    # Store Creem customer ID if not already stored
-    if customer_id and not hasattr(user, 'creem_customer_id'):
-        user.creem_customer_id = customer_id
-    
-    # Store Creem subscription ID if available
-    if "subscription_id" in checkout:
-        user.creem_subscription_id = checkout["subscription_id"]
-    
-    print(f"Webhook: Activated {tier} subscription for {user.email}")
-    return {"success": True, "message": f"Subscription {tier} activated"}
+def _update_user_pro(user: User, valid_days: int = 30) -> None:
+    now = datetime.utcnow()
+    user.subscription_tier = "pro"
+    user.subscription_expires_at = now + timedelta(days=valid_days)
+    user.updated_at = now
 
 
-async def handle_subscription_active(event_data: Dict[str, Any]):
-    """Handle subscription.active event"""
-    subscription = event_data.get("object", {})
-    customer_id = subscription.get("customer_id")
-    product_id = subscription.get("product_id")
-    
-    user = get_user_by_creem_customer_id(customer_id)
-    if not user:
-        # Try to find by iterating users and checking their email in subscription
-        print(f"Webhook: User not found for subscription {subscription.get('id')}")
-        return {"success": False, "message": "User not found"}
-    
-    # Map product to tier
-    tier_mapping = {
-        os.getenv("CREEM_PRO_PRODUCT_ID", ""): "pro",
-    }
-    
-    tier = tier_mapping.get(product_id, "pro")
-    
-    from datetime import datetime, timedelta
-    user.subscription_tier = tier
-    user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
-    user.updated_at = datetime.utcnow()
-    user.creem_subscription_id = subscription.get("id")
-    
-    print(f"Webhook: Activated subscription for {user.email}")
-    return {"success": True}
-
-
-async def handle_subscription_canceled(event_data: Dict[str, Any]):
-    """Handle subscription.canceled event"""
-    subscription = event_data.get("object", {})
-    customer_id = subscription.get("customer_id")
-    
-    user = get_user_by_creem_customer_id(customer_id)
-    if not user:
-        print(f"Webhook: User not found for cancellation")
-        return {"success": False}
-    
-    # Downgrade to free
+def _downgrade_user(user: User) -> None:
     user.subscription_tier = "free"
     user.subscription_expires_at = None
-    user.updated_at = __import__('datetime').datetime.utcnow()
-    
-    print(f"Webhook: Canceled subscription for {user.email}")
-    return {"success": True}
-
-
-async def handle_subscription_paid(event_data: Dict[str, Any]):
-    """Handle subscription.paid event (recurring payment successful)"""
-    subscription = event_data.get("object", {})
-    customer_id = subscription.get("customer_id")
-    
-    user = get_user_by_creem_customer_id(customer_id)
-    if not user:
-        print(f"Webhook: User not found for payment")
-        return {"success": False}
-    
-    from datetime import datetime, timedelta
-    # Extend subscription
-    if user.subscription_expires_at:
-        user.subscription_expires_at = user.subscription_expires_at + timedelta(days=30)
-    else:
-        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
-    
     user.updated_at = datetime.utcnow()
-    
-    print(f"Webhook: Extended subscription for {user.email}")
-    return {"success": True}
 
 
-async def handle_subscription_past_due(event_data: Dict[str, Any]):
-    """Handle subscription.past_due event"""
-    subscription = event_data.get("object", {})
-    customer_id = subscription.get("customer_id")
-    
-    user = get_user_by_creem_customer_id(customer_id)
-    if user:
-        # Mark subscription as past due (could add a field for this)
-        print(f"Webhook: Subscription past due for {user.email}")
-    
-    return {"success": True}
+def _mark_order_succeeded(user: User) -> None:
+    for order in in_memory_orders.values():
+        if order.user_id == user.id and order.status == "pending":
+            order.status = "succeeded"
+            order.updated_at = datetime.utcnow()
 
 
-async def handle_subscription_expired(event_data: Dict[str, Any]):
-    """Handle subscription.expired event"""
-    subscription = event_data.get("object", {})
-    customer_id = subscription.get("customer_id")
-    
-    user = get_user_by_creem_customer_id(customer_id)
-    if user:
-        user.subscription_tier = "free"
-        user.subscription_expires_at = None
-        user.updated_at = __import__('datetime').datetime.utcnow()
-        print(f"Webhook: Subscription expired for {user.email}")
-    
-    return {"success": True}
+def _mark_order_refunded(user: User) -> None:
+    for order in in_memory_orders.values():
+        if order.user_id == user.id and order.status == "succeeded":
+            order.status = "refunded"
+            order.updated_at = datetime.utcnow()
 
 
-EVENT_HANDLERS = {
-    "checkout.completed": handle_checkout_completed,
-    "subscription.active": handle_subscription_active,
-    "subscription.paid": handle_subscription_paid,
-    "subscription.canceled": handle_subscription_canceled,
-    "subscription.past_due": handle_subscription_past_due,
-    "subscription.expired": handle_subscription_expired,
-}
-
-
-@router.post("/webhook")
-async def creem_webhook(request: Request):
+# ---------------------------------------------------------------------------
+# Webhook handler
+# ---------------------------------------------------------------------------
+@router.post("/lemon-squeezy")
+async def lemon_squeezy_webhook(request: Request):
     """
-    Handle Creem webhook events
+    Public endpoint receiving signed webhooks from Lemon Squeezy.
+
+    Lemon Squeezy sends:
+      - ``X-Signature`` header (HMAC-SHA256 hex of raw body using signing secret)
+      - JSON body containing the event metadata and affected resource
     """
-    # Get webhook secret for verification
-    webhook_secret = os.getenv("CREEM_WEBHOOK_SECRET", "")
-    
-    # Get signature from headers
-    signature = request.headers.get("creem-signature", "")
-    
-    # Get raw body
+    webhook_secret = os.getenv("LEMON_SQUEEZY_WEBHOOK_SECRET", "").strip()
+    signature = request.headers.get("x-signature") or request.headers.get(
+        "X-Signature"
+    )
     body = await request.body()
-    body_str = body.decode("utf-8") if isinstance(body, bytes) else body
-    
-    # Verify signature (skip in test mode)
-    if webhook_secret and os.getenv("CREEM_TEST_MODE", "true").lower() != "true":
-        from app.services.creem_client import CreemClient
-        if not CreemClient.verify_webhook(body_str, signature, webhook_secret):
+
+    # Signature verification (skip in development if secret not configured)
+    if webhook_secret:
+        if not signature or not LemonSqueezyClient.verify_webhook_signature(
+            body, signature, webhook_secret
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid webhook signature"
+                detail="Invalid webhook signature",
             )
-    
-    # Parse event
+    else:
+        print(
+            "[webhooks] WARNING: LEMON_SQUEEZY_WEBHOOK_SECRET is not set; "
+            "accepting webhook without verification."
+        )
+
     try:
-        event_data = json.loads(body_str)
+        payload = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid JSON payload"
+            detail="Invalid JSON payload",
         )
-    
-    event_type = event_data.get("event")
-    
-    # Log received event
-    print(f"Creem Webhook: Received {event_type}")
-    
-    # Handle event
-    handler = EVENT_HANDLERS.get(event_type)
-    if handler:
-        try:
-            result = await handler(event_data)
-            return result
-        except Exception as e:
-            print(f"Error handling webhook event {event_type}: {str(e)}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error processing event: {str(e)}"
-            )
-    else:
-        print(f"Creem Webhook: Unhandled event type {event_type}")
-        return {"success": True, "message": "Event type not handled"}
+
+    meta = payload.get("meta") or {}
+    event_name = meta.get("event_name")
+    data = payload.get("data") or {}
+    attrs = data.get("attributes") or {}
+
+    print(f"[webhooks] Received LS event: {event_name}")
+
+    user = _get_user_from_payload(payload)
+
+    # ------------------------------------------------------------------
+    # Subscription events
+    # ------------------------------------------------------------------
+    if event_name in (
+        "subscription_created",
+        "subscription_updated",
+        "subscription_paused",
+    ):
+        if not user:
+            print(f"[webhooks] {event_name}: user not found")
+            return {"success": True, "message": "User not found (no-op)"}
+
+        status_val = attrs.get("status")
+        # LS statuses: active, cancelled, expired, past_due, unpaid, paused
+        if status_val in ("cancelled", "expired", "past_due", "unpaid", "paused"):
+            _downgrade_user(user)
+        else:
+            # Activate / extend for the current billing cycle
+            _update_user_pro(user, valid_days=30)
+            # Persist LS subscription id on user for later portal lookups
+            sub_id = data.get("id")
+            if sub_id:
+                user.ls_subscription_id = str(sub_id)
+            _mark_order_succeeded(user)
+        return {"success": True, "message": f"Handled {event_name}"}
+
+    if event_name == "subscription_cancelled":
+        # At end-of-term cancellation; keep Pro until expires
+        if user:
+            sub_id = data.get("id")
+            if sub_id:
+                user.ls_subscription_id = str(sub_id)
+        return {"success": True, "message": f"Handled {event_name}"}
+
+    if event_name == "subscription_expired":
+        if user:
+            _downgrade_user(user)
+        return {"success": True, "message": f"Handled {event_name}"}
+
+    # ------------------------------------------------------------------
+    # Order events
+    # ------------------------------------------------------------------
+    if event_name == "order_created":
+        if not user:
+            print(f"[webhooks] {event_name}: user not found")
+            return {"success": True, "message": "User not found (no-op)"}
+
+        order_status = attrs.get("status")  # paid, pending, refunded
+        if order_status == "paid":
+            _update_user_pro(user, valid_days=30)
+            _mark_order_succeeded(user)
+            sub_id = attrs.get("subscription_id") or data.get("id")
+            if sub_id:
+                user.ls_subscription_id = str(sub_id)
+        return {"success": True, "message": f"Handled {event_name}"}
+
+    if event_name == "order_refunded":
+        if user:
+            _downgrade_user(user)
+            _mark_order_refunded(user)
+        return {"success": True, "message": f"Handled {event_name}"}
+
+    # ------------------------------------------------------------------
+    # Ignored events
+    # ------------------------------------------------------------------
+    print(f"[webhooks] Ignored LS event: {event_name}")
+    return {"success": True, "message": "Event not handled"}

@@ -8,7 +8,7 @@ interface Product {
   price: number
   price_display: string
   features: string[]
-  creem_product_id?: string
+  ls_variant_id?: string
   is_configured: boolean
 }
 
@@ -18,7 +18,7 @@ interface Subscription {
   expires_at?: string | null
   is_active: boolean
   features?: string[]
-  creem_portal_url?: string
+  billing_portal_url?: string
 }
 
 const SubscriptionPage: React.FC = () => {
@@ -60,7 +60,7 @@ const SubscriptionPage: React.FC = () => {
       const response = await subscriptionAPI.createCheckout(tier)
       
       if (response.success && response.checkout_url) {
-        // Redirect to Creem checkout
+        // Redirect to Lemon Squeezy hosted checkout
         window.location.href = response.checkout_url
       } else {
         setError('Failed to create checkout. Please try again.')
@@ -74,8 +74,8 @@ const SubscriptionPage: React.FC = () => {
   }
 
   const handleManageSubscription = () => {
-    if (subscription?.creem_portal_url) {
-      window.location.href = subscription.creem_portal_url
+    if (subscription?.billing_portal_url) {
+      window.location.href = subscription.billing_portal_url
     }
   }
 
@@ -138,7 +138,7 @@ const SubscriptionPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex gap-3">
-                {subscription.creem_portal_url && (
+                {subscription.billing_portal_url && (
                   <button
                     onClick={handleManageSubscription}
                     className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -346,7 +346,7 @@ const SubscriptionPage: React.FC = () => {
                 Is my payment information secure?
               </h3>
               <p className="text-gray-400">
-                Yes, all payments are processed securely through Creem. We never store your payment details on our servers.
+                Yes, all payments are processed securely through Lemon Squeezy. We never store your payment details on our servers.
               </p>
             </div>
           </div>

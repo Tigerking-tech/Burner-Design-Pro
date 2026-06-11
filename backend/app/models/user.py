@@ -43,9 +43,9 @@ class User(UserBase):
     updated_at: datetime
     subscription_tier: str = "free"  # free, pro, team
     subscription_expires_at: Optional[datetime] = None
-    # Creem integration fields
-    creem_customer_id: Optional[str] = None
-    creem_subscription_id: Optional[str] = None
+    # Payment provider integration fields (Lemon Squeezy)
+    ls_customer_id: Optional[str] = None
+    ls_subscription_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -104,8 +104,8 @@ class Order(BaseModel):
     tier: str
     amount: int  # in cents
     currency: str = "usd"
-    creem_checkout_id: Optional[str] = None
-    stripe_payment_intent_id: Optional[str] = None
+    ls_checkout_id: Optional[str] = None
+    ls_order_id: Optional[str] = None
     status: str = "pending"  # pending, succeeded, failed, refunded
     created_at: datetime
     updated_at: datetime
