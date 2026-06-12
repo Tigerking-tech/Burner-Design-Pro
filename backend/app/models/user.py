@@ -43,9 +43,9 @@ class User(UserBase):
     updated_at: datetime
     subscription_tier: str = "free"  # free, pro, team
     subscription_expires_at: Optional[datetime] = None
-    # Payment provider integration fields (Paddle)
-    paddle_customer_id: Optional[str] = None
-    paddle_subscription_id: Optional[str] = None
+    # Payment provider integration fields (Creem)
+    creem_customer_id: Optional[str] = None
+    creem_subscription_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -104,8 +104,8 @@ class Order(BaseModel):
     tier: str
     amount: int  # in cents
     currency: str = "usd"
-    paddle_checkout_id: Optional[str] = None
-    paddle_transaction_id: Optional[str] = None
+    creem_checkout_id: Optional[str] = None
+    creem_order_id: Optional[str] = None
     status: str = "pending"  # pending, succeeded, failed, refunded
     created_at: datetime
     updated_at: datetime

@@ -418,7 +418,7 @@ export interface Product {
   price: number
   price_display: string
   features: string[]
-  paddle_price_id?: string
+  creem_product_id?: string
   is_configured: boolean
 }
 

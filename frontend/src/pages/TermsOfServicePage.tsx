@@ -177,9 +177,13 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-2xl font-bold text-[#2c3e50] mb-4">10. Contact Information</h2>
-            <p className="text-gray-700 leading-relaxed">
-              For questions regarding these Terms of Service, please contact us through the website.
+            <p className="text-gray-700 leading-relaxed mb-3">
+              For questions regarding these Terms of Service, billing, or technical support, please contact us at:
             </p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="text-gray-700"><strong>Email:</strong> support@burnerdesignpro.com</p>
+              <p className="text-gray-700 mt-2"><strong>Response time:</strong> We aim to respond within 3-5 business days</p>
+            </div>
           </section>
 
           <div className="bg-gray-100 rounded-lg p-6 mt-8">

@@ -1,5 +1,5 @@
 """
-Subscription, Payment, and Admin API endpoints (Paddle integration)
+Subscription, Payment, and Admin API endpoints (Creem integration)
 """
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -14,7 +14,7 @@ from app.models.user import (
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
 from app.api.auth import get_current_active_user, get_admin_user
-from app.services.paddle_client import get_paddle_client
+from app.services.creem_client import get_creem_client
 
 router = APIRouter(prefix="/api", tags=["Subscription", "Payment", "Admin"])
 
@@ -42,11 +42,16 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
         },
     }
 
-    # Add billing portal URL if the user has an active Paddle subscription
-    if getattr(current_user, "paddle_subscription_id", None):
+    # Add billing portal URL if the user has an active Creem subscription
+    if getattr(current_user, "creem_customer_id", None):
         try:
-            paddle = get_paddle_client()
-            portal_url = paddle.get_customer_portal_url(current_user.paddle_subscription_id)
+            creem = get_creem_client()
+            app_url = os.getenv("APP_URL", "http://localhost:3000").rstrip("/")
+            portal_resp = creem.create_customer_portal(
+                customer_id=current_user.creem_customer_id,
+                return_url=f"{app_url}/subscription"
+            )
+            portal_url = portal_resp.get("portal_url") or portal_resp.get("url")
             if portal_url:
                 result["subscription"]["billing_portal_url"] = portal_url
         except Exception as e:
@@ -57,17 +62,17 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
 
 @router.post("/subscription/cancel")
 async def cancel_subscription(current_user: User = Depends(get_current_active_user)):
-    """Cancel current subscription (via Paddle if applicable)"""
+    """Cancel current subscription (via Creem if applicable)"""
     if current_user.subscription_tier == "free":
         return {"success": True, "message": "Already on free plan"}
 
-    # Cancel on Paddle side if there's an active subscription id
-    if getattr(current_user, "paddle_subscription_id", None):
+    # Cancel on Creem side if there's an active subscription id
+    if getattr(current_user, "creem_subscription_id", None):
         try:
-            paddle = get_paddle_client()
-            paddle.cancel_subscription(current_user.paddle_subscription_id)
+            creem = get_creem_client()
+            creem.cancel_subscription(current_user.creem_subscription_id)
         except Exception as e:
-            print(f"[subscription] Error canceling Paddle subscription: {e}")
+            print(f"[subscription] Error canceling Creem subscription: {e}")
 
     # Downgrade user to free tier locally
     current_user.subscription_tier = "free"
@@ -90,7 +95,7 @@ async def create_checkout(
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Create a Paddle hosted checkout session.
+    Create a Creem hosted checkout session.
     Returns a checkout URL the frontend can redirect to.
     """
     if order_data.tier not in SUBSCRIPTION_TIERS:
@@ -99,16 +104,16 @@ async def create_checkout(
             detail="Invalid subscription tier",
         )
 
-    # Map tier to configured Paddle Price ID
-    price_ids = {
-        "pro": os.getenv("PADDLE_PRO_PRICE_ID", "").strip(),
+    # Map tier to configured Creem Product ID
+    product_ids = {
+        "pro": os.getenv("CREEM_PRO_PRODUCT_ID", "").strip(),
     }
 
-    price_id = price_ids.get(order_data.tier, "")
-    if not price_id:
+    product_id = product_ids.get(order_data.tier, "")
+    if not product_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Paddle price not configured for this tier",
+            detail="Creem product not configured for this tier",
         )
 
     tier = SUBSCRIPTION_TIERS[order_data.tier]
@@ -117,26 +122,25 @@ async def create_checkout(
     cancel_url = f"{app_url}/subscription"
 
     try:
-        paddle = get_paddle_client()
+        creem = get_creem_client()
 
-        checkout_data = paddle.create_checkout(
-            price_id=price_id,
+        checkout_data = creem.create_checkout(
+            product_id=product_id,
             customer_email=current_user.email,
             success_url=success_url,
             cancel_url=cancel_url,
-            custom_data={
+            metadata={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
                 "user_email": current_user.email,
             },
         )
 
-        data = checkout_data.get("data", {})
-        checkout_url = data.get("url")
-        checkout_id = data.get("id")
+        checkout_url = checkout_data.get("checkout_url") or checkout_data.get("url")
+        checkout_id = checkout_data.get("checkout_id") or checkout_data.get("id")
 
         if not checkout_url:
-            raise Exception("Paddle did not return a checkout URL")
+            raise Exception("Creem did not return a checkout URL")
 
         # Persist the order locally so we can match it when the webhook fires
         order_id = str(uuid.uuid4())
@@ -150,7 +154,7 @@ async def create_checkout(
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
-        order.paddle_checkout_id = checkout_id
+        order.creem_checkout_id = checkout_id
         in_memory_orders[order_id] = order
 
         return {
@@ -161,7 +165,7 @@ async def create_checkout(
         }
 
     except Exception as e:
-        print(f"[payment] Error creating Paddle checkout: {e}")
+        print(f"[payment] Error creating Creem checkout: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create checkout: {e}",
@@ -169,7 +173,7 @@ async def create_checkout(
 
 
 # ----------------------------------------------------------------------
-# Post-checkout: frontend polls after returning from Paddle
+# Post-checkout: frontend polls after returning from Creem
 # ----------------------------------------------------------------------
 @router.post("/payment/confirm/{order_id}")
 async def confirm_payment(
@@ -178,7 +182,7 @@ async def confirm_payment(
 ):
     """
     Called by the frontend after the user is redirected back from
-    the Paddle checkout. Activates the user's subscription if
+    the Creem checkout. Activates the user's subscription if
     the associated order has been marked "succeeded" by the webhook.
     """
     order = in_memory_orders.get(order_id)
@@ -239,10 +243,10 @@ async def get_products():
             continue
 
         configured = False
-        price_id = ""
+        product_id = ""
         if tier_key == "pro":
-            price_id = os.getenv("PADDLE_PRO_PRICE_ID", "").strip()
-            configured = bool(price_id)
+            product_id = os.getenv("CREEM_PRO_PRODUCT_ID", "").strip()
+            configured = bool(product_id)
 
         products.append(
             {
@@ -251,7 +255,7 @@ async def get_products():
                 "price": tier.price,
                 "price_display": tier.price_display,
                 "features": tier.features,
-                "paddle_price_id": price_id,
+                "creem_product_id": product_id,
                 "is_configured": configured,
             }
         )
@@ -298,20 +302,15 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
     succeeded_orders = [o for o in in_memory_orders.values() if o.status == "succeeded"]
     total_revenue = sum(o.amount for o in succeeded_orders)
 
-    paddle_revenue_cents = 0
+    creem_revenue_cents = 0
     try:
-        paddle = get_paddle_client()
-        txn_resp = paddle.list_transactions()
-        for txn in txn_resp.get("data", []):
-            attrs = txn.get("attributes", {})
-            status = attrs.get("status")
-            if status not in ("completed", "paid"):
-                continue
-            details = attrs.get("details", {}) or {}
-            tot = details.get("totals", {}) or {}
-            paddle_revenue_cents += int(float(tot.get("total", 0) or 0))
+        creem = get_creem_client()
+        txn_resp = creem.list_transactions()
+        for txn in (txn_resp.get("data") or txn_resp.get("transactions") or []):
+            amount = txn.get("amount") or txn.get("total") or 0
+            creem_revenue_cents += int(float(amount or 0))
     except Exception as e:
-        print(f"[admin/revenue] Error listing Paddle transactions: {e}")
+        print(f"[admin/revenue] Error listing Creem transactions: {e}")
 
     return {
         "success": True,
@@ -319,8 +318,8 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
         "total_revenue_display": f"${total_revenue / 100:.2f}",
         "total_orders": len(in_memory_orders),
         "succeeded_orders": len(succeeded_orders),
-        "paddle_revenue_cents": paddle_revenue_cents,
-        "paddle_revenue_display": f"${paddle_revenue_cents / 100:.2f}",
+        "creem_revenue_cents": creem_revenue_cents,
+        "creem_revenue_display": f"${creem_revenue_cents / 100:.2f}",
     }
 
 
@@ -330,7 +329,7 @@ async def create_withdrawal(
     admin_user: User = Depends(get_admin_user),
 ):
     revenue_resp = await get_revenue(admin_user)
-    total_revenue = revenue_resp.get("paddle_revenue_cents", 0)
+    total_revenue = revenue_resp.get("creem_revenue_cents", 0)
 
     if withdrawal_data.amount > total_revenue:
         raise HTTPException(

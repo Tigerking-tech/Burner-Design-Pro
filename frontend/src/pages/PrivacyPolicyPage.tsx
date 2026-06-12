@@ -140,8 +140,13 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-2xl font-bold text-[#2c3e50] mb-4">Contact Us</h2>
             <p className="text-gray-700 leading-relaxed">
-              If you have any questions about this Privacy Policy, please contact us through the website.
+              If you have any questions about this Privacy Policy, our data practices, or wish to exercise your rights,
+              please contact us at:
             </p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-3">
+              <p className="text-gray-700"><strong>Email:</strong> support@burnerdesignpro.com</p>
+              <p className="text-gray-700 mt-2"><strong>Response time:</strong> We aim to respond within 3-5 business days</p>
+            </div>
           </section>
 
           <div className="bg-blue-50 rounded-lg p-6 mt-8">
