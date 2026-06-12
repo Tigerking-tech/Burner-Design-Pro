@@ -1,5 +1,5 @@
 """
-Subscription, Payment, and Admin API endpoints (Lemon Squeezy integration)
+Subscription, Payment, and Admin API endpoints (Paddle integration)
 """
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -14,7 +14,7 @@ from app.models.user import (
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
 from app.api.auth import get_current_active_user, get_admin_user
-from app.services.lemon_squeezy_client import get_lemon_squeezy_client
+from app.services.paddle_client import get_paddle_client
 
 router = APIRouter(prefix="/api", tags=["Subscription", "Payment", "Admin"])
 
@@ -39,14 +39,14 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             "has_pdf_export": tier.has_pdf_export,
             "has_pro_calculators": tier.has_pro_calculators,
             "has_team_features": tier.has_team_features,
-        }
+        },
     }
 
-    # Add billing portal URL if the user has an active Lemon Squeezy subscription
-    if getattr(current_user, "ls_subscription_id", None):
+    # Add billing portal URL if the user has an active Paddle subscription
+    if getattr(current_user, "paddle_subscription_id", None):
         try:
-            ls = get_lemon_squeezy_client()
-            portal_url = ls.get_customer_portal_url(current_user.ls_subscription_id)
+            paddle = get_paddle_client()
+            portal_url = paddle.get_customer_portal_url(current_user.paddle_subscription_id)
             if portal_url:
                 result["subscription"]["billing_portal_url"] = portal_url
         except Exception as e:
@@ -57,17 +57,17 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
 
 @router.post("/subscription/cancel")
 async def cancel_subscription(current_user: User = Depends(get_current_active_user)):
-    """Cancel current subscription (via Lemon Squeezy if applicable)"""
+    """Cancel current subscription (via Paddle if applicable)"""
     if current_user.subscription_tier == "free":
         return {"success": True, "message": "Already on free plan"}
 
-    # Cancel on Lemon Squeezy side if there's an active subscription id
-    if getattr(current_user, "ls_subscription_id", None):
+    # Cancel on Paddle side if there's an active subscription id
+    if getattr(current_user, "paddle_subscription_id", None):
         try:
-            ls = get_lemon_squeezy_client()
-            ls.cancel_subscription(current_user.ls_subscription_id)
+            paddle = get_paddle_client()
+            paddle.cancel_subscription(current_user.paddle_subscription_id)
         except Exception as e:
-            print(f"[subscription] Error canceling LS subscription: {e}")
+            print(f"[subscription] Error canceling Paddle subscription: {e}")
 
     # Downgrade user to free tier locally
     current_user.subscription_tier = "free"
@@ -90,7 +90,7 @@ async def create_checkout(
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Create a Lemon Squeezy hosted checkout session.
+    Create a Paddle hosted checkout session.
     Returns a checkout URL the frontend can redirect to.
     """
     if order_data.tier not in SUBSCRIPTION_TIERS:
@@ -99,42 +99,44 @@ async def create_checkout(
             detail="Invalid subscription tier",
         )
 
-    # Only Pro is currently wired up with Lemon Squeezy
-    variant_ids = {
-        "pro": os.getenv("LEMON_SQUEEZY_PRO_VARIANT_ID", "").strip(),
+    # Map tier to configured Paddle Price ID
+    price_ids = {
+        "pro": os.getenv("PADDLE_PRO_PRICE_ID", "").strip(),
     }
 
-    variant_id = variant_ids.get(order_data.tier, "")
-    if not variant_id:
+    price_id = price_ids.get(order_data.tier, "")
+    if not price_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Lemon Squeezy variant not configured for this tier",
+            detail="Paddle price not configured for this tier",
         )
 
     tier = SUBSCRIPTION_TIERS[order_data.tier]
     app_url = os.getenv("APP_URL", "http://localhost:3000").rstrip("/")
     success_url = f"{app_url}/subscription/success"
+    cancel_url = f"{app_url}/subscription"
 
     try:
-        ls = get_lemon_squeezy_client()
+        paddle = get_paddle_client()
 
-        checkout_data = ls.create_checkout(
-            variant_id=variant_id,
+        checkout_data = paddle.create_checkout(
+            price_id=price_id,
             customer_email=current_user.email,
             success_url=success_url,
-            redirect_url=success_url,
+            cancel_url=cancel_url,
             custom_data={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
+                "user_email": current_user.email,
             },
         )
 
-        checkout_attrs = checkout_data.get("data", {}).get("attributes", {})
-        checkout_url = checkout_attrs.get("url")
-        checkout_id = checkout_data.get("data", {}).get("id")
+        data = checkout_data.get("data", {})
+        checkout_url = data.get("url")
+        checkout_id = data.get("id")
 
         if not checkout_url:
-            raise Exception("Lemon Squeezy did not return a checkout URL")
+            raise Exception("Paddle did not return a checkout URL")
 
         # Persist the order locally so we can match it when the webhook fires
         order_id = str(uuid.uuid4())
@@ -148,7 +150,7 @@ async def create_checkout(
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
-        order.ls_checkout_id = checkout_id
+        order.paddle_checkout_id = checkout_id
         in_memory_orders[order_id] = order
 
         return {
@@ -159,7 +161,7 @@ async def create_checkout(
         }
 
     except Exception as e:
-        print(f"[payment] Error creating Lemon Squeezy checkout: {e}")
+        print(f"[payment] Error creating Paddle checkout: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create checkout: {e}",
@@ -167,7 +169,7 @@ async def create_checkout(
 
 
 # ----------------------------------------------------------------------
-# Post-checkout: frontend polls after returning from LS
+# Post-checkout: frontend polls after returning from Paddle
 # ----------------------------------------------------------------------
 @router.post("/payment/confirm/{order_id}")
 async def confirm_payment(
@@ -176,7 +178,7 @@ async def confirm_payment(
 ):
     """
     Called by the frontend after the user is redirected back from
-    the Lemon Squeezy checkout. Activates the user's subscription if
+    the Paddle checkout. Activates the user's subscription if
     the associated order has been marked "succeeded" by the webhook.
     """
     order = in_memory_orders.get(order_id)
@@ -187,7 +189,6 @@ async def confirm_payment(
         raise HTTPException(status_code=403, detail="Not authorized for this order")
 
     if order.status == "succeeded":
-        # Already activated
         return {
             "success": True,
             "message": "Payment already confirmed",
@@ -196,7 +197,6 @@ async def confirm_payment(
         }
 
     if order.status == "pending":
-        # Webhook may not have fired yet. Ask the frontend to retry in a moment.
         return {
             "success": False,
             "message": "Payment is still being processed. Please refresh shortly.",
@@ -239,10 +239,10 @@ async def get_products():
             continue
 
         configured = False
-        variant_id = ""
+        price_id = ""
         if tier_key == "pro":
-            variant_id = os.getenv("LEMON_SQUEEZY_PRO_VARIANT_ID", "").strip()
-            configured = bool(variant_id)
+            price_id = os.getenv("PADDLE_PRO_PRICE_ID", "").strip()
+            configured = bool(price_id)
 
         products.append(
             {
@@ -251,7 +251,7 @@ async def get_products():
                 "price": tier.price,
                 "price_display": tier.price_display,
                 "features": tier.features,
-                "ls_variant_id": variant_id,
+                "paddle_price_id": price_id,
                 "is_configured": configured,
             }
         )
@@ -298,20 +298,20 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
     succeeded_orders = [o for o in in_memory_orders.values() if o.status == "succeeded"]
     total_revenue = sum(o.amount for o in succeeded_orders)
 
-    ls_revenue_cents = 0
+    paddle_revenue_cents = 0
     try:
-        ls = get_lemon_squeezy_client()
-        orders_resp = ls.list_orders()
-        for order in orders_resp.get("data", []):
-            attrs = order.get("attributes", {})
+        paddle = get_paddle_client()
+        txn_resp = paddle.list_transactions()
+        for txn in txn_resp.get("data", []):
+            attrs = txn.get("attributes", {})
             status = attrs.get("status")
-            if status in ("paid", "refunded"):
+            if status not in ("completed", "paid"):
                 continue
-            subtotal = attrs.get("subtotal", 0) or 0
-            # subtotal is in cents
-            ls_revenue_cents += int(float(subtotal))
+            details = attrs.get("details", {}) or {}
+            tot = details.get("totals", {}) or {}
+            paddle_revenue_cents += int(float(tot.get("total", 0) or 0))
     except Exception as e:
-        print(f"[admin/revenue] Error listing LS orders: {e}")
+        print(f"[admin/revenue] Error listing Paddle transactions: {e}")
 
     return {
         "success": True,
@@ -319,8 +319,8 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
         "total_revenue_display": f"${total_revenue / 100:.2f}",
         "total_orders": len(in_memory_orders),
         "succeeded_orders": len(succeeded_orders),
-        "ls_revenue_cents": ls_revenue_cents,
-        "ls_revenue_display": f"${ls_revenue_cents / 100:.2f}",
+        "paddle_revenue_cents": paddle_revenue_cents,
+        "paddle_revenue_display": f"${paddle_revenue_cents / 100:.2f}",
     }
 
 
@@ -330,7 +330,7 @@ async def create_withdrawal(
     admin_user: User = Depends(get_admin_user),
 ):
     revenue_resp = await get_revenue(admin_user)
-    total_revenue = revenue_resp.get("ls_revenue_cents", 0)
+    total_revenue = revenue_resp.get("paddle_revenue_cents", 0)
 
     if withdrawal_data.amount > total_revenue:
         raise HTTPException(

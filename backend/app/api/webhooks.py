@@ -1,20 +1,38 @@
 """
-Lemon Squeezy Webhook Handler
-Handles subscription, order, and checkout events from Lemon Squeezy.
+Paddle Webhook Handler
+Handles subscription and transaction events from Paddle Billing.
 
-Payload reference: https://docs.lemonsqueezy.com/api/webhooks
+Paddle webhook reference:
+  https://developer.paddle.com/webhooks/overview
 
-Key events:
-  - subscription_created
-  - subscription_updated
-  - subscription_cancelled
-  - subscription_expired
-  - order_created
-  - order_refunded
+Payload:
+  {
+    "event_id": "...",
+    "event_type": "subscription.activated",  # transaction.completed, etc.
+    "occurred_at": "2024-01-01T00:00:00.000Z",
+    "notification_id": "...",
+    "data": {
+        "id": "txn_xxx" or "sub_xxx",
+        "type": "transaction" | "subscription" | "customer",
+        "attributes": { ... },
+        "custom_data": { "user_id": "...", "tier": "pro", ... },
+        ...
+    }
+  }
 
-The webhook payload is always a JSON:API document under `data` with nested
-`attributes`. The user id / email we pass as custom data lives in
-`meta.custom_data`.
+Signature header:
+  Paddle-Signature: ts=1700000000;h1=<hex-hmac-sha256>
+
+Endoint to register in Paddle dashboard:
+  https://<your-domain>/api/webhooks/paddle
+
+Key events we care about:
+  - transaction.completed         — user paid for a subscription (initial/renewal)
+  - subscription.activated         — subscription becomes active
+  - subscription.updated (when status becomes cancelled)
+  - subscription.canceled         — subscription scheduled to cancel
+  - subscription.past_due         — payment failed
+  - subscription.paused           — subscription paused
 """
 from fastapi import APIRouter, Request, HTTPException, status
 from typing import Optional, Dict, Any
@@ -28,7 +46,7 @@ from app.models.user import (
     in_memory_orders,
     email_to_user_id,
 )
-from app.services.lemon_squeezy_client import LemonSqueezyClient
+from app.services.paddle_client import PaddleClient
 
 router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 
@@ -38,57 +56,68 @@ router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 # ---------------------------------------------------------------------------
 def _get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
     """
-    Try to resolve a User from an incoming webhook payload.
+    Try to resolve a User from an incoming Paddle webhook payload.
 
     Resolution order:
-      1. ``meta.custom_data.user_id`` (attached at checkout creation time)
-      2. ``data.attributes.user_email`` (for orders)
-      3. ``data.attributes.user_name`` / look up email via LS API if available
+      1. data.custom_data.user_id  (we set this at checkout creation)
+      2. data.custom_data.user_email
+      3. data.attributes.email / data.attributes.customer_id
     """
-    meta = payload.get("meta") or {}
-    custom = meta.get("custom_data") or {}
-    user_id = custom.get("user_id")
+    data = payload.get("data") or {}
+    custom = data.get("custom_data") or {}
+    attrs = data.get("attributes") or {}
 
+    # 1) user_id from custom_data
+    user_id = custom.get("user_id")
     if user_id and user_id in in_memory_users:
         return in_memory_users[user_id]
 
-    # Fall back to the user's email on the order / subscription
-    attrs = (payload.get("data") or {}).get("attributes") or {}
-    email = attrs.get("user_email") or custom.get("user_email")
+    # 2) email from custom_data or transaction attributes
+    email = custom.get("user_email") or attrs.get("email")
     if email:
         uid = email_to_user_id.get(email.lower())
         if uid and uid in in_memory_users:
             return in_memory_users[uid]
 
-    return None
-
-
-def _get_order_from_payload(payload: Dict[str, Any]) -> Optional[Any]:
-    """
-    Orders carry the Lemon Squeezy ``identifier`` but our checkout session ids
-    are stored on orders differently. For our needs we look up locally by the
-    checkout identifier we get on an order's ``first_order_item`` / via
-    ``attributes.checkout_id`` (LS does not include it directly but sometimes
-    ``identifier`` on order matches the checkout id from the checkout payload).
-    We fall back to the LS subscription id / order id stored by user.
-    """
-    attrs = (payload.get("data") or {}).get("attributes") or {}
-    identifier = attrs.get("identifier") or attrs.get("order_number")
-    subscription_id = attrs.get("subscription_id")
-
-    for order in in_memory_orders.values():
-        if identifier and getattr(order, "ls_checkout_id", None) == str(identifier):
-            return order
-        if (
-            subscription_id
-            and getattr(order, "ls_order_id", None) == str(subscription_id)
-        ):
-            return order
+    # 3) email from customer section on transactions
+    customer = attrs.get("customer") or {}
+    if isinstance(customer, dict):
+        email = customer.get("email")
+        if email:
+            uid = email_to_user_id.get(email.lower())
+            if uid and uid in in_memory_users:
+                return in_memory_users[uid]
 
     return None
 
 
-def _update_user_pro(user: User, valid_days: int = 30) -> None:
+def _get_subscription_id(payload: Dict[str, Any]) -> Optional[str]:
+    """Extract the subscription ID (sub_xxx) from a webhook payload."""
+    data = payload.get("data") or {}
+
+    # For subscription.* events — data.id is the subscription id
+    event_type = payload.get("event_type", "")
+    if event_type.startswith("subscription."):
+        sub_id = data.get("id")
+        if sub_id:
+            return str(sub_id)
+
+    # For transaction.* events — find subscription_id inside items/attributes
+    attrs = data.get("attributes") or {}
+    items = attrs.get("items") or []
+    if isinstance(items, list):
+        for it in items:
+            sub_id = (it.get("price") or {}).get("product_id") or it.get(
+                "subscription_id"
+            )
+            if sub_id and str(sub_id).startswith("sub_"):
+                return str(sub_id)
+
+    # Some webhooks have subscription_id at the top-level of attributes
+    return attrs.get("subscription_id")
+
+
+def _activate_pro_tier(user: User, valid_days: int = 30) -> None:
     now = datetime.utcnow()
     user.subscription_tier = "pro"
     user.subscription_expires_at = now + timedelta(days=valid_days)
@@ -118,24 +147,20 @@ def _mark_order_refunded(user: User) -> None:
 # ---------------------------------------------------------------------------
 # Webhook handler
 # ---------------------------------------------------------------------------
-@router.post("/lemon-squeezy")
-async def lemon_squeezy_webhook(request: Request):
+@router.post("/paddle")
+async def paddle_webhook(request: Request):
     """
-    Public endpoint receiving signed webhooks from Lemon Squeezy.
-
-    Lemon Squeezy sends:
-      - ``X-Signature`` header (HMAC-SHA256 hex of raw body using signing secret)
-      - JSON body containing the event metadata and affected resource
+    Public endpoint receiving signed webhooks from Paddle.
     """
-    webhook_secret = os.getenv("LEMON_SQUEEZY_WEBHOOK_SECRET", "").strip()
-    signature = request.headers.get("x-signature") or request.headers.get(
-        "X-Signature"
+    webhook_secret = os.getenv("PADDLE_WEBHOOK_SECRET", "").strip()
+    signature = request.headers.get("paddle-signature") or request.headers.get(
+        "Paddle-Signature"
     )
     body = await request.body()
 
-    # Signature verification (skip in development if secret not configured)
+    # Signature verification
     if webhook_secret:
-        if not signature or not LemonSqueezyClient.verify_webhook_signature(
+        if not signature or not PaddleClient.verify_webhook_signature(
             body, signature, webhook_secret
         ):
             raise HTTPException(
@@ -144,7 +169,7 @@ async def lemon_squeezy_webhook(request: Request):
             )
     else:
         print(
-            "[webhooks] WARNING: LEMON_SQUEEZY_WEBHOOK_SECRET is not set; "
+            "[webhooks] WARNING: PADDLE_WEBHOOK_SECRET is not set; "
             "accepting webhook without verification."
         )
 
@@ -156,79 +181,89 @@ async def lemon_squeezy_webhook(request: Request):
             detail="Invalid JSON payload",
         )
 
-    meta = payload.get("meta") or {}
-    event_name = meta.get("event_name")
+    event_type = payload.get("event_type")
     data = payload.get("data") or {}
     attrs = data.get("attributes") or {}
 
-    print(f"[webhooks] Received LS event: {event_name}")
+    print(f"[webhooks] Received Paddle event: {event_type}")
 
     user = _get_user_from_payload(payload)
+    sub_id = _get_subscription_id(payload)
 
     # ------------------------------------------------------------------
-    # Subscription events
+    # Transaction completed — user just paid / renewed
     # ------------------------------------------------------------------
-    if event_name in (
-        "subscription_created",
-        "subscription_updated",
-        "subscription_paused",
-    ):
+    if event_type == "transaction.completed":
         if not user:
-            print(f"[webhooks] {event_name}: user not found")
+            print(f"[webhooks] {event_type}: user not found")
             return {"success": True, "message": "User not found (no-op)"}
 
-        status_val = attrs.get("status")
-        # LS statuses: active, cancelled, expired, past_due, unpaid, paused
-        if status_val in ("cancelled", "expired", "past_due", "unpaid", "paused"):
+        # Activate / extend pro tier
+        _activate_pro_tier(user, valid_days=30)
+        if sub_id:
+            user.paddle_subscription_id = sub_id
+        # Also attach transaction id if we can match to an order
+        txn_id = data.get("id")
+        for order in in_memory_orders.values():
+            if order.user_id == user.id and order.status == "pending":
+                order.paddle_transaction_id = txn_id
+        _mark_order_succeeded(user)
+        return {"success": True, "message": f"Handled {event_type}"}
+
+    # ------------------------------------------------------------------
+    # Subscription activated / updated (e.g. status -> active)
+    # ------------------------------------------------------------------
+    if event_type in ("subscription.activated", "subscription.updated"):
+        if not user:
+            print(f"[webhooks] {event_type}: user not found")
+            return {"success": True, "message": "User not found (no-op)"}
+
+        status_val = attrs.get("status") or attrs.get("scheduled_change", {}).get(
+            "action"
+        )
+        if status_val in ("canceled", "cancelled", "expired", "past_due", "paused", "inactive"):
             _downgrade_user(user)
         else:
-            # Activate / extend for the current billing cycle
-            _update_user_pro(user, valid_days=30)
-            # Persist LS subscription id on user for later portal lookups
-            sub_id = data.get("id")
+            _activate_pro_tier(user, valid_days=30)
             if sub_id:
-                user.ls_subscription_id = str(sub_id)
+                user.paddle_subscription_id = sub_id
             _mark_order_succeeded(user)
-        return {"success": True, "message": f"Handled {event_name}"}
+        return {"success": True, "message": f"Handled {event_type}"}
 
-    if event_name == "subscription_cancelled":
-        # At end-of-term cancellation; keep Pro until expires
-        if user:
-            sub_id = data.get("id")
-            if sub_id:
-                user.ls_subscription_id = str(sub_id)
-        return {"success": True, "message": f"Handled {event_name}"}
+    # ------------------------------------------------------------------
+    # Subscription cancelled
+    # ------------------------------------------------------------------
+    if event_type in ("subscription.canceled", "subscription.cancelled"):
+        # Paddle notifies when a cancellation is scheduled; we keep Pro
+        # access until the end of the billing period, but record the id
+        # so the user can manage through Paddle.
+        if user and sub_id:
+            user.paddle_subscription_id = sub_id
+        return {"success": True, "message": f"Handled {event_type}"}
 
-    if event_name == "subscription_expired":
+    # ------------------------------------------------------------------
+    # Subscription past due / paused / expired
+    # ------------------------------------------------------------------
+    if event_type in (
+        "subscription.past_due",
+        "subscription.paused",
+        "subscription.expired",
+    ):
         if user:
             _downgrade_user(user)
-        return {"success": True, "message": f"Handled {event_name}"}
+        return {"success": True, "message": f"Handled {event_type}"}
 
     # ------------------------------------------------------------------
-    # Order events
+    # Transaction refunded
     # ------------------------------------------------------------------
-    if event_name == "order_created":
-        if not user:
-            print(f"[webhooks] {event_name}: user not found")
-            return {"success": True, "message": "User not found (no-op)"}
-
-        order_status = attrs.get("status")  # paid, pending, refunded
-        if order_status == "paid":
-            _update_user_pro(user, valid_days=30)
-            _mark_order_succeeded(user)
-            sub_id = attrs.get("subscription_id") or data.get("id")
-            if sub_id:
-                user.ls_subscription_id = str(sub_id)
-        return {"success": True, "message": f"Handled {event_name}"}
-
-    if event_name == "order_refunded":
+    if event_type == "transaction.refunded":
         if user:
             _downgrade_user(user)
             _mark_order_refunded(user)
-        return {"success": True, "message": f"Handled {event_name}"}
+        return {"success": True, "message": f"Handled {event_type}"}
 
     # ------------------------------------------------------------------
-    # Ignored events
+    # Ignored events (customer.created, updated, etc.)
     # ------------------------------------------------------------------
-    print(f"[webhooks] Ignored LS event: {event_name}")
+    print(f"[webhooks] Ignored Paddle event: {event_type}")
     return {"success": True, "message": "Event not handled"}

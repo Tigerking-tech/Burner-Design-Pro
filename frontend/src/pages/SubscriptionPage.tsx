@@ -8,7 +8,7 @@ interface Product {
   price: number
   price_display: string
   features: string[]
-  ls_variant_id?: string
+  paddle_price_id?: string
   is_configured: boolean
 }
 
@@ -60,7 +60,7 @@ const SubscriptionPage: React.FC = () => {
       const response = await subscriptionAPI.createCheckout(tier)
       
       if (response.success && response.checkout_url) {
-        // Redirect to Lemon Squeezy hosted checkout
+        // Redirect to Paddle hosted checkout
         window.location.href = response.checkout_url
       } else {
         setError('Failed to create checkout. Please try again.')
@@ -346,7 +346,7 @@ const SubscriptionPage: React.FC = () => {
                 Is my payment information secure?
               </h3>
               <p className="text-gray-400">
-                Yes, all payments are processed securely through Lemon Squeezy. We never store your payment details on our servers.
+                Yes, all payments are processed securely through Paddle. We never store your payment details on our servers.
               </p>
             </div>
           </div>
