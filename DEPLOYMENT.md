@@ -67,7 +67,12 @@ DEBUG=false
 ALLOWED_ORIGINS=https://your-frontend.vercel.app
 RATE_LIMIT=100
 RATE_WINDOW=60
+ADMIN_EMAIL=your-admin-email@yourdomain.com
+ADMIN_PASSWORD=your-secure-admin-password-here
+ADMIN_FULL_NAME=System Administrator
 ```
+
+**Important:** Always set a strong `ADMIN_PASSWORD` in production!
 
 4. **Get Backend URL**
 After deployment, you'll get a URL like: `https://burner-api.railway.app`
@@ -432,6 +437,50 @@ crontab -e
 - **Logs**: Check Docker logs or `/var/log/burnerpro/`
 - **Security Issues**: Create GitHub issue or contact support
 
+## Administrator Account Setup
+
+### How the Admin Account is Created
+
+The system automatically creates an admin account during the first server startup. The credentials are configured via environment variables.
+
+### Environment Variables for Admin Account
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ADMIN_EMAIL` | No | `admin@burnerpro.com` | Email address for the admin account |
+| `ADMIN_PASSWORD` | **Yes (Production)** | `admin123` | Strong password for admin access |
+| `ADMIN_FULL_NAME` | No | `System Admin` | Display name for the admin |
+
+### Production Setup (Important!)
+
+**Never use the default password in production!**
+
+In your deployment platform (Railway, Render, Docker, etc.), set these environment variables:
+
+```bash
+ADMIN_EMAIL=admin@yourcompany.com
+ADMIN_PASSWORD=your_very_secure_password_here  # Use a strong password!
+ADMIN_FULL_NAME=System Administrator
+ENVIRONMENT=production
+```
+
+### Password Best Practices for Production
+
+1. **Use a strong password**: Minimum 12 characters, mix of uppercase, lowercase, numbers, and symbols
+2. **Never commit passwords** to version control
+3. **Rotate passwords regularly**: Consider changing admin password every 90 days
+4. **Limit access**: Only share admin credentials with trusted team members
+5. **Consider 2FA**: For enhanced security (future feature)
+
+### Changing Admin Password Later
+
+Currently, to change the admin password:
+
+1. **Option 1**: Update the `ADMIN_PASSWORD` environment variable and restart the server (works for new installations)
+2. **Option 2**: Use the admin dashboard to create a new admin user, then disable the old one
+
+**Note**: Current version uses in-memory storage. For persistent storage, consider adding a database integration.
+
 ## Quick Start (Summary)
 
 For the fastest deployment:
@@ -445,7 +494,7 @@ For the fastest deployment:
 2. **Backend → Railway**
    - Connect repo at railway.app
    - Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-   - Set environment variables
+   - Set environment variables (including admin credentials!)
    - Get backend URL
 
 3. **Update Frontend**
