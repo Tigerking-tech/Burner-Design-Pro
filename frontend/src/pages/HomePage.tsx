@@ -129,6 +129,7 @@ export default function HomePage() {
     authAPI.logout()
     setIsLoggedIn(false)
     setIsAdmin(false)
+    navigate('/')
   }
 
   const handleStartFreeClick = (e: React.MouseEvent) => {

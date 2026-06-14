@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { getFuels, getFuel, calculateCombustion, Fuel, FuelDetail, CombustionParams, CombustionResult } from '../services/api'
+import { authAPI } from '../services/api'
 
 export default function Calculator() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [fuels, setFuels] = useState<Fuel[]>([])
   const [selectedFuel, setSelectedFuel] = useState<FuelDetail | null>(null)
@@ -13,8 +18,17 @@ export default function Calculator() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
     loadFuels()
   }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   const loadFuels = async () => {
     try {
@@ -92,12 +106,39 @@ export default function Calculator() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <header className="bg-white shadow-sm py-6 px-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-slate-900">Burner Design Pro</h1>
+    <div className="min-h-screen bg-gray-100">
+      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
+        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
+          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
+        </Link>
+        <div className="flex gap-8 items-center">
+          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
+          <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
+          <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && (
+                <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                  Admin
+                </Link>
+              )}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                Account
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+              Get Started
+            </Link>
+          )}
         </div>
-      </header>
+      </nav>
 
       <main className="max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">
@@ -143,13 +184,13 @@ export default function Calculator() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           {currentStep === 1 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Select Fuel</h2>
+              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">Select Fuel</h2>
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-[#555] mb-2">
                   Choose a fuel type
                 </label>
                 <select
-                  className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={selectedFuel?.id || ''}
                   onChange={(e) => handleFuelSelect(e.target.value)}
                 >
@@ -163,13 +204,13 @@ export default function Calculator() {
               </div>
 
               {selectedFuel && (
-                <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">
                     {selectedFuel.name}
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <span className="text-sm text-slate-500">Category</span>
+                      <span className="text-sm text-[#7f8c8d]">Category</span>
                       <p className="mt-1">
                         <span className={`px-2 py-1 rounded text-sm ${getCategoryColor(selectedFuel.category)}`}>
                           {getCategoryLabel(selectedFuel.category)}
@@ -177,45 +218,45 @@ export default function Calculator() {
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-slate-500">LHV</span>
-                      <p className="text-lg font-semibold text-slate-900">
+                      <span className="text-sm text-[#7f8c8d]">LHV</span>
+                      <p className="text-lg font-semibold text-[#2c3e50]">
                         {selectedFuel.LHV.toLocaleString()} kJ/kg
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-slate-500">HHV</span>
-                      <p className="text-lg font-semibold text-slate-900">
+                      <span className="text-sm text-[#7f8c8d]">HHV</span>
+                      <p className="text-lg font-semibold text-[#2c3e50]">
                         {selectedFuel.HHV.toLocaleString()} kJ/kg
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-slate-500">Max CO2</span>
-                      <p className="text-lg font-semibold text-slate-900">
+                      <span className="text-sm text-[#7f8c8d]">Max CO2</span>
+                      <p className="text-lg font-semibold text-[#2c3e50]">
                         {selectedFuel.CO2_max}%
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-slate-200">
-                    <h4 className="text-sm font-medium text-slate-700 mb-2">Composition</h4>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h4 className="text-sm font-medium text-[#555] mb-2">Composition</h4>
                     <div className="grid grid-cols-5 gap-2 text-sm">
                       <div className="text-center">
-                        <span className="text-slate-500">C</span>
+                        <span className="text-[#7f8c8d]">C</span>
                         <p className="font-semibold">{selectedFuel.composition.C}%</p>
                       </div>
                       <div className="text-center">
-                        <span className="text-slate-500">H</span>
+                        <span className="text-[#7f8c8d]">H</span>
                         <p className="font-semibold">{selectedFuel.composition.H}%</p>
                       </div>
                       <div className="text-center">
-                        <span className="text-slate-500">O</span>
+                        <span className="text-[#7f8c8d]">O</span>
                         <p className="font-semibold">{selectedFuel.composition.O}%</p>
                       </div>
                       <div className="text-center">
-                        <span className="text-slate-500">N</span>
+                        <span className="text-[#7f8c8d]">N</span>
                         <p className="font-semibold">{selectedFuel.composition.N}%</p>
                       </div>
                       <div className="text-center">
-                        <span className="text-slate-500">S</span>
+                        <span className="text-[#7f8c8d]">S</span>
                         <p className="font-semibold">{selectedFuel.composition.S}%</p>
                       </div>
                     </div>
@@ -227,11 +268,11 @@ export default function Calculator() {
 
           {currentStep === 2 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Combustion Parameters</h2>
-              
+              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">Combustion Parameters</h2>
+
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-[#555] mb-2">
                     Excess Air Ratio (λ): {excessAirRatio.toFixed(2)}
                   </label>
                   <input
@@ -243,14 +284,14 @@ export default function Calculator() {
                     onChange={(e) => setExcessAirRatio(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs text-slate-500 mt-1">
+                  <div className="flex justify-between text-xs text-[#7f8c8d] mt-1">
                     <span>1.0 (Stoichiometric)</span>
                     <span>3.0</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-[#555] mb-2">
                     Air Temperature: {airTemperature}°C
                   </label>
                   <input
@@ -262,14 +303,14 @@ export default function Calculator() {
                     onChange={(e) => setAirTemperature(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs text-slate-500 mt-1">
+                  <div className="flex justify-between text-xs text-[#7f8c8d] mt-1">
                     <span>-10°C</span>
                     <span>200°C</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-[#555] mb-2">
                     Air Humidity: {airHumidity}%
                   </label>
                   <input
@@ -281,7 +322,7 @@ export default function Calculator() {
                     onChange={(e) => setAirHumidity(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs text-slate-500 mt-1">
+                  <div className="flex justify-between text-xs text-[#7f8c8d] mt-1">
                     <span>0% (Dry)</span>
                     <span>100% (Saturated)</span>
                   </div>
@@ -300,25 +341,25 @@ export default function Calculator() {
 
           {currentStep === 3 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Combustion Results</h2>
-              
+              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">Combustion Results</h2>
+
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : result ? (
                 <div className="space-y-6">
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold text-[#2c3e50] mb-2">
                       {result.fuel.name}
                     </h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-slate-500">LHV:</span>
+                        <span className="text-[#7f8c8d]">LHV:</span>
                         <span className="ml-2 font-medium">{result.fuel.LHV.toLocaleString()} kJ/kg</span>
                       </div>
                       <div>
-                        <span className="text-slate-500">HHV:</span>
+                        <span className="text-[#7f8c8d]">HHV:</span>
                         <span className="ml-2 font-medium">{result.fuel.HHV.toLocaleString()} kJ/kg</span>
                       </div>
                     </div>
@@ -355,8 +396,8 @@ export default function Calculator() {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <h4 className="text-sm font-medium text-slate-700 mb-4">Flue Gas Composition (Wet Basis)</h4>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-[#555] mb-4">Flue Gas Composition (Wet Basis)</h4>
                     <div className="grid grid-cols-4 gap-4">
                       <div className="text-center">
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
@@ -365,7 +406,7 @@ export default function Calculator() {
                             style={{ width: `${result.flue_gas_composition.N2}%` }}
                           ></div>
                         </div>
-                        <span className="text-slate-500 text-xs">N2</span>
+                        <span className="text-[#7f8c8d] text-xs">N2</span>
                         <p className="font-semibold">{result.flue_gas_composition.N2}%</p>
                       </div>
                       <div className="text-center">
@@ -375,7 +416,7 @@ export default function Calculator() {
                             style={{ width: `${result.flue_gas_composition.CO2}%` }}
                           ></div>
                         </div>
-                        <span className="text-slate-500 text-xs">CO2</span>
+                        <span className="text-[#7f8c8d] text-xs">CO2</span>
                         <p className="font-semibold">{result.flue_gas_composition.CO2}%</p>
                       </div>
                       <div className="text-center">
@@ -385,7 +426,7 @@ export default function Calculator() {
                             style={{ width: `${result.flue_gas_composition.H2O}%` }}
                           ></div>
                         </div>
-                        <span className="text-slate-500 text-xs">H2O</span>
+                        <span className="text-[#7f8c8d] text-xs">H2O</span>
                         <p className="font-semibold">{result.flue_gas_composition.H2O}%</p>
                       </div>
                       <div className="text-center">
@@ -395,7 +436,7 @@ export default function Calculator() {
                             style={{ width: `${result.flue_gas_composition.O2}%` }}
                           ></div>
                         </div>
-                        <span className="text-slate-500 text-xs">O2</span>
+                        <span className="text-[#7f8c8d] text-xs">O2</span>
                         <p className="font-semibold">{result.flue_gas_composition.O2}%</p>
                       </div>
                     </div>

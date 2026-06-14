@@ -1,8 +1,20 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { authAPI } from '../services/api'
 import { Shield, ArrowLeft, Eye, Lock, Database } from 'lucide-react'
 
 export default function PrivacyPolicy() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+  const handleLogout = () => {
+    authAPI.logout()
+    navigate('/')
+  }
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
@@ -10,9 +22,17 @@ export default function PrivacyPolicy() {
           <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
         </Link>
         <div className="flex gap-8 items-center">
-          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <Link to="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</Link>
-          <Link to="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</Link>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
+              <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
+            </>
+          ) : (
+            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+              Get Started
+            </Link>
+          )}
         </div>
       </nav>
 

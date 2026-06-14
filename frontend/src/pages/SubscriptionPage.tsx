@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { subscriptionAPI, authAPI } from '../services/api'
 
 interface Product {
@@ -23,11 +23,17 @@ interface Subscription {
 
 const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate()
+  const [user, setUser] = useState(authAPI.getCurrentUserSync())
   const [products, setProducts] = useState<Product[]>([])
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const handleLogout = async () => {
+    await authAPI.logout()
+    navigate('/')
+  }
 
   useEffect(() => {
     fetchData()
@@ -98,15 +104,38 @@ const SubscriptionPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+      {/* Header */}
+      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
+        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
+          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
+        </Link>
+        <div className="flex gap-6 items-center">
+          {user?.is_admin && (
+            <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+              Admin Dashboard
+            </Link>
+          )}
+          <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+            Account
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
+
+      <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">

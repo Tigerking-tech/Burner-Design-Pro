@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AlertTriangle } from 'lucide-react'
+import { authAPI } from '../services/api'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -128,23 +129,38 @@ const formatNumber = (num: number, decimals: number = 2) => {
 };
 
 export default function EmissionPage() {
-  const [pollutant, setPollutant] = useState('NOx');
-  const [value, setValue] = useState('100');
-  const [fromUnit, setFromUnit] = useState('ppm');
-  const [o2Measured, setO2Measured] = useState('5');
-  const [o2Reference, setO2Reference] = useState('3');
-  const [fuelType, setFuelType] = useState('natural_gas_low');
-  const [euFuelType, setEuFuelType] = useState('natural_gas');
-  const [noxValue, setNoxValue] = useState('100');
-  const [coValue, setCoValue] = useState('80');
-  const [flueGasFlow, setFlueGasFlow] = useState('1000');
-  const [annualHours, setAnnualHours] = useState('8000');
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [pollutant, setPollutant] = useState('NOx')
+  const [value, setValue] = useState('100')
+  const [fromUnit, setFromUnit] = useState('ppm')
+  const [o2Measured, setO2Measured] = useState('5')
+  const [o2Reference, setO2Reference] = useState('3')
+  const [fuelType, setFuelType] = useState('natural_gas_low')
+  const [euFuelType, setEuFuelType] = useState('natural_gas')
+  const [noxValue, setNoxValue] = useState('100')
+  const [coValue, setCoValue] = useState('80')
+  const [flueGasFlow, setFlueGasFlow] = useState('1000')
+  const [annualHours, setAnnualHours] = useState('8000')
   const [_loadFactor] = useState('0.8');
   
   const [results, setResults] = useState({ ppm: 0, mgM3: 0, lbMMBtu: 0 });
   const [epaCompliance, setEpaCompliance] = useState<any>(null);
   const [euCompliance, setEuCompliance] = useState<any>(null);
   const [annualEmissions, setAnnualEmissions] = useState({ hourlyKg: 0, annualTons: 0, monthlyTons: 0 });
+
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   useEffect(() => {
     const numValue = parseFloat(value) || 0;
@@ -204,11 +220,17 @@ export default function EmissionPage() {
           <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
         </Link>
         <div className="flex gap-8 items-center">
-          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <Link to="/unit-converter" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Converter</Link>
-          <button className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-            Start Free
-          </button>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
+              <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
+            </>
+          ) : (
+            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+              Get Started
+            </Link>
+          )}
         </div>
       </nav>
 

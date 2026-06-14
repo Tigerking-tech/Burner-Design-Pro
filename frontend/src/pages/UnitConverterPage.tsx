@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
+import { authAPI } from '../services/api';
 
 const UNITS = {
   "Pressure": {
@@ -170,11 +171,26 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [category, setCategory] = useState<string>("Pressure");
   const [value, setValue] = useState<string>("1");
   const [fromUnit, setFromUnit] = useState<string>("kPa");
   const [toUnit, setToUnit] = useState<string>("bar");
   const [allResults, setAllResults] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   useEffect(() => {
     const units = Object.keys(UNITS[category as keyof typeof UNITS]);
@@ -244,11 +260,17 @@ export default function UnitConverterPage() {
           <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
         </Link>
         <div className="flex gap-8 items-center">
-          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <Link to="/emission" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Emissions</Link>
-          <button className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-            Start Free
-          </button>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
+              <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
+            </>
+          ) : (
+            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+              Get Started
+            </Link>
+          )}
         </div>
       </nav>
 
