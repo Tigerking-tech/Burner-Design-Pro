@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { authAPI } from '../services/api'
 import PasswordInput from '../components/PasswordInput'
 
 export default function SignUpPage() {
@@ -7,7 +8,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [errors, setErrors] = useState<{email?: string; password?: string; confirmPassword?: string}>({})
+  const [errors, setErrors] = useState<{email?: string; password?: string; confirmPassword?: string; server?: string}>({})
   const [isLoading, setIsLoading] = useState(false)
 
   const getPasswordStrength = (pwd: string): { level: number; label: string; color: string } => {
@@ -57,14 +58,14 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await authAPI.register(email, password)
 
-      localStorage.setItem('isLoggedIn', 'true')
-      localStorage.setItem('userEmail', email)
-
-      navigate('/gas-calculator')
+      navigate('/')
     } catch (error) {
       console.error('Registration failed:', error)
+      setErrors({
+        server: error instanceof Error ? error.message : 'Registration failed. Please try again.'
+      })
     } finally {
       setIsLoading(false)
     }
@@ -90,6 +91,11 @@ export default function SignUpPage() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {errors.server && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+                {errors.server}
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-[#555] mb-2">
                 Email Address

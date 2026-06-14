@@ -44,7 +44,29 @@ PRO_TIER = SubscriptionTier(
     max_team_members=1
 )
 
+TEAM_TIER = SubscriptionTier(
+    name="Team",
+    price=4900,  # $49.00 in cents
+    price_display="$49",
+    period="/month",
+    features=[
+        "Everything in Pro",
+        "Up to 10 team members",
+        "Shared calculation library",
+        "Team analytics dashboard",
+        "Priority support",
+        "Custom fuel types",
+        "API access"
+    ],
+    max_calculations=None,  # unlimited
+    has_pdf_export=True,
+    has_pro_calculators=True,
+    has_team_features=True,
+    max_team_members=10
+)
+
 SUBSCRIPTION_TIERS = {
     "free": FREE_TIER,
-    "pro": PRO_TIER
+    "pro": PRO_TIER,
+    "team": TEAM_TIER
 }

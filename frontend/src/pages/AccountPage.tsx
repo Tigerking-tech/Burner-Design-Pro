@@ -57,15 +57,12 @@ export default function AccountPage() {
     setSuccess("")
 
     try {
-      const intent = await subscriptionAPI.createPaymentIntent(tierId)
-      // Simulate payment processing (in real life, use Stripe.js here)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      const paymentResult = await subscriptionAPI.confirmPayment(intent.order_id)
-      setSuccess(paymentResult.message)
-      await loadData()
-      // Update local user data
-      const currentUser = await authAPI.getCurrentUser()
-      setUser(currentUser)
+      const checkout = await subscriptionAPI.createCheckout(tierId)
+      if (checkout.success && checkout.checkout_url) {
+        window.location.href = checkout.checkout_url
+      } else {
+        setError("Failed to create checkout session")
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment failed")
     } finally {
