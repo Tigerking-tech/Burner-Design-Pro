@@ -25,6 +25,8 @@ export default function AdminPage() {
   const [newUserPassword, setNewUserPassword] = useState("")
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
   const [changingUserPassword, setChangingUserPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
+  const [passwordSuccess, setPasswordSuccess] = useState("")
 
   useEffect(() => {
     if (!authAPI.isAuthenticated() || !authAPI.isAdmin()) {
@@ -93,16 +95,17 @@ export default function AdminPage() {
     e.preventDefault()
     if (!selectedUserId) return
     
-    setError("")
+    setPasswordError("")
+    setPasswordSuccess("")
     
     // Validation
     if (newUserPassword.length < 8) {
-      setError("Password must be at least 8 characters")
+      setPasswordError("New password must be at least 8 characters")
       return
     }
     
     if (newUserPassword !== confirmNewPassword) {
-      setError("Passwords do not match")
+      setPasswordError("New passwords do not match")
       return
     }
     
@@ -110,14 +113,14 @@ export default function AdminPage() {
     
     try {
       const result = await adminAPI.changeUserPassword(selectedUserId, newUserPassword)
-      setError(result.message) // Use error state for success message
+      setPasswordSuccess(result.message)
       // Reset form
       setSelectedUserId(null)
       setNewUserPassword("")
       setConfirmNewPassword("")
       await loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to change password")
+      setPasswordError(err instanceof Error ? err.message : "Failed to change password")
     } finally {
       setChangingUserPassword(false)
     }
@@ -190,12 +193,25 @@ export default function AdminPage() {
               
               {/* Password Change Form */}
               {selectedUserId && (
-                <div className="mb-6 p-4 bg-blue-50 rounded border-l-4 border-blue-500">
-                  <h3 className="font-semibold text-blue-800 mb-3">
+                <div className="mb-6 bg-white rounded-lg p-6 shadow-xl border border-gray-300">
+                  <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">
                     Change Password for {users.find(u => u.id === selectedUserId)?.email}
                   </h3>
-                  <form onSubmit={handleChangeUserPassword} className="flex flex-col md:flex-row gap-3 items-end">
-                    <div className="flex-1">
+
+                  {passwordError && (
+                    <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded text-red-700">
+                      {passwordError}
+                    </div>
+                  )}
+
+                  {passwordSuccess && (
+                    <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded text-green-700">
+                      {passwordSuccess}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleChangeUserPassword} className="space-y-4">
+                    <div>
                       <PasswordInput
                         label="New Password"
                         value={newUserPassword}
@@ -206,23 +222,21 @@ export default function AdminPage() {
                       <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
                     </div>
                     
-                    <div className="flex-1">
-                      <PasswordInput
-                        label="Confirm Password"
-                        value={confirmNewPassword}
-                        onChange={setConfirmNewPassword}
-                        required
-                        minLength={8}
-                      />
-                    </div>
+                    <PasswordInput
+                      label="Confirm New Password"
+                      value={confirmNewPassword}
+                      onChange={setConfirmNewPassword}
+                      required
+                      minLength={8}
+                    />
                     
                     <div className="flex gap-2">
                       <button
                         type="submit"
                         disabled={changingUserPassword}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 bg-[#2B6BA0] text-white rounded hover:bg-[#1e4d73] disabled:opacity-50 transition-colors"
                       >
-                        {changingUserPassword ? "Changing..." : "Save"}
+                        {changingUserPassword ? "Changing..." : "Change Password"}
                       </button>
                       <button
                         type="button"
@@ -230,6 +244,8 @@ export default function AdminPage() {
                           setSelectedUserId(null)
                           setNewUserPassword("")
                           setConfirmNewPassword("")
+                          setPasswordError("")
+                          setPasswordSuccess("")
                         }}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
                       >
