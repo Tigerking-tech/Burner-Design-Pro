@@ -41,7 +41,7 @@ class User(UserBase):
     is_admin: bool = False
     created_at: datetime
     updated_at: datetime
-    subscription_tier: str = "free"  # free, pro, team
+    subscription_tier: str = "free"  # free, pro
     subscription_expires_at: Optional[datetime] = None
     # Payment provider integration fields (Creem)
     creem_customer_id: Optional[str] = None

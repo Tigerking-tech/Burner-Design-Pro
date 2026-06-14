@@ -205,7 +205,6 @@ export default function EmissionPage() {
         </Link>
         <div className="flex gap-8 items-center">
           <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <Link to="/gas-calculator" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Calculator</Link>
           <Link to="/unit-converter" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Converter</Link>
           <button className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
             Start Free
@@ -497,7 +496,6 @@ export default function EmissionPage() {
       <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-10 px-6 mt-16">
         <div className="flex justify-center gap-8 mb-5 flex-wrap">
           <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
-          <Link to="/gas-calculator" className="text-sm hover:text-white transition-colors">Calculator</Link>
           <Link to="/unit-converter" className="text-sm hover:text-white transition-colors">Converter</Link>
           <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
           <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>

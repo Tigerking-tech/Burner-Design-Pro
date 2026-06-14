@@ -129,7 +129,6 @@ export interface PricingTier {
   max_calculations?: number
   has_pdf_export: boolean
   has_pro_calculators: boolean
-  has_team_features: boolean
 }
 
 export interface Subscription {

@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from typing import Optional
 from app.models.fuel import get_all_fuels, get_fuel_by_id, Fuel
 from app.services.combustion import CombustionRequest, calculate_combustion
-from app.models.custom_gas import CustomGasCalculationInput
-from app.services.custom_gas_calculation import calculate_custom_gas
 
 router = APIRouter()
 
@@ -75,9 +73,3 @@ async def calculate(params: CombustionParams):
 
     result = calculate_combustion(request)
     return result.to_dict()
-
-
-@router.post("/calculate/custom-gas")
-async def calculate_custom_gas_endpoint(params: CustomGasCalculationInput):
-    result = calculate_custom_gas(params)
-    return result.model_dump()

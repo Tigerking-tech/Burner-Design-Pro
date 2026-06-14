@@ -8,13 +8,16 @@ import os
 from jose import JWTError, jwt
 from app.models.user import TokenData
 
-# JWT settings (in production, use environment variables)
-SECRET_KEY = "your-super-secret-key-change-in-production-1234567890"  # Replace with env var
+# JWT settings - read from environment variables
+SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY",
+    "your-super-secret-key-change-in-production-1234567890"
+)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
-# Simple salt for hashing (for demo purposes only!)
-SALT = b"burnerpro-demo-salt-2026"
+# Salt for hashing - read from environment variables
+SALT = os.getenv("HASH_SALT", "burnerpro-demo-salt-2026").encode()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -23,8 +26,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password using SHA256 (for demo purposes only!)"""
-    return hashlib.sha256((password + "burnerpro-demo-pepper").encode()).hexdigest()
+    """Hash a password using SHA256 with salt"""
+    return hashlib.sha256((password + SALT.decode()).encode()).hexdigest()
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
