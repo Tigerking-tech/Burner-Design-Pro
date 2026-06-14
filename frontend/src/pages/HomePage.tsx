@@ -188,9 +188,8 @@ export default function HomePage() {
           ) : (
             <>
               <Link to="/login" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Login</Link>
-              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md"
-              >
-                Start Free
+              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+                Get Started
               </Link>
             </>
           )}
@@ -208,16 +207,16 @@ export default function HomePage() {
           </p>
           <div className="flex gap-4 justify-center mb-8">
             {isLoggedIn ? (
-              <a 
-                href="#features" 
+              <a
+                href="#features"
                 onClick={handleStartFreeClick}
-                className="bg-[#f39c12] hover:bg-[#e67e22] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg"
+                className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg"
               >
-                Start Free
+                Get Started
               </a>
             ) : (
-              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg">
-                Start Free
+              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg">
+                Get Started
               </Link>
             )}
             <a href="#pricing" className="border-2 border-[#7f8c8d] hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded font-semibold text-lg transition-all">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import './InsulationCalculatorPage.css'
+
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
@@ -409,7 +409,7 @@ function InsulationCalculatorPage() {
       description="ISO 12241 & ASTM C680 Standards | Pipe & Flat Surface | Anti-Condensation"
       icon={<BrickWall size={40} />}
     >
-      <div className="insulation-calculator-page">
+      <div className="min-h-screen bg-gray-100">
         <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
           <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
             <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
@@ -442,12 +442,17 @@ function InsulationCalculatorPage() {
             )}
           </div>
         </nav>
-        <div className="container">
-          <div className="page-title">
-            <h1>Insulation Thickness Calculator</h1>
-            <p>ISO 12241 & ASTM C680 Standards | Pipe & Flat Surface | Anti-Condensation</p>
-          </div>
 
+        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 px-6 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl font-semibold mb-4">Insulation Thickness Calculator</h1>
+            <p className="text-[#bdc3c7] max-w-2xl mx-auto">
+              ISO 12241 &amp; ASTM C680 Standards | Pipe &amp; Flat Surface | Anti-Condensation
+            </p>
+          </div>
+        </section>
+
+        <div className="max-w-5xl mx-auto px-5 py-10">
           {/* Inline Disclaimer */}
           <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
             <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
@@ -460,59 +465,59 @@ function InsulationCalculatorPage() {
             </div>
           </div>
 
-          <div className="calc-card">
+          <div className="bg-white rounded-lg shadow-xl border border-gray-300 mb-6">
             {/* Mode Tabs */}
-            <div className="mode-tabs">
-              <button 
-                className={`mode-tab ${mode === 'surface' ? 'active' : ''}`} 
+            <div className="flex border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
+              <button
+                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tl ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('surface')}
               >
                 Surface Temperature
               </button>
-              <button 
-                className={`mode-tab ${mode === 'heatloss' ? 'active' : ''}`} 
+              <button
+                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'heatloss' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('heatloss')}
               >
                 Heat Loss
               </button>
-              <button 
-                className={`mode-tab ${mode === 'condensation' ? 'active' : ''}`} 
+              <button
+                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'condensation' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('condensation')}
               >
                 Anti-Condensation
               </button>
             </div>
 
-            <div className="calc-body">
+            <div className="p-6 rounded-b-lg">
               {/* Equipment Type */}
-              <div className="form-section">
-                <div className="section-title">Equipment Type</div>
-                <div className="scenario-buttons">
-                  <button 
-                    className={`scenario-btn ${equipmentType === 'pipe' ? 'active' : ''}`}
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Equipment Type</div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'pipe' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
                     onClick={() => setEquipmentType('pipe')}
                   >
-                    <Cylinder size={24} className="icon" />
+                    <Cylinder size={20} />
                     Pipe
                   </button>
-                  <button 
-                    className={`scenario-btn ${equipmentType === 'flat' ? 'active' : ''}`}
+                  <button
+                    className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'flat' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
                     onClick={() => setEquipmentType('flat')}
                   >
-                    <Square size={24} className="icon" />
+                    <Square size={20} />
                     Flat Surface
                   </button>
                 </div>
               </div>
 
               {/* Dimensions */}
-              <div className="form-section">
-                <div className="section-title">Dimensions</div>
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Dimensions</div>
                 {equipmentType === 'pipe' ? (
-                  <div className="grid-2">
-                    <div className="form-group">
-                      <label>Pipe Size</label>
-                      <select value={pipeSize} onChange={(e) => setPipeSize(e.target.value)}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Pipe Size</label>
+                      <select value={pipeSize} onChange={(e) => setPipeSize(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                         <option value="1/2">1/2"</option>
                         <option value="3/4">3/4"</option>
                         <option value="1">1"</option>
@@ -531,31 +536,31 @@ function InsulationCalculatorPage() {
                         <option value="16">16"</option>
                       </select>
                     </div>
-                    <div className="form-group">
-                      <label>Outer Diameter (mm)</label>
-                      <input type="number" value={outerDiameter} onChange={(e) => setOuterDiameter(parseFloat(e.target.value))} />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm)</label>
+                      <input type="number" value={outerDiameter} onChange={(e) => setOuterDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   </div>
                 ) : (
-                  <div className="grid-2">
-                    <div className="form-group">
-                      <label>Length (m)</label>
-                      <input type="number" value={surfaceLength} onChange={(e) => setSurfaceLength(parseFloat(e.target.value))} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Length (m)</label>
+                      <input type="number" value={surfaceLength} onChange={(e) => setSurfaceLength(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
-                    <div className="form-group">
-                      <label>Width (m)</label>
-                      <input type="number" value={surfaceWidth} onChange={(e) => setSurfaceWidth(parseFloat(e.target.value))} />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Width (m)</label>
+                      <input type="number" value={surfaceWidth} onChange={(e) => setSurfaceWidth(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Material */}
-              <div className="form-section">
-                <div className="section-title">Insulation Material</div>
-                <div className="form-group">
-                  <label>Material</label>
-                  <select value={materialType} onChange={(e) => setMaterialType(e.target.value as MaterialType)}>
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Material</div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Material</label>
+                  <select value={materialType} onChange={(e) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="mineralwool">Mineral Wool (0.040 W/m·K)</option>
                     <option value="glasswool">Glass Wool (0.035 W/m·K)</option>
                     <option value="calciumsilicate">Calcium Silicate (0.052 W/m·K)</option>
@@ -565,61 +570,61 @@ function InsulationCalculatorPage() {
                   </select>
                 </div>
                 {materialType === 'custom' && (
-                  <div className="form-group">
-                    <label>Thermal Conductivity (W/m·K)</label>
-                    <input type="number" step="0.001" value={customLambda} onChange={(e) => setCustomLambda(parseFloat(e.target.value))} />
+                  <div className="flex flex-col gap-2 mt-2">
+                    <label className="text-xs text-[#555] font-medium rounded">Thermal Conductivity (W/m·K)</label>
+                    <input type="number" step="0.001" value={customLambda} onChange={(e) => setCustomLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                 )}
               </div>
 
               {/* Temperatures */}
-              <div className="form-section">
-                <div className="section-title">Temperatures</div>
-                <div className="grid-3">
-                  <div className="form-group">
-                    <label>Fluid Temp (°C)</label>
-                    <input type="number" value={mediumTemp} onChange={(e) => setMediumTemp(parseFloat(e.target.value))} />
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Temperatures</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-[#555] font-medium rounded">Fluid Temp (°C)</label>
+                    <input type="number" value={mediumTemp} onChange={(e) => setMediumTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
-                  <div className="form-group">
-                    <label>Ambient Temp (°C)</label>
-                    <input type="number" value={ambientTemp} onChange={(e) => setAmbientTemp(parseFloat(e.target.value))} />
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-[#555] font-medium rounded">Ambient Temp (°C)</label>
+                    <input type="number" value={ambientTemp} onChange={(e) => setAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                   {mode === 'surface' && (
-                    <div className="form-group">
-                      <label>Target Surface (°C)</label>
-                      <input type="number" value={targetSurfaceTemp} onChange={(e) => setTargetSurfaceTemp(parseFloat(e.target.value))} />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Target Surface (°C)</label>
+                      <input type="number" value={targetSurfaceTemp} onChange={(e) => setTargetSurfaceTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                   {mode === 'heatloss' && (
-                    <div className="form-group">
-                      <label>Target Heat Loss (W/m²)</label>
-                      <input type="number" value={targetHeatLoss} onChange={(e) => setTargetHeatLoss(parseFloat(e.target.value))} />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Target Heat Loss (W/m²)</label>
+                      <input type="number" value={targetHeatLoss} onChange={(e) => setTargetHeatLoss(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                   {mode === 'condensation' && (
-                    <div className="form-group">
-                      <label>Relative Humidity (%)</label>
-                      <input type="number" value={relativeHumidity} onChange={(e) => setRelativeHumidity(parseFloat(e.target.value))} />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Relative Humidity (%)</label>
+                      <input type="number" value={relativeHumidity} onChange={(e) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Environment */}
-              <div className="form-section">
-                <div className="section-title">Environment</div>
-                <div className="form-group">
-                  <label>Location</label>
-                  <select value={environment} onChange={(e) => setEnvironment(e.target.value as Environment)}>
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Environment</div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Location</label>
+                  <select value={environment} onChange={(e) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="indoor">Indoor (Still Air)</option>
                     <option value="outdoor_calm">Outdoor (Calm)</option>
                     <option value="outdoor_moderate">Outdoor (Moderate Wind)</option>
                     <option value="outdoor_strong">Outdoor (Strong Wind)</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>Surface Finish</label>
-                  <select value={surfaceFinish} onChange={(e) => setSurfaceFinish(e.target.value)}>
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Surface Finish</label>
+                  <select value={surfaceFinish} onChange={(e) => setSurfaceFinish(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="0.9">Uninsulated / Painted (ε=0.9)</option>
                     <option value="0.7">Aluminum Jacket (ε=0.7)</option>
                     <option value="0.3">Polished Aluminum (ε=0.3)</option>
@@ -628,64 +633,60 @@ function InsulationCalculatorPage() {
                   </select>
                 </div>
                 {surfaceFinish === 'custom' && (
-                  <div className="form-group">
-                    <label>Emissivity (ε)</label>
-                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e) => setCustomEmittance(parseFloat(e.target.value))} />
+                  <div className="flex flex-col gap-2 mt-2">
+                    <label className="text-xs text-[#555] font-medium rounded">Emissivity (ε)</label>
+                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e) => setCustomEmittance(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                 )}
-                <div className="form-group">
-                  <label>Wind Speed (m/s)</label>
-                  <input type="number" step="0.1" value={windSpeed} readOnly />
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Wind Speed (m/s)</label>
+                  <input type="number" step="0.1" value={windSpeed} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
                 </div>
-                <div className="form-group">
-                  <label>Heat Transfer Coeff (W/m²·K)</label>
-                  <input type="number" step="0.1" value={heatTransferCoeff.toFixed(1)} readOnly />
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Heat Transfer Coeff (W/m²·K)</label>
+                  <input type="number" step="0.1" value={heatTransferCoeff.toFixed(1)} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
                 </div>
                 
-                <div className="ht-breakdown">
-                  <div className="title">Heat Transfer Breakdown</div>
-                  <div className="ht-bar">
-                    <div className="convection" style={{ width: `${(hc / (hc + hr)) * 100}%` }}></div>
-                    <div className="radiation" style={{ width: `${(hr / (hc + hr)) * 100}%` }}></div>
-                  </div>
-                  <div className="ht-legend">
-                    <span><span className="dot convection"></span> Convection: {hc.toFixed(1)} W/m²·K</span>
-                    <span><span className="dot radiation"></span> Radiation: {hr.toFixed(1)} W/m²·K</span>
-                  </div>
-                </div>
+                {(() => {
+                  const totalH = hc + hr;
+                  const convPercent = (hc / totalH) * 100;
+                  const radPercent = (hr / totalH) * 100;
+                  return (
+                    <div className="bg-gray-100 rounded-lg p-4 mt-4">
+                      <div className="text-xs text-[#555] font-semibold mb-2">Heat Transfer Breakdown</div>
+                      <div className="flex h-6 rounded overflow-hidden">
+                        <div className="bg-[#3498db]" style={{ width: `${convPercent}%` }}></div>
+                        <div className="bg-[#e74c3c]" style={{ width: `${radPercent}%` }}></div>
+                      </div>
+                      <div className="flex flex-wrap gap-6 mt-3 text-xs text-[#555]">
+                        <span className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full bg-[#3498db]"></span>
+                          Convection: {hc.toFixed(1)} W/m²·K
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full bg-[#e74c3c]"></span>
+                          Radiation: {hr.toFixed(1)} W/m²·K
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Operating Hours */}
-              <div className="form-section">
-                <div className="section-title">Operating Conditions</div>
-                <div className="form-group">
-                  <label>Operating Hours per Year</label>
-                  <input type="number" value={operatingHours} onChange={(e) => setOperatingHours(parseFloat(e.target.value))} />
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Operating Conditions</div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs text-[#555] font-medium rounded">Operating Hours per Year</label>
+                  <input type="number" value={operatingHours} onChange={(e) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                 </div>
               </div>
 
               {/* Calculate Button */}
-              <div className="form-section" style={{ marginTop: '2rem' }}>
-                <button 
+              <div className="mt-8">
+                <button
                   onClick={() => handleProAction(handleCalculate)}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold',
-                    backgroundColor: '#f39c12',
-                    color: '#2c3e50',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e67e22';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f39c12';
-                  }}
+                  className="w-full py-4 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] font-bold rounded rounded transition-all duration-300 text-base"
                 >
                   Calculate Insulation Thickness
                 </button>
@@ -694,38 +695,38 @@ function InsulationCalculatorPage() {
               {/* Results */}
               {showResults && result && (
                 <>
-                  <div className="form-section" style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div className="section-title">Calculation Results</div>
+                  <div className="mt-8 pt-8 border-t border-gray-300 rounded">
+                    <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Calculation Results</div>
                   </div>
-                  <div className="results-grid">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {result.dewPoint !== undefined && (
-                      <div className="result-card" style={{ borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.15)' }}>
-                        <div className="label">Dew Point Temperature</div>
-                        <div className="value">{result.dewPoint.toFixed(1)}°C</div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center rounded">
+                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Dew Point Temperature</div>
+                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.dewPoint.toFixed(1)}°C</div>
                       </div>
                     )}
-                    <div className="result-card primary">
-                      <div className="label">Required Insulation Thickness</div>
-                      <div className="value">{result.thickness.toFixed(1)} mm</div>
-                      <div className="note">Standard Size: {result.standardThickness} mm</div>
+                    <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-6 text-center rounded">
+                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Required Insulation Thickness</div>
+                      <div className="text-3xl font-bold text-[#f39c12] mt-2">{result.thickness.toFixed(1)} mm</div>
+                      <div className="text-sm text-[#7f8c8d] mt-2">Standard Size: {result.standardThickness} mm</div>
                     </div>
-                    <div className="result-card">
-                      <div className="label">Surface Temperature</div>
-                      <div className="value">{result.surfaceTemp.toFixed(1)}°C</div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
+                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.surfaceTemp.toFixed(1)}°C</div>
                     </div>
-                    <div className="result-card">
-                      <div className="label">Heat Flux</div>
-                      <div className="value">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
+                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
                     </div>
                     {result.linearHeatLoss !== undefined && (
-                      <div className="result-card">
-                        <div className="label">Linear Heat Loss</div>
-                        <div className="value">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Linear Heat Loss</div>
+                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
                       </div>
                     )}
-                    <div className="result-card">
-                      <div className="label">Annual Heat Loss</div>
-                      <div className="value">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
+                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
                   </div>
                 </>
@@ -733,7 +734,7 @@ function InsulationCalculatorPage() {
             </div>
           </div>
 
-          <div className="footer">
+          <div className="text-center text-sm text-[#7f8c8d] mt-8">
             <p>Calculations based on ISO 1224 and ASTM C680 standards</p>
           </div>
         </div>

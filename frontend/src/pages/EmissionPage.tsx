@@ -220,6 +220,9 @@ export default function EmissionPage() {
           <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
         </Link>
         <div className="flex gap-8 items-center">
+          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
+          <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
+          <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
           {isLoggedIn ? (
             <>
               {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
