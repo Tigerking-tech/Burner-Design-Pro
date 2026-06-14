@@ -182,7 +182,7 @@ export interface User {
   full_name?: string
   is_active: boolean
   is_admin: boolean
-  subscription_tier: 'free' | 'pro' | 'team'
+  subscription_tier: 'free' | 'pro'
   subscription_expires_at?: string
   created_at: string
   updated_at: string
@@ -195,7 +195,7 @@ export interface LoginResponse {
 }
 
 export interface PricingTier {
-  id: 'free' | 'pro' | 'team'
+  id: 'free' | 'pro'
   name: string
   price: number
   price_display: string
@@ -374,13 +374,13 @@ export const authAPI = {
   hasProAccess(): boolean {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
-      return user.subscription_tier === 'pro' || user.subscription_tier === 'team'
+      return user.subscription_tier === 'pro'
     } catch {
       return false
     }
   },
 
-  getSubscriptionTier(): 'free' | 'pro' | 'team' {
+  getSubscriptionTier(): 'free' | 'pro' {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
       return user.subscription_tier || 'free'
@@ -442,7 +442,6 @@ export const subscriptionAPI = {
     const tierNames: Record<string, string> = {
       free: 'Free',
       pro: 'Pro',
-      team: 'Team',
     }
     return {
       ...data.subscription,

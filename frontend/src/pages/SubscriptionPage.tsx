@@ -279,7 +279,6 @@ const SubscriptionPage: React.FC = () => {
                   <th className="pb-3">Feature</th>
                   <th className="pb-3">Free</th>
                   <th className="pb-3">Pro</th>
-                  <th className="pb-3">Team</th>
                 </tr>
               </thead>
               <tbody className="text-gray-300">
@@ -287,29 +286,19 @@ const SubscriptionPage: React.FC = () => {
                   <td className="py-3">Basic Calculators</td>
                   <td className="py-3">✓</td>
                   <td className="py-3">✓</td>
-                  <td className="py-3">✓</td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="py-3">Calculation Limit</td>
                   <td className="py-3">Limited</td>
-                  <td className="py-3">Unlimited</td>
                   <td className="py-3">Unlimited</td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="py-3">PDF Export</td>
                   <td className="py-3">✗</td>
                   <td className="py-3">✓</td>
-                  <td className="py-3">✓</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-3">Advanced Calculators</td>
-                  <td className="py-3">✗</td>
-                  <td className="py-3">✓</td>
-                  <td className="py-3">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-3">Team Features</td>
-                  <td className="py-3">✗</td>
+                  <td className="py-3">Advanced Calculators</td>
                   <td className="py-3">✗</td>
                   <td className="py-3">✓</td>
                 </tr>

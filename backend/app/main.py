@@ -72,7 +72,7 @@ def create_default_admin():
             is_admin=True,
             created_at=now,
             updated_at=now,
-            subscription_tier="team",
+            subscription_tier="pro",
             subscription_expires_at=datetime.utcnow() + timedelta(days=365)
         )
         
