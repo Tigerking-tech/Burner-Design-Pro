@@ -245,7 +245,6 @@ export default function UnitConverterPage() {
         </Link>
         <div className="flex gap-8 items-center">
           <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <Link to="/gas-calculator" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Calculator</Link>
           <Link to="/emission" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Emissions</Link>
           <button className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
             Start Free

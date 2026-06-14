@@ -583,7 +583,7 @@ export default function OrificeCalculatorPage() {
             <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
             <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
             <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            <Link to="/gas-calculator" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-all shadow-md">
+            <Link to="/" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-all shadow-md">
               Get Started
             </Link>
           </div>

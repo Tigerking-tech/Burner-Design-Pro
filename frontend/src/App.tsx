@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import CustomGasCalculator from './pages/CustomGasCalculator'
 import UnitConverterPage from './pages/UnitConverterPage'
 import EmissionPage from './pages/EmissionPage'
 import ThermodynamicPage from './pages/ThermodynamicPage'
@@ -42,7 +41,6 @@ function App() {
         <Route path="/fuel-manager" element={<FuelManagerPage />} />
         <Route path="/flame-temperature" element={<FlameTemperaturePage />} />
         <Route path="/orifice-calculator" element={<OrificeCalculatorPage />} />
-        <Route path="/gas-calculator" element={<CustomGasCalculator />} />
         <Route path="/unit-converter" element={<UnitConverterPage />} />
         <Route path="/emission" element={<EmissionPage />} />
         <Route path="/thermodynamic" element={<ThermodynamicPage />} />
