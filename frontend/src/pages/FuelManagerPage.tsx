@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
+import { authAPI } from '../services/api'
 
 interface GasComponent {
   name: string
@@ -189,6 +190,9 @@ const oilPresets = [
 ]
 
 export default function FuelManagerPage() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [activeTab, setActiveTab] = useState<'gas' | 'oil'>('gas')
   const [gas1Components, setGas1Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
   const [gas2Components, setGas2Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
@@ -213,6 +217,18 @@ export default function FuelManagerPage() {
     ]
   })
   const [showOilResults, setShowOilResults] = useState(false)
+
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   const applyGasPreset = (presetName: string, gasNum: 1 | 2) => {
     const preset = gasPresets.find(p => p.name === presetName)
@@ -392,9 +408,28 @@ export default function FuelManagerPage() {
           <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
           <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
           <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-          <Link to="/gas-calculator" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-            Get Started
-          </Link>
+          {isLoggedIn ? (
+            <>
+              {isAdmin && (
+                <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                  Admin
+                </Link>
+              )}
+              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                Account
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+              Get Started
+            </Link>
+          )}
         </div>
       </nav>
 

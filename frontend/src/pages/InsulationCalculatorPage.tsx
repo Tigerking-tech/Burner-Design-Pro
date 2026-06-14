@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './InsulationCalculatorPage.css'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
@@ -54,6 +54,9 @@ const pipeSizes = {
 }
 
 function InsulationCalculatorPage() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
   const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
   const [mode, setMode] = useState<Mode>('surface')
@@ -89,6 +92,18 @@ function InsulationCalculatorPage() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   const handleProAction = (action: () => void) => {
     if (!isProUser) {
@@ -403,9 +418,28 @@ function InsulationCalculatorPage() {
             <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
             <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
             <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-              Get Started
-            </Link>
+            {isLoggedIn ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                    Admin
+                  </Link>
+                )}
+                <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                  Account
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
+                Get Started
+              </Link>
+            )}
           </div>
         </nav>
         <div className="container">

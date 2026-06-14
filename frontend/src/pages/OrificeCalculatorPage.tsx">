@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Gauge, Download, Info, AlertCircle } from 'lucide-react'
@@ -244,6 +244,9 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
+  const navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
   const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
   const [customDensity, setCustomDensity] = useState('0.78')
@@ -259,6 +262,18 @@ export default function OrificeCalculatorPage() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+
+  useEffect(() => {
+    setIsLoggedIn(authAPI.isAuthenticated())
+    setIsAdmin(authAPI.isAdmin())
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    navigate('/')
+  }
 
   // 当选择DN时自动更新内部直径D
   useEffect(() => {
@@ -463,9 +478,28 @@ export default function OrificeCalculatorPage() {
             <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
             <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
             <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            <Link to="/gas-calculator" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-all shadow-md">
-              Get Started
-            </Link>
+            {isLoggedIn ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                    Admin
+                  </Link>
+                )}
+                <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
+                  Account
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-all shadow-md">
+                Get Started
+              </Link>
+            )}
           </div>
         </nav>
 
