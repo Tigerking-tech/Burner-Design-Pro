@@ -141,6 +141,22 @@ export default function HomePage() {
     }
   }
 
+  const handlePricingButtonClick = (planName: string) => {
+    if (planName === 'Free') {
+      if (isLoggedIn) {
+        navigate('/account')
+      } else {
+        navigate('/signup')
+      }
+    } else if (planName === 'Pro') {
+      if (isLoggedIn) {
+        navigate('/account')
+      } else {
+        navigate('/login')
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation */}
@@ -271,7 +287,9 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <button className={`w-full py-3 rounded font-semibold text-sm transition-all ${
+              <button 
+                onClick={() => handlePricingButtonClick(plan.name)}
+                className={`w-full py-3 rounded font-semibold text-sm transition-all ${
                 plan.buttonPrimary 
                   ? 'bg-[#f39c12] hover:bg-[#e67e22] text-white shadow-md' 
                   : 'bg-gray-200 hover:bg-gray-300 text-[#2c3e50] border border-[#bdc3c7]'

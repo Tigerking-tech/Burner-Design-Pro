@@ -103,12 +103,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="bg-gray-50 p-4 rounded-md">
-              <p className="text-xs text-[#555] mb-2">Demo credentials:</p>
-              <p className="text-xs text-[#7f8c8d]">Admin: admin@burnerpro.com / admin123</p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 text-center">
