@@ -36,14 +36,6 @@ Type: Subscription
 Billing Interval: Monthly
 ```
 
-#### Product: Team Plan
-```
-Name: Team
-Price: $29.99/month (or your preferred price)
-Type: Subscription
-Billing Interval: Monthly
-```
-
 4. After creating each product, copy the **Product ID** (e.g., `prod_xxxxxxxxxxxxx`)
 
 ### 3. Configure Environment Variables
@@ -65,7 +57,6 @@ CREEM_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 # Product IDs from Creem Dashboard
 CREEM_PRO_PRODUCT_ID=prod_production_id_here
-CREEM_TEAM_PRODUCT_ID=prod_team_id_here
 
 # Application URL (for payment redirects)
 APP_URL=https://your-domain.com

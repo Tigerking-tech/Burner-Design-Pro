@@ -38,7 +38,6 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             "max_calculations": tier.max_calculations,
             "has_pdf_export": tier.has_pdf_export,
             "has_pro_calculators": tier.has_pro_calculators,
-            "has_team_features": tier.has_team_features,
         },
     }
 

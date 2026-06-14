@@ -17,9 +17,7 @@ FREE_TIER = SubscriptionTier(
     ],
     max_calculations=20,
     has_pdf_export=False,
-    has_pro_calculators=False,
-    has_team_features=False,
-    max_team_members=1
+    has_pro_calculators=False
 )
 
 PRO_TIER = SubscriptionTier(
@@ -39,9 +37,7 @@ PRO_TIER = SubscriptionTier(
     ],
     max_calculations=None,  # unlimited
     has_pdf_export=True,
-    has_pro_calculators=True,
-    has_team_features=False,
-    max_team_members=1
+    has_pro_calculators=True
 )
 
 SUBSCRIPTION_TIERS = {

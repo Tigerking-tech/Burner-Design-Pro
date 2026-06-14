@@ -166,8 +166,7 @@ async def get_pricing():
                 "features": tier.features,
                 "max_calculations": tier.max_calculations,
                 "has_pdf_export": tier.has_pdf_export,
-                "has_pro_calculators": tier.has_pro_calculators,
-                "has_team_features": tier.has_team_features
+                "has_pro_calculators": tier.has_pro_calculators
             }
             for tier_id, tier in SUBSCRIPTION_TIERS.items()
         ]

@@ -76,8 +76,6 @@ class SubscriptionTier(BaseModel):
     max_calculations: Optional[int] = None  # None means unlimited
     has_pdf_export: bool = False
     has_pro_calculators: bool = False
-    has_team_features: bool = False
-    max_team_members: int = 1
 
 
 class SubscriptionCreate(BaseModel):
