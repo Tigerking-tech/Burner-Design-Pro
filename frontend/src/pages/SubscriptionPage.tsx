@@ -370,6 +370,24 @@ const SubscriptionPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-center gap-8 mb-5 flex-wrap">
+            <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
+            <Link to="/about" className="text-sm hover:text-white transition-colors">About</Link>
+            <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
+            <a href="mailto:Support@burnerdesignpro.com" className="text-sm hover:text-white transition-colors">Contact</a>
+          </div>
+          <div className="text-center mb-4">
+            <a href="mailto:Support@burnerdesignpro.com" className="text-[#f39c12] hover:text-white transition-colors text-sm font-medium">
+              Support@burnerdesignpro.com
+            </a>
+          </div>
+          <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
+        </div>
+      </footer>
     </div>
   )
 }

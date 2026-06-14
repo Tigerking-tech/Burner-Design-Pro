@@ -17,6 +17,7 @@ import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
 import SubscriptionPage from './pages/SubscriptionPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+import AboutPage from './pages/AboutPage'
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -49,6 +50,7 @@ function App() {
         <Route path="/insulation-calculator" element={<InsulationCalculatorPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
     </BrowserRouter>
   )

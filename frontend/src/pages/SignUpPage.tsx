@@ -195,9 +195,9 @@ export default function SignUpPage() {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-[#7f8c8d] text-center">
               By creating an account, you agree to our{' '}
-              <a href="#terms" className="text-[#f39c12] hover:text-[#e67e22]">Terms of Service</a>
+              <Link to="/terms-of-service" className="text-[#f39c12] hover:text-[#e67e22]">Terms of Service</Link>
               {' '}and{' '}
-              <a href="#privacy" className="text-[#f39c12] hover:text-[#e67e22]">Privacy Policy</a>
+              <Link to="/privacy-policy" className="text-[#f39c12] hover:text-[#e67e22]">Privacy Policy</Link>
             </p>
           </div>
         </div>
