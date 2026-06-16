@@ -44,6 +44,9 @@ export default function ModulePage({ title, icon, description, comingSoon = fals
                   Admin
                 </Link>
               )}
+              <span className="text-[#f39c12] text-sm font-medium">
+                {authAPI.getCurrentUserSync()?.email}
+              </span>
               <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
                 Account
               </Link>
@@ -124,18 +127,12 @@ export default function ModulePage({ title, icon, description, comingSoon = fals
       {/* Footer */}
       <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
         <div className="flex justify-center gap-8 mb-5 flex-wrap">
-          <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
           <a href="/#features" className="text-sm hover:text-white transition-colors">Features</a>
           <a href="/#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
-          <Link to="/about" className="text-sm hover:text-white transition-colors">About</Link>
-          <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
-          <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
-          <a href="mailto:Support@burnerdesignpro.com" className="text-sm hover:text-white transition-colors">Contact</a>
-        </div>
-        <div className="text-center mb-4">
-          <a href="mailto:Support@burnerdesignpro.com" className="text-[#f39c12] hover:text-white transition-colors text-sm font-medium">
-            Support@burnerdesignpro.com
-          </a>
+          <a href="#about" className="text-sm hover:text-white transition-colors">About</a>
+          <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
+          <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
         </div>
         <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
       </footer>

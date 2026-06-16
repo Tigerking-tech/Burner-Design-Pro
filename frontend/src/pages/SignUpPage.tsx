@@ -6,9 +6,10 @@ import PasswordInput from '../components/PasswordInput'
 export default function SignUpPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [confirmEmail, setConfirmEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [errors, setErrors] = useState<{email?: string; password?: string; confirmPassword?: string; server?: string}>({})
+  const [errors, setErrors] = useState<{email?: string; confirmEmail?: string; password?: string; confirmPassword?: string; server?: string}>({})
   const [isLoading, setIsLoading] = useState(false)
 
   const getPasswordStrength = (pwd: string): { level: number; label: string; color: string } => {
@@ -41,6 +42,10 @@ export default function SignUpPage() {
       newErrors.email = 'Please enter a valid email address'
     }
 
+    if (email !== confirmEmail) {
+      newErrors.confirmEmail = 'Email addresses do not match'
+    }
+
     if (!validatePassword(password)) {
       newErrors.password = 'Password must be at least 8 characters'
     }
@@ -58,9 +63,9 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      await authAPI.register(email, password)
-
-      navigate('/')
+      const result = await authAPI.register(email, password)
+      // Redirect to email verification page
+      navigate(`/verify-email?email=${encodeURIComponent(result.email)}`)
     } catch (error) {
       console.error('Registration failed:', error)
       setErrors({
@@ -114,6 +119,27 @@ export default function SignUpPage() {
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="confirmEmail" className="block text-sm font-medium text-[#555] mb-2">
+                Confirm Email Address
+              </label>
+              <input
+                type="email"
+                id="confirmEmail"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 ${
+                  errors.confirmEmail 
+                    ? 'border-red-500 focus:ring-red-200' 
+                    : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
+                }`}
+                placeholder="Re-enter your email"
+              />
+              {errors.confirmEmail && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmEmail}</p>
               )}
             </div>
 
@@ -195,9 +221,9 @@ export default function SignUpPage() {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-[#7f8c8d] text-center">
               By creating an account, you agree to our{' '}
-              <Link to="/terms-of-service" className="text-[#f39c12] hover:text-[#e67e22]">Terms of Service</Link>
+              <a href="#terms" className="text-[#f39c12] hover:text-[#e67e22]">Terms of Service</a>
               {' '}and{' '}
-              <Link to="/privacy-policy" className="text-[#f39c12] hover:text-[#e67e22]">Privacy Policy</Link>
+              <a href="#privacy" className="text-[#f39c12] hover:text-[#e67e22]">Privacy Policy</a>
             </p>
           </div>
         </div>

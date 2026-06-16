@@ -194,8 +194,15 @@ function getHeaders(includeAuth: boolean = true): HeadersInit {
   return headers
 }
 
+export interface RegisterResponse {
+  success: boolean
+  message: string
+  email: string
+  requires_verification: boolean
+}
+
 export const authAPI = {
-  async register(email: string, password: string, fullName?: string): Promise<LoginResponse> {
+  async register(email: string, password: string, fullName?: string): Promise<RegisterResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: getHeaders(false),
@@ -205,10 +212,36 @@ export const authAPI = {
       const data = await response.json().catch(() => ({}))
       throw new Error(data.detail || 'Registration failed')
     }
+    return response.json()
+  },
+
+  async verifyEmail(email: string, code: string): Promise<LoginResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+      method: 'POST',
+      headers: getHeaders(false),
+      body: JSON.stringify({ email, code }),
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Verification failed')
+    }
     const data = await response.json()
     localStorage.setItem('token', data.access_token)
     localStorage.setItem('user', JSON.stringify(data.user))
     return data
+  },
+
+  async resendVerification(email: string): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+      method: 'POST',
+      headers: getHeaders(false),
+      body: JSON.stringify({ email }),
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Failed to resend verification code')
+    }
+    return response.json()
   },
 
   async login(email: string, password: string): Promise<LoginResponse> {

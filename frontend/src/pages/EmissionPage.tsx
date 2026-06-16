@@ -226,6 +226,7 @@ export default function EmissionPage() {
           {isLoggedIn ? (
             <>
               {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
+              <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
               <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
               <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
             </>
@@ -522,14 +523,8 @@ export default function EmissionPage() {
         <div className="flex justify-center gap-8 mb-5 flex-wrap">
           <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
           <Link to="/unit-converter" className="text-sm hover:text-white transition-colors">Converter</Link>
-          <Link to="/about" className="text-sm hover:text-white transition-colors">About</Link>
-          <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
-          <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
-        </div>
-        <div className="text-center mb-4">
-          <a href="mailto:Support@burnerdesignpro.com" className="text-[#f39c12] hover:text-white transition-colors text-sm font-medium">
-            Support@burnerdesignpro.com
-          </a>
+          <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
         </div>
         <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
       </footer>

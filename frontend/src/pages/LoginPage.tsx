@@ -9,17 +9,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setNeedsVerification(false)
     setIsLoading(true)
 
     try {
       await authAPI.login(email, password)
       navigate("/")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      const msg = err instanceof Error ? err.message : "Login failed"
+      setError(msg)
+      // Detect "email not verified" error from backend
+      if (msg.toLowerCase().includes("not verified") || msg.toLowerCase().includes("verification")) {
+        setNeedsVerification(true)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -45,6 +52,19 @@ export default function LoginPage() {
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
               {error}
+            </div>
+          )}
+
+          {needsVerification && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-700 text-sm">
+              <p className="font-medium mb-1">Email not verified</p>
+              <p className="mb-2">Please verify your email before logging in.</p>
+              <Link
+                to={`/verify-email?email=${encodeURIComponent(email)}`}
+                className="text-[#f39c12] hover:text-[#e67e22] font-medium underline"
+              >
+                Go to verification page →
+              </Link>
             </div>
           )}
 

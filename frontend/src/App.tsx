@@ -8,6 +8,7 @@ import EfficiencyPage from './pages/EfficiencyPage'
 import DatabasePage from './pages/DatabasePage'
 import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 import FuelManagerPage from './pages/FuelManagerPage'
 import FlameTemperaturePage from './pages/FlameTemperaturePage'
 import OrificeCalculatorPage from './pages/OrificeCalculatorPage'
@@ -17,7 +18,6 @@ import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
 import SubscriptionPage from './pages/SubscriptionPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
-import AboutPage from './pages/AboutPage'
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -35,6 +35,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/admin" element={<AdminPage />} />
@@ -50,7 +51,6 @@ function App() {
         <Route path="/insulation-calculator" element={<InsulationCalculatorPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/about" element={<AboutPage />} />
       </Routes>
     </BrowserRouter>
   )

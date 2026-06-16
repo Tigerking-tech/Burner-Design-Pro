@@ -17,6 +17,11 @@ from app.security.auth import (
     verify_password, get_password_hash, create_access_token,
     decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from app.services.email_service import send_verification_email, generate_verification_code
+from app.services.verification_store import (
+    store_verification_code, verify_code, delete_verification_code,
+    get_verification_entry
+)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -63,9 +68,9 @@ async def get_admin_user(current_user: User = Depends(get_current_active_user)) 
     return current_user
 
 
-@router.post("/register", response_model=Token)
+@router.post("/register")
 async def register(user_data: UserCreate):
-    """Register a new user"""
+    """Register a new user (requires email verification before login)"""
     # Check if user already exists
     if user_data.email in email_to_user_id:
         raise HTTPException(
@@ -73,7 +78,7 @@ async def register(user_data: UserCreate):
             detail="Email already registered"
         )
     
-    # Create user
+    # Create user (inactive until verified)
     user_id = str(uuid.uuid4())
     now = datetime.utcnow()
     
@@ -83,7 +88,7 @@ async def register(user_data: UserCreate):
         id=user_id,
         email=user_data.email,
         full_name=user_data.full_name,
-        is_active=True,
+        is_active=False,  # Requires verification
         is_admin=False,
         created_at=now,
         updated_at=now,
@@ -96,6 +101,54 @@ async def register(user_data: UserCreate):
     email_to_user_id[user.email] = user_id
     in_memory_passwords[user_id] = hashed_password
     
+    # Generate and store verification code
+    code = generate_verification_code()
+    store_verification_code(user.email, code, user_id, expires_minutes=30)
+    
+    # Send verification email
+    await send_verification_email(user.email, code)
+    
+    return {
+        "success": True,
+        "message": "Registration successful. Please check your email for verification code.",
+        "email": user.email,
+        "requires_verification": True,
+    }
+
+
+@router.post("/verify-email")
+async def verify_email(data: dict):
+    """Verify email with code"""
+    email = data.get("email", "").strip().lower()
+    code = data.get("code", "").strip()
+    
+    if not email or not code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email and verification code are required"
+        )
+    
+    user_id = verify_code(email, code)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification code"
+        )
+    
+    # Activate user
+    user = in_memory_users.get(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    user.is_active = True
+    user.updated_at = datetime.utcnow()
+    
+    # Clean up verification code
+    delete_verification_code(email)
+    
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -104,6 +157,58 @@ async def register(user_data: UserCreate):
     )
     
     return Token(access_token=access_token, user=user)
+
+
+@router.post("/resend-verification")
+async def resend_verification(data: dict):
+    """Resend verification code"""
+    email = data.get("email", "").strip().lower()
+    
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+    
+    user_id = email_to_user_id.get(email)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    user = in_memory_users.get(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already verified"
+        )
+    
+    # Check rate limit (max 3 resends per email)
+    entry = get_verification_entry(email)
+    if entry and entry.resend_count >= 3:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many resend attempts. Please wait 30 minutes."
+        )
+    
+    # Generate new code
+    code = generate_verification_code()
+    store_verification_code(user.email, code, user_id, expires_minutes=30)
+    
+    # Send verification email
+    await send_verification_email(user.email, code)
+    
+    return {
+        "success": True,
+        "message": "Verification code sent. Please check your email."
+    }
 
 
 @router.post("/login", response_model=Token)
@@ -133,6 +238,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Check if email is verified
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified. Please check your email for verification code.",
         )
     
     # Create access token

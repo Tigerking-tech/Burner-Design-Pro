@@ -144,6 +144,9 @@ export default function AccountPage() {
               Admin Dashboard
             </Link>
           )}
+          <span className="text-[#f39c12] text-sm font-medium">
+            {user?.email || authAPI.getCurrentUserSync()?.email}
+          </span>
           <button
             onClick={handleLogout}
             className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
@@ -174,7 +177,6 @@ export default function AccountPage() {
             <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Profile</h2>
             <div className="space-y-2 text-[#555]">
               <p><strong>Email:</strong> {user?.email}</p>
-              <p><strong>Name:</strong> {user?.full_name || "Not set"}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
               {subscription?.expires_at && (
                 <p><strong>Expires:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
@@ -309,24 +311,6 @@ export default function AccountPage() {
           )}
         </div>
       </div>
-
-      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex justify-center gap-8 mb-5 flex-wrap">
-            <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
-            <Link to="/about" className="text-sm hover:text-white transition-colors">About</Link>
-            <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
-            <a href="mailto:Support@burnerdesignpro.com" className="text-sm hover:text-white transition-colors">Contact</a>
-          </div>
-          <div className="text-center mb-4">
-            <a href="mailto:Support@burnerdesignpro.com" className="text-[#f39c12] hover:text-white transition-colors text-sm font-medium">
-              Support@burnerdesignpro.com
-            </a>
-          </div>
-          <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
-        </div>
-      </footer>
     </div>
   )
 }
