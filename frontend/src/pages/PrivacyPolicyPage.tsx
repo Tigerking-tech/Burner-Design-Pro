@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
     setIsAdmin(authAPI.isAdmin())
   }, [])
   const handleLogout = () => {
-    authAPI.logout()
+    authAPI.logout(); window.location.href = "/"
     navigate('/')
   }
   return (

@@ -46,7 +46,7 @@ export default function AccountPage() {
   }
 
   const handleLogout = async () => {
-    await authAPI.logout()
+    await authAPI.logout(); window.location.href = "/"
     navigate("/")
   }
 

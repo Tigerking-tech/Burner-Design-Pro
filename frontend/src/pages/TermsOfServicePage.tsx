@@ -12,7 +12,7 @@ export default function TermsOfService() {
     setIsAdmin(authAPI.isAdmin())
   }, [])
   const handleLogout = () => {
-    authAPI.logout()
+    authAPI.logout(); window.location.href = "/"
     navigate('/')
   }
   return (

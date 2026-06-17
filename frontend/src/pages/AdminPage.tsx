@@ -147,7 +147,10 @@ export default function AdminPage() {
           </Link>
           <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
           <button
-            onClick={() => authAPI.logout()}
+            onClick={() => {
+              authAPI.logout()
+              window.location.href = '/'
+            }}
             className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
           >
             Logout

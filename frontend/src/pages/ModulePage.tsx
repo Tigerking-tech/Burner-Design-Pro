@@ -20,7 +20,7 @@ export default function ModulePage({ title, icon, description, comingSoon = fals
   }, [])
 
   const handleLogout = () => {
-    authAPI.logout()
+    authAPI.logout(); window.location.href = "/"
     setIsLoggedIn(false)
     setIsAdmin(false)
     navigate('/')

@@ -31,7 +31,7 @@ const SubscriptionPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   const handleLogout = async () => {
-    await authAPI.logout()
+    await authAPI.logout(); window.location.href = "/"
     navigate('/')
   }
 

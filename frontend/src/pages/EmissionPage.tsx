@@ -156,7 +156,7 @@ export default function EmissionPage() {
   }, [])
 
   const handleLogout = () => {
-    authAPI.logout()
+    authAPI.logout(); window.location.href = "/"
     setIsLoggedIn(false)
     setIsAdmin(false)
     navigate('/')

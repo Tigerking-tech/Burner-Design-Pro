@@ -291,7 +291,7 @@ export default function OrificeCalculatorPage() {
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
   const handleLogout = () => {
-    authAPI.logout()
+    authAPI.logout(); window.location.href = "/"
     setIsLoggedIn(false)
     setIsAdmin(false)
     navigate('/')
