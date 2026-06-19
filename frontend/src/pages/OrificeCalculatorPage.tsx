@@ -1083,7 +1083,7 @@ export default function OrificeCalculatorPage() {
               <div className="space-y-3 text-sm">
                 <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-400">
                   <div className="font-medium text-blue-800">Flow Limits</div>
-                  <div className="text-blue-700">Maximum flow rate: 10,000 m³/h<br/>Maximum pressure drop: 100 mbar<br/>Maximum pipe diameter: 325 mm</div>
+                  <div className="text-blue-700">Maximum flow rate: 10,000 m³/h<br/> Maximum pressure drop: 100 mbar<br/> Maximum pipe diameter: 325 mm</div>
                 </div>
               </div>
             </div>

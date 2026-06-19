@@ -155,7 +155,7 @@ export default function HomePage() {
       <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 md:py-20 px-4 md:px-6 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-5xl font-semibold mb-4 md:mb-6 leading-tight">
-            Professional Thermal Design Tools<br className="hidden md:block"/>for Burner Engineers
+            Professional Thermal Design Tools<br className="hidden md:block"/> for Burner Engineers
           </h1>
           <p className="text-base md:text-lg text-[#bdc3c7] mb-6 md:mb-8 max-w-2xl mx-auto px-2">
             Accurate combustion calculations, emission analysis, and unit conversion for industrial applications.
