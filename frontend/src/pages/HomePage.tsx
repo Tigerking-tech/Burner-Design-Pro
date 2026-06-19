@@ -117,7 +117,7 @@ const pricingPlans: PricingPlan[] = [
 ]
 
 export default function HomePage() {
-  useSEO({ title: 'Burner Design Tools - Free Online Thermal Engineering Calculators', description: 'Free professional burner design tools: flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic properties database, insulation calculator, and unit converter for industrial combustion engineers.', keywords: 'burner design tools, free thermal calculator, industrial burner, combustion engineering, flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic database' })
+  useSEO({ title: 'Burner Design Pro - Thermal Design and Engineering Calculation Software', description: 'Professional thermal design and engineering calculation software for burner engineers. Deterministic calculators for combustion analysis, orifice plate sizing (ISO 5167), flame temperature, emission evaluation (EPA/EU IED), unit conversion, and thermal insulation thickness (ASTM C680). Formula-based — not AI.', keywords: 'burner design software, thermal engineering tool, combustion calculation, orifice plate ISO 5167, flame temperature calculator, emission analysis, industrial engineering software, thermal insulation calculator, ASTM C680, engineering calculator, SaaS software' })
   const isLoggedIn = authAPI.isAuthenticated()
   const navigate = useNavigate()
 
