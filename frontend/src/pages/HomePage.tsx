@@ -168,7 +168,6 @@ export default function HomePage() {
         <div className="flex gap-6 items-center">
           <a href="#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
           <a href="#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-          <a href="#about" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">About</a>
           {isLoggedIn ? (
             <>
               {isAdmin && (
@@ -392,7 +391,6 @@ export default function HomePage() {
           <div className="flex justify-center gap-8 mb-5 flex-wrap">
             <a href="#features" className="text-sm hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
-            <a href="#about" className="text-sm hover:text-white transition-colors">About</a>
             <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/terms-of-service" className="text-sm hover:text-white transition-colors">Terms of Service</Link>
             <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
