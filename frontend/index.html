@@ -7,7 +7,21 @@
     <title>Burner Design Pro - Thermal Design Made Simple</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- SEO/Creem audit fallback: static login form visible before JS hydration -->
+      <div id="seo-login-form" style="max-width:420px;margin:80px auto;padding:32px;font-family:system-ui,sans-serif;text-align:center;color:#2c3e50">
+        <h1 style="font-size:24px;margin-bottom:8px">&#x1F525; Burner Design Pro</h1>
+        <p style="color:#7f8c8d;margin-bottom:24px">Sign in to your account</p>
+        <form style="text-align:left">
+          <label style="display:block;font-size:14px;margin-bottom:4px;color:#555">Email Address</label>
+          <input type="email" placeholder="you@example.com" required style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box">
+          <label style="display:block;font-size:14px;margin-bottom:4px;color:#555">Password</label>
+          <input type="password" placeholder="Enter your password" required style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box">
+          <button type="submit" style="width:100%;padding:12px;background:#f39c12;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer">Sign In</button>
+        </form>
+        <p style="margin-top:16px;font-size:14px;color:#7f8c8d">Don't have an account? <a href="/signup" style="color:#f39c12">Sign up</a></p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
