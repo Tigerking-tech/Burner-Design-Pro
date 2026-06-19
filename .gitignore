@@ -55,6 +55,12 @@ logs/
 access.log
 error.log
 
+# Data / Database - never commit user data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
 # Python
 .pytest_cache/
 .coverage

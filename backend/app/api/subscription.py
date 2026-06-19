@@ -10,13 +10,30 @@ import os
 from app.models.user import (
     User, Order, OrderCreate, PaymentIntent,
     WithdrawalRequest, WithdrawalRequestCreate, WithdrawalRequestUpdate,
-    in_memory_users, in_memory_orders, in_memory_withdrawals, SubscriptionUpdate,
+    SubscriptionUpdate,
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
 from app.api.auth import get_current_active_user, get_admin_user
 from app.services.creem_client import get_creem_client
+from app.services.database import (
+    get_user_by_id, update_user_subscription,
+    save_order, get_order, list_orders, update_order_status,
+    save_withdrawal, get_withdrawal, list_withdrawals,
+)
 
 router = APIRouter(prefix="/api", tags=["Subscription", "Payment", "Admin"])
+
+
+def _dict_to_user(user_dict):
+    return User(**user_dict)
+
+
+def _dict_to_order(order_dict):
+    return Order(**order_dict)
+
+
+def _dict_to_withdrawal(w_dict):
+    return WithdrawalRequest(**w_dict)
 
 
 # ----------------------------------------------------------------------
@@ -41,7 +58,6 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
         },
     }
 
-    # Add billing portal URL if the user has an active Creem subscription
     if getattr(current_user, "creem_customer_id", None):
         try:
             creem = get_creem_client()
@@ -73,15 +89,13 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
         except Exception as e:
             print(f"[subscription] Error canceling Creem subscription: {e}")
 
-    # Downgrade user to free tier locally
-    current_user.subscription_tier = "free"
-    current_user.subscription_expires_at = None
-    current_user.updated_at = datetime.utcnow()
+    # Downgrade user to free tier in database
+    update_user_subscription(current_user.id, tier="free", expires_at=None, is_active=True)
 
     return {
         "success": True,
         "message": "Subscription cancelled successfully",
-        "subscription": current_user.subscription_tier,
+        "subscription": "free",
     }
 
 
@@ -103,7 +117,6 @@ async def create_checkout(
             detail="Invalid subscription tier",
         )
 
-    # Map tier to configured Creem Product ID
     product_ids = {
         "pro": os.getenv("CREEM_PRO_PRODUCT_ID", "").strip(),
     }
@@ -141,20 +154,18 @@ async def create_checkout(
         if not checkout_url:
             raise Exception("Creem did not return a checkout URL")
 
-        # Persist the order locally so we can match it when the webhook fires
+        # Persist the order in database so we can match it when the webhook fires
         order_id = str(uuid.uuid4())
-        order = Order(
-            id=order_id,
+        save_order(
+            order_id=order_id,
             user_id=current_user.id,
             user_email=current_user.email,
             tier=order_data.tier,
             amount=tier.price,
+            currency="usd",
+            creem_checkout_id=checkout_id,
             status="pending",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
         )
-        order.creem_checkout_id = checkout_id
-        in_memory_orders[order_id] = order
 
         return {
             "success": True,
@@ -184,14 +195,14 @@ async def confirm_payment(
     the Creem checkout. Activates the user's subscription if
     the associated order has been marked "succeeded" by the webhook.
     """
-    order = in_memory_orders.get(order_id)
-    if not order:
+    order_dict = get_order(order_id)
+    if not order_dict:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    if order.user_id != current_user.id:
+    if order_dict["user_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized for this order")
 
-    if order.status == "succeeded":
+    if order_dict["status"] == "succeeded":
         return {
             "success": True,
             "message": "Payment already confirmed",
@@ -199,7 +210,7 @@ async def confirm_payment(
             "expires_at": current_user.subscription_expires_at,
         }
 
-    if order.status == "pending":
+    if order_dict["status"] == "pending":
         return {
             "success": False,
             "message": "Payment is still being processed. Please refresh shortly.",
@@ -207,24 +218,25 @@ async def confirm_payment(
 
     return {
         "success": False,
-        "message": f"Order status: {order.status}",
+        "message": f"Order status: {order_dict['status']}",
     }
 
 
 @router.get("/orders", response_model=List[Dict[str, Any]])
 async def get_orders(current_user: User = Depends(get_current_active_user)):
     """Get current user's order history"""
+    all_orders = list_orders()
     user_orders = [
         {
-            "id": order.id,
-            "tier": order.tier,
-            "amount": order.amount,
-            "status": order.status,
-            "created_at": order.created_at,
-            "updated_at": order.updated_at,
+            "id": o["id"],
+            "tier": o["tier"],
+            "amount": o["amount"],
+            "status": o["status"],
+            "created_at": o["created_at"],
+            "updated_at": o["updated_at"],
         }
-        for order in in_memory_orders.values()
-        if order.user_id == current_user.id
+        for o in all_orders
+        if o["user_id"] == current_user.id
     ]
     return user_orders
 
@@ -267,39 +279,43 @@ async def get_products():
 # ----------------------------------------------------------------------
 @router.get("/admin/users", response_model=List[User])
 async def get_all_users(admin_user: User = Depends(get_admin_user)):
-    return list(in_memory_users.values())
+    from app.services.database import list_users
+    all_users = list_users()
+    return [_dict_to_user(u) for u in all_users]
 
 
 @router.patch("/admin/users/{user_id}/subscription")
-async def update_user_subscription(
+async def update_user_subscription_admin(
     user_id: str,
     update_data: SubscriptionUpdate,
     admin_user: User = Depends(get_admin_user),
 ):
-    user = in_memory_users.get(user_id)
-    if not user:
+    # Check user exists
+    if not get_user_by_id(user_id):
         raise HTTPException(status_code=404, detail="User not found")
 
-    if update_data.tier:
-        user.subscription_tier = update_data.tier
-    if update_data.expires_at is not None:
-        user.subscription_expires_at = update_data.expires_at
-    if update_data.is_active is not None:
-        user.is_active = update_data.is_active
+    update_user_subscription(
+        user_id=user_id,
+        tier=update_data.tier,
+        expires_at=update_data.expires_at,
+        is_active=update_data.is_active,
+    )
 
-    user.updated_at = datetime.utcnow()
-    return {"success": True, "user": user}
+    user_dict = get_user_by_id(user_id)
+    return {"success": True, "user": _dict_to_user(user_dict)}
 
 
 @router.get("/admin/orders", response_model=List[Order])
 async def get_all_orders(admin_user: User = Depends(get_admin_user)):
-    return list(in_memory_orders.values())
+    orders = list_orders()
+    return [_dict_to_order(o) for o in orders]
 
 
 @router.get("/admin/revenue")
 async def get_revenue(admin_user: User = Depends(get_admin_user)):
-    succeeded_orders = [o for o in in_memory_orders.values() if o.status == "succeeded"]
-    total_revenue = sum(o.amount for o in succeeded_orders)
+    orders = list_orders()
+    succeeded_orders = [o for o in orders if o["status"] == "succeeded"]
+    total_revenue = sum(o["amount"] for o in succeeded_orders)
 
     creem_revenue_cents = 0
     try:
@@ -315,7 +331,7 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
         "success": True,
         "total_revenue_cents": total_revenue,
         "total_revenue_display": f"${total_revenue / 100:.2f}",
-        "total_orders": len(in_memory_orders),
+        "total_orders": len(orders),
         "succeeded_orders": len(succeeded_orders),
         "creem_revenue_cents": creem_revenue_cents,
         "creem_revenue_display": f"${creem_revenue_cents / 100:.2f}",
@@ -336,25 +352,26 @@ async def create_withdrawal(
             detail="Withdrawal amount exceeds available revenue",
         )
 
-    now = datetime.utcnow()
-    withdrawal = WithdrawalRequest(
-        id=str(uuid.uuid4()),
+    withdrawal_id = str(uuid.uuid4())
+    save_withdrawal(
+        withdrawal_id=withdrawal_id,
         admin_id=admin_user.id,
         admin_email=admin_user.email,
         amount=withdrawal_data.amount,
         payment_method=withdrawal_data.payment_method,
         status="pending",
         notes=withdrawal_data.notes,
-        created_at=now,
-        updated_at=now,
+        currency="usd",
     )
-    in_memory_withdrawals[withdrawal.id] = withdrawal
-    return {"success": True, "withdrawal": withdrawal}
+
+    w_dict = get_withdrawal(withdrawal_id)
+    return {"success": True, "withdrawal": _dict_to_withdrawal(w_dict)}
 
 
 @router.get("/admin/withdrawals", response_model=List[WithdrawalRequest])
 async def get_withdrawals(admin_user: User = Depends(get_admin_user)):
-    return list(in_memory_withdrawals.values())
+    withdrawals = list_withdrawals()
+    return [_dict_to_withdrawal(w) for w in withdrawals]
 
 
 @router.patch("/admin/withdrawals/{withdrawal_id}")
@@ -363,13 +380,11 @@ async def update_withdrawal(
     update_data: WithdrawalRequestUpdate,
     admin_user: User = Depends(get_admin_user),
 ):
-    withdrawal = in_memory_withdrawals.get(withdrawal_id)
-    if not withdrawal:
+    from app.services.database import update_withdrawal_status
+    if not get_withdrawal(withdrawal_id):
         raise HTTPException(status_code=404, detail="Withdrawal request not found")
 
     if update_data.status:
-        withdrawal.status = update_data.status
-    if update_data.notes:
-        withdrawal.notes = update_data.notes
-    withdrawal.updated_at = datetime.utcnow()
-    return {"success": True, "withdrawal": withdrawal}
+        update_withdrawal_status(withdrawal_id, update_data.status)
+    w_dict = get_withdrawal(withdrawal_id)
+    return {"success": True, "withdrawal": _dict_to_withdrawal(w_dict)}

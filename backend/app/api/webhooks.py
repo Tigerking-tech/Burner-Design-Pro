@@ -2,8 +2,6 @@
 Creem Webhook Handler
 Handles subscription and payment events from Creem.
 
-Creem webhook reference: https://docs.creem.io
-
 Key events we handle:
   - subscription.created
   - subscription.activated
@@ -14,9 +12,6 @@ Key events we handle:
 
 Endpoint to register in Creem dashboard:
   https://<your-domain>/api/webhooks/creem
-
-Signature: Creem usually sends a signature header (x-creem-signature)
-computed as HMAC-SHA256 of the request body using the webhook secret.
 """
 from fastapi import APIRouter, Request, HTTPException, status
 from typing import Optional, Dict, Any
@@ -24,13 +19,13 @@ import os
 import json
 from datetime import datetime, timedelta
 
-from app.models.user import (
-    User,
-    in_memory_users,
-    in_memory_orders,
-    email_to_user_id,
-)
 from app.services.creem_client import CreemClient
+from app.services.database import (
+    get_user_by_id, get_user_by_email,
+    list_orders, update_order_status,
+    update_user_subscription, update_user_creem,
+    user_exists,
+)
 
 router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 
@@ -38,9 +33,9 @@ router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-def _get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
+def _get_user_from_payload(payload: Dict[str, Any]):
     """
-    Try to resolve a User from an incoming Creem webhook payload.
+    Try to resolve a user dict from an incoming Creem webhook payload.
     Lookup order:
       1. metadata.user_id in the payload
       2. attributes.customer_email / metadata.user_email
@@ -50,8 +45,10 @@ def _get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
     metadata = data.get("metadata") or {}
 
     user_id = metadata.get("user_id")
-    if user_id and user_id in in_memory_users:
-        return in_memory_users[user_id]
+    if user_id:
+        user = get_user_by_id(user_id)
+        if user:
+            return user
 
     attrs = data.get("attributes") or {}
     email = (
@@ -60,9 +57,9 @@ def _get_user_from_payload(payload: Dict[str, Any]) -> Optional[User]:
         or attrs.get("email")
     )
     if email:
-        uid = email_to_user_id.get(email.lower())
-        if uid and uid in in_memory_users:
-            return in_memory_users[uid]
+        user = get_user_by_email(email.lower())
+        if user:
+            return user
 
     return None
 
@@ -72,31 +69,38 @@ def _get_subscription_id(payload: Dict[str, Any]) -> Optional[str]:
     return data.get("subscription_id") or data.get("id")
 
 
-def _activate_pro_tier(user: User, valid_days: int = 30) -> None:
-    now = datetime.utcnow()
-    user.subscription_tier = "pro"
-    user.subscription_expires_at = now + timedelta(days=valid_days)
-    user.updated_at = now
+def _activate_pro_tier(user_dict: Dict[str, Any], valid_days: int = 30) -> None:
+    update_user_subscription(
+        user_id=user_dict["id"],
+        tier="pro",
+        expires_at=datetime.utcnow() + timedelta(days=valid_days),
+        is_active=True,
+    )
 
 
-def _downgrade_user(user: User) -> None:
-    user.subscription_tier = "free"
-    user.subscription_expires_at = None
-    user.updated_at = datetime.utcnow()
+def _downgrade_user(user_dict: Dict[str, Any]) -> None:
+    update_user_subscription(
+        user_id=user_dict["id"],
+        tier="free",
+        expires_at=None,
+        is_active=True,
+    )
 
 
-def _mark_order_succeeded(user: User) -> None:
-    for order in in_memory_orders.values():
-        if order.user_id == user.id and order.status == "pending":
-            order.status = "succeeded"
-            order.updated_at = datetime.utcnow()
+def _mark_order_succeeded(user_dict: Dict[str, Any]) -> None:
+    """Find pending orders for this user and mark them as succeeded."""
+    orders = list_orders()
+    for o in orders:
+        if o["user_id"] == user_dict["id"] and o["status"] == "pending":
+            update_order_status(o["id"], "succeeded")
 
 
-def _mark_order_refunded(user: User) -> None:
-    for order in in_memory_orders.values():
-        if order.user_id == user.id and order.status == "succeeded":
-            order.status = "refunded"
-            order.updated_at = datetime.utcnow()
+def _mark_order_refunded(user_dict: Dict[str, Any]) -> None:
+    """Find succeeded orders for this user and mark them as refunded."""
+    orders = list_orders()
+    for o in orders:
+        if o["user_id"] == user_dict["id"] and o["status"] == "succeeded":
+            update_order_status(o["id"], "refunded")
 
 
 # ---------------------------------------------------------------------------
@@ -141,13 +145,13 @@ async def creem_webhook(request: Request):
 
     print(f"[webhooks] Received Creem event: {event_type}")
 
-    user = _get_user_from_payload(payload)
+    user_dict = _get_user_from_payload(payload)
     sub_id = _get_subscription_id(payload)
 
     # Save customer id / subscription id on user if provided
     customer_id = data.get("customer_id")
-    if user and customer_id:
-        user.creem_customer_id = str(customer_id)
+    if user_dict and customer_id:
+        update_user_creem(user_dict["id"], creem_customer_id=str(customer_id))
 
     # ------------------------------------------------------------------
     # Subscription created / activated
@@ -161,14 +165,14 @@ async def creem_webhook(request: Request):
         "payment.succeeded",
         "checkout.completed",
     ):
-        if not user:
+        if not user_dict:
             print(f"[webhooks] {event_type}: user not found")
             return {"success": True, "message": "User not found (no-op)"}
 
-        _activate_pro_tier(user, valid_days=30)
+        _activate_pro_tier(user_dict, valid_days=30)
         if sub_id:
-            user.creem_subscription_id = str(sub_id)
-        _mark_order_succeeded(user)
+            update_user_creem(user_dict["id"], creem_subscription_id=str(sub_id))
+        _mark_order_succeeded(user_dict)
         return {"success": True, "message": f"Handled {event_type}"}
 
     # ------------------------------------------------------------------
@@ -181,20 +185,20 @@ async def creem_webhook(request: Request):
         "subscription.expired",
         "subscription.past_due",
     ):
-        if not user:
+        if not user_dict:
             print(f"[webhooks] {event_type}: user not found")
             return {"success": True, "message": "User not found (no-op)"}
 
-        _downgrade_user(user)
+        _downgrade_user(user_dict)
         return {"success": True, "message": f"Handled {event_type}"}
 
     # ------------------------------------------------------------------
     # Refund
     # ------------------------------------------------------------------
     if event_type in ("payment.refunded", "payment.failed"):
-        if user:
-            _downgrade_user(user)
-            _mark_order_refunded(user)
+        if user_dict:
+            _downgrade_user(user_dict)
+            _mark_order_refunded(user_dict)
         return {"success": True, "message": f"Handled {event_type}"}
 
     # ------------------------------------------------------------------

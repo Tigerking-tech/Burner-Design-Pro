@@ -5,13 +5,15 @@ from datetime import datetime, timedelta
 import uuid
 from app.api import health, fuels, units, emissions, auth, subscription
 from app.api.webhooks import router as webhooks_router
-from app.models.user import User, in_memory_users, in_memory_passwords, email_to_user_id
 from app.security import (
     RateLimiter,
     SecurityHeadersMiddleware,
     ErrorHandlerMiddleware
 )
 from app.security.auth import get_password_hash
+from app.services.database import (
+    init_db, save_user, get_user_by_email, user_exists, db_info,
+)
 
 app = FastAPI(title="Burner Design Pro API")
 
@@ -43,58 +45,60 @@ app.include_router(auth.router)
 app.include_router(subscription.router)
 app.include_router(webhooks_router)
 
-# Initialize admin user for production
+# Initialize admin user from DB
 def create_default_admin():
     """
-    Create admin user from environment variables in production,
-    or use default for demo purposes.
-    
+    Create admin user in database from environment variables.
+    Only creates if the email doesn't already exist.
+
     Environment Variables:
     - ADMIN_EMAIL: Admin email address
     - ADMIN_PASSWORD: Admin password (required for new installations)
     - ADMIN_FULL_NAME: Admin full name (optional)
     """
-    # Get admin credentials from environment variables or use demo defaults
     admin_email = os.getenv("ADMIN_EMAIL", "admin@burnerpro.com")
     admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
     admin_full_name = os.getenv("ADMIN_FULL_NAME", "System Admin")
     environment = os.getenv("ENVIRONMENT", "development")
-    
-    if admin_email not in email_to_user_id:
+
+    if not user_exists(admin_email):
         admin_id = str(uuid.uuid4())
-        now = datetime.utcnow()
-        
-        admin_user = User(
-            id=admin_id,
+        hashed_password = get_password_hash(admin_password)
+
+        save_user(
+            user_id=admin_id,
             email=admin_email,
+            hashed_password=hashed_password,
             full_name=admin_full_name,
             is_active=True,
             is_admin=True,
-            created_at=now,
-            updated_at=now,
             subscription_tier="pro",
-            subscription_expires_at=datetime.utcnow() + timedelta(days=365)
+            subscription_expires_at=datetime.utcnow() + timedelta(days=365),
         )
-        
-        in_memory_users[admin_id] = admin_user
-        email_to_user_id[admin_email] = admin_id
-        in_memory_passwords[admin_id] = get_password_hash(admin_password)
-        
+
         print(f"[INFO] Created admin user: {admin_email}")
-        
-        if environment == "production":
-            print(f"[INFO] Production mode - Admin credentials configured via environment variables")
-            print(f"[INFO] Admin email: {admin_email}")
-            if not os.getenv("ADMIN_PASSWORD"):
-                print(f"[WARNING] Using default admin password in production! Please set ADMIN_PASSWORD immediately!")
-        else:
-            print(f"[INFO] Admin password: {admin_password}")
-            print("[INFO] For production, set ADMIN_EMAIL and ADMIN_PASSWORD environment variables")
+    else:
+        print(f"[INFO] Admin user already exists: {admin_email}")
+
+    if environment == "production":
+        print(f"[INFO] Production mode - Admin credentials configured via environment variables")
+        print(f"[INFO] Admin email: {admin_email}")
+        if not os.getenv("ADMIN_PASSWORD"):
+            print(f"[WARNING] Using default admin password in production! Please set ADMIN_PASSWORD immediately!")
+    else:
+        print(f"[INFO] Admin password: {admin_password}")
+        print("[INFO] For production, set ADMIN_EMAIL and ADMIN_PASSWORD environment variables")
+
+    info = db_info()
+    print(f"[INFO] Database contains: {info['users']} users, {info['orders']} orders, {info['withdrawals']} withdrawals")
+
 
 # Create admin user on startup
 @app.on_event("startup")
 async def startup_event():
+    init_db()
     create_default_admin()
+
 
 @app.get("/")
 def root():
@@ -103,6 +107,7 @@ def root():
         "version": "1.0.0",
         "status": "running"
     }
+
 
 @app.get("/health")
 def health_check():

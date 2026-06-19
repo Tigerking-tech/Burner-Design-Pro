@@ -10,7 +10,6 @@ import uuid
 from app.models.user import (
     User, UserCreate, UserLogin, Token, TokenData,
     ChangePassword, AdminChangePassword,
-    in_memory_users, in_memory_passwords, email_to_user_id
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
 from app.security.auth import (
@@ -22,10 +21,19 @@ from app.services.verification_store import (
     store_verification_code, verify_code, delete_verification_code,
     get_verification_entry
 )
+from app.services.database import (
+    save_user, get_user_by_id, get_user_by_email, get_user_password,
+    activate_user, update_user_password, user_exists,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+
+def _dict_to_user(user_dict: dict) -> User:
+    """Convert a DB row dict to a User model."""
+    return User(**user_dict)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
@@ -40,15 +48,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     if token_data is None:
         raise credentials_exception
     
-    user_id = email_to_user_id.get(token_data.email)
-    if user_id is None:
+    # Look up user by email in the database
+    user_dict = get_user_by_email(token_data.email)
+    if user_dict is None:
         raise credentials_exception
     
-    user = in_memory_users.get(user_id)
-    if user is None:
-        raise credentials_exception
-    
-    return user
+    return _dict_to_user(user_dict)
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
@@ -72,7 +77,7 @@ async def get_admin_user(current_user: User = Depends(get_current_active_user)) 
 async def register(user_data: UserCreate):
     """Register a new user (requires email verification before login)"""
     # Check if user already exists
-    if user_data.email in email_to_user_id:
+    if user_exists(user_data.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -80,38 +85,30 @@ async def register(user_data: UserCreate):
     
     # Create user (inactive until verified)
     user_id = str(uuid.uuid4())
-    now = datetime.utcnow()
-    
     hashed_password = get_password_hash(user_data.password)
     
-    user = User(
-        id=user_id,
+    save_user(
+        user_id=user_id,
         email=user_data.email,
+        hashed_password=hashed_password,
         full_name=user_data.full_name,
-        is_active=False,  # Requires verification
+        is_active=False,
         is_admin=False,
-        created_at=now,
-        updated_at=now,
         subscription_tier="free",
-        subscription_expires_at=None
+        subscription_expires_at=None,
     )
-    
-    # Store user and password hash
-    in_memory_users[user_id] = user
-    email_to_user_id[user.email] = user_id
-    in_memory_passwords[user_id] = hashed_password
     
     # Generate and store verification code
     code = generate_verification_code()
-    store_verification_code(user.email, code, user_id, expires_minutes=30)
+    store_verification_code(user_data.email, code, user_id, expires_minutes=30)
     
     # Send verification email
-    await send_verification_email(user.email, code)
+    await send_verification_email(user_data.email, code)
     
     return {
         "success": True,
         "message": "Registration successful. Please check your email for verification code.",
-        "email": user.email,
+        "email": user_data.email,
         "requires_verification": True,
     }
 
@@ -135,16 +132,19 @@ async def verify_email(data: dict):
             detail="Invalid or expired verification code"
         )
     
-    # Activate user
-    user = in_memory_users.get(user_id)
-    if not user:
+    # Activate user in database
+    user_dict = get_user_by_id(user_id)
+    if not user_dict:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
     
-    user.is_active = True
-    user.updated_at = datetime.utcnow()
+    activate_user(user_id)
+    
+    # Refresh user data
+    user_dict = get_user_by_id(user_id)
+    user = _dict_to_user(user_dict)
     
     # Clean up verification code
     delete_verification_code(email)
@@ -170,19 +170,15 @@ async def resend_verification(data: dict):
             detail="Email is required"
         )
     
-    user_id = email_to_user_id.get(email)
-    if not user_id:
+    # Check user exists in DB
+    user_dict = get_user_by_email(email)
+    if not user_dict:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
     
-    user = in_memory_users.get(user_id)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    user = _dict_to_user(user_dict)
     
     if user.is_active:
         raise HTTPException(
@@ -200,10 +196,10 @@ async def resend_verification(data: dict):
     
     # Generate new code
     code = generate_verification_code()
-    store_verification_code(user.email, code, user_id, expires_minutes=30)
+    store_verification_code(email, code, user.id, expires_minutes=30)
     
     # Send verification email
-    await send_verification_email(user.email, code)
+    await send_verification_email(email, code)
     
     return {
         "success": True,
@@ -214,25 +210,19 @@ async def resend_verification(data: dict):
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login with OAuth2 password flow"""
-    # Find user
-    user_id = email_to_user_id.get(form_data.username)
-    if user_id is None:
+    # Find user by email (form_data.username is the email in OAuth2)
+    user_dict = get_user_by_email(form_data.username)
+    if user_dict is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user = in_memory_users.get(user_id)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    user = _dict_to_user(user_dict)
     
-    # Verify password
-    hashed_password = in_memory_passwords.get(user_id)
+    # Verify password from DB
+    hashed_password = get_user_password(user.id)
     if not hashed_password or not verify_password(form_data.password, hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -291,9 +281,8 @@ async def change_password(
     current_user: User = Depends(get_current_active_user)
 ):
     """Change current user's password"""
-    # Verify current password
-    user_id = current_user.id
-    hashed_password = in_memory_passwords.get(user_id)
+    # Verify current password from DB
+    hashed_password = get_user_password(current_user.id)
     
     if not hashed_password or not verify_password(password_data.current_password, hashed_password):
         raise HTTPException(
@@ -301,12 +290,9 @@ async def change_password(
             detail="Current password is incorrect"
         )
     
-    # Update with new password
+    # Update in DB
     new_hashed_password = get_password_hash(password_data.new_password)
-    in_memory_passwords[user_id] = new_hashed_password
-    
-    # Update user's updated_at timestamp
-    in_memory_users[user_id].updated_at = datetime.utcnow()
+    update_user_password(current_user.id, new_hashed_password)
     
     return {
         "success": True,
@@ -321,19 +307,16 @@ async def admin_change_user_password(
     current_user: User = Depends(get_admin_user)
 ):
     """Change any user's password (admin only)"""
-    # Check if user exists
-    if user_id not in in_memory_users:
+    # Check if user exists in DB
+    if not get_user_by_id(user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
     
-    # Update with new password
+    # Update in DB
     new_hashed_password = get_password_hash(password_data.new_password)
-    in_memory_passwords[user_id] = new_hashed_password
-    
-    # Update user's updated_at timestamp
-    in_memory_users[user_id].updated_at = datetime.utcnow()
+    update_user_password(user_id, new_hashed_password)
     
     return {
         "success": True,
