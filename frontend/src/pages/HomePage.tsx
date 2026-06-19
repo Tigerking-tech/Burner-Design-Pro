@@ -10,7 +10,9 @@ import {
   Gauge, 
   Thermometer, 
   BrickWall,
-  AlertTriangle 
+  AlertTriangle,
+  Menu,
+  X
 } from 'lucide-react'
 
 interface Feature {
@@ -120,6 +122,7 @@ export default function HomePage() {
   useSEO({ title: 'Burner Design Tools - Free Online Thermal Engineering Calculators', description: 'Free professional burner design tools: flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic properties database, insulation calculator, and unit converter for industrial combustion engineers.', keywords: 'burner design tools, free thermal calculator, industrial burner, combustion engineering, flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic database' })
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -160,14 +163,18 @@ export default function HomePage() {
     }
   }
 
+  const closeMobileMenu = () => setMobileMenuOpen(false)
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight">
+      {/* Navigation - Desktop */}
+      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-4 md:px-12 py-4 flex justify-between items-center shadow-lg">
+        <Link to="/" className="text-xl md:text-2xl font-semibold tracking-tight">
           <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
         </Link>
-        <div className="flex gap-6 items-center">
+        
+        {/* Desktop Menu */}
+        <div className="hidden md:flex gap-6 items-center">
           <a href="#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
           <a href="#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
           {isLoggedIn ? (
@@ -198,73 +205,114 @@ export default function HomePage() {
             </>
           )}
         </div>
+
+        {/* Mobile Hamburger */}
+        <button 
+          className="md:hidden text-white p-2"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </nav>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-20 px-6 text-center">
+      {/* Mobile Menu Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-[#2c3e50] text-white flex flex-col">
+          <div className="flex justify-between items-center px-4 py-4 border-b border-[#34495e]">
+            <span className="text-xl font-semibold"><span className="text-[#f39c12]">🔥</span> Burner-Design-Pro</span>
+            <button onClick={closeMobileMenu} className="p-2">
+              <X size={28} />
+            </button>
+          </div>
+          <div className="flex flex-col p-6 gap-6 text-lg">
+            <a href="#features" onClick={closeMobileMenu} className="text-[#bdc3c7] hover:text-white transition-colors">Features</a>
+            <a href="#pricing" onClick={closeMobileMenu} className="text-[#bdc3c7] hover:text-white transition-colors">Pricing</a>
+            {isLoggedIn ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" onClick={closeMobileMenu} className="text-[#bdc3c7] hover:text-white transition-colors">Admin</Link>
+                )}
+                <Link to="/account" onClick={closeMobileMenu} className="text-[#bdc3c7] hover:text-white transition-colors">Account</Link>
+                <button onClick={() => { handleLogout(); closeMobileMenu(); }} className="text-left text-[#bdc3c7] hover:text-white transition-colors">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={closeMobileMenu} className="text-[#bdc3c7] hover:text-white transition-colors">Login</Link>
+                <Link to="/signup" onClick={closeMobileMenu} className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-3 rounded font-semibold text-center transition-colors shadow-md">Get Started</Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Hero Section - Mobile Optimized */}
+      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 md:py-20 px-4 md:px-6 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-semibold mb-6 leading-tight">
-            Professional Thermal Design Tools<br/>for Burner Engineers
+          <h1 className="text-3xl md:text-5xl font-semibold mb-4 md:mb-6 leading-tight">
+            Professional Thermal Design Tools<br className="hidden md:block"/>for Burner Engineers
           </h1>
-          <p className="text-lg text-[#bdc3c7] mb-8 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-[#bdc3c7] mb-6 md:mb-8 max-w-2xl mx-auto px-2">
             Accurate combustion calculations, emission analysis, and unit conversion for industrial applications.
           </p>
-          <div className="flex gap-4 justify-center mb-8">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8 px-4">
             {isLoggedIn ? (
               <a
                 href="#features"
                 onClick={handleStartFreeClick}
-                className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg"
+                className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg text-center"
               >
                 Get Started
               </a>
             ) : (
-              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg">
+              <Link to="/signup" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-8 py-4 rounded font-semibold text-lg transition-colors shadow-lg text-center">
                 Get Started
               </Link>
             )}
-            <a href="#pricing" className="border-2 border-[#7f8c8d] hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded font-semibold text-lg transition-all">
+            <a href="#pricing" className="border-2 border-[#7f8c8d] hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded font-semibold text-lg transition-all text-center">
               View Pricing
             </a>
           </div>
-          <div className="text-[#95a5a6] text-sm">
-            <span className="text-[#f39c12]">✓</span> Free plan available &nbsp;|&nbsp; 
-            <span className="text-[#f39c12]">✓</span> No credit card required &nbsp;|&nbsp; 
-            <span className="text-[#f39c12]">✓</span> Upgrade anytime
+          <div className="text-[#95a5a6] text-xs md:text-sm flex flex-col md:flex-row justify-center gap-2 md:gap-0">
+            <span><span className="text-[#f39c12]">✓</span> Free plan available</span>
+            <span className="hidden md:inline">&nbsp;|&nbsp;</span>
+            <span><span className="text-[#f39c12]">✓</span> No credit card required</span>
+            <span className="hidden md:inline">&nbsp;|&nbsp;</span>
+            <span><span className="text-[#f39c12]">✓</span> Upgrade anytime</span>
           </div>
         </div>
       </section>
 
-      {/* Product Highlights */}
-      <section className="max-w-5xl mx-auto px-5 -mt-10 relative z-10 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">🔥</div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Combustion Tools</h3>
+      {/* Product Highlights - Mobile Optimized */}
+      <section className="max-w-5xl mx-auto px-4 md:px-5 -mt-6 md:-mt-10 relative z-10 pb-12 md:pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="bg-white rounded-lg p-5 md:p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-3xl md:text-4xl mb-3">🔥</div>
+            <h3 className="text-lg md:text-xl font-semibold text-[#2c3e50] mb-2">Combustion Tools</h3>
             <p className="text-[#7f8c8d] text-sm">Fuel management, flame temperature, orifice design - all in one place</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Emission Analysis</h3>
+          <div className="bg-white rounded-lg p-5 md:p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-3xl md:text-4xl mb-3">📊</div>
+            <h3 className="text-lg md:text-xl font-semibold text-[#2c3e50] mb-2">Emission Analysis</h3>
             <p className="text-[#7f8c8d] text-sm">NOx, CO, SO₂ calculations with industry-standard compliance checks</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">🧱</div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Insulation Design</h3>
+          <div className="bg-white rounded-lg p-5 md:p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+            <div className="text-3xl md:text-4xl mb-3">🧱</div>
+            <h3 className="text-lg md:text-xl font-semibold text-[#2c3e50] mb-2">Insulation Design</h3>
             <p className="text-[#7f8c8d] text-sm">Optimal insulation thickness for pipes and flat surfaces per ISO/ASTM</p>
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="max-w-5xl mx-auto px-5 py-20">
-        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-3">Simple, Transparent Pricing</h2>
-        <p className="text-center text-[#7f8c8d] mb-12">Start free, upgrade when you need more</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+      {/* Pricing Section - Mobile Optimized */}
+      <section id="pricing" className="max-w-5xl mx-auto px-4 md:px-5 py-12 md:py-20">
+        <h2 className="text-2xl md:text-3xl font-semibold text-center text-[#2c3e50] mb-2 md:mb-3">Simple, Transparent Pricing</h2>
+        <p className="text-center text-[#7f8c8d] mb-8 md:mb-12 text-sm md:text-base">Start free, upgrade when you need more</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <div 
               key={index} 
-              className={`bg-white rounded-lg p-8 border text-center transition-shadow hover:shadow-lg ${
+              className={`bg-white rounded-lg p-6 md:p-8 border text-center transition-shadow hover:shadow-lg ${
                 plan.popular ? 'border-2 border-[#f39c12] relative' : 'border border-gray-300'
               }`}
             >
@@ -273,10 +321,10 @@ export default function HomePage() {
                   Most Popular
                 </div>
               )}
-              <h3 className="text-2xl font-semibold text-[#2c3e50] mb-2">{plan.name}</h3>
-              <div className="text-5xl font-bold text-[#2c3e50] mb-1">{plan.price}<span className="text-sm font-normal text-[#7f8c8d]">{plan.period}</span></div>
-              <p className="text-[#7f8c8d] text-sm mb-6">{plan.description}</p>
-              <ul className="text-left mb-6">
+              <h3 className="text-xl md:text-2xl font-semibold text-[#2c3e50] mb-2">{plan.name}</h3>
+              <div className="text-4xl md:text-5xl font-bold text-[#2c3e50] mb-1">{plan.price}<span className="text-sm font-normal text-[#7f8c8d]">{plan.period}</span></div>
+              <p className="text-[#7f8c8d] text-sm mb-4 md:mb-6">{plan.description}</p>
+              <ul className="text-left mb-4 md:mb-6">
                 {plan.features.map((feature, i) => (
                   <li 
                     key={i} 
@@ -293,7 +341,7 @@ export default function HomePage() {
               </ul>
               <button 
                 onClick={() => handlePricingButtonClick(plan.name)}
-                className={`w-full py-3 rounded font-semibold text-sm transition-all ${
+                className={`w-full py-3 md:py-3 rounded font-semibold text-sm transition-all ${
                 plan.buttonPrimary 
                   ? 'bg-[#f39c12] hover:bg-[#e67e22] text-white shadow-md' 
                   : 'bg-gray-200 hover:bg-gray-300 text-[#2c3e50] border border-[#bdc3c7]'
@@ -305,20 +353,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="max-w-5xl mx-auto px-5 py-20">
-        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-12">Everything You Need for Burner Design</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* Features Section - Mobile Optimized */}
+      <section id="features" className="max-w-5xl mx-auto px-4 md:px-5 py-12 md:py-20">
+        <h2 className="text-2xl md:text-3xl font-semibold text-center text-[#2c3e50] mb-8 md:mb-12">Everything You Need for Burner Design</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {features.map((feature) => (
             <Link
               key={feature.id}
               to={feature.to}
-              className="bg-white rounded-lg p-6 border border-gray-300 hover:shadow-lg transition-shadow group"
+              className="bg-white rounded-lg p-5 md:p-6 border border-gray-300 hover:shadow-lg transition-shadow group"
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md">
-                {React.cloneElement(feature.icon as React.ReactElement, { className: 'text-white' })}
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform shadow-md">
+                {React.cloneElement(feature.icon as React.ReactElement, { className: 'text-white', size: 24 })}
               </div>
-              <h3 className="text-lg font-semibold text-[#2c3e50] mb-2 flex items-center">
+              <h3 className="text-base md:text-lg font-semibold text-[#2c3e50] mb-2 flex items-center">
                 {feature.title}
                 {feature.pro && (
                   <span className="ml-2 bg-[#f39c12] text-white px-2 py-0.5 rounded text-xs font-semibold">PRO</span>
@@ -330,30 +378,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* One-Stop Workflow Advantage */}
-      <section className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-16 px-6">
+      {/* One-Stop Workflow Advantage - Mobile Optimized */}
+      <section className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-12 md:py-16 px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-semibold mb-6">Why Choose Burner-Design-Pro?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-            <div className="bg-white/10 rounded-lg p-6">
-              <div className="text-4xl mb-4">🚀</div>
-              <h3 className="text-xl font-semibold mb-3">All-in-One Platform</h3>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-4 md:mb-6">Why Choose Burner-Design-Pro?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mt-6 md:mt-10">
+            <div className="bg-white/10 rounded-lg p-5 md:p-6">
+              <div className="text-3xl md:text-4xl mb-3 md:mb-4">🚀</div>
+              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">All-in-One Platform</h3>
               <p className="text-[#bdc3c7] text-sm">
                 No more switching between multiple websites. Fuel calculations, emissions analysis, 
                 orifice design, and compliance reports - everything in one place.
               </p>
             </div>
-            <div className="bg-white/10 rounded-lg p-6">
-              <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-xl font-semibold mb-3">Professional Workflow</h3>
+            <div className="bg-white/10 rounded-lg p-5 md:p-6">
+              <div className="text-3xl md:text-4xl mb-3 md:mb-4">📊</div>
+              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">Professional Workflow</h3>
               <p className="text-[#bdc3c7] text-sm">
                 From fuel selection to combustion calculations to emission compliance - 
                 complete your entire engineering workflow seamlessly.
               </p>
             </div>
-            <div className="bg-white/10 rounded-lg p-6">
-              <div className="text-4xl mb-4">✅</div>
-              <h3 className="text-xl font-semibold mb-3">Standards Compliant</h3>
+            <div className="bg-white/10 rounded-lg p-5 md:p-6">
+              <div className="text-3xl md:text-4xl mb-3 md:mb-4">✅</div>
+              <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">Standards Compliant</h3>
               <p className="text-[#bdc3c7] text-sm">
                 All calculations follow international standards: ISO 5167, ISO 12241, 
                 EPA, and EU IED. Professional reports for your projects.
@@ -363,13 +411,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
+      {/* Footer - Mobile Optimized */}
+      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-8 md:py-12 px-4 md:px-6 mt-12 md:mt-20">
         <div className="max-w-5xl mx-auto">
           {/* Disclaimer Section */}
-          <div className="bg-[#34495e] rounded-lg p-6 mb-8 text-left border border-[#4a5d6e]">
-            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
-              <AlertTriangle className="text-yellow-500" size={18} />
+          <div className="bg-[#34495e] rounded-lg p-4 md:p-6 mb-6 md:mb-8 text-left border border-[#4a5d6e]">
+            <h4 className="text-white font-semibold mb-2 md:mb-3 flex items-center gap-2 text-sm md:text-base">
+              <AlertTriangle className="text-yellow-500" size={16} />
               Disclaimer
             </h4>
             <div className="text-xs text-[#95a5a6] space-y-2 leading-relaxed">
@@ -390,7 +438,7 @@ export default function HomePage() {
           </div>
 
           {/* Navigation Links */}
-          <div className="flex justify-center gap-8 mb-5 flex-wrap">
+          <div className="flex justify-center gap-4 md:gap-8 mb-4 md:mb-5 flex-wrap">
             <a href="#features" className="text-sm hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
             <Link to="/privacy-policy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link>
