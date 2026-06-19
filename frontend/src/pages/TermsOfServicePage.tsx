@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'

@@ -92,11 +92,6 @@ function InsulationCalculatorPage() {
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
-  useEffect(() => {
-    setIsLoggedIn(authAPI.isAuthenticated())
-    setIsAdmin(authAPI.isAdmin())
-  }, [])
-
   const handleProAction = (action: () => void) => {
     if (!isProUser) {
       setShowSubscriptionModal(true)

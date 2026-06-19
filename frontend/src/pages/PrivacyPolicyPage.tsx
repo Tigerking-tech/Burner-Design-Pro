@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Shield, ArrowLeft, Eye, Lock, Database } from 'lucide-react'
 import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'

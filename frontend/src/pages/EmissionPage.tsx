@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { authAPI } from '../services/api'
 import { useSEO } from '../hooks/useSEO'
