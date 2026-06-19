@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
 import { Shield, ArrowLeft, Eye, Lock, Database } from 'lucide-react'
+import { useSEO } from '../hooks/useSEO'
 
 export default function PrivacyPolicy() {
+  useSEO({ title: 'Privacy Policy', description: 'Privacy policy for Burner Design Pro. Learn how we protect your data and privacy when using our burner design tools.', keywords: '' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)

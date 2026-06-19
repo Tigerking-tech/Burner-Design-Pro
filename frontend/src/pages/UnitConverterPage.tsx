@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { authAPI } from '../services/api';
+import { useSEO } from '../hooks/useSEO';
 
 const UNITS = {
   "Pressure": {
@@ -171,6 +172,7 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
+  useSEO({ title: 'Unit Converter', description: 'Convert between thermal engineering units: temperature, pressure, flow rate, energy, power, and more. Essential tool for burner design engineers.', keywords: 'unit converter, thermal engineering units, temperature converter, pressure converter, flow rate converter, energy unit conversion' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)

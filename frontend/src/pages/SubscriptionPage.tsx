@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { subscriptionAPI, authAPI } from '../services/api'
+import { useSEO } from '../hooks/useSEO'
 
 interface Product {
   tier: string
@@ -22,6 +23,7 @@ interface Subscription {
 }
 
 const SubscriptionPage: React.FC = () => {
+  useSEO({ title: 'Pricing & Plans', description: 'Choose the right Burner Design Pro plan for your thermal engineering needs. Free and premium plans available with advanced burner design calculators.', keywords: 'burner design pricing, thermal engineering subscription, burner calculator plans' })
   const navigate = useNavigate()
   const [user, setUser] = useState(authAPI.getCurrentUserSync())
   const [products, setProducts] = useState<Product[]>([])

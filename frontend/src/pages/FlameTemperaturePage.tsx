@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle } from 'lucide-react'
+import { useSEO } from '../hooks/useSEO'
 
 interface GasComponent {
   name: string
@@ -159,6 +160,7 @@ const productData: Record<string, { hf: number; cp: number }> = {
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
 export default function FlameTemperaturePage() {
+  useSEO({ title: 'Flame Temperature Calculator', description: 'Calculate adiabatic flame temperature for various fuel types and compositions. Professional tool for burner design and combustion engineering.', keywords: 'flame temperature calculator, adiabatic flame temperature, combustion temperature, burner flame calculation, flame temperature formula' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)

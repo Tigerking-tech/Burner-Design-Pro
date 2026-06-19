@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { authAPI } from '../services/api'
+import { useSEO } from '../hooks/useSEO'
 import { 
   Flame, 
   Leaf, 
@@ -116,6 +117,7 @@ const pricingPlans: PricingPlan[] = [
 ]
 
 export default function HomePage() {
+  useSEO({ title: 'Burner Design Tools - Free Online Thermal Engineering Calculators', description: 'Free professional burner design tools: flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic properties database, insulation calculator, and unit converter for industrial combustion engineers.', keywords: 'burner design tools, free thermal calculator, industrial burner, combustion engineering, flame temperature calculator, orifice sizing, emission analysis, fuel management, thermodynamic database' })
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const navigate = useNavigate()

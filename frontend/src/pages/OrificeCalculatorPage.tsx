@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
+import { useSEO } from '../hooks/useSEO'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
 
@@ -263,6 +264,7 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
+  useSEO({ title: 'Orifice Calculator', description: 'Calculate burner orifice plate size, flow rate, and pressure drop. Essential tool for industrial burner design and gas train engineering.', keywords: 'orifice calculator, orifice plate sizing, burner orifice, gas orifice calculation, flow rate calculator, pressure drop orifice' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(authAPI.isAuthenticated())
   const [isAdmin, setIsAdmin] = useState(authAPI.isAdmin())

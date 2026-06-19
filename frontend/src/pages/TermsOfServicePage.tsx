@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
 import { authAPI } from '../services/api'
+import { useSEO } from '../hooks/useSEO'
 
 export default function TermsOfService() {
+  useSEO({ title: 'Terms of Service', description: 'Terms of service for Burner Design Pro - professional burner design tools and thermal engineering calculators.', keywords: '' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)

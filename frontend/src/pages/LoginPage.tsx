@@ -2,8 +2,10 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authAPI } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
+import { useSEO } from '../hooks/useSEO'
 
 export default function LoginPage() {
+  useSEO({ title: 'Login', description: 'Sign in to your Burner Design Pro account to access professional burner design tools and calculators.', keywords: 'burner design login, thermal engineering login' })
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

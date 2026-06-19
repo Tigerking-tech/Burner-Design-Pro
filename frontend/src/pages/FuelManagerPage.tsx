@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { authAPI } from '../services/api'
+import { useSEO } from '../hooks/useSEO'
 
 interface GasComponent {
   name: string
@@ -190,6 +191,7 @@ const oilPresets = [
 ]
 
 export default function FuelManagerPage() {
+  useSEO({ title: 'Fuel Manager', description: 'Comprehensive fuel database and management tool for burner design. Compare fuel properties, calculate calorific values, and optimize combustion parameters.', keywords: 'fuel manager, fuel database, calorific value, combustion fuel properties, burner fuel selection, natural gas properties, fuel oil analysis' })
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
