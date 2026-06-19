@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle } from 'lucide-react'
 import { useSEO } from '../hooks/useSEO'
+import { Navbar } from '../components/Navbar'
 
 interface GasComponent {
   name: string
@@ -161,9 +161,6 @@ type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
 export default function FlameTemperaturePage() {
   useSEO({ title: 'Flame Temperature Calculator', description: 'Calculate adiabatic flame temperature for various fuel types and compositions. Professional tool for burner design and combustion engineering.', keywords: 'flame temperature calculator, adiabatic flame temperature, combustion temperature, burner flame calculation, flame temperature formula' })
-  const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
   const [gasComponents, setGasComponents] = useState<GasComponent[]>(
     defaultGasComponents.map(c => ({ ...c }))
   )
@@ -181,18 +178,6 @@ export default function FlameTemperaturePage() {
   
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 
-  useEffect(() => {
-    setIsLoggedIn(authAPI.isAuthenticated())
-    setIsAdmin(authAPI.isAdmin())
-  }, [])
-
-  const handleLogout = () => {
-    authAPI.logout(); window.location.href = "/"
-    setIsLoggedIn(false)
-    setIsAdmin(false)
-    navigate('/')
-  }
-  
   const handleProAction = (action: () => void) => {
     if (!isProUser) {
       setShowSubscriptionModal(true)
@@ -336,39 +321,7 @@ export default function FlameTemperaturePage() {
       icon={<Thermometer size={40} />}
     >
       <div className="min-h-screen bg-gray-100">
-        <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-          <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-            <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-          </Link>
-          <div className="flex gap-8 items-center">
-            <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-            <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
-            <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            {isLoggedIn ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                    Admin
-                  </Link>
-                )}
-                <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
-                <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                  Account
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-                Get Started
-              </Link>
-            )}
-          </div>
-        </nav>
+        <Navbar />
 
         <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-16 px-6 text-center">
           <div className="max-w-4xl mx-auto">

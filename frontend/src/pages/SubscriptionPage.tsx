@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { subscriptionAPI, authAPI } from '../services/api'
 import { useSEO } from '../hooks/useSEO'
+import { Navbar } from '../components/Navbar'
 
 interface Product {
   tier: string
@@ -114,31 +115,7 @@ const SubscriptionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
-      {/* Header */}
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-        </Link>
-        <div className="flex gap-6 items-center">
-          {user?.is_admin && (
-            <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-              Admin Dashboard
-            </Link>
-          )}
-          <span className="text-[#f39c12] text-sm font-medium">
-            {user?.email || authAPI.getCurrentUserSync()?.email}
-          </span>
-          <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-            Account
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}

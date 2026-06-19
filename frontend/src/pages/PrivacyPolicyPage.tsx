@@ -1,43 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { authAPI } from '../services/api'
 import { Shield, ArrowLeft, Eye, Lock, Database } from 'lucide-react'
 import { useSEO } from '../hooks/useSEO'
+import { Navbar } from '../components/Navbar'
 
 export default function PrivacyPolicy() {
   useSEO({ title: 'Privacy Policy', description: 'Privacy policy for Burner Design Pro. Learn how we protect your data and privacy when using our burner design tools.', keywords: '' })
-  const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  useEffect(() => {
-    setIsLoggedIn(authAPI.isAuthenticated())
-    setIsAdmin(authAPI.isAdmin())
-  }, [])
-  const handleLogout = () => {
-    authAPI.logout(); window.location.href = "/"
-    navigate('/')
-  }
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-        </Link>
-        <div className="flex gap-8 items-center">
-          {isLoggedIn ? (
-            <>
-              {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
-              <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
-              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
-              <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
-            </>
-          ) : (
-            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-              Get Started
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 px-6 text-center">
         <div className="max-w-4xl mx-auto">

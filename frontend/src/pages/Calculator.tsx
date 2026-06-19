@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { getFuels, getFuel, calculateCombustion, Fuel, FuelDetail, CombustionParams, CombustionResult } from '../services/api'
 import { authAPI } from '../services/api'
+import { Navbar } from '../components/Navbar'
 
 export default function Calculator() {
-  const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [fuels, setFuels] = useState<Fuel[]>([])
   const [selectedFuel, setSelectedFuel] = useState<FuelDetail | null>(null)
@@ -18,17 +15,8 @@ export default function Calculator() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setIsLoggedIn(authAPI.isAuthenticated())
-    setIsAdmin(authAPI.isAdmin())
     loadFuels()
   }, [])
-
-  const handleLogout = () => {
-    authAPI.logout(); window.location.href = "/"
-    setIsLoggedIn(false)
-    setIsAdmin(false)
-    navigate('/')
-  }
 
   const loadFuels = async () => {
     try {
@@ -107,39 +95,7 @@ export default function Calculator() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-        </Link>
-        <div className="flex gap-8 items-center">
-          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
-          <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-          {isLoggedIn ? (
-            <>
-              {isAdmin && (
-                <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                  Admin
-                </Link>
-              )}
-              <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
-              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                Account
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-              Get Started
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">

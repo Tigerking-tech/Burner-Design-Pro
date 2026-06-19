@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { authAPI } from '../services/api'
 import { useSEO } from '../hooks/useSEO'
+import { Navbar } from '../components/Navbar'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -131,9 +131,6 @@ const formatNumber = (num: number, decimals: number = 2) => {
 
 export default function EmissionPage() {
   useSEO({ title: 'Emission Calculator', description: 'Calculate combustion emissions including NOx, CO, CO2, and particulate matter. Environmental compliance tool for burner design and industrial combustion.', keywords: 'emission calculator, NOx calculation, combustion emissions, CO2 calculator, burner emission analysis, environmental compliance' })
-  const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
   const [pollutant, setPollutant] = useState('NOx')
   const [value, setValue] = useState('100')
   const [fromUnit, setFromUnit] = useState('ppm')
@@ -151,18 +148,6 @@ export default function EmissionPage() {
   const [epaCompliance, setEpaCompliance] = useState<any>(null);
   const [euCompliance, setEuCompliance] = useState<any>(null);
   const [annualEmissions, setAnnualEmissions] = useState({ hourlyKg: 0, annualTons: 0, monthlyTons: 0 });
-
-  useEffect(() => {
-    setIsLoggedIn(authAPI.isAuthenticated())
-    setIsAdmin(authAPI.isAdmin())
-  }, [])
-
-  const handleLogout = () => {
-    authAPI.logout(); window.location.href = "/"
-    setIsLoggedIn(false)
-    setIsAdmin(false)
-    navigate('/')
-  }
 
   useEffect(() => {
     const numValue = parseFloat(value) || 0;
@@ -217,28 +202,7 @@ export default function EmissionPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-        </Link>
-        <div className="flex gap-8 items-center">
-          <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-          <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
-          <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-          {isLoggedIn ? (
-            <>
-              {isAdmin && <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Admin</Link>}
-              <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
-              <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Account</Link>
-              <button onClick={handleLogout} className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Logout</button>
-            </>
-          ) : (
-            <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-              Get Started
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 px-6 text-center">
         <div className="max-w-4xl mx-auto">

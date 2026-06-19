@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { authAPI } from '../services/api'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { useSEO } from '../hooks/useSEO'
+import { Navbar } from '../components/Navbar'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
 
@@ -265,9 +265,6 @@ function MeasuringOrificeDiagram() {
 
 export default function OrificeCalculatorPage() {
   useSEO({ title: 'Orifice Calculator', description: 'Calculate burner orifice plate size, flow rate, and pressure drop. Essential tool for industrial burner design and gas train engineering.', keywords: 'orifice calculator, orifice plate sizing, burner orifice, gas orifice calculation, flow rate calculator, pressure drop orifice' })
-  const navigate = useNavigate()
-  const [isLoggedIn, setIsLoggedIn] = useState(authAPI.isAuthenticated())
-  const [isAdmin, setIsAdmin] = useState(authAPI.isAdmin())
   const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
   const [featureMode, setFeatureMode] = useState<'basic' | 'advanced'>('basic')
   const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
@@ -291,13 +288,6 @@ export default function OrificeCalculatorPage() {
   const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
-
-  const handleLogout = () => {
-    authAPI.logout(); window.location.href = "/"
-    setIsLoggedIn(false)
-    setIsAdmin(false)
-    navigate('/')
-  }
 
   useEffect(() => {
     const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
@@ -587,39 +577,7 @@ export default function OrificeCalculatorPage() {
       icon={<Gauge size={40} />}
     >
       <div className="min-h-screen bg-gray-100">
-        <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-          <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-            <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-          </Link>
-          <div className="flex gap-8 items-center">
-            <Link to="/" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Home</Link>
-            <a href="/#features" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Features</a>
-            <a href="/#pricing" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">Pricing</a>
-            {isLoggedIn ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                    Admin
-                  </Link>
-                )}
-                <span className="text-[#f39c12] text-sm font-medium">{authAPI.getCurrentUserSync()?.email}</span>
-                <Link to="/account" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-                  Account
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded font-semibold text-sm transition-colors shadow-md">
-                Get Started
-              </Link>
-            )}
-          </div>
-        </nav>
+        <Navbar />
 
         <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-12 px-6 text-center">
           <div className="max-w-4xl mx-auto">

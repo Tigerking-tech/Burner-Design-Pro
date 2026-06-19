@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
+import { Navbar } from "../components/Navbar"
 
 export default function AccountPage() {
   const navigate = useNavigate()
@@ -133,28 +134,7 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
-      {/* Header */}
-      <nav className="sticky top-0 z-50 bg-[#2c3e50] text-white px-12 py-4 flex justify-between items-center shadow-lg">
-        <Link to="/" className="text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors">
-          <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
-        </Link>
-        <div className="flex gap-6 items-center">
-          {user?.is_admin && (
-            <Link to="/admin" className="text-[#bdc3c7] hover:text-white transition-colors text-sm">
-              Admin Dashboard
-            </Link>
-          )}
-          <span className="text-[#f39c12] text-sm font-medium">
-            {user?.email || authAPI.getCurrentUserSync()?.email}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="text-[#bdc3c7] hover:text-white transition-colors text-sm"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-semibold text-white mb-8">My Account</h1>
