@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { getFuels, getFuel, calculateCombustion, Fuel, FuelDetail, CombustionParams, CombustionResult } from '../services/api'
-import { authAPI } from '../services/api'
 import { Navbar } from '../components/Navbar'
 
 export default function Calculator() {

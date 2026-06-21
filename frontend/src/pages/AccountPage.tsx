@@ -46,11 +46,6 @@ export default function AccountPage() {
     }
   }
 
-  const handleLogout = async () => {
-    await authAPI.logout(); window.location.href = "/"
-    navigate("/")
-  }
-
   const handleSubscribe = async (tierId: string) => {
     if (tierId === "free") return
     setProcessingPayment(true)
@@ -134,6 +129,7 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+      {/* Header */}
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">

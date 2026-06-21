@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import ProFeaturePreview from '../components/ProFeaturePreview'
+import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle } from 'lucide-react'
-import { useSEO } from '../hooks/useSEO'
-import { Navbar } from '../components/Navbar'
 
 interface GasComponent {
   name: string
@@ -160,7 +159,6 @@ const productData: Record<string, { hf: number; cp: number }> = {
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
 export default function FlameTemperaturePage() {
-  useSEO({ title: 'Flame Temperature Calculator', description: 'Calculate adiabatic flame temperature for various fuel types and compositions. Professional tool for burner design and combustion engineering.', keywords: 'flame temperature calculator, adiabatic flame temperature, combustion temperature, burner flame calculation, flame temperature formula' })
   const [gasComponents, setGasComponents] = useState<GasComponent[]>(
     defaultGasComponents.map(c => ({ ...c }))
   )
@@ -374,7 +372,7 @@ export default function FlameTemperaturePage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
                 {gasComponents.map((component) => (
                   <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
-                    <div className="text-xs font-medium text-[#555] line-clamp-1">{component.name}</div>
+                    <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
                     <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
                     <div className="flex items-center gap-1">
                       <input
@@ -542,12 +540,12 @@ export default function FlameTemperaturePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white/10 p-6 rounded">
                   <div className="text-sm text-[#bdc3c7] mb-2">Theoretical Flame Temperature</div>
-                  <div className="text-2xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)} °C</div>
+                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)} °C</div>
                   <div className="text-sm text-[#7f8c8d] mt-2">Adiabatic flame temperature</div>
                 </div>
                 <div className="bg-white/10 p-6 rounded">
                   <div className="text-sm text-[#bdc3c7] mb-2">Actual Flame Temperature</div>
-                  <div className="text-2xl font-bold text-[#f39c12]">{results.actual.toFixed(0)} °C</div>
+                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.actual.toFixed(0)} °C</div>
                   <div className="text-sm text-[#7f8c8d] mt-2">With 10% heat loss</div>
                 </div>
               </div>

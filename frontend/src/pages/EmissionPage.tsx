@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
-import { authAPI } from '../services/api'
-import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
@@ -131,7 +129,6 @@ const formatNumber = (num: number, decimals: number = 2) => {
 };
 
 export default function EmissionPage() {
-  useSEO({ title: 'Emission Calculator', description: 'Calculate combustion emissions including NOx, CO, CO2, and particulate matter. Environmental compliance tool for burner design and industrial combustion.', keywords: 'emission calculator, NOx calculation, combustion emissions, CO2 calculator, burner emission analysis, environmental compliance' })
   const [pollutant, setPollutant] = useState('NOx')
   const [value, setValue] = useState('100')
   const [fromUnit, setFromUnit] = useState('ppm')

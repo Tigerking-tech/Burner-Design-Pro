@@ -1,3 +1,4 @@
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 
@@ -11,6 +12,7 @@ interface ModulePageProps {
 export default function ModulePage({ title, icon, description, comingSoon = false }: ModulePageProps) {
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Navigation */}
       <Navbar />
 
       {/* Hero Section */}

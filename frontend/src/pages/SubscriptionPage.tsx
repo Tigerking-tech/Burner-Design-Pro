@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { subscriptionAPI, authAPI } from '../services/api'
-import { useSEO } from '../hooks/useSEO'
+import { subscriptionAPI } from '../services/api'
 import { Navbar } from '../components/Navbar'
 
 interface Product {
@@ -24,19 +23,12 @@ interface Subscription {
 }
 
 const SubscriptionPage: React.FC = () => {
-  useSEO({ title: 'Pricing & Plans', description: 'Choose the right Burner Design Pro plan for your thermal engineering needs. Free and premium plans available with advanced burner design calculators.', keywords: 'burner design pricing, thermal engineering subscription, burner calculator plans' })
   const navigate = useNavigate()
-  const [user, setUser] = useState(authAPI.getCurrentUserSync())
   const [products, setProducts] = useState<Product[]>([])
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-
-  const handleLogout = async () => {
-    await authAPI.logout(); window.location.href = "/"
-    navigate('/')
-  }
 
   useEffect(() => {
     fetchData()
@@ -115,6 +107,7 @@ const SubscriptionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+      {/* Header */}
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-12">

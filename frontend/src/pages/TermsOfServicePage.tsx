@@ -1,10 +1,9 @@
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft } from 'lucide-react'
-import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'
 
 export default function TermsOfService() {
-  useSEO({ title: 'Terms of Service', description: 'Terms of service for Burner Design Pro - professional burner design tools and thermal engineering calculators.', keywords: '' })
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />

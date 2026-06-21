@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 import ProFeaturePreview from '../components/ProFeaturePreview'
+import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
-import { useSEO } from '../hooks/useSEO'
-import { Navbar } from '../components/Navbar'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -55,7 +55,6 @@ const pipeSizes = {
 }
 
 function InsulationCalculatorPage() {
-  useSEO({ title: 'Insulation Calculator', description: 'Calculate insulation thickness for pipes, boilers, and burners. Determine heat loss, surface temperature, and optimal insulation material selection.', keywords: 'insulation calculator, insulation thickness, heat loss calculation, pipe insulation, boiler insulation, thermal insulation design' })
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
   const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
   const [mode, setMode] = useState<Mode>('surface')

@@ -1,10 +1,9 @@
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Shield, ArrowLeft, Eye, Lock, Database } from 'lucide-react'
-import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'
 
 export default function PrivacyPolicy() {
-  useSEO({ title: 'Privacy Policy', description: 'Privacy policy for Burner Design Pro. Learn how we protect your data and privacy when using our burner design tools.', keywords: '' })
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />

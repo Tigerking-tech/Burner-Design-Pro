@@ -137,6 +137,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+      {/* Header */}
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">

@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-import { authAPI } from '../services/api';
-import { useSEO } from '../hooks/useSEO';
 import { Navbar } from '../components/Navbar';
 
 const UNITS = {
@@ -173,7 +171,6 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
-  useSEO({ title: 'Unit Converter', description: 'Convert between thermal engineering units: temperature, pressure, flow rate, energy, power, and more. Essential tool for burner design engineers.', keywords: 'unit converter, thermal engineering units, temperature converter, pressure converter, flow rate converter, energy unit conversion' })
   const [category, setCategory] = useState<string>("Pressure");
   const [value, setValue] = useState<string>("1");
   const [fromUnit, setFromUnit] = useState<string>("kPa");
