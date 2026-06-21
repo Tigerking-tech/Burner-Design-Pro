@@ -40,124 +40,136 @@ const defaultGasComponents: GasComponent[] = [
   { name: 'Carbon Dioxide', symbol: 'CO₂', percentage: '0' },
   { name: 'Oxygen', symbol: 'O₂', percentage: '0' },
   { name: 'Steam', symbol: 'H₂O', percentage: '0' },
+  { name: 'Air', symbol: 'Air', percentage: '0' },
 ]
 
 const gasPresets: GasPreset[] = [
   {
-    name: 'North sea natural gas H',
-    composition: { 'CH₄': '92.0', 'C₂H₆': '3.5', 'C₃H₈': '1.5', 'C₄H₁₀': '0.5', 'N₂': '1.5', 'CO₂': '1.0' }
+    name: 'Nordsee-Erdgas H',
+    composition: { 'CH₄': '88.79', 'C₂H₆': '6.88', 'C₃H₈': '1.23', 'C₄H₁₀': '0.27', 'C₅H₁₂': '0.05', 'C₆H₁₄': '0.02', 'N₂': '0.82', 'CO₂': '1.93', 'O₂': '0.01' }
   },
   {
-    name: 'Russian natural gas H',
-    composition: { 'CH₄': '98.0', 'C₂H₆': '0.7', 'C₃H₈': '0.3', 'N₂': '0.8', 'CO₂': '0.2' }
+    name: 'Russland-Erdgas H',
+    composition: { 'CH₄': '96.97', 'C₂H₆': '1.36', 'C₃H₈': '0.44', 'C₄H₁₀': '0.15', 'C₅H₁₂': '0.02', 'C₆H₁₄': '0.01', 'N₂': '0.86', 'CO₂': '0.18', 'O₂': '0.01' }
   },
   {
-    name: 'Dutch natural gas L',
-    composition: { 'CH₄': '81.0', 'C₂H₆': '3.0', 'C₃H₈': '0.8', 'N₂': '13.2', 'CO₂': '2.0' }
+    name: 'Holland-Erdgas L',
+    composition: { 'CH₄': '83.67', 'C₂H₆': '3.53', 'C₃H₈': '0.60', 'C₄H₁₀': '0.19', 'C₅H₁₂': '0.04', 'C₆H₁₄': '0.06', 'N₂': '10.23', 'CO₂': '1.67', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas L (Low Calorific)',
-    composition: { 'CH₄': '86.0', 'C₂H₆': '4.0', 'C₃H₈': '1.0', 'N₂': '7.0', 'CO₂': '2.0' }
+    composition: { 'CH₄': '81.4', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.3', 'CO₂': '0.89', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas H (High Calorific)',
-    composition: { 'CH₄': '95.0', 'C₂H₆': '2.5', 'C₃H₈': '0.8', 'N₂': '1.2', 'CO₂': '0.5' }
+    composition: { 'CH₄': '93.3', 'C₂H₆': '3.38', 'C₃H₈': '0.94', 'C₄H₁₀': '0.71', 'N₂': '0.78', 'CO₂': '0.89' }
   },
   {
-    name: 'Coke oven gas',
-    composition: { 'H₂': '58.0', 'CH₄': '27.0', 'CO': '6.0', 'N₂': '5.0', 'CO₂': '2.0', 'C₂H₄': '2.0' }
+    name: 'Kokereigas',
+    composition: { 'H₂': '55.0', 'CO': '6.0', 'CH₄': '25.0', 'C₂H₆': '2.0', 'N₂': '10.0', 'CO₂': '2.0' }
   },
   {
-    name: 'Blast furnace gas (BFG)',
-    composition: { 'N₂': '55.0', 'CO': '25.0', 'CO₂': '18.0', 'H₂': '2.0' }
+    name: 'Coke Oven Gas',
+    composition: { 'H₂': '57.9', 'CO': '4.5', 'CH₄': '30.3', 'C₄H₁₀': '3.3', 'N₂': '2.2', 'CO₂': '1.8' }
   },
   {
-    name: 'Mixed natural gas H',
-    composition: { 'CH₄': '94.0', 'C₂H₆': '3.0', 'C₃H₈': '1.0', 'N₂': '1.5', 'CO₂': '0.5' }
+    name: 'Gichtgas',
+    composition: { 'H₂': '3.0', 'CO': '25.0', 'N₂': '52.0', 'CO₂': '20.0' }
+  },
+  {
+    name: 'Blast Furnace Gas',
+    composition: { 'H₂': '1.65', 'CO': '25.1', 'N₂': '57.5', 'CO₂': '15.4', 'O₂': '0.35' }
+  },
+  {
+    name: 'Mischgas',
+    composition: { 'H₂': '23.8', 'CO': '17.4', 'CH₄': '10.0', 'C₂H₆': '0.8', 'N₂': '35.2', 'CO₂': '12.8' }
   },
   {
     name: 'Biogas',
-    composition: { 'CH₄': '60.0', 'CO₂': '40.0' }
+    composition: { 'CH₄': '60.0', 'N₂': '1.0', 'CO₂': '38.7', 'O₂': '0.3' }
   },
   {
-    name: 'Hydrogen',
+    name: 'Wasserstoff 100%',
     composition: { 'H₂': '100.0' }
   },
   {
-    name: 'Methane',
+    name: 'Methan',
     composition: { 'CH₄': '100.0' }
   },
   {
-    name: 'Propane',
+    name: 'Propan',
     composition: { 'C₃H₈': '100.0' }
   },
   {
-    name: 'Propane, Commercial',
-    composition: { 'C₃H₈': '95.0', 'C₄H₁₀': '5.0' }
+    name: 'Propan, Handelsüblich',
+    composition: { 'C₂H₆': '2.2', 'C₃H₈': '97.3', 'C₄H₁₀': '0.5' }
   },
   {
-    name: 'Butane',
+    name: 'Butan',
     composition: { 'C₄H₁₀': '100.0' }
   },
   {
-    name: 'Average Natural Gas',
-    composition: { 'CH₄': '90.0', 'C₂H₆': '5.0', 'C₃H₈': '1.5', 'N₂': '2.5', 'CO₂': '1.0' }
+    name: 'Durchschnittliches Erdgas',
+    composition: { 'CH₄': '89.45', 'C₂H₆': '5.08', 'C₃H₈': '1.44', 'C₄H₁₀': '0.31', 'N₂': '2.99', 'CO₂': '0.73' }
   },
   {
-    name: 'Landfill, Cagistrio 81',
-    composition: { 'CH₄': '50.0', 'CO₂': '45.0', 'N₂': '5.0' }
+    name: 'Deponiegas, Cagistrio 81',
+    composition: { 'CH₄': '53.4', 'N₂': '12.25', 'CO₂': '34.3', 'O₂': '0.05' }
   },
   {
-    name: 'N.Gas Birmingham',
-    composition: { 'CH₄': '92.5', 'C₂H₆': '3.0', 'C₃H₈': '0.5', 'N₂': '3.0', 'CO₂': '1.0' }
+    name: 'Erdgas Birmingham',
+    composition: { 'CH₄': '93.34', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.14', 'CO₂': '1.06' }
   },
   {
-    name: 'N.Gas East Ohio',
-    composition: { 'CH₄': '94.0', 'C₂H₆': '2.5', 'C₃H₈': '0.8', 'N₂': '1.7', 'CO₂': '1.0' }
+    name: 'Erdgas East Ohio',
+    composition: { 'CH₄': '94.25', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'H₂': '0.01', 'N₂': '0.3', 'CO₂': '0.68', 'O₂': '0.1' }
   },
   {
-    name: 'N.Gas Pittsburgh',
-    composition: { 'CH₄': '93.0', 'C₂H₆': '3.0', 'C₃H₈': '0.5', 'N₂': '2.5', 'CO₂': '1.0' }
+    name: 'Erdgas Pittsburgh',
+    composition: { 'CH₄': '94.13', 'C₂H₆': '3.58', 'C₃H₈': '0.79', 'C₄H₁₀': '0.28', 'N₂': '0.4', 'CO₂': '0.8', 'O₂': '0.01' }
   },
   {
-    name: 'N.Gas UGI',
-    composition: { 'CH₄': '91.0', 'C₂H₆': '3.5', 'C₃H₈': '0.8', 'N₂': '3.7', 'CO₂': '1.0' }
+    name: 'Erdgas UGI',
+    composition: { 'CH₄': '95.68', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.41', 'CO₂': '0.92', 'O₂': '0.1' }
   },
   {
-    name: 'Producer, Koppers-Totzek',
-    composition: { 'CO': '30.0', 'H₂': '14.0', 'N₂': '52.0', 'CO₂': '4.0' }
+    name: 'Generatorgas, Koppers-Totzek',
+    composition: { 'CO': '58.7', 'H₂': '32.9', 'N₂': '1.4', 'CO₂': '7.0' }
   },
   {
-    name: 'Producer, Lurgi',
-    composition: { 'CO': '28.0', 'H₂': '12.0', 'N₂': '54.0', 'CO₂': '6.0' }
+    name: 'Generatorgas, Lurgi',
+    composition: { 'CH₄': '10.2', 'CO': '17.1', 'H₂': '40.2', 'N₂': '1.1', 'CO₂': '31.4' }
   },
   {
-    name: 'UGI Gas',
-    composition: { 'CO': '25.0', 'H₂': '15.0', 'CH₄': '10.0', 'N₂': '45.0', 'CO₂': '5.0' }
+    name: 'UGI-Gas',
+    composition: { 'CH₄': '95.84', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.1' }
   },
 ]
 
+const AIR_DENSITY = 1.293
+
 const gasProperties: Record<string, { density: number; hs: number; hi: number }> = {
-  'H₂': { density: 0.090, hs: 3.0, hi: 2.7 },
-  'CO': { density: 1.250, hs: 3.0, hi: 3.0 },
-  'NH₃': { density: 0.771, hs: 2.5, hi: 2.2 },
-  'H₂S': { density: 1.539, hs: 2.0, hi: 1.9 },
-  'CH₄': { density: 0.716, hs: 10.0, hi: 9.0 },
-  'C₂H₆': { density: 1.342, hs: 18.0, hi: 16.5 },
-  'C₃H₈': { density: 1.967, hs: 26.0, hi: 24.0 },
-  'C₄H₁₀': { density: 2.593, hs: 34.0, hi: 31.0 },
-  'C₅H₁₂': { density: 3.219, hs: 42.0, hi: 38.5 },
-  'C₆H₁₄': { density: 3.845, hs: 50.0, hi: 45.5 },
-  'C₇H₁₆': { density: 4.471, hs: 58.0, hi: 52.5 },
-  'C₆H₆': { density: 3.486, hs: 40.0, hi: 37.5 },
-  'C₂H₄': { density: 1.261, hs: 14.5, hi: 13.5 },
-  'C₃H₆': { density: 1.886, hs: 22.0, hi: 20.5 },
-  'C₄H₈': { density: 2.512, hs: 30.0, hi: 27.5 },
-  'C₂H₂': { density: 1.170, hs: 13.5, hi: 13.0 },
-  'N₂': { density: 1.250, hs: 0, hi: 0 },
-  'CO₂': { density: 1.977, hs: 0, hi: 0 },
+  'H₂': { density: 0.090, hs: 3.540, hi: 2.995 },
+  'CO': { density: 1.250, hs: 3.509, hi: 3.509 },
+  'NH₃': { density: 0.771, hs: 4.816, hi: 3.986 },
+  'H₂S': { density: 1.538, hs: 7.035, hi: 6.484 },
+  'CH₄': { density: 0.72408, hs: 11.064, hi: 9.971 },
+  'C₂H₆': { density: 1.342134, hs: 19.537, hi: 17.884 },
+  'C₃H₈': { density: 2.01, hs: 28.095, hi: 25.866 },
+  'C₄H₁₀': { density: 2.586, hs: 37.254, hi: 34.405 },
+  'C₅H₁₂': { density: 3.220863, hs: 45.778, hi: 42.359 },
+  'C₆H₁₄': { density: 3.846675, hs: 58.328, hi: 54.007 },
+  'C₇H₁₆': { density: 4.76, hs: 72.524, hi: 67.217 },
+  'C₆H₆': { density: 3.49, hs: 44.203, hi: 42.419 },
+  'C₂H₄': { density: 1.251624, hs: 17.621, hi: 16.522 },
+  'C₃H₆': { density: 1.879, hs: 25.999, hi: 24.331 },
+  'C₄H₈': { density: 2.594, hs: 34.891, hi: 32.63 },
+  'C₂H₂': { density: 1.1637, hs: 16.27, hi: 15.72 },
+  'N₂': { density: 1.256796, hs: 0, hi: 0 },
+  'CO₂': { density: 1.975704, hs: 0, hi: 0 },
   'O₂': { density: 1.429, hs: 0, hi: 0 },
-  'H₂O': { density: 0.84, hs: 0, hi: 0 },
+  'H₂O': { density: 0.81459, hs: 0, hi: 0 },
+  'Air': { density: 1.293, hs: 0, hi: 0 },
 }
 
 const oilPresets = [
@@ -249,8 +261,8 @@ export default function FuelManagerPage() {
       }
     })
 
-    const ws = hs / Math.sqrt(density / 1.22)
-    const wi = hi / Math.sqrt(density / 1.22)
+    const ws = hs / Math.sqrt(density / AIR_DENSITY)
+    const wi = hi / Math.sqrt(density / AIR_DENSITY)
 
     return { density, hs, hi, ws, wi }
   }
@@ -269,8 +281,8 @@ export default function FuelManagerPage() {
     const density = gas1Data.density * gas1Fraction + gas2Data.density * gas2Fraction
     const hs = gas1Data.hs * gas1Fraction + gas2Data.hs * gas2Fraction
     const hi = gas1Data.hi * gas1Fraction + gas2Data.hi * gas2Fraction
-    const ws = hs / Math.sqrt(density / 1.22)
-    const wi = hi / Math.sqrt(density / 1.22)
+    const ws = hs / Math.sqrt(density / AIR_DENSITY)
+    const wi = hi / Math.sqrt(density / AIR_DENSITY)
 
     return { density, hs, hi, ws, wi }
   }
