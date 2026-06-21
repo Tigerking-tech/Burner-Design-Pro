@@ -90,7 +90,7 @@ export default function ProFeaturePreview({
               <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <div className="text-4xl">{icon}</div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Unlock {title}</h2>
+              <h2 className="text-lg md:text-2xl font-bold text-gray-900 mb-2">Unlock {title}</h2>
               <p className="text-gray-600">
                 Upgrade to Pro to use this calculator and unlock all premium features
               </p>

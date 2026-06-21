@@ -10,9 +10,9 @@ interface SEOProps {
   ogUrl?: string
 }
 
-const DEFAULT_TITLE = 'Burner Design Pro - Thermal Design Made Simple'
-const DEFAULT_DESCRIPTION = 'Professional burner design tools: flame temperature calculation, orifice sizing, emission analysis, fuel management, thermodynamic properties, and more. Free online thermal engineering calculators.'
-const DEFAULT_KEYWORDS = 'burner design, thermal design, flame temperature, orifice calculator, emission calculator, fuel manager, thermodynamic properties, insulation calculator, unit converter, industrial burner, combustion engineering'
+const DEFAULT_TITLE = 'Burner Design Pro - Thermal Design and Engineering Calculation Software'
+const DEFAULT_DESCRIPTION = 'Professional thermal design and engineering calculation software for burner engineers. Deterministic calculators for combustion analysis, orifice plate sizing (ISO 5167), flame temperature calculation, emission evaluation (EPA/EU IED), engineering unit conversion, and thermal insulation thickness (ASTM C680). Formula-based — not AI.'
+const DEFAULT_KEYWORDS = 'burner design software, thermal engineering tool, combustion calculation, orifice plate ISO 5167, flame temperature calculator, emission analysis, industrial engineering software, thermal insulation calculator, ASTM C680, engineering calculator, SaaS software'
 
 export function useSEO({
   title,

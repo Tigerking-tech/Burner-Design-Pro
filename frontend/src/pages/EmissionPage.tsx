@@ -336,15 +336,15 @@ export default function EmissionPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">ppm</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(results.ppm)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.ppm)}</p>
               </div>
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">mg/m³</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(results.mgM3)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.mgM3)}</p>
               </div>
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">lb/MMBtu</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(results.lbMMBtu, 4)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.lbMMBtu, 4)}</p>
               </div>
             </div>
           </div>
@@ -468,15 +468,15 @@ export default function EmissionPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">Hourly (kg)</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.hourlyKg)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.hourlyKg)}</p>
               </div>
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">Annual (tons)</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.annualTons)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.annualTons)}</p>
               </div>
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-[#7f8c8d] mb-1">Monthly (tons)</p>
-                <p className="text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.monthlyTons)}</p>
+                <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.monthlyTons)}</p>
               </div>
             </div>
           </div>

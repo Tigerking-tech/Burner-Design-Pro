@@ -18,7 +18,7 @@ export default function ModulePage({ title, icon, description, comingSoon = fals
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-16 px-6 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-semibold mb-4 leading-tight">
+          <h1 className="text-2xl md:text-4xl font-semibold mb-4 leading-tight">
             {title}
           </h1>
           <p className="text-lg text-[#bdc3c7] max-w-2xl mx-auto">

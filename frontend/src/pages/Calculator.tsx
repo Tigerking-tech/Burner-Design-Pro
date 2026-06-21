@@ -325,28 +325,28 @@ export default function Calculator() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="p-4 bg-blue-50 rounded-lg text-center">
                       <span className="text-sm text-blue-600">Theoretical AFR</span>
-                      <p className="text-2xl font-bold text-blue-900 mt-1">
+                      <p className="text-lg md:text-2xl font-bold text-blue-900 mt-1">
                         {result.theoretical_afr}
                       </p>
                       <span className="text-xs text-blue-600">kg air / kg fuel</span>
                     </div>
                     <div className="p-4 bg-green-50 rounded-lg text-center">
                       <span className="text-sm text-green-600">Actual AFR</span>
-                      <p className="text-2xl font-bold text-green-900 mt-1">
+                      <p className="text-lg md:text-2xl font-bold text-green-900 mt-1">
                         {result.actual_afr}
                       </p>
                       <span className="text-xs text-green-600">kg air / kg fuel</span>
                     </div>
                     <div className="p-4 bg-amber-50 rounded-lg text-center">
                       <span className="text-sm text-amber-600">Excess Air</span>
-                      <p className="text-2xl font-bold text-amber-900 mt-1">
+                      <p className="text-lg md:text-2xl font-bold text-amber-900 mt-1">
                         {(result.excess_air_ratio - 1) * 100}%
                       </p>
                       <span className="text-xs text-amber-600">λ = {result.excess_air_ratio}</span>
                     </div>
                     <div className="p-4 bg-red-50 rounded-lg text-center">
                       <span className="text-sm text-red-600">Flame Temp</span>
-                      <p className="text-2xl font-bold text-red-900 mt-1">
+                      <p className="text-lg md:text-2xl font-bold text-red-900 mt-1">
                         {result.adiabatic_flame_temp.toFixed(0)}°
                       </p>
                       <span className="text-xs text-red-600">Celsius</span>

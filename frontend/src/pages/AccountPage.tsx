@@ -215,7 +215,7 @@ export default function AccountPage() {
                   }`}
                 >
                   <h3 className="text-lg font-semibold text-[#2c3e50]">{tier.name}</h3>
-                  <p className="text-2xl font-bold text-[#2c3e50] my-2">
+                  <p className="text-lg md:text-2xl font-bold text-[#2c3e50] my-2">
                     {tier.price_display}
                     <span className="text-sm font-normal text-[#7f8c8d]">{tier.period}</span>
                   </p>
