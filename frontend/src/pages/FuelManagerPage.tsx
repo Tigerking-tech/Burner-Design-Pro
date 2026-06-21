@@ -436,13 +436,13 @@ export default function FuelManagerPage() {
 
         {activeTab === 'gas' ? (
           <>
-            <div className="bg-white rounded-lg px-8 py-10 border border-gray-300 shadow-lg mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-[#2c3e50] flex items-center">
+            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] flex items-center">
                   <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
                   Gas 1
                 </h2>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <span className="text-sm text-[#7f8c8d] hidden sm:inline">Percentage proportion for gas mixture</span>
                   <input
                     type="text"
@@ -471,9 +471,9 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 sm:mb-6">
                 {gas1Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
                     <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
                     <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
                     <div className="flex items-center gap-1">
@@ -505,26 +505,26 @@ export default function FuelManagerPage() {
               </button>
 
               {showGas1Results && calculateGasKeyData(gas1Components) && (
-                <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Gas 1 Key Data</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="bg-white/10 p-4 rounded">
+                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas 1 Key Data</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Density</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.density.toFixed(3)} kg/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hs.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hi.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.ws.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.wi.toFixed(2)} kWh/m³</div>
                     </div>
@@ -533,13 +533,13 @@ export default function FuelManagerPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-lg px-8 py-10 border border-gray-300 shadow-lg mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-[#2c3e50] flex items-center">
+            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] flex items-center">
                   <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">2</span>
                   Gas 2
                 </h2>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <span className="text-sm text-[#7f8c8d] hidden sm:inline">Percentage proportion for gas mixture</span>
                   <input
                     type="text"
@@ -568,9 +568,9 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 sm:mb-6">
                 {gas2Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
                     <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
                     <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
                     <div className="flex items-center gap-1">
@@ -602,26 +602,26 @@ export default function FuelManagerPage() {
               </button>
 
               {showGas2Results && calculateGasKeyData(gas2Components) && (
-                <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Gas 2 Key Data</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="bg-white/10 p-4 rounded">
+                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas 2 Key Data</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Density</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.density.toFixed(3)} kg/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hs.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hi.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.ws.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.wi.toFixed(2)} kWh/m³</div>
                     </div>
@@ -630,8 +630,8 @@ export default function FuelManagerPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-lg px-8 py-10 border border-gray-300 shadow-lg mb-8">
-              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6 flex items-center">
+            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] mb-4 sm:mb-6 flex items-center">
                 <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">3</span>
                 Gas Mixture
               </h2>
@@ -644,26 +644,26 @@ export default function FuelManagerPage() {
               </button>
 
               {showMixtureResults && calculateMixture() && (
-                <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Gas Mixture Key Data</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="bg-white/10 p-4 rounded">
+                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas Mixture Key Data</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Density</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.density.toFixed(3)} kg/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.hs.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.hi.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.ws.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-4 rounded">
+                    <div className="bg-white/10 p-3 sm:p-4 rounded">
                       <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.wi.toFixed(2)} kWh/m³</div>
                     </div>
@@ -673,8 +673,8 @@ export default function FuelManagerPage() {
             </div>
           </>
         ) : (
-          <div className="bg-white rounded-lg px-8 py-10 border border-gray-300 shadow-lg">
-            <h2 className="text-2xl font-bold text-[#2c3e50] mb-6">Oil Fuel Data</h2>
+          <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] mb-4 sm:mb-6">Oil Fuel Data</h2>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-[#555] mb-2">Select Oil Type</label>
@@ -689,11 +689,11 @@ export default function FuelManagerPage() {
               </select>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">Elemental Analysis</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-4 sm:mb-6">
                 {oilElements.map((element) => (
-                  <div key={element.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
+                  <div key={element.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
                     <div className="text-xs font-medium text-[#555] break-words">{element.name}</div>
                     <div className="flex items-center gap-1">
                       <input
@@ -725,30 +725,30 @@ export default function FuelManagerPage() {
             </button>
 
             {showOilResults && calculateOilKeyData() && (
-              <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                <h3 className="text-xl font-bold text-white mb-4">Oil Key Data ({oilPresets[selectedOil].name})</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="bg-white/10 p-4 rounded">
+              <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Oil Key Data ({oilPresets[selectedOil].name})</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Density</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.density.toFixed(3)} kg/L</div>
                   </div>
-                  <div className="bg-white/10 p-4 rounded">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.hs.toFixed(2)} kWh/kg</div>
                   </div>
-                  <div className="bg-white/10 p-4 rounded">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.hi.toFixed(2)} kWh/kg</div>
                   </div>
-                  <div className="bg-white/10 p-4 rounded">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Viscosity</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.viscosity.toFixed(1)} cSt</div>
                   </div>
-                  <div className="bg-white/10 p-4 rounded">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Flash Point</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.flashPoint.toFixed(0)} °C</div>
                   </div>
-                  <div className="bg-white/10 p-4 rounded">
+                  <div className="bg-white/10 p-3 sm:p-4 rounded">
                     <div className="text-sm text-[#bdc3c7]">Pour Point</div>
                     <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateOilKeyData()!.pourPoint.toFixed(0)} °C</div>
                   </div>
