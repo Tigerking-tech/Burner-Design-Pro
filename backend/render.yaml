@@ -34,11 +34,5 @@ services:
         sync: false
       - key: ADMIN_FULL_NAME
         sync: false
-      - key: DB_PATH
-        value: /var/data/app.db
-
-  - type: disk
-    name: api-data-disk
-    mountPath: /var/data
-    sizeGB: 1
-    plan: free
+      - key: DATABASE_URL
+        sync: false
