@@ -29,7 +29,8 @@ def init_db() -> None:
     """Create tables if they don't exist."""
     conn = _get_conn()
     try:
-        conn.execute("""
+        cur = conn.cursor()
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
                 email TEXT UNIQUE NOT NULL,
@@ -46,7 +47,7 @@ def init_db() -> None:
             )
         """)
 
-        conn.execute("""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id TEXT PRIMARY KEY,
                 user_id TEXT NOT NULL,
@@ -62,7 +63,7 @@ def init_db() -> None:
             )
         """)
 
-        conn.execute("""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS withdrawals (
                 id TEXT PRIMARY KEY,
                 admin_id TEXT NOT NULL,
@@ -78,6 +79,7 @@ def init_db() -> None:
         """)
 
         conn.commit()
+        cur.close()
         print("[INFO] Database tables initialized")
     finally:
         conn.close()
@@ -145,11 +147,12 @@ def save_user(user_id: str, email: str, hashed_password: str, full_name: Optiona
     now = datetime.utcnow()
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         # Check if user exists to preserve created_at
         existing = get_user_by_id(user_id)
         created_at = existing["created_at"] if existing else now
         
-        conn.execute("""
+        cur.execute("""
             INSERT INTO users 
             (id, email, full_name, is_active, is_admin, created_at, updated_at,
              subscription_tier, subscription_expires_at, hashed_password,
@@ -173,6 +176,7 @@ def save_user(user_id: str, email: str, hashed_password: str, full_name: Optiona
             hashed_password, creem_customer_id, creem_subscription_id
         ))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -180,8 +184,10 @@ def save_user(user_id: str, email: str, hashed_password: str, full_name: Optiona
 def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        row = cur.fetchone()
+        cur.close()
         return _row_to_user(row) if row else None
     finally:
         conn.close()
@@ -190,8 +196,10 @@ def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM users WHERE email = %s", (email.lower(),))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE email = %s", (email.lower(),))
+        row = cur.fetchone()
+        cur.close()
         return _row_to_user(row) if row else None
     finally:
         conn.close()
@@ -200,8 +208,10 @@ def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
 def get_user_password(user_id: str) -> Optional[str]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT hashed_password FROM users WHERE id = %s", (user_id,))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT hashed_password FROM users WHERE id = %s", (user_id,))
+        row = cur.fetchone()
+        cur.close()
         return row["hashed_password"] if row else None
     finally:
         conn.close()
@@ -210,8 +220,10 @@ def get_user_password(user_id: str) -> Optional[str]:
 def list_users() -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM users ORDER BY created_at")
-        rows = conn.fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users ORDER BY created_at")
+        rows = cur.fetchall()
+        cur.close()
         return [_row_to_user(r) for r in rows]
     finally:
         conn.close()
@@ -220,9 +232,11 @@ def list_users() -> List[Dict[str, Any]]:
 def activate_user(user_id: str) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
-        conn.execute("UPDATE users SET is_active = 1, updated_at = %s WHERE id = %s", (now, user_id))
+        cur.execute("UPDATE users SET is_active = 1, updated_at = %s WHERE id = %s", (now, user_id))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -230,10 +244,12 @@ def activate_user(user_id: str) -> None:
 def update_user_password(user_id: str, new_hashed_password: str) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
-        conn.execute("UPDATE users SET hashed_password = %s, updated_at = %s WHERE id = %s",
+        cur.execute("UPDATE users SET hashed_password = %s, updated_at = %s WHERE id = %s",
                      (new_hashed_password, now, user_id))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -243,6 +259,7 @@ def update_user_subscription(user_id: str, tier: Optional[str] = None,
                              is_active: Optional[bool] = None) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
         updates, params = [], []
         if tier is not None:
@@ -257,8 +274,9 @@ def update_user_subscription(user_id: str, tier: Optional[str] = None,
         updates.append("updated_at = %s")
         params.append(now)
         params.append(user_id)
-        conn.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
+        cur.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -267,6 +285,7 @@ def update_user_creem(user_id: str, creem_customer_id: Optional[str] = None,
                       creem_subscription_id: Optional[str] = None) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
         updates, params = [], []
         if creem_customer_id is not None:
@@ -278,8 +297,9 @@ def update_user_creem(user_id: str, creem_customer_id: Optional[str] = None,
         updates.append("updated_at = %s")
         params.append(now)
         params.append(user_id)
-        conn.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
+        cur.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -287,8 +307,10 @@ def update_user_creem(user_id: str, creem_customer_id: Optional[str] = None,
 def user_exists(email: str) -> bool:
     conn = _get_conn()
     try:
-        conn.execute("SELECT id FROM users WHERE email = %s", (email.lower(),))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE email = %s", (email.lower(),))
+        row = cur.fetchone()
+        cur.close()
         return row is not None
     finally:
         conn.close()
@@ -304,11 +326,12 @@ def save_order(order_id: str, user_id: str, user_email: str, tier: str,
     now = datetime.utcnow()
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         # Check if order exists to preserve created_at
         existing = get_order(order_id)
         created_at = existing["created_at"] if existing else now
         
-        conn.execute("""
+        cur.execute("""
             INSERT INTO orders (id, user_id, user_email, tier, amount, currency,
              creem_checkout_id, creem_order_id, status, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -325,6 +348,7 @@ def save_order(order_id: str, user_id: str, user_email: str, tier: str,
         """, (order_id, user_id, user_email, tier, amount, currency,
               creem_checkout_id, creem_order_id, status, created_at, now))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -332,8 +356,10 @@ def save_order(order_id: str, user_id: str, user_email: str, tier: str,
 def get_order(order_id: str) -> Optional[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+        row = cur.fetchone()
+        cur.close()
         return _row_to_order(row) if row else None
     finally:
         conn.close()
@@ -342,8 +368,10 @@ def get_order(order_id: str) -> Optional[Dict[str, Any]]:
 def list_orders() -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM orders ORDER BY created_at DESC")
-        rows = conn.fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        cur.close()
         return [_row_to_order(r) for r in rows]
     finally:
         conn.close()
@@ -353,14 +381,16 @@ def update_order_status(order_id: str, status: str,
                         creem_order_id: Optional[str] = None) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
         updates, params = ["status = %s", "updated_at = %s"], [status, now]
         if creem_order_id is not None:
             updates.insert(1, "creem_order_id = %s")
             params.insert(1, creem_order_id)
         params.append(order_id)
-        conn.execute(f"UPDATE orders SET {', '.join(updates)} WHERE id = %s", params)
+        cur.execute(f"UPDATE orders SET {', '.join(updates)} WHERE id = %s", params)
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -373,10 +403,11 @@ def save_withdrawal(withdrawal_id: str, admin_id: str, admin_email: str, amount:
     now = datetime.utcnow()
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         existing = get_withdrawal(withdrawal_id)
         created_at = existing["created_at"] if existing else now
         
-        conn.execute("""
+        cur.execute("""
             INSERT INTO withdrawals (id, admin_id, admin_email, amount, currency,
              payment_method, status, notes, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -392,6 +423,7 @@ def save_withdrawal(withdrawal_id: str, admin_id: str, admin_email: str, amount:
         """, (withdrawal_id, admin_id, admin_email, amount, currency,
               payment_method, status, notes, created_at, now))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -399,8 +431,10 @@ def save_withdrawal(withdrawal_id: str, admin_id: str, admin_email: str, amount:
 def get_withdrawal(withdrawal_id: str) -> Optional[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM withdrawals WHERE id = %s", (withdrawal_id,))
-        row = conn.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM withdrawals WHERE id = %s", (withdrawal_id,))
+        row = cur.fetchone()
+        cur.close()
         return _row_to_withdrawal(row) if row else None
     finally:
         conn.close()
@@ -409,8 +443,10 @@ def get_withdrawal(withdrawal_id: str) -> Optional[Dict[str, Any]]:
 def list_withdrawals() -> List[Dict[str, Any]]:
     conn = _get_conn()
     try:
-        conn.execute("SELECT * FROM withdrawals ORDER BY created_at DESC")
-        rows = conn.fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM withdrawals ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        cur.close()
         return [_row_to_withdrawal(r) for r in rows]
     finally:
         conn.close()
@@ -419,10 +455,12 @@ def list_withdrawals() -> List[Dict[str, Any]]:
 def update_withdrawal_status(withdrawal_id: str, status: str) -> None:
     conn = _get_conn()
     try:
+        cur = conn.cursor()
         now = datetime.utcnow()
-        conn.execute("UPDATE withdrawals SET status = %s, updated_at = %s WHERE id = %s",
+        cur.execute("UPDATE withdrawals SET status = %s, updated_at = %s WHERE id = %s",
                      (status, now, withdrawal_id))
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -433,12 +471,14 @@ def db_info() -> Dict[str, int]:
     """Return counts for debug/logging purposes."""
     conn = _get_conn()
     try:
-        conn.execute("SELECT COUNT(*) FROM users")
-        user_count = conn.fetchone()["count"]
-        conn.execute("SELECT COUNT(*) FROM orders")
-        order_count = conn.fetchone()["count"]
-        conn.execute("SELECT COUNT(*) FROM withdrawals")
-        withdrawal_count = conn.fetchone()["count"]
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM users")
+        user_count = cur.fetchone()["count"]
+        cur.execute("SELECT COUNT(*) FROM orders")
+        order_count = cur.fetchone()["count"]
+        cur.execute("SELECT COUNT(*) FROM withdrawals")
+        withdrawal_count = cur.fetchone()["count"]
+        cur.close()
         return {
             "users": user_count,
             "orders": order_count,
