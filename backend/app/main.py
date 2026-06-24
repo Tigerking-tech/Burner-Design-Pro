@@ -96,8 +96,27 @@ def create_default_admin():
 # Create admin user on startup
 @app.on_event("startup")
 async def startup_event():
-    init_db()
-    create_default_admin()
+    print("[STARTUP] Initializing database...")
+    try:
+        init_db()
+        print("[STARTUP] Database initialized successfully")
+    except Exception as e:
+        print(f"[STARTUP] ERROR: Failed to initialize database: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+    print("[STARTUP] Creating default admin...")
+    try:
+        create_default_admin()
+        print("[STARTUP] Default admin created/verified successfully")
+    except Exception as e:
+        print(f"[STARTUP] ERROR: Failed to create admin: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+    print("[STARTUP] Startup complete")
 
 
 @app.get("/")

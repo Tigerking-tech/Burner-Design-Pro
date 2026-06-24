@@ -14,12 +14,12 @@ from typing import List, Optional, Dict, Any
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required")
-
 
 def _get_conn():
     """Get a PostgreSQL connection."""
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL environment variable is required. "
+                         "Please set it in your environment variables.")
     return psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
 
 
