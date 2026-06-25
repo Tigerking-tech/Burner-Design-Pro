@@ -52,7 +52,7 @@ app.include_router(webhooks_router)
 def create_default_admin():
     """
     Create admin user in database from environment variables.
-    Only creates if the email doesn't already exist.
+    Creates if the email doesn't already exist, or updates password if it does.
 
     Environment Variables:
     - ADMIN_EMAIL: Admin email address
@@ -64,7 +64,22 @@ def create_default_admin():
     admin_full_name = os.getenv("ADMIN_FULL_NAME", "System Admin")
     environment = os.getenv("ENVIRONMENT", "development")
 
-    if not user_exists(admin_email):
+    existing_user = get_user_by_email(admin_email)
+    if existing_user:
+        print(f"[INFO] Admin user exists, updating password: {admin_email}")
+        hashed_password = get_password_hash(admin_password)
+        save_user(
+            user_id=existing_user["id"],
+            email=admin_email,
+            hashed_password=hashed_password,
+            full_name=existing_user.get("full_name", admin_full_name),
+            is_active=True,
+            is_admin=True,
+            subscription_tier=existing_user.get("subscription_tier", "pro"),
+            subscription_expires_at=existing_user.get("subscription_expires_at"),
+        )
+        print(f"[INFO] Admin password updated successfully")
+    else:
         admin_id = str(uuid.uuid4())
         hashed_password = get_password_hash(admin_password)
 
