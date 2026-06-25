@@ -148,9 +148,10 @@ def save_user(user_id: str, email: str, hashed_password: str, full_name: Optiona
     conn = _get_conn()
     try:
         cur = conn.cursor()
-        # Check if user exists to preserve created_at
         existing = get_user_by_id(user_id)
         created_at = existing["created_at"] if existing else now
+        
+        print(f"[DB DEBUG] save_user: email={email}, user_id={user_id}, is_active={is_active}, existing={existing is not None}")
         
         cur.execute("""
             INSERT INTO users 
@@ -176,7 +177,18 @@ def save_user(user_id: str, email: str, hashed_password: str, full_name: Optiona
             hashed_password, creem_customer_id, creem_subscription_id
         ))
         conn.commit()
+        print(f"[DB DEBUG] save_user: COMMIT successful, rows affected: {cur.rowcount}")
+        
+        # Verify write
+        cur.execute("SELECT COUNT(*) as cnt FROM users WHERE email = %s", (email.lower(),))
+        count = cur.fetchone()["cnt"]
+        print(f"[DB DEBUG] save_user: Verify - users with email '{email}': {count}")
+        
         cur.close()
+    except Exception as e:
+        print(f"[DB DEBUG] save_user: ERROR - {e}")
+        conn.rollback()
+        raise
     finally:
         conn.close()
 
