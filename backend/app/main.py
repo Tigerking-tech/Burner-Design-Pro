@@ -95,8 +95,6 @@ def create_default_admin():
         )
 
         print(f"[INFO] Created admin user: {admin_email}")
-    else:
-        print(f"[INFO] Admin user already exists: {admin_email}")
 
     if environment == "production":
         print(f"[INFO] Production mode - Admin credentials configured via environment variables")
