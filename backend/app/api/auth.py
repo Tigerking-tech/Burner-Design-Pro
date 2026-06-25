@@ -75,7 +75,7 @@ async def get_admin_user(current_user: User = Depends(get_current_active_user)) 
 
 @router.post("/register")
 async def register(user_data: UserCreate):
-    """Register a new user (auto-activated, no email verification required)"""
+    """Register a new user (requires email verification before login)"""
     # Check if user already exists
     if user_exists(user_data.email):
         raise HTTPException(
@@ -83,7 +83,7 @@ async def register(user_data: UserCreate):
             detail="Email already registered"
         )
     
-    # Create user (auto-activated)
+    # Create user (inactive until verified)
     user_id = str(uuid.uuid4())
     hashed_password = get_password_hash(user_data.password)
     
@@ -92,30 +92,24 @@ async def register(user_data: UserCreate):
         email=user_data.email,
         hashed_password=hashed_password,
         full_name=user_data.full_name,
-        is_active=True,
+        is_active=False,
         is_admin=False,
         subscription_tier="free",
         subscription_expires_at=None,
     )
     
-    # Create access token immediately
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user_data.email, "email": user_data.email},
-        expires_delta=access_token_expires,
-    )
+    # Generate and store verification code
+    code = generate_verification_code()
+    store_verification_code(user_data.email, code, user_id, expires_minutes=30)
     
-    user_dict = get_user_by_id(user_id)
-    user = _dict_to_user(user_dict)
+    # Send verification email
+    await send_verification_email(user_data.email, code)
     
     return {
         "success": True,
-        "message": "Registration successful.",
+        "message": "Registration successful. Please check your email for verification code.",
         "email": user_data.email,
-        "requires_verification": False,
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": user.dict(),
+        "requires_verification": True,
     }
 
 
