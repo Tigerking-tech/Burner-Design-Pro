@@ -259,6 +259,8 @@ async def get_products():
             product_id = os.getenv("CREEM_PRO_PRODUCT_ID", "").strip()
             configured = bool(product_id)
 
+        print(f"[products] Tier '{tier_key}': product_id='{product_id}', configured={configured}")
+
         products.append(
             {
                 "tier": tier_key,

@@ -198,9 +198,12 @@ class CreemClient:
 def get_creem_client() -> CreemClient:
     """Get Creem client from environment"""
     api_key = os.getenv("CREEM_API_KEY", "")
-    test_mode = os.getenv("CREEM_TEST_MODE", "true").lower() == "true"
+    test_mode = os.getenv("CREEM_TEST_MODE", "false").lower() == "true"
     
     if not api_key:
-        raise ValueError("CREEM_API_KEY not configured")
+        raise ValueError("CREEM_API_KEY not configured. Please set it in your Render environment variables.")
+    
+    product_id = os.getenv("CREEM_PRO_PRODUCT_ID", "")
+    print(f"[Creem] Initializing client - API Key set: {bool(api_key)}, Test Mode: {test_mode}, Product ID set: {bool(product_id)}")
     
     return CreemClient(api_key, test_mode)
