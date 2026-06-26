@@ -143,10 +143,18 @@ async def creem_webhook(request: Request):
     event_type = payload.get("event") or payload.get("event_type") or payload.get("type")
     data = payload.get("data") or {}
 
+    print(f"[webhooks] ========================================")
     print(f"[webhooks] Received Creem event: {event_type}")
+    print(f"[webhooks] Full payload keys: {list(payload.keys())}")
+    print(f"[webhooks] Data keys: {list(data.keys())}")
+    if data.get("metadata"):
+        print(f"[webhooks] Metadata: {data.get('metadata')}")
 
     user_dict = _get_user_from_payload(payload)
     sub_id = _get_subscription_id(payload)
+
+    print(f"[webhooks] Resolved user: {user_dict['email'] if user_dict else 'NOT FOUND'}")
+    print(f"[webhooks] Subscription ID: {sub_id or 'N/A'}")
 
     # Save customer id / subscription id on user if provided
     customer_id = data.get("customer_id")
@@ -154,13 +162,14 @@ async def creem_webhook(request: Request):
         update_user_creem(user_dict["id"], creem_customer_id=str(customer_id))
 
     # ------------------------------------------------------------------
-    # Subscription created / activated
+    # Subscription created / activated / paid
     # ------------------------------------------------------------------
     if event_type in (
         "subscription.created",
         "subscription.activated",
         "subscription.active",
         "subscription.renewed",
+        "subscription.paid",
         "payment.completed",
         "payment.succeeded",
         "checkout.completed",
@@ -169,7 +178,7 @@ async def creem_webhook(request: Request):
             print(f"[webhooks] {event_type}: user not found")
             return {"success": True, "message": "User not found (no-op)"}
 
-        _activate_pro_tier(user_dict, valid_days=30)
+        _activate_pro_tier(user_dict, valid_days=365)
         if sub_id:
             update_user_creem(user_dict["id"], creem_subscription_id=str(sub_id))
         _mark_order_succeeded(user_dict)
