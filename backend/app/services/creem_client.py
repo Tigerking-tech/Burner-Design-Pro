@@ -111,8 +111,8 @@ class CreemClient:
     # ============== Checkouts ==============
     
     def create_checkout(self, product_id: str, customer_id: str = None,
-                       customer_email: str = None, price_id: str = None,
-                       success_url: str = "", cancel_url: str = "",
+                       price_id: str = None,
+                       success_url: str = "",
                        metadata: Optional[Dict] = None) -> Dict[str, Any]:
         """
         Create checkout session
@@ -124,14 +124,10 @@ class CreemClient:
         
         if customer_id:
             data["customer_id"] = customer_id
-        if customer_email:
-            data["customer_email"] = customer_email
         if price_id:
             data["price_id"] = price_id
         if success_url:
             data["success_url"] = success_url
-        if cancel_url:
-            data["cancel_url"] = cancel_url
         if metadata:
             data["metadata"] = metadata
         

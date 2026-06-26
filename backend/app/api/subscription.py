@@ -138,9 +138,7 @@ async def create_checkout(
 
         checkout_data = creem.create_checkout(
             product_id=product_id,
-            customer_email=current_user.email,
             success_url=success_url,
-            cancel_url=cancel_url,
             metadata={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
