@@ -117,9 +117,10 @@ async def creem_webhook(request: Request):
     print(f"[webhooks] All headers: {list(all_headers.keys())}")
     
     signature = (
-        request.headers.get("x-creem-signature")
+        request.headers.get("creem-signature")
+        or request.headers.get("Creem-Signature")
+        or request.headers.get("x-creem-signature")
         or request.headers.get("X-Creem-Signature")
-        or request.headers.get("creem-signature")
     )
     print(f"[webhooks] Signature header value: {signature}")
     print(f"[webhooks] Webhook secret configured: {bool(webhook_secret)}")
