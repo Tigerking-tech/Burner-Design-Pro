@@ -210,9 +210,11 @@ async def resend_verification(data: dict):
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login with OAuth2 password flow"""
-    # Find user by email (form_data.username is the email in OAuth2)
+    print(f"[LOGIN DEBUG] Attempting login with email: '{form_data.username}'")
+    
     user_dict = get_user_by_email(form_data.username)
     if user_dict is None:
+        print(f"[LOGIN DEBUG] FAILED - User not found with email: '{form_data.username}'")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -220,18 +222,24 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
     
     user = _dict_to_user(user_dict)
+    print(f"[LOGIN DEBUG] Found user: id={user.id}, is_active={user.is_active}, is_admin={user.is_admin}")
     
-    # Verify password from DB
     hashed_password = get_user_password(user.id)
+    print(f"[LOGIN DEBUG] Stored hash: '{hashed_password[:20]}...' (length: {len(hashed_password) if hashed_password else 0})")
+    
+    computed_hash = get_password_hash(form_data.password)
+    print(f"[LOGIN DEBUG] Computed hash: '{computed_hash[:20]}...' (length: {len(computed_hash)})")
+    
     if not hashed_password or not verify_password(form_data.password, hashed_password):
+        print(f"[LOGIN DEBUG] FAILED - Password mismatch")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Check if email is verified
     if not user.is_active:
+        print(f"[LOGIN DEBUG] FAILED - User not active")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Please check your email for verification code.",

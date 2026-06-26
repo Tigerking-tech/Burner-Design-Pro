@@ -138,9 +138,7 @@ async def create_checkout(
 
         checkout_data = creem.create_checkout(
             product_id=product_id,
-            customer_email=current_user.email,
             success_url=success_url,
-            cancel_url=cancel_url,
             metadata={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
@@ -258,6 +256,8 @@ async def get_products():
         if tier_key == "pro":
             product_id = os.getenv("CREEM_PRO_PRODUCT_ID", "").strip()
             configured = bool(product_id)
+
+        print(f"[products] Tier '{tier_key}': product_id='{product_id}', configured={configured}")
 
         products.append(
             {

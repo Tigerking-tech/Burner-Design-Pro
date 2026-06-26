@@ -18,11 +18,14 @@ from app.services.database import (
 app = FastAPI(title="Burner Design Pro API")
 
 # Configure CORS
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002").split(",")
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002")
+allowed_origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+allow_all_origins = "*" in allowed_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=["*"] if allow_all_origins else allowed_origins,
+    allow_credentials=not allow_all_origins,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -49,7 +52,7 @@ app.include_router(webhooks_router)
 def create_default_admin():
     """
     Create admin user in database from environment variables.
-    Only creates if the email doesn't already exist.
+    Creates if the email doesn't already exist, or updates password if it does.
 
     Environment Variables:
     - ADMIN_EMAIL: Admin email address
@@ -61,7 +64,22 @@ def create_default_admin():
     admin_full_name = os.getenv("ADMIN_FULL_NAME", "System Admin")
     environment = os.getenv("ENVIRONMENT", "development")
 
-    if not user_exists(admin_email):
+    existing_user = get_user_by_email(admin_email)
+    if existing_user:
+        print(f"[INFO] Admin user exists, updating password: {admin_email}")
+        hashed_password = get_password_hash(admin_password)
+        save_user(
+            user_id=existing_user["id"],
+            email=admin_email,
+            hashed_password=hashed_password,
+            full_name=existing_user.get("full_name", admin_full_name),
+            is_active=True,
+            is_admin=True,
+            subscription_tier=existing_user.get("subscription_tier", "pro"),
+            subscription_expires_at=existing_user.get("subscription_expires_at"),
+        )
+        print(f"[INFO] Admin password updated successfully")
+    else:
         admin_id = str(uuid.uuid4())
         hashed_password = get_password_hash(admin_password)
 
@@ -77,8 +95,6 @@ def create_default_admin():
         )
 
         print(f"[INFO] Created admin user: {admin_email}")
-    else:
-        print(f"[INFO] Admin user already exists: {admin_email}")
 
     if environment == "production":
         print(f"[INFO] Production mode - Admin credentials configured via environment variables")
@@ -96,8 +112,27 @@ def create_default_admin():
 # Create admin user on startup
 @app.on_event("startup")
 async def startup_event():
-    init_db()
-    create_default_admin()
+    print("[STARTUP] Initializing database...")
+    try:
+        init_db()
+        print("[STARTUP] Database initialized successfully")
+    except Exception as e:
+        print(f"[STARTUP] ERROR: Failed to initialize database: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+    print("[STARTUP] Creating default admin...")
+    try:
+        create_default_admin()
+        print("[STARTUP] Default admin created/verified successfully")
+    except Exception as e:
+        print(f"[STARTUP] ERROR: Failed to create admin: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+    print("[STARTUP] Startup complete")
 
 
 @app.get("/")

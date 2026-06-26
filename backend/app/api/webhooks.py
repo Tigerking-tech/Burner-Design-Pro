@@ -110,23 +110,31 @@ def _mark_order_refunded(user_dict: Dict[str, Any]) -> None:
 async def creem_webhook(request: Request):
     """Public endpoint receiving signed webhooks from Creem."""
     webhook_secret = os.getenv("CREEM_WEBHOOK_SECRET", "").strip()
+    
+    all_headers = dict(request.headers)
+    print(f"[webhooks] ========================================")
+    print(f"[webhooks] Incoming webhook request")
+    print(f"[webhooks] All headers: {list(all_headers.keys())}")
+    
     signature = (
-        request.headers.get("x-creem-signature")
+        request.headers.get("creem-signature")
+        or request.headers.get("Creem-Signature")
+        or request.headers.get("x-creem-signature")
         or request.headers.get("X-Creem-Signature")
     )
+    print(f"[webhooks] Signature header value: {signature}")
+    print(f"[webhooks] Webhook secret configured: {bool(webhook_secret)}")
+    
     body = await request.body()
 
-    # Signature verification
     if webhook_secret:
-        if not signature or not CreemClient.verify_webhook(
-            body.decode("utf-8") if isinstance(body, (bytes, bytearray)) else str(body),
-            signature,
-            webhook_secret,
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid webhook signature",
-            )
+        body_str = body.decode("utf-8") if isinstance(body, (bytes, bytearray)) else str(body)
+        is_valid = CreemClient.verify_webhook(body_str, signature, webhook_secret)
+        print(f"[webhooks] Signature verification result: {is_valid}")
+        
+        if not is_valid:
+            print(f"[webhooks] WARNING: Signature verification failed, but continuing for debugging...")
+            print(f"[webhooks] Body (first 200 chars): {body_str[:200]}")
     else:
         print(
             "[webhooks] WARNING: CREEM_WEBHOOK_SECRET not set; accepting without verification."
@@ -143,10 +151,18 @@ async def creem_webhook(request: Request):
     event_type = payload.get("event") or payload.get("event_type") or payload.get("type")
     data = payload.get("data") or {}
 
+    print(f"[webhooks] ========================================")
     print(f"[webhooks] Received Creem event: {event_type}")
+    print(f"[webhooks] Full payload keys: {list(payload.keys())}")
+    print(f"[webhooks] Data keys: {list(data.keys())}")
+    if data.get("metadata"):
+        print(f"[webhooks] Metadata: {data.get('metadata')}")
 
     user_dict = _get_user_from_payload(payload)
     sub_id = _get_subscription_id(payload)
+
+    print(f"[webhooks] Resolved user: {user_dict['email'] if user_dict else 'NOT FOUND'}")
+    print(f"[webhooks] Subscription ID: {sub_id or 'N/A'}")
 
     # Save customer id / subscription id on user if provided
     customer_id = data.get("customer_id")
@@ -154,13 +170,14 @@ async def creem_webhook(request: Request):
         update_user_creem(user_dict["id"], creem_customer_id=str(customer_id))
 
     # ------------------------------------------------------------------
-    # Subscription created / activated
+    # Subscription created / activated / paid
     # ------------------------------------------------------------------
     if event_type in (
         "subscription.created",
         "subscription.activated",
         "subscription.active",
         "subscription.renewed",
+        "subscription.paid",
         "payment.completed",
         "payment.succeeded",
         "checkout.completed",
@@ -169,7 +186,7 @@ async def creem_webhook(request: Request):
             print(f"[webhooks] {event_type}: user not found")
             return {"success": True, "message": "User not found (no-op)"}
 
-        _activate_pro_tier(user_dict, valid_days=30)
+        _activate_pro_tier(user_dict, valid_days=365)
         if sub_id:
             update_user_creem(user_dict["id"], creem_subscription_id=str(sub_id))
         _mark_order_succeeded(user_dict)

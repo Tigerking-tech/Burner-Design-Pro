@@ -2,8 +2,8 @@ services:
   - type: web
     name: burner-design-pro-api
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
       - key: PORT
@@ -33,4 +33,6 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: ADMIN_FULL_NAME
+        sync: false
+      - key: DATABASE_URL
         sync: false
