@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authAPI } from "../services/api"
+import { wakeUpService } from "../services/wakeUpService"
 import PasswordInput from "../components/PasswordInput"
 import { useSEO } from '../hooks/useSEO'
 
@@ -12,27 +13,36 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [needsVerification, setNeedsVerification] = useState(false)
+  const [isWakingUp, setIsWakingUp] = useState(false)
+
+  const handleInputFocus = () => {
+    wakeUpService.wakeUp()
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setNeedsVerification(false)
     setIsLoading(true)
+    setIsWakingUp(true)
 
     try {
+      await wakeUpService.wakeUp()
       await authAPI.login(email, password)
       navigate("/")
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed"
       setError(msg)
-      // Detect "email not verified" error from backend
       if (msg.toLowerCase().includes("not verified") || msg.toLowerCase().includes("verification")) {
         setNeedsVerification(true)
       }
     } finally {
       setIsLoading(false)
+      setIsWakingUp(false)
     }
   }
+
+  const buttonText = isLoading ? (isWakingUp ? "Waking up server..." : "Signing in...") : "Sign In"
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center p-4">
@@ -80,6 +90,7 @@ export default function LoginPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={handleInputFocus}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                 placeholder="you@example.com"
                 required
@@ -105,7 +116,7 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  {buttonText}
                 </>
               ) : (
                 "Sign In"

@@ -18,8 +18,8 @@ import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
 import SubscriptionPage from './pages/SubscriptionPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+import { wakeUpService } from './services/wakeUpService'
 
-// Scroll to top on route change
 function ScrollToTop() {
   const location = useLocation()
   useEffect(() => {
@@ -29,6 +29,10 @@ function ScrollToTop() {
 }
 
 function App() {
+  useEffect(() => {
+    wakeUpService.wakeUp()
+  }, [])
+
   return (
     <BrowserRouter>
       <ScrollToTop />
