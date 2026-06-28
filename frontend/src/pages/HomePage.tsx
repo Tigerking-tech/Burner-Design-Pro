@@ -189,17 +189,23 @@ export default function HomePage() {
       <section className="max-w-5xl mx-auto px-5 -mt-10 relative z-10 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">🔥</div>
+            <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-4">
+              <Flame size={24} className="text-white" />
+            </div>
             <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Combustion Tools</h3>
             <p className="text-[#7f8c8d] text-sm">Fuel management, flame temperature, orifice design - all in one place</p>
           </div>
           <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">📊</div>
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-md flex items-center justify-center mb-4">
+              <Leaf size={24} className="text-white" />
+            </div>
             <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Emission Analysis</h3>
             <p className="text-[#7f8c8d] text-sm">NOx, CO, SO₂ calculations with industry-standard compliance checks</p>
           </div>
           <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
-            <div className="text-4xl mb-3">🧱</div>
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-amber-600 rounded-md flex items-center justify-center mb-4">
+              <BrickWall size={24} className="text-white" />
+            </div>
             <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Insulation Design</h3>
             <p className="text-[#7f8c8d] text-sm">Optimal insulation thickness for pipes and flat surfaces per ISO/ASTM</p>
           </div>

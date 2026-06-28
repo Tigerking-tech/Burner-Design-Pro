@@ -369,17 +369,19 @@ export default function FlameTemperaturePage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 mb-6">
                 {gasComponents.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
-                    <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded touch-manipulation min-h-[80px] sm:min-h-[88px] justify-between">
+                    <div>
+                      <div className="text-xs font-medium text-[#555] break-words leading-tight line-clamp-2">{component.name}</div>
+                      <div className="text-xs text-[#7f8c8d] mb-1 mt-0.5">{component.symbol}</div>
+                    </div>
                     <div className="flex items-center gap-1">
                       <input
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                        className="flex-1 px-2 py-2 sm:py-1 border border-gray-300 rounded text-sm sm:text-xs text-center text-gray-900 min-h-[36px]"
                         placeholder="0"
                       />
                       <span className="text-xs text-[#7f8c8d]">%</span>
