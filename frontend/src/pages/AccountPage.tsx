@@ -39,8 +39,25 @@ export default function AccountPage() {
       setSubscription(sub)
       setOrders(orderList)
       setPricingTiers(tiers)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load data")
+    } catch (err: any) {
+      // Check if it's an authentication error (401)
+      const errorMsg = (err?.message || '').toLowerCase()
+      if (
+        errorMsg.includes('401') ||
+        errorMsg.includes('could not validate credentials') ||
+        errorMsg.includes('not authenticated') ||
+        errorMsg.includes('token') ||
+        err?.status === 401
+      ) {
+        // Clear invalid token and redirect to login
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to load data")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -59,8 +76,23 @@ export default function AccountPage() {
       } else {
         setError("Failed to create checkout session")
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment failed")
+    } catch (err: any) {
+      const errorMsg = (err?.message || '').toLowerCase()
+      if (
+        errorMsg.includes('401') ||
+        errorMsg.includes('could not validate credentials') ||
+        errorMsg.includes('not authenticated') ||
+        errorMsg.includes('token') ||
+        err?.status === 401
+      ) {
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Payment failed")
+      }
     } finally {
       setProcessingPayment(false)
     }
@@ -77,8 +109,23 @@ export default function AccountPage() {
       await loadData()
       const currentUser = await authAPI.getCurrentUser()
       setUser(currentUser)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to cancel")
+    } catch (err: any) {
+      const errorMsg = (err?.message || '').toLowerCase()
+      if (
+        errorMsg.includes('401') ||
+        errorMsg.includes('could not validate credentials') ||
+        errorMsg.includes('not authenticated') ||
+        errorMsg.includes('token') ||
+        err?.status === 401
+      ) {
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to cancel")
+      }
     }
   }
 

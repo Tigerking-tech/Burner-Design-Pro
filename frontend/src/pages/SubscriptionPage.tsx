@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { subscriptionAPI } from '../services/api'
+import { subscriptionAPI, authAPI } from '../services/api'
 import { Navbar } from '../components/Navbar'
 
 interface Product {
@@ -46,9 +46,26 @@ const SubscriptionPage: React.FC = () => {
       }
       
       setSubscription(subscriptionRes)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch data:', error)
-      setError('Failed to load subscription data')
+      // Check if it's an authentication error (401)
+      const errorMsg = error?.message?.toLowerCase() || ''
+      if (
+        errorMsg.includes('401') ||
+        errorMsg.includes('could not validate credentials') ||
+        errorMsg.includes('not authenticated') ||
+        errorMsg.includes('token') ||
+        error?.status === 401
+      ) {
+        // Clear invalid token and redirect to login
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError('Failed to load subscription data')
+      }
     } finally {
       setLoading(false)
     }
