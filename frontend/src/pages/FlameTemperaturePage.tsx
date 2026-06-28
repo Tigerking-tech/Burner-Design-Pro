@@ -2,7 +2,8 @@ import { useState } from 'react'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
-import { Thermometer, AlertTriangle } from 'lucide-react'
+import { Thermometer, AlertTriangle, Download } from 'lucide-react'
+import { jsPDF } from 'jspdf'
 
 interface GasComponent {
   name: string
@@ -312,16 +313,84 @@ export default function FlameTemperaturePage() {
 
   const results = calculateFlameTemperature()
 
+  const exportToPDF = () => {
+    if (!results) return
+
+    const doc = new jsPDF()
+    
+    doc.setFontSize(18)
+    doc.setFont(undefined, 'bold')
+    doc.text('Flame Temperature Calculation Report', 20, 20)
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
+    doc.text('Standard: Thermodynamic heat balance calculation', 20, 36)
+    
+    doc.setFontSize(12)
+    doc.setFont(undefined, 'bold')
+    doc.text('Input Parameters:', 20, 48)
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    let yPos = 56
+    gasComponents.forEach(c => {
+      const pct = parseFloat(c.percentage) || 0
+      if (pct > 0) {
+        doc.text(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`, 20, yPos)
+        yPos += 6
+      }
+    })
+    
+    yPos += 4
+    doc.text(`Fuel Temperature: ${fuelTemperature} °C`, 20, yPos)
+    yPos += 6
+    doc.text(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`, 20, yPos)
+    yPos += 6
+    doc.text(`Oxidizer Temperature: ${oxidizerTemperature} °C`, 20, yPos)
+    yPos += 6
+    doc.text(`Excess Oxygen: ${excessOxygen}%`, 20, yPos)
+    
+    yPos += 10
+    doc.setFontSize(12)
+    doc.setFont(undefined, 'bold')
+    doc.text('Calculation Results:', 120, 48)
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    doc.text(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} °C`, 120, 56)
+    doc.text(`Actual Flame Temperature: ${results.actual.toFixed(0)} °C`, 120, 62)
+    doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
+    
+    yPos = 78
+    doc.setFontSize(12)
+    doc.setFont(undefined, 'bold')
+    doc.text('Combustion Products (per mole fuel):', 20, yPos)
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    doc.text(`CO₂: ${results.molesCO2.toFixed(4)} mol`, 20, yPos + 8)
+    doc.text(`H₂O: ${results.molesH2O.toFixed(4)} mol`, 20, yPos + 14)
+    doc.text(`N₂: ${results.molesN2.toFixed(4)} mol`, 20, yPos + 20)
+    doc.text(`Excess O₂: ${results.molesO2.toFixed(4)} mol`, 20, yPos + 26)
+    
+    doc.setFontSize(8)
+    doc.setTextColor(128, 128, 128)
+    doc.text('Note: Results are for reference only. Consult qualified combustion engineers.', 20, 280)
+    
+    doc.save('flame-temperature-report.pdf')
+  }
+
   return (
     <ProFeaturePreview
       title="Flame Temperature Calculator"
       description="Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations."
       icon={<Thermometer size={40} />}
     >
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <Navbar />
 
-        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-16 px-6 text-center">
+        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-16 px-6 text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-semibold mb-4 leading-tight">
               Flame Temperature Calculator
@@ -334,11 +403,11 @@ export default function FlameTemperaturePage() {
 
         <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
           {/* Inline Disclaimer */}
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
-            <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+          <div className="bg-yellow-50 dark:bg-gray-800 border-l-4 border-yellow-400 dark:border-yellow-600 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertTriangle className="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" size={20} />
             <div className="text-sm">
-              <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
-              <p className="text-yellow-700 mt-1">
+              <p className="font-semibold text-yellow-800 dark:text-yellow-300">Professional Engineering Judgment Required</p>
+              <p className="text-yellow-700 dark:text-gray-300 mt-1">
                 Results are for reference only. Actual flame temperatures depend on many factors including 
                 burner design, heat transfer, and combustion efficiency. Consult qualified combustion engineers.
               </p>
@@ -346,21 +415,21 @@ export default function FlameTemperaturePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg p-6 border border-gray-300 shadow-lg overflow-hidden">
-              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6 flex items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
+              <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
                 <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
                 Fuel Gas Composition
               </h2>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Gas type</label>
+                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Gas type</label>
                 <select
                   value={selectedPreset}
                   onChange={(e) => {
                     setSelectedPreset(e.target.value)
                     if (e.target.value) applyPreset(e.target.value)
                   }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
                 >
                   <option value="">Select gas type...</option>
                   {gasPresets.map((preset, i) => (
@@ -369,62 +438,64 @@ export default function FlameTemperaturePage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 mb-6">
                 {gasComponents.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
-                    <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
-                    <div className="flex items-center gap-1">
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 dark:bg-gray-700/50 p-2 sm:p-3 rounded touch-manipulation h-full">
+                    <div className="mb-2">
+                      <div className="text-xs font-medium text-[#555] dark:text-gray-300 break-words leading-tight line-clamp-2 min-h-[32px] sm:min-h-[36px]">{component.name}</div>
+                      <div className="text-xs text-[#7f8c8d] dark:text-gray-400 mt-1">{component.symbol}</div>
+                    </div>
+                    <div className="flex items-center gap-1 mt-auto">
                       <input
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                        className="flex-1 w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded text-sm sm:text-xs text-center text-gray-900 dark:text-white min-h-[32px]"
                         placeholder="0"
                       />
-                      <span className="text-xs text-[#7f8c8d]">%</span>
+                      <span className="text-xs text-[#7f8c8d] dark:text-gray-400 flex-shrink-0 w-4 text-center">%</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
-                <span className="text-sm font-medium text-[#555]">Total Percentage:</span>
-                <span className={`text-lg font-bold ${Math.abs(getTotalPercentage() - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 dark:bg-gray-700/50 rounded">
+                <span className="text-sm font-medium text-[#555] dark:text-gray-300">Total Percentage:</span>
+                <span className={`text-lg font-bold ${Math.abs(getTotalPercentage() - 100) < 0.01 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {getTotalPercentage().toFixed(2)}%
                 </span>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-300 shadow-lg overflow-hidden">
-              <h2 className="text-2xl font-bold text-[#2c3e50] mb-6 flex items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
+              <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
                 <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">2</span>
                 Operating Conditions
               </h2>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Fuel Temperature</label>
+                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Fuel Temperature</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="text"
                     value={fuelTemperature}
                     onChange={(e) => setFuelTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
                     placeholder="0"
                   />
-                  <span className="text-sm text-[#7f8c8d]">°C</span>
+                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Oxidizer Type</label>
+                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Oxidizer Type</label>
                 <div className="flex gap-3 mb-4">
                   <button
                     onClick={() => setOxidizerType('air')}
                     className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
                       oxidizerType === 'air'
                         ? 'bg-[#f39c12] text-white'
-                        : 'bg-gray-100 text-[#555] hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     Air
@@ -434,7 +505,7 @@ export default function FlameTemperaturePage() {
                     className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
                       oxidizerType === 'oxygen'
                         ? 'bg-[#f39c12] text-white'
-                        : 'bg-gray-100 text-[#555] hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     Pure O₂
@@ -444,7 +515,7 @@ export default function FlameTemperaturePage() {
                     className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
                       oxidizerType === 'mixed'
                         ? 'bg-[#f39c12] text-white'
-                        : 'bg-gray-100 text-[#555] hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     Mixed
@@ -452,11 +523,11 @@ export default function FlameTemperaturePage() {
                 </div>
 
                 {oxidizerType === 'mixed' && (
-                  <div className="space-y-4 p-4 bg-gray-50 rounded">
-                    <div className="text-sm text-[#555] font-medium mb-2">Oxygen-Enriched Air Mixture</div>
+                  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded">
+                    <div className="text-sm text-[#555] dark:text-gray-300 font-medium mb-2">Oxygen-Enriched Air Mixture</div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[#555] mb-1">Air %</label>
+                        <label className="block text-xs text-[#555] dark:text-gray-400 mb-1">Air %</label>
                         <input
                           type="text"
                           value={airRatio}
@@ -468,12 +539,12 @@ export default function FlameTemperaturePage() {
                               setOxygenRatio((100 - num).toString())
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-center"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[#555] mb-1">Pure O₂ %</label>
+                        <label className="block text-xs text-[#555] dark:text-gray-400 mb-1">Pure O₂ %</label>
                         <input
                           type="text"
                           value={oxygenRatio}
@@ -485,12 +556,12 @@ export default function FlameTemperaturePage() {
                               setAirRatio((100 - num).toString())
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-center"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white"
                           placeholder="0"
                         />
                       </div>
                     </div>
-                    <div className="text-xs text-[#7f8c8d] mt-2">
+                    <div className="text-xs text-[#7f8c8d] dark:text-gray-400 mt-2">
                       Total: {((parseFloat(airRatio) || 0) + (parseFloat(oxygenRatio) || 0)).toFixed(0)}% {Math.abs(((parseFloat(airRatio) || 0) + (parseFloat(oxygenRatio) || 0)) - 100) < 0.01 ? '✓' : '(must equal 100%)'}
                     </div>
                   </div>
@@ -498,30 +569,30 @@ export default function FlameTemperaturePage() {
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Oxidizer Temperature</label>
+                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Oxidizer Temperature</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="text"
                     value={oxidizerTemperature}
                     onChange={(e) => setOxidizerTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
                     placeholder="0"
                   />
-                  <span className="text-sm text-[#7f8c8d]">°C</span>
+                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Excess Oxygen</label>
+                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Excess Oxygen</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="text"
                     value={excessOxygen}
                     onChange={(e) => setExcessOxygen(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
                     placeholder="0"
                   />
-                  <span className="text-sm text-[#7f8c8d]">%</span>
+                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">%</span>
                 </div>
               </div>
 
@@ -558,11 +629,22 @@ export default function FlameTemperaturePage() {
                   <div>Excess O₂: {results.molesO2.toFixed(2)} mol</div>
                 </div>
               </div>
+
+              {/* Export PDF Button */}
+              <div className="mt-6">
+                <button
+                  onClick={exportToPDF}
+                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors flex items-center justify-center gap-2"
+                >
+                  <Download size={20} />
+                  Export PDF Report
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-12 px-6 mt-20">
+        <footer className="bg-[#2c3e50] dark:bg-gray-900 text-[#bdc3c7] text-center py-12 px-6 mt-20">
           <div className="flex justify-center gap-8 mb-5 flex-wrap">
             <a href="/#features" className="text-sm hover:text-white transition-colors">Features</a>
             <a href="/#pricing" className="text-sm hover:text-white transition-colors">Pricing</a>
@@ -571,7 +653,7 @@ export default function FlameTemperaturePage() {
             <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
             <a href="#contact" className="text-sm hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
+          <p className="text-sm text-[#7f8c8d] dark:text-gray-500">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
         </footer>
       </div>
     </ProFeaturePreview>
