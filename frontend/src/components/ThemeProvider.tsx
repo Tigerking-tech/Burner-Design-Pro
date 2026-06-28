@@ -19,7 +19,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement
-    console.log('Theme effect running, theme:', theme, 'has dark class:', root.classList.contains('dark'))
     if (theme === 'dark') {
       root.classList.add('dark')
     } else {
@@ -29,7 +28,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme])
 
   const toggleTheme = () => {
-    console.log('Toggle theme called, current:', theme)
     setTheme(prev => prev === 'light' ? 'dark' : 'light')
   }
 

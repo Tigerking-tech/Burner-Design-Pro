@@ -151,7 +151,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-20 px-6 text-center">
+      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-20 px-6 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl font-semibold mb-6 leading-tight">
             Professional Thermal Design Tools<br/> for Burner Engineers
@@ -188,40 +188,40 @@ export default function HomePage() {
       {/* Product Highlights */}
       <section className="max-w-5xl mx-auto px-5 -mt-10 relative z-10 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+          <div className="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
             <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-4">
               <Flame size={24} className="text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Combustion Tools</h3>
-            <p className="text-[#7f8c8d] text-sm">Fuel management, flame temperature, orifice design - all in one place</p>
+            <h3 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Combustion Tools</h3>
+            <p className="text-[#7f8c8d] dark:text-gray-400 text-sm">Fuel management, flame temperature, orifice design - all in one place</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+          <div className="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-md flex items-center justify-center mb-4">
               <Leaf size={24} className="text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Emission Analysis</h3>
-            <p className="text-[#7f8c8d] text-sm">NOx, CO, SO₂ calculations with industry-standard compliance checks</p>
+            <h3 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Emission Analysis</h3>
+            <p className="text-[#7f8c8d] dark:text-gray-400 text-sm">NOx, CO, SO₂ calculations with industry-standard compliance checks</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
+          <div className="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg p-6 shadow-lg border border-gray-300 hover:shadow-xl transition-shadow">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-amber-600 rounded-md flex items-center justify-center mb-4">
               <BrickWall size={24} className="text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">Insulation Design</h3>
-            <p className="text-[#7f8c8d] text-sm">Optimal insulation thickness for pipes and flat surfaces per ISO/ASTM</p>
+            <h3 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Insulation Design</h3>
+            <p className="text-[#7f8c8d] dark:text-gray-400 text-sm">Optimal insulation thickness for pipes and flat surfaces per ISO/ASTM</p>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
       <section id="pricing" className="max-w-5xl mx-auto px-5 py-20">
-        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-3">Simple, Transparent Pricing</h2>
-        <p className="text-center text-[#7f8c8d] mb-12">Start free, upgrade when you need more</p>
+        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] dark:text-white mb-3">Simple, Transparent Pricing</h2>
+        <p className="text-center text-[#7f8c8d] dark:text-gray-400 mb-12">Start free, upgrade when you need more</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <div 
               key={index} 
-              className={`bg-white rounded-lg p-8 border text-center transition-shadow hover:shadow-lg ${
-                plan.popular ? 'border-2 border-[#f39c12] relative' : 'border border-gray-300'
+              className={`bg-white dark:bg-gray-800 rounded-lg p-8 border text-center transition-shadow hover:shadow-lg ${
+                plan.popular ? 'border-2 border-[#f39c12] relative' : 'border border-gray-300 dark:border-gray-700'
               }`}
             >
               {plan.popular && (
@@ -229,18 +229,18 @@ export default function HomePage() {
                   Most Popular
                 </div>
               )}
-              <h3 className="text-2xl font-semibold text-[#2c3e50] mb-2">{plan.name}</h3>
-              <div className="text-5xl font-bold text-[#2c3e50] mb-1">{plan.price}<span className="text-sm font-normal text-[#7f8c8d]">{plan.period}</span></div>
-              <p className="text-[#7f8c8d] text-sm mb-6">{plan.description}</p>
+              <h3 className="text-2xl font-semibold text-[#2c3e50] dark:text-white mb-2">{plan.name}</h3>
+              <div className="text-5xl font-bold text-[#2c3e50] dark:text-white mb-1">{plan.price}<span className="text-sm font-normal text-[#7f8c8d] dark:text-gray-400">{plan.period}</span></div>
+              <p className="text-[#7f8c8d] dark:text-gray-400 text-sm mb-6">{plan.description}</p>
               <ul className="text-left mb-6">
                 {plan.features.map((feature, i) => (
                   <li 
                     key={i} 
-                    className={`py-2 text-sm flex items-center gap-2 border-b border-gray-100 ${
-                      feature.available ? 'text-[#555]' : 'text-[#bdc3c7]'
+                    className={`py-2 text-sm flex items-center gap-2 border-b border-gray-100 dark:border-gray-700 ${
+                      feature.available ? 'text-[#555] dark:text-gray-300' : 'text-[#bdc3c7] dark:text-gray-500'
                     }`}
                   >
-                    <span className={feature.available ? 'text-green-600 font-bold' : 'text-[#bdc3c7]'}>
+                    <span className={feature.available ? 'text-green-600 font-bold' : 'text-[#bdc3c7] dark:text-gray-500'}>
                       {feature.available ? '✓' : '–'}
                     </span>
                     {feature.text}
@@ -252,7 +252,7 @@ export default function HomePage() {
                 className={`w-full py-3 rounded font-semibold text-sm transition-all ${
                 plan.buttonPrimary 
                   ? 'bg-[#f39c12] hover:bg-[#e67e22] text-white shadow-md' 
-                  : 'bg-gray-200 hover:bg-gray-300 text-[#2c3e50] border border-[#bdc3c7]'
+                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-[#2c3e50] dark:text-gray-200 border border-[#bdc3c7] dark:border-gray-600'
               }`}>
                 {plan.buttonText}
               </button>
@@ -287,30 +287,30 @@ export default function HomePage() {
       </section>
 
       {/* One-Stop Workflow Advantage */}
-      <section className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white py-16 px-6">
+      <section className="bg-gradient-to-r from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-16 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-semibold mb-6">Why Choose Burner-Design-Pro?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-            <div className="bg-white/10 rounded-lg p-6">
+            <div className="bg-white/10 dark:bg-gray-700/50 rounded-lg p-6">
               <div className="text-4xl mb-4">🚀</div>
               <h3 className="text-xl font-semibold mb-3">All-in-One Platform</h3>
-              <p className="text-[#bdc3c7] text-sm">
+              <p className="text-[#bdc3c7] dark:text-gray-300 text-sm">
                 No more switching between multiple websites. Fuel calculations, emissions analysis, 
                 orifice design, and compliance reports - everything in one place.
               </p>
             </div>
-            <div className="bg-white/10 rounded-lg p-6">
+            <div className="bg-white/10 dark:bg-gray-700/50 rounded-lg p-6">
               <div className="text-4xl mb-4">📊</div>
               <h3 className="text-xl font-semibold mb-3">Professional Workflow</h3>
-              <p className="text-[#bdc3c7] text-sm">
+              <p className="text-[#bdc3c7] dark:text-gray-300 text-sm">
                 From fuel selection to combustion calculations to emission compliance - 
                 complete your entire engineering workflow seamlessly.
               </p>
             </div>
-            <div className="bg-white/10 rounded-lg p-6">
+            <div className="bg-white/10 dark:bg-gray-700/50 rounded-lg p-6">
               <div className="text-4xl mb-4">✅</div>
               <h3 className="text-xl font-semibold mb-3">Standards Compliant</h3>
-              <p className="text-[#bdc3c7] text-sm">
+              <p className="text-[#bdc3c7] dark:text-gray-300 text-sm">
                 All calculations follow international standards: ISO 5167, ISO 12241, 
                 EPA, and EU IED. Professional reports for your projects.
               </p>
