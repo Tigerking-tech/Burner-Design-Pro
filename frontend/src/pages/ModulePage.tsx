@@ -11,12 +11,12 @@ interface ModulePageProps {
 
 export default function ModulePage({ title, icon, description, comingSoon = false }: ModulePageProps) {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Navigation */}
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] text-white py-16 px-6 text-center">
+      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-16 px-6 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl md:text-4xl font-semibold mb-4 leading-tight">
             {title}
