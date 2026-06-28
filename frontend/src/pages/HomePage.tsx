@@ -146,7 +146,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Navigation */}
       <Navbar />
 
@@ -263,24 +263,24 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="max-w-5xl mx-auto px-5 py-20">
-        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] mb-12">Everything You Need for Burner Design</h2>
+        <h2 className="text-3xl font-semibold text-center text-[#2c3e50] dark:text-white mb-12">Everything You Need for Burner Design</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((feature) => (
             <Link
               key={feature.id}
               to={feature.to}
-              className="bg-white rounded-lg p-6 border border-gray-300 hover:shadow-lg transition-shadow group"
+              className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 hover:shadow-lg transition-shadow group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-md flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md">
                 {React.cloneElement(feature.icon as React.ReactElement, { className: 'text-white' })}
               </div>
-              <h3 className="text-lg font-semibold text-[#2c3e50] mb-2 flex items-center">
+              <h3 className="text-lg font-semibold text-[#2c3e50] dark:text-white mb-2 flex items-center">
                 {feature.title}
                 {feature.pro && (
                   <span className="ml-2 bg-[#f39c12] text-white px-2 py-0.5 rounded text-xs font-semibold">PRO</span>
                 )}
               </h3>
-              <p className="text-[#7f8c8d] text-sm leading-relaxed">{feature.description}</p>
+              <p className="text-[#7f8c8d] dark:text-gray-400 text-sm leading-relaxed">{feature.description}</p>
             </Link>
           ))}
         </div>
