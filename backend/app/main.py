@@ -145,5 +145,6 @@ def root():
 
 
 @app.get("/health")
+@app.head("/health")
 def health_check():
     return {"status": "healthy"}
