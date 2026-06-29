@@ -1,8 +1,21 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order } from "../services/api"
+import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, ApiError } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
+
+function isAuthError(err: any): boolean {
+  if (err instanceof ApiError && err.status === 401) return true
+  const errorMsg = (err?.message || '').toLowerCase()
+  return (
+    errorMsg.includes('401') ||
+    errorMsg.includes('could not validate credentials') ||
+    errorMsg.includes('not authenticated') ||
+    errorMsg.includes('session expired') ||
+    errorMsg.includes('token') ||
+    err?.status === 401
+  )
+}
 
 export default function AccountPage() {
   const navigate = useNavigate()
@@ -40,16 +53,7 @@ export default function AccountPage() {
       setOrders(orderList)
       setPricingTiers(tiers)
     } catch (err: any) {
-      // Check if it's an authentication error (401)
-      const errorMsg = (err?.message || '').toLowerCase()
-      if (
-        errorMsg.includes('401') ||
-        errorMsg.includes('could not validate credentials') ||
-        errorMsg.includes('not authenticated') ||
-        errorMsg.includes('token') ||
-        err?.status === 401
-      ) {
-        // Clear invalid token and redirect to login
+      if (isAuthError(err)) {
         authAPI.logout()
         setError('Your session has expired. Please log in again.')
         setTimeout(() => {
@@ -77,14 +81,7 @@ export default function AccountPage() {
         setError("Failed to create checkout session")
       }
     } catch (err: any) {
-      const errorMsg = (err?.message || '').toLowerCase()
-      if (
-        errorMsg.includes('401') ||
-        errorMsg.includes('could not validate credentials') ||
-        errorMsg.includes('not authenticated') ||
-        errorMsg.includes('token') ||
-        err?.status === 401
-      ) {
+      if (isAuthError(err)) {
         authAPI.logout()
         setError('Your session has expired. Please log in again.')
         setTimeout(() => {
@@ -110,14 +107,7 @@ export default function AccountPage() {
       const currentUser = await authAPI.getCurrentUser()
       setUser(currentUser)
     } catch (err: any) {
-      const errorMsg = (err?.message || '').toLowerCase()
-      if (
-        errorMsg.includes('401') ||
-        errorMsg.includes('could not validate credentials') ||
-        errorMsg.includes('not authenticated') ||
-        errorMsg.includes('token') ||
-        err?.status === 401
-      ) {
+      if (isAuthError(err)) {
         authAPI.logout()
         setError('Your session has expired. Please log in again.')
         setTimeout(() => {

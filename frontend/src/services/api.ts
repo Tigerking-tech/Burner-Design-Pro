@@ -1,18 +1,159 @@
+import { tokenManager } from './tokenManager'
+
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL 
   ? `${(import.meta as any).env.VITE_API_URL}/api` 
   : '/api'
 
-export async function getHealth() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/health`)
-    if (!response.ok) {
-      throw new Error('Health check failed')
-    }
-    return response.json()
-  } catch (error) {
-    console.error('getHealth error:', error)
-    throw error
+let isRefreshing = false
+let refreshQueue: Array<() => void> = []
+
+async function refreshAccessToken(): Promise<boolean> {
+  const refreshToken = tokenManager.getRefreshToken()
+  if (!refreshToken) {
+    return false
   }
+
+  if (isRefreshing) {
+    return new Promise(resolve => {
+      refreshQueue.push(() => resolve(true))
+    })
+  }
+
+  isRefreshing = true
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    })
+
+    if (!response.ok) {
+      tokenManager.clearTokens()
+      return false
+    }
+
+    const data = await response.json()
+    tokenManager.setTokens({
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      user: data.user,
+    })
+
+    refreshQueue.forEach(callback => callback())
+    refreshQueue = []
+
+    return true
+  } catch (error) {
+    console.error('[api] Token refresh failed:', error)
+    tokenManager.clearTokens()
+    refreshQueue.forEach(callback => callback())
+    refreshQueue = []
+    return false
+  } finally {
+    isRefreshing = false
+  }
+}
+
+interface RequestOptions {
+  method?: string
+  headers?: HeadersInit
+  body?: BodyInit | null
+  includeAuth?: boolean
+}
+
+class ApiError extends Error {
+  status: number
+  detail?: string
+
+  constructor(message: string, status: number, detail?: string) {
+    super(message)
+    this.status = status
+    this.detail = detail
+    this.name = 'ApiError'
+  }
+}
+
+async function request(
+  url: string,
+  options: RequestOptions = {}
+): Promise<any> {
+  const {
+    method = 'GET',
+    headers: customHeaders = {},
+    body = null,
+    includeAuth = true,
+  } = options
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(customHeaders as Record<string, string>),
+  }
+
+  if (includeAuth) {
+    const token = tokenManager.getAccessToken()
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+  }
+
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`
+
+  const response = await fetch(fullUrl, {
+    method,
+    headers,
+    body,
+  })
+
+  if (response.ok) {
+    return response.json()
+  }
+
+  if (response.status === 401 && includeAuth) {
+    const refreshed = await refreshAccessToken()
+    if (refreshed) {
+      const newToken = tokenManager.getAccessToken()
+      if (newToken) {
+        headers['Authorization'] = `Bearer ${newToken}`
+      }
+      const retryResponse = await fetch(fullUrl, {
+        method,
+        headers,
+        body,
+      })
+      if (retryResponse.ok) {
+        return retryResponse.json()
+      }
+      if (retryResponse.status === 401) {
+        tokenManager.clearTokens()
+        const data = await retryResponse.json().catch(() => ({}))
+        throw new ApiError(data.detail || 'Session expired', 401, data.detail)
+      }
+      const data = await retryResponse.json().catch(() => ({}))
+      throw new ApiError(
+        data.detail || `Request failed with status ${retryResponse.status}`,
+        retryResponse.status,
+        data.detail
+      )
+    } else {
+      tokenManager.clearTokens()
+      const data = await response.json().catch(() => ({}))
+      throw new ApiError(data.detail || 'Session expired', 401, data.detail)
+    }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  throw new ApiError(
+    data.detail || `Request failed with status ${response.status}`,
+    response.status,
+    data.detail
+  )
+}
+
+export async function getHealth() {
+  return request('/health', { includeAuth: false })
 }
 
 export interface Fuel {
@@ -71,36 +212,20 @@ export interface CombustionResult {
 }
 
 export async function getFuels(): Promise<Fuel[]> {
-  const response = await fetch(`${API_BASE_URL}/fuels`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch fuels')
-  }
-  return response.json()
+  return request('/fuels', { includeAuth: false })
 }
 
 export async function getFuel(fuelId: string): Promise<FuelDetail> {
-  const response = await fetch(`${API_BASE_URL}/fuels/${fuelId}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch fuel')
-  }
-  return response.json()
+  return request(`/fuels/${fuelId}`, { includeAuth: false })
 }
 
 export async function calculateCombustion(params: CombustionParams): Promise<CombustionResult> {
-  const response = await fetch(`${API_BASE_URL}/calculate/combustion`, {
+  return request('/calculate/combustion', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(params),
   })
-  if (!response.ok) {
-    throw new Error('Failed to calculate combustion')
-  }
-  return response.json()
 }
 
-// Auth and Subscription API
 export interface User {
   id: string
   email: string
@@ -115,6 +240,7 @@ export interface User {
 
 export interface LoginResponse {
   access_token: string
+  refresh_token: string
   token_type: string
   user: User
 }
@@ -177,23 +303,6 @@ export interface RevenueStats {
   active_subscriptions: number
 }
 
-function getToken(): string | null {
-  return localStorage.getItem('token')
-}
-
-function getHeaders(includeAuth: boolean = true): HeadersInit {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
-  if (includeAuth) {
-    const token = getToken()
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-  }
-  return headers
-}
-
 export interface RegisterResponse {
   success: boolean
   message: string
@@ -203,52 +312,40 @@ export interface RegisterResponse {
 
 export const authAPI = {
   async register(email: string, password: string, fullName?: string): Promise<RegisterResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    return request('/auth/register', {
       method: 'POST',
-      headers: getHeaders(false),
+      includeAuth: false,
       body: JSON.stringify({ email, password, full_name: fullName }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Registration failed')
-    }
-    return response.json()
   },
 
   async verifyEmail(email: string, code: string): Promise<LoginResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+    const data = await request('/auth/verify-email', {
       method: 'POST',
-      headers: getHeaders(false),
+      includeAuth: false,
       body: JSON.stringify({ email, code }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Verification failed')
-    }
-    const data = await response.json()
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('user', JSON.stringify(data.user))
+    tokenManager.setTokens({
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      user: data.user,
+    })
     return data
   },
 
   async resendVerification(email: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+    return request('/auth/resend-verification', {
       method: 'POST',
-      headers: getHeaders(false),
+      includeAuth: false,
       body: JSON.stringify({ email }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Failed to resend verification code')
-    }
-    return response.json()
   },
 
   async login(email: string, password: string): Promise<LoginResponse> {
     const formData = new URLSearchParams()
     formData.append('username', email)
     formData.append('password', password)
-    
+
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -256,115 +353,82 @@ export const authAPI = {
       },
       body: formData.toString(),
     })
+
     if (!response.ok) {
       const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Login failed')
+      throw new ApiError(data.detail || 'Login failed', response.status, data.detail)
     }
+
     const data = await response.json()
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('user', JSON.stringify(data.user))
+    tokenManager.setTokens({
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      user: data.user,
+    })
     return data
   },
 
   async logout(): Promise<void> {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    try {
+      await request('/auth/logout', { method: 'POST' })
+    } catch (e) {
+      console.warn('[authAPI] Logout API call failed, clearing local tokens anyway')
+    }
+    tokenManager.clearTokens()
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+    return request('/auth/change-password', {
       method: 'POST',
-      headers: getHeaders(),
       body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Password change failed')
-    }
-    return response.json()
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get user')
+    const user = await request('/auth/me')
+    const currentUser = tokenManager.getUser()
+    if (currentUser) {
+      tokenManager.setTokens({
+        accessToken: tokenManager.getAccessToken() || '',
+        refreshToken: tokenManager.getRefreshToken() || '',
+        user,
+      })
     }
-    const user = await response.json()
-    localStorage.setItem('user', JSON.stringify(user))
     return user
   },
 
   getCurrentUserSync(): User | null {
-    try {
-      const userStr = localStorage.getItem('user')
-      return userStr ? JSON.parse(userStr) : null
-    } catch {
-      return null
-    }
+    return tokenManager.getUser()
   },
 
   async getPricing(): Promise<{ success: boolean; tiers: PricingTier[] }> {
-    const response = await fetch(`${API_BASE_URL}/auth/pricing`, {
-      headers: getHeaders(false),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get pricing')
-    }
-    return response.json()
+    return request('/auth/pricing', { includeAuth: false })
   },
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('token')
+    return tokenManager.isAuthenticated()
   },
 
   isAdmin(): boolean {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}')
-      return !!user.is_admin
-    } catch {
-      return false
-    }
+    return tokenManager.isAdmin()
   },
 
   hasProAccess(): boolean {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}')
-      return user.subscription_tier === 'pro'
-    } catch {
-      return false
-    }
+    return tokenManager.getSubscriptionTier() === 'pro'
   },
 
   getSubscriptionTier(): 'free' | 'pro' {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}')
-      return user.subscription_tier || 'free'
-    } catch {
-      return 'free'
-    }
+    return tokenManager.getSubscriptionTier()
   },
 
   getUser(): User | null {
-    try {
-      const userStr = localStorage.getItem('user')
-      return userStr ? JSON.parse(userStr) : null
-    } catch {
-      return null
-    }
+    return tokenManager.getUser()
   },
 }
 
 export const pricingAPI = {
   async getPricingTiers(): Promise<PricingTier[]> {
-    const response = await fetch(`${API_BASE_URL}/auth/pricing`, {
-      headers: getHeaders(false),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get pricing tiers')
-    }
-    const data = await response.json()
+    const data = await request('/auth/pricing', { includeAuth: false })
     return data.tiers
   },
 }
@@ -388,14 +452,7 @@ export interface CheckoutSession {
 
 export const subscriptionAPI = {
   async getSubscription(): Promise<Subscription> {
-    const response = await fetch(`${API_BASE_URL}/subscription`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get subscription')
-    }
-    const data = await response.json()
-    // Ensure tier_name is available
+    const data = await request('/subscription')
     const tierNames: Record<string, string> = {
       free: 'Free',
       pro: 'Pro',
@@ -407,152 +464,77 @@ export const subscriptionAPI = {
   },
 
   async cancelSubscription(): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/subscription/cancel`, {
-      method: 'POST',
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to cancel subscription')
-    }
-    return response.json()
+    return request('/subscription/cancel', { method: 'POST' })
   },
 
   async getProducts(): Promise<{ success: boolean; products: Product[] }> {
-    const response = await fetch(`${API_BASE_URL}/products`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get products')
-    }
-    return response.json()
+    return request('/products')
   },
 
   async createCheckout(tier: string): Promise<CheckoutSession> {
-    const response = await fetch(`${API_BASE_URL}/payment/create-checkout`, {
+    return request('/payment/create-checkout', {
       method: 'POST',
-      headers: getHeaders(),
       body: JSON.stringify({ tier }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({ detail: 'Failed to create checkout' }))
-      throw new Error(data.detail || 'Failed to create checkout')
-    }
-    return response.json()
   },
 
   async confirmPayment(orderId: string): Promise<PaymentResult> {
-    const response = await fetch(`${API_BASE_URL}/payment/confirm/${orderId}`, {
-      method: 'POST',
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to confirm payment')
-    }
-    return response.json()
+    return request(`/payment/confirm/${orderId}`, { method: 'POST' })
   },
 
   async getOrders(): Promise<Order[]> {
-    const response = await fetch(`${API_BASE_URL}/orders`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get orders')
-    }
-    return response.json()
+    return request('/orders')
   },
 }
 
 export const adminAPI = {
   async getAllUsers(): Promise<User[]> {
-    const response = await fetch(`${API_BASE_URL}/admin/users`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get users')
-    }
-    return response.json()
+    return request('/admin/users')
   },
 
   async changeUserPassword(userId: string, newPassword: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/auth/admin/users/${userId}/change-password`, {
+    return request(`/auth/admin/users/${userId}/change-password`, {
       method: 'POST',
-      headers: getHeaders(),
       body: JSON.stringify({ new_password: newPassword }),
     })
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
-      throw new Error(data.detail || 'Failed to change user password')
-    }
-    return response.json()
   },
 
   async updateUserSubscription(userId: string, tier: string): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/subscription`, {
+    return request(`/admin/users/${userId}/subscription`, {
       method: 'PATCH',
-      headers: getHeaders(),
       body: JSON.stringify({ tier }),
     })
-    if (!response.ok) {
-      throw new Error('Failed to update user subscription')
-    }
-    return response.json()
   },
 
   async getRevenue(): Promise<RevenueStats> {
-    const response = await fetch(`${API_BASE_URL}/admin/revenue`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get revenue')
-    }
-    return response.json()
+    return request('/admin/revenue')
   },
 
   async getAllOrders(): Promise<Order[]> {
-    const response = await fetch(`${API_BASE_URL}/admin/orders`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get orders')
-    }
-    return response.json()
+    return request('/admin/orders')
   },
 
   async getWithdrawals(): Promise<WithdrawalRequest[]> {
-    const response = await fetch(`${API_BASE_URL}/admin/withdrawals`, {
-      headers: getHeaders(),
-    })
-    if (!response.ok) {
-      throw new Error('Failed to get withdrawals')
-    }
-    return response.json()
+    return request('/admin/withdrawals')
   },
 
   async createWithdrawal(amount: number, paymentMethod: string, notes?: string): Promise<WithdrawalRequest> {
-    const response = await fetch(`${API_BASE_URL}/admin/withdrawals`, {
+    return request('/admin/withdrawals', {
       method: 'POST',
-      headers: getHeaders(),
       body: JSON.stringify({ amount, payment_method: paymentMethod, notes }),
     })
-    if (!response.ok) {
-      throw new Error('Failed to create withdrawal')
-    }
-    return response.json()
   },
 
   async updateWithdrawalStatus(withdrawalId: string, status: string): Promise<WithdrawalRequest> {
-    const response = await fetch(`${API_BASE_URL}/admin/withdrawals/${withdrawalId}`, {
+    return request(`/admin/withdrawals/${withdrawalId}`, {
       method: 'PATCH',
-      headers: getHeaders(),
       body: JSON.stringify({ status }),
     })
-    if (!response.ok) {
-      throw new Error('Failed to update withdrawal status')
-    }
-    return response.json()
   },
   
   async updateWithdrawal(withdrawalId: string, status: string): Promise<WithdrawalRequest> {
     return this.updateWithdrawalStatus(withdrawalId, status)
   },
 }
+
+export { ApiError }

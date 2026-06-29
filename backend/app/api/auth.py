@@ -9,12 +9,13 @@ import uuid
 
 from app.models.user import (
     User, UserCreate, UserLogin, Token, TokenData,
-    ChangePassword, AdminChangePassword,
+    ChangePassword, AdminChangePassword, RefreshTokenRequest,
 )
 from app.models.pricing import SUBSCRIPTION_TIERS
 from app.security.auth import (
     verify_password, get_password_hash, create_access_token,
-    decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+    decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_refresh_token, REFRESH_TOKEN_EXPIRE_DAYS,
 )
 from app.services.email_service import send_verification_email, generate_verification_code
 from app.services.verification_store import (
@@ -24,6 +25,7 @@ from app.services.verification_store import (
 from app.services.database import (
     save_user, get_user_by_id, get_user_by_email, get_user_password,
     activate_user, update_user_password, user_exists,
+    update_user_refresh_token, get_user_by_refresh_token,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -34,6 +36,29 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 def _dict_to_user(user_dict: dict) -> User:
     """Convert a DB row dict to a User model."""
     return User(**user_dict)
+
+
+def _create_token_response(user: User) -> Token:
+    """Create access + refresh token response for a user."""
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email},
+        expires_delta=access_token_expires
+    )
+
+    refresh_token = create_refresh_token()
+    refresh_expires_at = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    update_user_refresh_token(
+        user_id=user.id,
+        refresh_token=refresh_token,
+        refresh_token_expires_at=refresh_expires_at,
+    )
+
+    return Token(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user=user,
+    )
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
@@ -149,14 +174,8 @@ async def verify_email(data: dict):
     # Clean up verification code
     delete_verification_code(email)
     
-    # Create access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
-    )
-    
-    return Token(access_token=access_token, user=user)
+    # Create access + refresh tokens
+    return _create_token_response(user)
 
 
 @router.post("/resend-verification")
@@ -245,20 +264,60 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="Email not verified. Please check your email for verification code.",
         )
     
-    # Create access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
-    )
-    
-    return Token(access_token=access_token, user=user)
+    # Create access + refresh tokens
+    return _create_token_response(user)
 
 
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     """Get current user information"""
     return current_user
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(data: RefreshTokenRequest):
+    """Refresh access token using refresh token"""
+    refresh_token = data.refresh_token.strip()
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token is required",
+        )
+
+    user_dict = get_user_by_refresh_token(refresh_token)
+    if not user_dict:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
+
+    user = _dict_to_user(user_dict)
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is not active",
+        )
+
+    row_expires = user_dict.get("refresh_token_expires_at")
+    if row_expires and datetime.utcnow() > row_expires:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token has expired",
+        )
+
+    return _create_token_response(user)
+
+
+@router.post("/logout")
+async def logout(current_user: User = Depends(get_current_active_user)):
+    """Invalidate the current user's refresh token"""
+    update_user_refresh_token(
+        user_id=current_user.id,
+        refresh_token=None,
+        refresh_token_expires_at=None,
+    )
+    return {"success": True, "message": "Logged out successfully"}
 
 
 @router.get("/pricing")

@@ -54,8 +54,14 @@ class User(UserBase):
 class Token(BaseModel):
     """JWT Token model"""
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
     user: User
+
+
+class RefreshTokenRequest(BaseModel):
+    """Refresh token request model"""
+    refresh_token: str
 
 
 class TokenData(BaseModel):

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import hashlib
 import os
+import secrets
 from jose import JWTError, jwt
 from app.models.user import TokenData
 
@@ -14,10 +15,16 @@ SECRET_KEY = os.getenv(
     "your-super-secret-key-change-in-production-1234567890"
 )
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))
 
 # Salt for hashing - read from environment variables
 SALT = os.getenv("HASH_SALT", "burnerpro-demo-salt-2026").encode()
+
+
+def create_refresh_token() -> str:
+    """Create a secure random refresh token."""
+    return secrets.token_urlsafe(64)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

@@ -43,9 +43,27 @@ def init_db() -> None:
                 subscription_expires_at TIMESTAMP,
                 hashed_password TEXT NOT NULL,
                 creem_customer_id TEXT,
-                creem_subscription_id TEXT
+                creem_subscription_id TEXT,
+                refresh_token TEXT,
+                refresh_token_expires_at TIMESTAMP
             )
         """)
+
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS refresh_token TEXT")
+            conn.commit()
+            print("[INFO] Added refresh_token column")
+        except Exception as e:
+            print(f"[INFO] refresh_token column may already exist: {e}")
+            conn.rollback()
+
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS refresh_token_expires_at TIMESTAMP")
+            conn.commit()
+            print("[INFO] Added refresh_token_expires_at column")
+        except Exception as e:
+            print(f"[INFO] refresh_token_expires_at column may already exist: {e}")
+            conn.rollback()
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS orders (
@@ -312,6 +330,39 @@ def update_user_creem(user_id: str, creem_customer_id: Optional[str] = None,
         cur.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
         conn.commit()
         cur.close()
+    finally:
+        conn.close()
+
+
+def update_user_refresh_token(user_id: str, refresh_token: Optional[str] = None,
+                              refresh_token_expires_at: Optional[datetime] = None) -> None:
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        now = datetime.utcnow()
+        updates, params = ["updated_at = %s"], [now]
+        if refresh_token is not None:
+            updates.append("refresh_token = %s")
+            params.append(refresh_token)
+        if refresh_token_expires_at is not None:
+            updates.append("refresh_token_expires_at = %s")
+            params.append(refresh_token_expires_at)
+        params.append(user_id)
+        cur.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", params)
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def get_user_by_refresh_token(refresh_token: str) -> Optional[Dict[str, Any]]:
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE refresh_token = %s", (refresh_token,))
+        row = cur.fetchone()
+        cur.close()
+        return _row_to_user(row) if row else None
     finally:
         conn.close()
 

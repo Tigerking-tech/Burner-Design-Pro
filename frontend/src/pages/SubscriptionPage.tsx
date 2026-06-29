@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { subscriptionAPI, authAPI } from '../services/api'
+import { subscriptionAPI, authAPI, ApiError } from '../services/api'
 import { Navbar } from '../components/Navbar'
+
+function isAuthError(err: any): boolean {
+  if (err instanceof ApiError && err.status === 401) return true
+  const errorMsg = (err?.message || '').toLowerCase()
+  return (
+    errorMsg.includes('401') ||
+    errorMsg.includes('could not validate credentials') ||
+    errorMsg.includes('not authenticated') ||
+    errorMsg.includes('session expired') ||
+    errorMsg.includes('token') ||
+    err?.status === 401
+  )
+}
 
 interface Product {
   tier: string
@@ -48,16 +61,7 @@ const SubscriptionPage: React.FC = () => {
       setSubscription(subscriptionRes)
     } catch (error: any) {
       console.error('Failed to fetch data:', error)
-      // Check if it's an authentication error (401)
-      const errorMsg = error?.message?.toLowerCase() || ''
-      if (
-        errorMsg.includes('401') ||
-        errorMsg.includes('could not validate credentials') ||
-        errorMsg.includes('not authenticated') ||
-        errorMsg.includes('token') ||
-        error?.status === 401
-      ) {
-        // Clear invalid token and redirect to login
+      if (isAuthError(error)) {
         authAPI.logout()
         setError('Your session has expired. Please log in again.')
         setTimeout(() => {
