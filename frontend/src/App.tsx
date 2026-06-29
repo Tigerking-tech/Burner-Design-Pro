@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import UnitConverterPage from './pages/UnitConverterPage'
 import EmissionPage from './pages/EmissionPage'
@@ -19,6 +19,8 @@ import SubscriptionPage from './pages/SubscriptionPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import { wakeUpService } from './services/wakeUpService'
+import { ToastProvider, useToast } from './components/Toast'
+import { tokenManager } from './services/tokenManager'
 
 function ScrollToTop() {
   const location = useLocation()
@@ -28,13 +30,43 @@ function ScrollToTop() {
   return null
 }
 
-function App() {
+function SessionMonitor() {
+  const { showToast } = useToast()
+  const navigate = useNavigate()
+  const [hasShownToast, setHasShownToast] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const wasAuthenticated = tokenManager.getAccessToken() !== null
+      const stillAuthenticated = tokenManager.isAuthenticated()
+
+      if (wasAuthenticated && !stillAuthenticated && !hasShownToast) {
+        setHasShownToast(true)
+        showToast('Your session has expired. Please log in again.', 'warning')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else if (!wasAuthenticated && stillAuthenticated) {
+        setHasShownToast(false)
+      }
+    }
+
+    checkAuth()
+    const interval = setInterval(checkAuth, 5000)
+    return () => clearInterval(interval)
+  }, [hasShownToast, navigate, showToast])
+
+  return null
+}
+
+function AppRoutes() {
   useEffect(() => {
     wakeUpService.wakeUp()
   }, [])
 
   return (
-    <BrowserRouter>
+    <>
+      <SessionMonitor />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -56,7 +88,17 @@ function App() {
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       </Routes>
-    </BrowserRouter>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <ToastProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ToastProvider>
   )
 }
 
