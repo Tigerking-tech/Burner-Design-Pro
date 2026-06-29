@@ -656,6 +656,31 @@ export default function FlameTemperaturePage() {
           <p className="text-sm text-[#7f8c8d] dark:text-gray-500">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
         </footer>
       </div>
+
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-2xl font-bold text-[#2c3e50] mb-4">Pro Feature</h3>
+            <p className="text-gray-600 mb-6">
+              This feature is available for Pro users. Upgrade your account to unlock advanced calculations and PDF export features.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => window.location.href = '/subscription'}
+                className="flex-1 bg-[#2B6BA0] hover:bg-[#1e4d73] text-white py-3 rounded-lg font-semibold transition-all"
+              >
+                Upgrade Now
+              </button>
+              <button
+                onClick={() => setShowSubscriptionModal(false)}
+                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ProFeaturePreview>
   )
 }
