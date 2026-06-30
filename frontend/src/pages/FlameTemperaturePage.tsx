@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 
 interface GasComponent {
   name: string
@@ -160,18 +161,19 @@ const productData: Record<string, { hf: number; cp: number }> = {
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
 export default function FlameTemperaturePage() {
-  const [gasComponents, setGasComponents] = useState<GasComponent[]>(
+  const [gasComponents, setGasComponents] = useLocalStorageState<GasComponent[]>(
+    'flame-temp-gas',
     defaultGasComponents.map(c => ({ ...c }))
   )
-  const [selectedPreset, setSelectedPreset] = useState('')
-  
-  const [fuelTemperature, setFuelTemperature] = useState('25')
-  const [oxidizerType, setOxidizerType] = useState<OxidizerType>('air')
-  const [airRatio, setAirRatio] = useState('100')
-  const [oxygenRatio, setOxygenRatio] = useState('0')
-  const [oxidizerTemperature, setOxidizerTemperature] = useState('25')
-  const [excessOxygen, setExcessOxygen] = useState('10')
-  
+  const [selectedPreset, setSelectedPreset] = useLocalStorageState('flame-temp-preset', '')
+
+  const [fuelTemperature, setFuelTemperature] = useLocalStorageState('flame-temp-fuel-temp', '25')
+  const [oxidizerType, setOxidizerType] = useLocalStorageState<OxidizerType>('flame-temp-oxidizer', 'air')
+  const [airRatio, setAirRatio] = useLocalStorageState('flame-temp-air-ratio', '100')
+  const [oxygenRatio, setOxygenRatio] = useLocalStorageState('flame-temp-oxygen-ratio', '0')
+  const [oxidizerTemperature, setOxidizerTemperature] = useLocalStorageState('flame-temp-oxidizer-temp', '25')
+  const [excessOxygen, setExcessOxygen] = useLocalStorageState('flame-temp-excess-oxygen', '10')
+
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
   

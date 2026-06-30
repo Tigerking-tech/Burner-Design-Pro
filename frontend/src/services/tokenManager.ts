@@ -2,6 +2,9 @@ const ACCESS_TOKEN_KEY = 'token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_KEY = 'user'
 
+// Calculator states use this prefix so they can be batch-cleared on logout
+const CALCULATOR_STATE_PREFIX = 'calculator-state-'
+
 interface UserInfo {
   id: string
   email: string
@@ -83,6 +86,12 @@ export const tokenManager = {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
+    // Clear calculator states on logout to protect user privacy
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(CALCULATOR_STATE_PREFIX)) {
+        localStorage.removeItem(key)
+      }
+    })
   },
 
   isAuthenticated(): boolean {

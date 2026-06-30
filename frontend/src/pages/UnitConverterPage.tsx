@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { useLocalStorageState } from '../hooks/useLocalStorageState';
 
 const UNITS = {
   "Pressure": {
@@ -294,10 +295,10 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
-  const [category, setCategory] = useState<string>("Pressure");
-  const [value, setValue] = useState<string>("1");
-  const [fromUnit, setFromUnit] = useState<string>("kPa");
-  const [toUnit, setToUnit] = useState<string>("bar");
+  const [category, setCategory] = useLocalStorageState<string>('unit-converter-category', "Pressure");
+  const [value, setValue] = useLocalStorageState<string>('unit-converter-value', "1");
+  const [fromUnit, setFromUnit] = useLocalStorageState<string>('unit-converter-from-unit', "kPa");
+  const [toUnit, setToUnit] = useLocalStorageState<string>('unit-converter-to-unit', "bar");
   const [allResults, setAllResults] = useState<Record<string, number>>({});
 
   useEffect(() => {

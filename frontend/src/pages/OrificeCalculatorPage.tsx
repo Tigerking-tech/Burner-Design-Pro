@@ -5,6 +5,7 @@ import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 
 interface CalculationResult {
   orificeDiameter: number
@@ -263,27 +264,27 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
-  const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
-  const [featureMode, setFeatureMode] = useState<'basic' | 'advanced'>('basic')
-  const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
-  const [customDensity, setCustomDensity] = useState('0.78')
-  const [selectedPipeDN, setSelectedPipeDN] = useState(pipeSizes[3].dn)
-  const [internalDiameter, setInternalDiameter] = useState(pipeSizes[3].internalDiameter.toString())
-  const [maxFlowRate, setMaxFlowRate] = useState('')
-  const [pressureDrop, setPressureDrop] = useState('')
-  const [orificeDiameterInput, setOrificeDiameterInput] = useState('')
-  const [outputMode, setOutputMode] = useState<'orifice' | 'pressure' | 'flowrate'>('orifice')
+  const [calculationMode, setCalculationMode] = useLocalStorageState<'restricting' | 'measuring'>('orifice-calc-mode', 'restricting')
+  const [featureMode, setFeatureMode] = useLocalStorageState<'basic' | 'advanced'>('orifice-feature-mode', 'basic')
+  const [selectedGasType, setSelectedGasType] = useLocalStorageState('orifice-gas-type', gasTypes[0])
+  const [customDensity, setCustomDensity] = useLocalStorageState('orifice-custom-density', '0.78')
+  const [selectedPipeDN, setSelectedPipeDN] = useLocalStorageState('orifice-pipe-dn', pipeSizes[3].dn)
+  const [internalDiameter, setInternalDiameter] = useLocalStorageState('orifice-internal-dia', pipeSizes[3].internalDiameter.toString())
+  const [maxFlowRate, setMaxFlowRate] = useLocalStorageState('orifice-max-flow', '')
+  const [pressureDrop, setPressureDrop] = useLocalStorageState('orifice-pressure-drop', '')
+  const [orificeDiameterInput, setOrificeDiameterInput] = useLocalStorageState('orifice-diameter', '')
+  const [outputMode, setOutputMode] = useLocalStorageState<'orifice' | 'pressure' | 'flowrate'>('orifice-output-mode', 'orifice')
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [curveData, setCurveData] = useState<CurvePoint[]>([])
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
-  const [operatingPressure, setOperatingPressure] = useState('1.013')
-  const [operatingTemperature, setOperatingTemperature] = useState('20')
-  const [compressibilityZ, setCompressibilityZ] = useState('1.0')
-  const [isentropicExponentK, setIsentropicExponentK] = useState('1.4')
-  const [pressureType, setPressureType] = useState<'gauge' | 'absolute'>('absolute')
-  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
-  const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
+  const [operatingPressure, setOperatingPressure] = useLocalStorageState('orifice-operating-pressure', '1.013')
+  const [operatingTemperature, setOperatingTemperature] = useLocalStorageState('orifice-operating-temp', '20')
+  const [compressibilityZ, setCompressibilityZ] = useLocalStorageState('orifice-compressibility', '1.0')
+  const [isentropicExponentK, setIsentropicExponentK] = useLocalStorageState('orifice-isentropic-k', '1.4')
+  const [pressureType, setPressureType] = useLocalStorageState<'gauge' | 'absolute'>('orifice-pressure-type', 'absolute')
+  const [pressureUnit, setPressureUnit] = useLocalStorageState<PressureUnit>('orifice-pressure-unit', 'bar')
+  const [temperatureUnit, setTemperatureUnit] = useLocalStorageState<TemperatureUnit>('orifice-temp-unit', 'C')
 
   const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
 

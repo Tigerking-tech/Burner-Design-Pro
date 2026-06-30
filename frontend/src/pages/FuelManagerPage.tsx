@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 
 interface GasComponent {
   name: string
@@ -201,18 +202,18 @@ const oilPresets = [
 ]
 
 export default function FuelManagerPage() {
-  const [activeTab, setActiveTab] = useState<'gas' | 'oil'>('gas')
-  const [gas1Components, setGas1Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
-  const [gas2Components, setGas2Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
-  const [selectedGas1Preset, setSelectedGas1Preset] = useState('')
-  const [selectedGas2Preset, setSelectedGas2Preset] = useState('')
-  const [gas1MixturePercent, setGas1MixturePercent] = useState('50')
+  const [activeTab, setActiveTab] = useLocalStorageState<'gas' | 'oil'>('fuel-manager-active-tab', 'gas')
+  const [gas1Components, setGas1Components] = useLocalStorageState<GasComponent[]>('fuel-manager-gas1', defaultGasComponents.map(c => ({ ...c })))
+  const [gas2Components, setGas2Components] = useLocalStorageState<GasComponent[]>('fuel-manager-gas2', defaultGasComponents.map(c => ({ ...c })))
+  const [selectedGas1Preset, setSelectedGas1Preset] = useLocalStorageState('fuel-manager-gas1-preset', '')
+  const [selectedGas2Preset, setSelectedGas2Preset] = useLocalStorageState('fuel-manager-gas2-preset', '')
+  const [gas1MixturePercent, setGas1MixturePercent] = useLocalStorageState('fuel-manager-mixture-pct', '50')
   const [showGas1Results, setShowGas1Results] = useState(false)
   const [showGas2Results, setShowGas2Results] = useState(false)
   const [showMixtureResults, setShowMixtureResults] = useState(false)
-  
-  const [selectedOil, setSelectedOil] = useState(0)
-  const [oilElements, setOilElements] = useState<OilElement[]>(() => {
+
+  const [selectedOil, setSelectedOil] = useLocalStorageState('fuel-manager-oil-index', 0)
+  const [oilElements, setOilElements] = useLocalStorageState<OilElement[]>('fuel-manager-oil-elements', () => {
     const preset = oilPresets[0]
     return [
       { name: 'C', symbol: 'C', percentage: preset.C.toString() },

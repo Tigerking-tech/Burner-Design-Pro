@@ -5,6 +5,7 @@ import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -55,36 +56,36 @@ const pipeSizes = {
 }
 
 function InsulationCalculatorPage() {
-  const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
-  const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
-  const [mode, setMode] = useState<Mode>('surface')
-  
-  const [pipeSize, setPipeSize] = useState<string>('2"')
-  const [outerDiameter, setOuterDiameter] = useState<number>(60.3)
-  
-  const [surfaceLength, setSurfaceLength] = useState<number>(1)
-  const [surfaceWidth, setSurfaceWidth] = useState<number>(1)
-  
-  const [materialType, setMaterialType] = useState<MaterialType>('mineralwool')
-  const [customLambda, setCustomLambda] = useState<number>(0.040)
-  
-  const [mediumTemp, setMediumTemp] = useState<number>(150)
-  const [ambientTemp, setAmbientTemp] = useState<number>(20)
-  const [targetSurfaceTemp, setTargetSurfaceTemp] = useState<number>(50)
-  const [targetHeatLoss, setTargetHeatLoss] = useState<number>(100)
-  const [relativeHumidity, setRelativeHumidity] = useState<number>(60)
-  
-  const [environment, setEnvironment] = useState<Environment>('indoor')
-  const [windSpeed, setWindSpeed] = useState<number>(0)
-  const [surfaceFinish, setSurfaceFinish] = useState<string>('0.9')
-  const [customEmittance, setCustomEmittance] = useState<number>(0.9)
-  
-  const [operatingHours, setOperatingHours] = useState<number>(8760)
-  
-  const [heatTransferCoeff, setHeatTransferCoeff] = useState<number>(12)
-  const [hc, setHc] = useState<number>(10)
-  const [hr, setHr] = useState<number>(2)
-  
+  const [unitSystem, setUnitSystem] = useLocalStorageState<UnitSystem>('insulation-unit-system', 'metric')
+  const [equipmentType, setEquipmentType] = useLocalStorageState<EquipmentType>('insulation-equipment-type', 'pipe')
+  const [mode, setMode] = useLocalStorageState<Mode>('insulation-mode', 'surface')
+
+  const [pipeSize, setPipeSize] = useLocalStorageState<string>('insulation-pipe-size', '2"')
+  const [outerDiameter, setOuterDiameter] = useLocalStorageState<number>('insulation-outer-dia', 60.3)
+
+  const [surfaceLength, setSurfaceLength] = useLocalStorageState<number>('insulation-surface-length', 1)
+  const [surfaceWidth, setSurfaceWidth] = useLocalStorageState<number>('insulation-surface-width', 1)
+
+  const [materialType, setMaterialType] = useLocalStorageState<MaterialType>('insulation-material', 'mineralwool')
+  const [customLambda, setCustomLambda] = useLocalStorageState<number>('insulation-custom-lambda', 0.040)
+
+  const [mediumTemp, setMediumTemp] = useLocalStorageState<number>('insulation-medium-temp', 150)
+  const [ambientTemp, setAmbientTemp] = useLocalStorageState<number>('insulation-ambient-temp', 20)
+  const [targetSurfaceTemp, setTargetSurfaceTemp] = useLocalStorageState<number>('insulation-target-surface-temp', 50)
+  const [targetHeatLoss, setTargetHeatLoss] = useLocalStorageState<number>('insulation-target-heat-loss', 100)
+  const [relativeHumidity, setRelativeHumidity] = useLocalStorageState<number>('insulation-relative-humidity', 60)
+
+  const [environment, setEnvironment] = useLocalStorageState<Environment>('insulation-environment', 'indoor')
+  const [windSpeed, setWindSpeed] = useLocalStorageState<number>('insulation-wind-speed', 0)
+  const [surfaceFinish, setSurfaceFinish] = useLocalStorageState<string>('insulation-surface-finish', '0.9')
+  const [customEmittance, setCustomEmittance] = useLocalStorageState<number>('insulation-custom-emittance', 0.9)
+
+  const [operatingHours, setOperatingHours] = useLocalStorageState<number>('insulation-operating-hours', 8760)
+
+  const [heatTransferCoeff, setHeatTransferCoeff] = useLocalStorageState<number>('insulation-heat-transfer-coeff', 12)
+  const [hc, setHc] = useLocalStorageState<number>('insulation-hc', 10)
+  const [hr, setHr] = useLocalStorageState<number>('insulation-hr', 2)
+
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
