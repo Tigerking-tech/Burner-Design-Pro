@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -129,18 +130,18 @@ const formatNumber = (num: number, decimals: number = 2) => {
 };
 
 export default function EmissionPage() {
-  const [pollutant, setPollutant] = useState('NOx')
-  const [value, setValue] = useState('100')
-  const [fromUnit, setFromUnit] = useState('ppm')
-  const [o2Measured, setO2Measured] = useState('5')
-  const [o2Reference, setO2Reference] = useState('3')
-  const [fuelType, setFuelType] = useState('natural_gas_low')
-  const [euFuelType, setEuFuelType] = useState('natural_gas')
-  const [noxValue, setNoxValue] = useState('100')
-  const [coValue, setCoValue] = useState('80')
-  const [flueGasFlow, setFlueGasFlow] = useState('1000')
-  const [annualHours, setAnnualHours] = useState('8000')
-  const [_loadFactor] = useState('0.8');
+  const [pollutant, setPollutant] = useLocalStorageState('emission-pollutant', 'NOx')
+  const [value, setValue] = useLocalStorageState('emission-value', '100')
+  const [fromUnit, setFromUnit] = useLocalStorageState('emission-from-unit', 'ppm')
+  const [o2Measured, setO2Measured] = useLocalStorageState('emission-o2-measured', '5')
+  const [o2Reference, setO2Reference] = useLocalStorageState('emission-o2-reference', '3')
+  const [fuelType, setFuelType] = useLocalStorageState('emission-fuel-type', 'natural_gas_low')
+  const [euFuelType, setEuFuelType] = useLocalStorageState('emission-eu-fuel-type', 'natural_gas')
+  const [noxValue, setNoxValue] = useLocalStorageState('emission-nox-value', '100')
+  const [coValue, setCoValue] = useLocalStorageState('emission-co-value', '80')
+  const [flueGasFlow, setFlueGasFlow] = useLocalStorageState('emission-flue-gas-flow', '1000')
+  const [annualHours, setAnnualHours] = useLocalStorageState('emission-annual-hours', '8000')
+  const _loadFactor = '0.8';
   
   const [results, setResults] = useState({ ppm: 0, mgM3: 0, lbMMBtu: 0 });
   const [epaCompliance, setEpaCompliance] = useState<any>(null);
