@@ -111,7 +111,12 @@ export const MARGIN_LEFT = 18
 export const MARGIN_RIGHT = 18
 export const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT
 export const HEADER_HEIGHT = 36
-export const FOOTER_Y = 282
+export const FOOTER_BOTTOM_MARGIN = 8
+export const FOOTER_BRAND_LINE_HEIGHT = 5
+export const FOOTER_NOTE_LINE_HEIGHT = 4
+export const FOOTER_GAP_BRAND_NOTE = 3
+export const FOOTER_GAP_NOTE_SEPARATOR = 2
+export const FOOTER_MIN_HEIGHT = 22
 
 export const COLORS = {
   primary: { r: 44, g: 62, b: 80 },
@@ -457,40 +462,48 @@ export function drawBulletList(
 
 export function drawPageFooter(doc: jsPDF, customNote?: string): void {
   const pageCount = doc.getNumberOfPages()
+  const note = customNote || 'For reference only - Professional engineering review required'
+  const cleanNote = sanitizeText(note)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7)
+  const noteLines = doc.splitTextToSize(cleanNote, CONTENT_WIDTH)
+  const noteLineHeight = 4
+  const gapAfterSeparator = 4
+  const gapBeforeBrand = 8
+  const bottomMargin = 10
+
+  const brandY = PAGE_HEIGHT - bottomMargin
+  const noteLastLineY = brandY - gapBeforeBrand
+  const noteFirstLineY = noteLastLineY - (noteLines.length - 1) * noteLineHeight
+  const separatorY = noteFirstLineY - gapAfterSeparator
+
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
 
     if (i === 1 && pageCount > 1) {
-      const pageHeight = PAGE_HEIGHT
-      const y = pageHeight - 5
       setTextColor(doc, COLORS.textLight)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(7)
-      doc.text('Burner-Design-Pro', MARGIN_LEFT, y)
-      doc.text('Page 1 of ' + pageCount, PAGE_WIDTH - MARGIN_RIGHT, y, { align: 'right' })
+      doc.text('Burner-Design-Pro', MARGIN_LEFT, brandY)
+      doc.text('Page 1 of ' + pageCount, PAGE_WIDTH - MARGIN_RIGHT, brandY, { align: 'right' })
       continue
     }
 
     setDrawColor(doc, COLORS.border)
     doc.setLineWidth(0.2)
-    doc.line(MARGIN_LEFT, FOOTER_Y - 12, PAGE_WIDTH - MARGIN_RIGHT, FOOTER_Y - 12)
-    doc.setLineWidth(0.2)
+    doc.line(MARGIN_LEFT, separatorY, PAGE_WIDTH - MARGIN_RIGHT, separatorY)
 
     setTextColor(doc, COLORS.textLight)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
-
-    const note = customNote || 'For reference only - Professional engineering review required'
-    const noteLines = doc.splitTextToSize(sanitizeText(note), CONTENT_WIDTH)
-    doc.text(noteLines, MARGIN_LEFT, FOOTER_Y - 5)
-
-    const footerBottom = FOOTER_Y - 5 + noteLines.length * 4.5
+    doc.text(noteLines, MARGIN_LEFT, noteFirstLineY)
 
     doc.setFont('helvetica', 'bold')
-    doc.text('Burner-Design-Pro', MARGIN_LEFT, footerBottom + 4)
+    doc.text('Burner-Design-Pro', MARGIN_LEFT, brandY)
 
     doc.setFont('helvetica', 'normal')
-    doc.text(sanitizeText(`Page ${i} of ${pageCount}`), PAGE_WIDTH - MARGIN_RIGHT, footerBottom + 4, { align: 'right' })
+    doc.text(sanitizeText(`Page ${i} of ${pageCount}`), PAGE_WIDTH - MARGIN_RIGHT, brandY, { align: 'right' })
   }
   setTextColor(doc, { r: 0, g: 0, b: 0 })
 }
@@ -576,7 +589,8 @@ export function checkPageBreak(
   headerTitle: string,
   headerSection: string
 ): number {
-  if (currentY + requiredSpace > FOOTER_Y - 15) {
+  const footerReserve = 40
+  if (currentY + requiredSpace > PAGE_HEIGHT - footerReserve) {
     doc.addPage()
     return drawPageHeader(doc, headerTitle, headerSection)
   }

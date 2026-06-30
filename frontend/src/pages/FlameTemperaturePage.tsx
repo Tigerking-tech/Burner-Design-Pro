@@ -19,7 +19,6 @@ import {
   sanitizeText,
   MARGIN_LEFT,
   CONTENT_WIDTH,
-  FOOTER_Y,
   COLORS,
 } from '../utils/pdfUtils'
 
