@@ -460,7 +460,7 @@ export function drawPageFooter(doc: jsPDF, customNote?: string): void {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
 
-    if (i === 1 && doc.getPageCount() > 1) {
+    if (i === 1 && pageCount > 1) {
       const pageHeight = PAGE_HEIGHT
       const y = pageHeight - 5
       setTextColor(doc, COLORS.textLight)
