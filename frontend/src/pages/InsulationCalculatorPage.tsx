@@ -6,7 +6,22 @@ import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Cylinder, Square, BrickWall, AlertTriangle, Download } from 'lucide-react'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import { addDisclaimerPage, createPDF, drawFooter, drawInfoTable, drawReportHeader, drawSectionTitle } from '../utils/pdfUtils'
+import {
+  createPDF,
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  formatNumber,
+  sanitizeText,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+} from '../utils/pdfUtils'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -398,68 +413,197 @@ function InsulationCalculatorPage() {
       outdoor_moderate: 'Outdoor (Moderate Wind)',
       outdoor_strong: 'Outdoor (Strong Wind)',
     }[environment]
+    const docTitle = 'Insulation Thickness Report'
 
-    let y = drawReportHeader(doc, 'Insulation Thickness Report', 'ISO 12241 and ASTM C680 style thermal insulation calculation summary.')
+    addCoverPage(doc, {
+      title: 'Insulation Thickness',
+      subtitle: `${modeLabel} calculation for ${equipmentLabel.toLowerCase()}`,
+      reportType: 'Thermal Engineering',
+      standard: 'ISO 12241 / ASTM C680 Reference',
+      version: 'v1.0',
+    })
 
-    y = drawSectionTitle(doc, 'Calculation Basis', y)
-    y = drawInfoTable(doc, [
+    let y = drawPageHeader(doc, docTitle, 'Results Summary')
+    y = drawSectionTitle(doc, 'KEY RESULTS', y, `Insulation recommendation - ${modeLabel} mode`)
+
+    const cardWidth = (CONTENT_WIDTH - 16) / 3
+    drawResultCard(doc, {
+      label: 'Required Thickness',
+      value: formatNumber(result.thickness, 1),
+      unit: 'mm',
+      x: MARGIN_LEFT,
+      y: y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Surface Temperature',
+      value: formatNumber(result.surfaceTemp, 1),
+      unit: 'deg C',
+      x: MARGIN_LEFT + cardWidth + 8,
+      y: y,
+      width: cardWidth,
+      status: 'info',
+    })
+    drawResultCard(doc, {
+      label: 'Heat Flux',
+      value: formatNumber(Math.abs(result.heatFlux), 1),
+      unit: 'W/m2',
+      x: MARGIN_LEFT + (cardWidth + 8) * 2,
+      y: y,
+      width: cardWidth,
+      status: 'warning',
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 50, docTitle, 'Results Summary')
+    const secondRowY = y
+    drawResultCard(doc, {
+      label: 'Standard Thickness',
+      value: formatNumber(result.standardThickness || result.thickness, 1),
+      unit: 'mm (recommended)',
+      x: MARGIN_LEFT,
+      y: secondRowY,
+      width: cardWidth,
+      status: 'success',
+    })
+    if (result.linearHeatLoss !== undefined) {
+      drawResultCard(doc, {
+        label: 'Linear Heat Loss',
+        value: formatNumber(Math.abs(result.linearHeatLoss), 1),
+        unit: 'W/m',
+        x: MARGIN_LEFT + cardWidth + 8,
+        y: secondRowY,
+        width: cardWidth,
+      })
+    }
+    drawResultCard(doc, {
+      label: 'Annual Heat Loss',
+      value: formatNumber(Math.abs(result.annualHeatLoss || 0), 0),
+      unit: 'kWh/year',
+      x: MARGIN_LEFT + (cardWidth + 8) * 2,
+      y: secondRowY,
+      width: cardWidth,
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 80, docTitle, 'Input Parameters')
+    y = drawSectionTitle(doc, 'PROJECT BASIS', y, 'Insulation calculation input parameters')
+
+    const projectRows: [string, string][] = [
       ['Calculation Mode', modeLabel],
       ['Equipment Type', equipmentLabel],
-      ['Unit System', unitSystem],
-      ['Material', materialName],
-      ['Thermal Conductivity', `${getThermalConductivity().toFixed(3)} W/m.K`],
+      ['Unit System', unitSystem.charAt(0).toUpperCase() + unitSystem.slice(1)],
+      ['Insulation Material', materialName],
+      ['Thermal Conductivity', `${formatNumber(getThermalConductivity(), 4)} W/m-K`],
       ['Operating Hours', `${operatingHours} h/year`],
-    ], 18, y, 174, { title: 'Project Inputs' })
+    ]
+    y = drawInfoTable(doc, projectRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'General Parameters',
+    })
 
-    y = drawSectionTitle(doc, 'Geometry & Temperatures', y)
+    y = checkPageBreak(doc, y, 100, docTitle, 'Geometry & Temperatures')
+    y = drawSectionTitle(doc, 'GEOMETRY & THERMAL CONDITIONS', y, 'Equipment dimensions and temperature data')
+
     const geometryRows = equipmentType === 'pipe'
       ? [
           ['Pipe Size', pipeSize],
-          ['Outer Diameter', `${outerDiameter} mm`],
+          ['Outer Diameter', `${formatNumber(outerDiameter, 2)} mm`],
         ] as [string, string][]
       : [
-          ['Surface Length', `${surfaceLength} m`],
-          ['Surface Width', `${surfaceWidth} m`],
-          ['Area', `${(surfaceLength * surfaceWidth).toFixed(2)} m2`],
+          ['Surface Length', `${formatNumber(surfaceLength, 2)} m`],
+          ['Surface Width', `${formatNumber(surfaceWidth, 2)} m`],
+          ['Surface Area', `${formatNumber(surfaceLength * surfaceWidth, 2)} m2`],
         ] as [string, string][]
 
-    y = drawInfoTable(doc, [
+    const thermalRows: [string, string][] = [
       ...geometryRows,
       ['Medium Temperature', `${mediumTemp} deg C`],
       ['Ambient Temperature', `${ambientTemp} deg C`],
       ...(mode === 'surface' ? [['Target Surface Temperature', `${targetSurfaceTemp} deg C`] as [string, string]] : []),
       ...(mode === 'heatloss' ? [['Target Heat Loss', `${targetHeatLoss} W/m2`] as [string, string]] : []),
-      ...(mode === 'condensation' ? [['Relative Humidity', `${relativeHumidity}%`] as [string, string]] : []),
-    ], 18, y, 174, { title: 'Geometry and Thermal Conditions' })
+      ...(mode === 'condensation'
+        ? [
+            ['Relative Humidity', `${relativeHumidity}%`],
+            ['Dew Point Temperature', `${formatNumber(result.dewPoint || 0, 1)} deg C`],
+          ] as [string, string][]
+        : []),
+    ]
+    y = drawInfoTable(doc, thermalRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Dimensions and Temperatures',
+    })
 
-    y = drawSectionTitle(doc, 'Environment & Heat Transfer', y)
-    y = drawInfoTable(doc, [
+    y = checkPageBreak(doc, y, 100, docTitle, 'Environment')
+    y = drawSectionTitle(doc, 'ENVIRONMENT & HEAT TRANSFER', y, 'External conditions and surface properties')
+
+    const envRows: [string, string][] = [
       ['Environment', environmentLabel],
-      ['Wind Speed', `${windSpeed.toFixed(1)} m/s`],
-      ['Surface Emittance', getEmittance().toFixed(2)],
-      ['Total Heat Transfer Coefficient', `${heatTransferCoeff.toFixed(1)} W/m2.K`],
-      ['Convection Component', `${hc.toFixed(1)} W/m2.K`],
-      ['Radiation Component', `${hr.toFixed(1)} W/m2.K`],
-    ], 18, y, 174, { title: 'External Heat Transfer' })
+      ['Wind Speed', `${formatNumber(windSpeed, 1)} m/s`],
+      ['Surface Emittance', formatNumber(getEmittance(), 2)],
+      ['Total Heat Transfer Coeff', `${formatNumber(heatTransferCoeff, 1)} W/m2-K`],
+      ['Convection Component', `${formatNumber(hc, 1)} W/m2-K`],
+      ['Radiation Component', `${formatNumber(hr, 1)} W/m2-K`],
+    ]
+    y = drawInfoTable(doc, envRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'External Heat Transfer',
+    })
 
-    if (y > 220) {
-      doc.addPage()
-      y = drawReportHeader(doc, 'Insulation Thickness Report', 'Calculation results continued.')
-    }
+    y = checkPageBreak(doc, y, 80, docTitle, 'Detailed Results')
+    y = drawSectionTitle(doc, 'DETAILED RESULTS', y, 'Complete insulation calculation output')
 
-    y = drawSectionTitle(doc, 'Calculation Results', y)
-    drawInfoTable(doc, [
-      ...(result.dewPoint !== undefined ? [['Dew Point Temperature', `${result.dewPoint.toFixed(1)} deg C`] as [string, string]] : []),
-      ['Required Insulation Thickness', `${result.thickness.toFixed(1)} mm`],
-      ['Recommended Standard Thickness', `${result.standardThickness || result.thickness.toFixed(1)} mm`],
-      ['Surface Temperature', `${result.surfaceTemp.toFixed(1)} deg C`],
-      ['Heat Flux', `${Math.abs(result.heatFlux).toFixed(1)} W/m2`],
-      ...(result.linearHeatLoss !== undefined ? [['Linear Heat Loss', `${Math.abs(result.linearHeatLoss).toFixed(1)} W/m`] as [string, string]] : []),
-      ['Annual Heat Loss', `${Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year`],
-    ], 18, y, 174, { title: 'Insulation Recommendation', highlight: true })
+    const detailRows: [string, string][] = [
+      ['Required Insulation Thickness', `${formatNumber(result.thickness, 2)} mm`],
+      ['Recommended Standard Thickness', `${formatNumber(result.standardThickness || result.thickness, 1)} mm`],
+      ['Surface Temperature (Outer)', `${formatNumber(result.surfaceTemp, 2)} deg C`],
+      ['Heat Flux Density', `${formatNumber(Math.abs(result.heatFlux), 2)} W/m2`],
+      ...(result.linearHeatLoss !== undefined
+        ? [['Linear Heat Loss', `${formatNumber(Math.abs(result.linearHeatLoss), 2)} W/m`] as [string, string]]
+        : []),
+      ['Annual Heat Loss', `${formatNumber(Math.abs(result.annualHeatLoss || 0), 0)} kWh/year`],
+    ]
+    y = drawInfoTable(doc, detailRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Insulation Performance',
+    })
 
-    addDisclaimerPage(doc, 'Insulation Report Disclaimer')
-    drawFooter(doc, 'Insulation results are for reference only. Verify material properties and final specification with qualified thermal engineers.')
+    addDisclaimerPage(doc, {
+      title: 'INSULATION REPORT DISCLAIMER',
+      sections: [
+        {
+          heading: 'General Information',
+          items: [
+            'This insulation calculation report is provided for informational and reference purposes only.',
+            'All results are based on simplified heat transfer models and standard material properties.',
+            'Burner-Design-Pro does not guarantee the accuracy or suitability of results for any specific application.'
+          ]
+        },
+        {
+          heading: 'Material Properties',
+          items: [
+            'Thermal conductivity values shown are typical values at reference temperature.',
+            'Actual material properties may vary with temperature, density, and manufacturing tolerance.',
+            'Confirm material properties with the manufacturer before specification.'
+          ]
+        },
+        {
+          heading: 'Engineering Review Required',
+          items: [
+            'All insulation calculations should be reviewed by a qualified thermal engineer.',
+            'Consider all operating conditions including startup, shutdown, and upset conditions.',
+            'Ensure compliance with local building codes, fire safety regulations, and industry standards.',
+            'Verify thickness selection against economic analysis and project specifications.'
+          ]
+        },
+        {
+          heading: 'Limitation of Liability',
+          items: [
+            'In no event shall Burner-Design-Pro be liable for damages arising from use of these calculations.',
+            'Use of this tool and its results is at the sole risk of the user.'
+          ]
+        }
+      ]
+    })
+    drawPageFooter(doc, 'Insulation results for reference only. Verify with qualified thermal engineers and material suppliers.')
+
     doc.save('insulation-thickness-report.pdf')
   }
 

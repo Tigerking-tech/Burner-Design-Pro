@@ -4,9 +4,23 @@ import { authAPI } from '../services/api'
 import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
-import { jsPDF } from 'jspdf'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import { sanitizeText, createPDF } from '../utils/pdfUtils'
+import {
+  createPDF,
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  formatNumber,
+  sanitizeText,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+} from '../utils/pdfUtils'
 
 interface CalculationResult {
   orificeDiameter: number
@@ -468,96 +482,114 @@ export default function OrificeCalculatorPage() {
     if (!results) return
 
     const doc = createPDF()
-    const t = (s: string) => sanitizeText(s)
-    
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Orifice Plate Calculation Report'), 20, 20)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`Date: ${new Date().toLocaleDateString()}`), 20, 30)
-    doc.text(t(`Type: ${calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'}`), 20, 36)
-    doc.text(t('Standard: ISO 5167 / DIN EN ISO 5167'), 20, 42)
-    
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Input Parameters:'), 20, 54)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`Gas Type: ${selectedGasType.name}`), 20, 62)
-    doc.text(t(`Density: ${getDensity().toFixed(2)} kg/m3`), 20, 68)
-    doc.text(t(`Nominal Size DN: ${selectedPipeDN}`), 20, 74)
-    doc.text(t(`Internal Diameter D: ${internalDiameter} mm`), 20, 80)
-    doc.text(t(`Max Flow Rate Q: ${maxFlowRate} m3/h`), 20, 86)
-    doc.text(t(`${calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure'} Delta p: ${pressureDrop} mbar`), 20, 92)
-    
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Calculation Results:'), 120, 54)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`Orifice Diameter d: ${results.orificeDiameter} mm`), 120, 62)
-    doc.text(t(`Beta Ratio: ${results.betaRatio}`), 120, 68)
-    doc.text(t(`Discharge Coefficient Cd: ${results.dischargeCoef}`), 120, 74)
-    doc.text(t(`Reynolds Number Re: ${results.reynoldsNum.toLocaleString()}`), 120, 80)
+    const modeLabel = calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'
+    const docTitle = `Orifice Plate Calculation Report - ${modeLabel}`
 
-    doc.addPage()
-    doc.setFillColor(255, 255, 230)
-    doc.rect(0, 0, 210, 297, 'F')
-    
-    doc.setFontSize(16)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(180, 0, 0)
-    doc.text(t('IMPORTANT DISCLAIMER'), 105, 30, { align: 'center' })
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(0, 0, 0)
-    
-    const disclaimerLines = [
-      'This calculation is provided for informational and reference purposes only.',
-      '',
-      'WHILE EVERY EFFORT HAS BEEN MADE TO ENSURE ACCURACY based on ISO 5167 standards,',
-      'BURNER-DESIGN-PRO MAKES NO WARRANTY regarding the accuracy, reliability,',
-      'or applicability of these results.',
-      '',
-      '[!] PROFESSIONAL ENGINEERING JUDGMENT REQUIRED:',
-      '',
-      'All results should be reviewed and validated by a qualified professional engineer',
-      'BEFORE APPLICATION to any real-world project.',
-      '',
-      '[!] NO LIABILITY:',
-      '',
-      'In no event shall Burner-Design-Pro be liable for any direct, indirect,',
-      'incidental, special, or consequential damages arising from the use of these calculations.',
-      '',
-      'The user is solely responsible for:',
-      '- Verifying all input parameters',
-      '- Confirming results with independent calculations',
-      '- Ensuring compliance with local regulations',
-      '- Obtaining professional engineering consultation',
-      '',
-      'For questions or concerns, consult a licensed professional engineer.'
-    ]
-    
-    let yPos = 50
-    disclaimerLines.forEach(line => {
-      if (line === '') {
-        yPos += 4
-      } else if (line.startsWith('[!]')) {
-        doc.setFont('helvetica', 'bold')
-        doc.text(t(line), 20, yPos)
-        yPos += 6
-      } else {
-        doc.setFont('helvetica', 'normal')
-        doc.text(t(line), 20, yPos)
-        yPos += 5
-      }
+    addCoverPage(doc, {
+      title: 'Orifice Plate Calculation',
+      subtitle: `${modeLabel} design according to ISO 5167`,
+      reportType: 'Fluid Mechanics / Flow Measurement',
+      standard: 'ISO 5167 / DIN EN ISO 5167',
+      version: 'v1.0',
     })
-    
+
+    let y = drawPageHeader(doc, docTitle, 'Results Summary')
+    y = drawSectionTitle(doc, 'KEY RESULTS', y, 'Primary orifice plate calculation results')
+
+    const cardWidth = (CONTENT_WIDTH - 16) / 3
+    drawResultCard(doc, {
+      label: 'Orifice Diameter',
+      value: formatNumber(results.orificeDiameter, 2),
+      unit: 'mm',
+      x: MARGIN_LEFT,
+      y: y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Beta Ratio',
+      value: formatNumber(results.betaRatio, 4),
+      unit: 'd/D',
+      x: MARGIN_LEFT + cardWidth + 8,
+      y: y,
+      width: cardWidth,
+      status: 'info',
+    })
+    drawResultCard(doc, {
+      label: 'Discharge Coeff',
+      value: formatNumber(results.dischargeCoef, 4),
+      unit: 'Cd',
+      x: MARGIN_LEFT + (cardWidth + 8) * 2,
+      y: y,
+      width: cardWidth,
+      status: 'success',
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 50, docTitle, 'Results Summary')
+    drawResultCard(doc, {
+      label: 'Reynolds Number',
+      value: formatNumber(results.reynoldsNum, 0),
+      unit: 'Re',
+      x: MARGIN_LEFT,
+      y: y,
+      width: cardWidth,
+      status: 'warning',
+    })
+    drawResultCard(doc, {
+      label: 'Flow Velocity',
+      value: formatNumber(results.velocity, 2),
+      unit: 'm/s',
+      x: MARGIN_LEFT + cardWidth + 8,
+      y: y,
+      width: cardWidth,
+    })
+    drawResultCard(doc, {
+      label: calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure',
+      value: formatNumber(results.pressureDrop, 2),
+      unit: 'mbar',
+      x: MARGIN_LEFT + (cardWidth + 8) * 2,
+      y: y,
+      width: cardWidth,
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 120, docTitle, 'Input Parameters')
+    y = drawSectionTitle(doc, 'INPUT PARAMETERS', y, 'Design conditions and fluid properties')
+
+    const fluidRows: [string, string][] = [
+      ['Gas Type', selectedGasType.name],
+      ['Gas Density', `${formatNumber(getDensity(), 3)} kg/m3`],
+      ['Nominal Pipe Size', `DN ${selectedPipeDN}`],
+      ['Internal Diameter D', `${formatNumber(internalDiameter, 2)} mm`],
+      ['Max Flow Rate Q', `${maxFlowRate} m3/h`],
+      [calculationMode === 'restricting' ? 'Pressure Loss Target' : 'Differential Pressure', `${pressureDrop} mbar`],
+      ['Calculation Mode', modeLabel],
+    ]
+    y = drawInfoTable(doc, fluidRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Fluid and Pipe Properties',
+    })
+
+    y = checkPageBreak(doc, y, 80, docTitle, 'Calculation Results')
+    y = drawSectionTitle(doc, 'CALCULATION DETAILS', y, 'Complete calculation output parameters')
+
+    const detailRows: [string, string][] = [
+      ['Orifice Bore Diameter (d)', `${formatNumber(results.orificeDiameter, 3)} mm`],
+      ['Pipe Internal Diameter (D)', `${formatNumber(internalDiameter, 3)} mm`],
+      ['Beta Ratio (Beta = d/D)', formatNumber(results.betaRatio, 5)],
+      ['Discharge Coefficient (Cd)', formatNumber(results.dischargeCoef, 5)],
+      ['Reynolds Number (Re)', formatNumber(results.reynoldsNum, 0)],
+      ['Flow Velocity (v)', `${formatNumber(results.velocity, 3)} m/s`],
+      ['Mass Flow Rate', `${formatNumber(results.massFlowRate, 3)} kg/h`],
+      [calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure', `${formatNumber(results.pressureDrop, 3)} mbar`],
+    ]
+    y = drawInfoTable(doc, detailRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Detailed Results',
+    })
+
+    addDisclaimerPage(doc)
+    drawPageFooter(doc)
+
     doc.save(`orifice-${calculationMode}-report.pdf`)
   }
 

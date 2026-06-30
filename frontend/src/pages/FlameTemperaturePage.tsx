@@ -3,9 +3,25 @@ import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download } from 'lucide-react'
-import { jsPDF } from 'jspdf'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import { sanitizeText, createPDF } from '../utils/pdfUtils'
+import {
+  createPDF,
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  formatNumber,
+  sanitizeText,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+  FOOTER_Y,
+  COLORS,
+} from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -320,68 +336,92 @@ export default function FlameTemperaturePage() {
     if (!results) return
 
     const doc = createPDF()
-    const t = (s: string) => sanitizeText(s)
-    
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Flame Temperature Calculation Report'), 20, 20)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`Date: ${new Date().toLocaleDateString()}`), 20, 30)
-    doc.text(t('Standard: Thermodynamic heat balance calculation'), 20, 36)
-    
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Input Parameters:'), 20, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    let yPos = 56
-    gasComponents.forEach(c => {
-      const pct = parseFloat(c.percentage) || 0
-      if (pct > 0) {
-        doc.text(t(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`), 20, yPos)
-        yPos += 6
-      }
+    const docTitle = 'Flame Temperature Calculation Report'
+
+    addCoverPage(doc, {
+      title: 'Flame Temperature',
+      subtitle: 'Theoretical and actual flame temperature calculation',
+      reportType: 'Combustion Engineering',
+      standard: 'Thermodynamic Heat Balance',
+      version: 'v1.0',
     })
-    
-    yPos += 4
-    doc.text(t(`Fuel Temperature: ${fuelTemperature} deg C`), 20, yPos)
-    yPos += 6
-    doc.text(t(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`), 20, yPos)
-    yPos += 6
-    doc.text(t(`Oxidizer Temperature: ${oxidizerTemperature} deg C`), 20, yPos)
-    yPos += 6
-    doc.text(t(`Excess Oxygen: ${excessOxygen}%`), 20, yPos)
-    
-    yPos += 10
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Calculation Results:'), 120, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} deg C`), 120, 56)
-    doc.text(t(`Actual Flame Temperature: ${results.actual.toFixed(0)} deg C`), 120, 62)
-    doc.text(t(`Stoichiometric O2: ${results.stoichO2.toFixed(4)} mol/mol`), 120, 68)
-    
-    yPos = 78
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(t('Combustion Products (per mole fuel):'), 20, yPos)
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(t(`CO2: ${results.molesCO2.toFixed(4)} mol`), 20, yPos + 8)
-    doc.text(t(`H2O: ${results.molesH2O.toFixed(4)} mol`), 20, yPos + 14)
-    doc.text(t(`N2: ${results.molesN2.toFixed(4)} mol`), 20, yPos + 20)
-    doc.text(t(`Excess O2: ${results.molesO2.toFixed(4)} mol`), 20, yPos + 26)
-    
-    doc.setFontSize(8)
-    doc.setTextColor(128, 128, 128)
-    doc.text(t('Note: Results are for reference only. Consult qualified combustion engineers.'), 20, 280)
-    
+
+    let y = drawPageHeader(doc, docTitle, 'Results Summary')
+    y = drawSectionTitle(doc, 'KEY RESULTS', y, 'Summary of flame temperature calculation')
+
+    const cardWidth = (CONTENT_WIDTH - 8) / 2
+    drawResultCard(doc, {
+      label: 'Theoretical Flame Temperature',
+      value: formatNumber(results.theoretical, 0),
+      unit: 'deg C (adiabatic)',
+      x: MARGIN_LEFT,
+      y: y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Actual Flame Temperature',
+      value: formatNumber(results.actual, 0),
+      unit: 'deg C (with heat loss)',
+      x: MARGIN_LEFT + cardWidth + 8,
+      y: y,
+      width: cardWidth,
+      status: 'info',
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 60, docTitle, 'Results Summary')
+    y = drawSubSectionTitle(doc, 'Combustion Parameters', y)
+    const summaryRows: [string, string][] = [
+      ['Stoichiometric O2', `${formatNumber(results.stoichO2, 4)} mol/mol fuel`],
+      ['Excess Oxygen', `${excessOxygen}%`],
+      ['Fuel Temperature', `${fuelTemperature} deg C`],
+      ['Oxidizer Temperature', `${oxidizerTemperature} deg C`],
+    ]
+    y = drawInfoTable(doc, summaryRows, MARGIN_LEFT, y + 4, CONTENT_WIDTH)
+
+    y = checkPageBreak(doc, y, 120, docTitle, 'Input Parameters')
+    y = drawSectionTitle(doc, 'INPUT PARAMETERS', y, 'Fuel gas composition and operating conditions')
+
+    const activeComponents = gasComponents.filter(c => parseFloat(c.percentage) > 0)
+    const fuelRows: [string, string][] = activeComponents.map(c => [
+      `${c.name} (${sanitizeText(c.symbol)})`,
+      `${formatNumber(parseFloat(c.percentage), 2)}%`,
+    ])
+    y = drawInfoTable(doc, fuelRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Fuel Gas Composition',
+    })
+
+    y = checkPageBreak(doc, y, 80, docTitle, 'Input Parameters')
+    const oxTypeText = oxidizerType === 'air' ? 'Air'
+      : oxidizerType === 'oxygen' ? 'Pure Oxygen'
+      : `Mixed (${airRatio}% air + ${oxygenRatio}% O2)`
+    const conditionRows: [string, string][] = [
+      ['Oxidizer Type', oxTypeText],
+      ['Fuel Temperature', `${fuelTemperature} deg C`],
+      ['Oxidizer Temperature', `${oxidizerTemperature} deg C`],
+      ['Excess Oxygen', `${excessOxygen}%`],
+    ]
+    y = drawInfoTable(doc, conditionRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Operating Conditions',
+    })
+
+    y = checkPageBreak(doc, y, 80, docTitle, 'Combustion Products')
+    y = drawSectionTitle(doc, 'COMBUSTION PRODUCTS', y, 'Product gas composition per mole of fuel')
+
+    const productRows: [string, string][] = [
+      ['Carbon Dioxide (CO2)', `${formatNumber(results.molesCO2, 4)} mol`],
+      ['Water Vapor (H2O)', `${formatNumber(results.molesH2O, 4)} mol`],
+      ['Nitrogen (N2)', `${formatNumber(results.molesN2, 4)} mol`],
+      ['Excess Oxygen (O2)', `${formatNumber(results.molesO2, 4)} mol`],
+    ]
+    y = drawInfoTable(doc, productRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Product Gas Molar Composition',
+    })
+
+    addDisclaimerPage(doc)
+    drawPageFooter(doc)
+
     doc.save('flame-temperature-report.pdf')
   }
 

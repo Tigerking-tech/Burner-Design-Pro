@@ -3,7 +3,21 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, Download } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import { addDisclaimerPage, createPDF, drawFooter, drawInfoTable, drawReportHeader, drawSectionTitle } from '../utils/pdfUtils'
+import {
+  createPDF,
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  sanitizeText,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+} from '../utils/pdfUtils'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -188,51 +202,158 @@ export default function EmissionPage() {
 
   const exportToPDF = () => {
     const doc = createPDF()
-    let y = drawReportHeader(doc, 'Emission Analysis Report', 'NOx, CO, CO2 and SOx unit conversion with compliance review.')
+    const docTitle = 'Emission Analysis Report'
 
-    y = drawSectionTitle(doc, 'Input Parameters', y)
-    y = drawInfoTable(doc, [
+    addCoverPage(doc, {
+      title: 'Emission Analysis',
+      subtitle: 'NOx, CO, CO2 and SOx emission unit conversion and compliance review',
+      reportType: 'Environmental Engineering',
+      standard: 'EPA / EU IED Reference',
+      version: 'v1.0',
+    })
+
+    let y = drawPageHeader(doc, docTitle, 'Concentration Results')
+    y = drawSectionTitle(doc, 'EMISSION CONCENTRATION', y, `${pollutant} emission at reference O2 conditions`)
+
+    const cardWidth = (CONTENT_WIDTH - 16) / 3
+    drawResultCard(doc, {
+      label: 'ppm',
+      value: formatNumber(results.ppm),
+      unit: 'parts per million',
+      x: MARGIN_LEFT,
+      y: y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'mg/m3',
+      value: formatNumber(results.mgM3),
+      unit: 'milligram per m3',
+      x: MARGIN_LEFT + cardWidth + 8,
+      y: y,
+      width: cardWidth,
+      status: 'info',
+    })
+    drawResultCard(doc, {
+      label: 'lb/MMBtu',
+      value: formatNumber(results.lbMMBtu, 4),
+      unit: 'pound per MMBtu',
+      x: MARGIN_LEFT + (cardWidth + 8) * 2,
+      y: y,
+      width: cardWidth,
+      status: 'success',
+    })
+    y += 42
+
+    y = checkPageBreak(doc, y, 60, docTitle, 'Concentration Results')
+    y = drawSubSectionTitle(doc, 'Calculation Basis', y)
+    const basisRows: [string, string][] = [
       ['Pollutant', pollutant],
       ['Input Value', `${value} ${fromUnit === 'mg_m3' ? 'mg/m3' : fromUnit === 'lb_MMBtu' ? 'lb/MMBtu' : 'ppm'}`],
       ['Measured O2', `${o2Measured}%`],
       ['Reference O2', `${o2Reference}%`],
-      ['EPA Fuel Type', FUEL_TYPES.find(f => f.value === fuelType)?.label || fuelType],
-      ['EU Fuel Type', EU_FUEL_TYPES.find(f => f.value === euFuelType)?.label || euFuelType],
-    ], 18, y, 174, { title: 'Operating Basis' })
+    ]
+    y = drawInfoTable(doc, basisRows, MARGIN_LEFT, y + 4, CONTENT_WIDTH)
 
-    y = drawSectionTitle(doc, 'Converted Values', y)
-    y = drawInfoTable(doc, [
-      ['ppm', formatNumber(results.ppm)],
-      ['mg/m3', formatNumber(results.mgM3)],
-      ['lb/MMBtu', formatNumber(results.lbMMBtu, 4)],
-    ], 18, y, 174, { title: 'Emission Concentration Results', highlight: true })
+    y = checkPageBreak(doc, y, 100, docTitle, 'Compliance')
+    y = drawSectionTitle(doc, 'REGULATORY COMPLIANCE', y, 'EPA and EU IED standard compliance check')
 
-    y = drawSectionTitle(doc, 'Compliance Status', y)
     const epaStatus = epaCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
     const euStatus = euCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
-    y = drawInfoTable(doc, [
-      ['EPA NOx', `${formatNumber(epaCompliance?.noxMeasured || 0)} / ${epaCompliance?.noxLimit || 0} mg/m3`],
-      ['EPA CO', `${formatNumber(epaCompliance?.coMeasured || 0)} / ${epaCompliance?.coLimit || 0} mg/m3`],
-      ['EPA Overall', epaStatus],
-      ['EU NOx', `${formatNumber(euCompliance?.noxMeasured || 0)} / ${euCompliance?.noxLimit || 0} mg/m3`],
-      ['EU CO', `${formatNumber(euCompliance?.coMeasured || 0)} / ${euCompliance?.coLimit || 0} mg/m3`],
-      ['EU Overall', euStatus],
-    ], 18, y, 174, { title: 'Regulatory Check Summary' })
+    const epaStatusColor = epaCompliance?.overallCompliant ? 'success' : 'danger'
+    const euStatusColor = euCompliance?.overallCompliant ? 'success' : 'danger'
 
-    y = drawSectionTitle(doc, 'Annual Emissions', y)
-    drawInfoTable(doc, [
-      ['NOx Input', `${noxValue} mg/m3`],
-      ['CO Input', `${coValue} mg/m3`],
+    const halfWidth = (CONTENT_WIDTH - 8) / 2
+    const epaRows: [string, string][] = [
+      ['NOx Measured', `${formatNumber(epaCompliance?.noxMeasured || 0)} mg/m3`],
+      ['NOx Limit', `${epaCompliance?.noxLimit || 0} mg/m3`],
+      ['CO Measured', `${formatNumber(epaCompliance?.coMeasured || 0)} mg/m3`],
+      ['CO Limit', `${epaCompliance?.coLimit || 0} mg/m3`],
+      ['Overall Status', epaStatus],
+    ]
+    drawInfoTable(doc, epaRows, MARGIN_LEFT, y, halfWidth, {
+      title: 'EPA Standard',
+    })
+
+    const euRows: [string, string][] = [
+      ['NOx Measured', `${formatNumber(euCompliance?.noxMeasured || 0)} mg/m3`],
+      ['NOx Limit', `${euCompliance?.noxLimit || 0} mg/m3`],
+      ['CO Measured', `${formatNumber(euCompliance?.coMeasured || 0)} mg/m3`],
+      ['CO Limit', `${euCompliance?.coLimit || 0} mg/m3`],
+      ['Overall Status', euStatus],
+    ]
+    y = drawInfoTable(doc, euRows, MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
+      title: 'EU IED Standard',
+    })
+
+    y = checkPageBreak(doc, y, 120, docTitle, 'Annual Emissions')
+    y = drawSectionTitle(doc, 'ANNUAL EMISSION ESTIMATE', y, 'Annualized emission calculation based on operating hours')
+
+    const annualRows: [string, string][] = [
+      ['NOx Concentration', `${noxValue} mg/m3`],
+      ['CO Concentration', `${coValue} mg/m3`],
       ['Flue Gas Flow', `${flueGasFlow} m3/h`],
-      ['Annual Hours', `${annualHours} h/year`],
+      ['Annual Operating Hours', `${annualHours} h/year`],
       ['Load Factor', _loadFactor],
-      ['Hourly Emissions', `${formatNumber(annualEmissions.hourlyKg)} kg/h`],
-      ['Monthly Emissions', `${formatNumber(annualEmissions.monthlyTons)} tons/month`],
-      ['Annual Emissions', `${formatNumber(annualEmissions.annualTons)} tons/year`],
-    ], 18, y, 174, { title: 'Annualized Estimate', highlight: true })
+      ['Hourly Emissions (NOx)', `${formatNumber(annualEmissions.hourlyKg)} kg/h`],
+      ['Monthly Emissions (NOx)', `${formatNumber(annualEmissions.monthlyTons)} tons/month`],
+      ['Annual Emissions (NOx)', `${formatNumber(annualEmissions.annualTons)} tons/year`],
+    ]
+    y = drawInfoTable(doc, annualRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Annualized Estimate',
+    })
 
-    addDisclaimerPage(doc, 'Emission Report Disclaimer')
-    drawFooter(doc, 'Emission results are for reference only. Confirm limits with local regulations and qualified environmental engineers.')
+    y = checkPageBreak(doc, y, 80, docTitle, 'Input Parameters')
+    y = drawSectionTitle(doc, 'INPUT PARAMETERS', y, 'Fuel types and reference standards')
+
+    const inputRows: [string, string][] = [
+      ['EPA Fuel Type', FUEL_TYPES.find(f => f.value === fuelType)?.label || fuelType],
+      ['EU Fuel Type', EU_FUEL_TYPES.find(f => f.value === euFuelType)?.label || euFuelType],
+    ]
+    y = drawInfoTable(doc, inputRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Fuel and Reference Standards',
+    })
+
+    addDisclaimerPage(doc, {
+      title: 'EMISSION REPORT DISCLAIMER',
+      sections: [
+        {
+          heading: 'General Information',
+          items: [
+            'This emission report is provided for informational and reference purposes only.',
+            'All calculations are based on the input parameters provided by the user.',
+            'Results should not be used for regulatory compliance reporting without independent verification.'
+          ]
+        },
+        {
+          heading: 'Accuracy and Reliability',
+          items: [
+            'Emission calculations are based on simplified models and standard conversion factors.',
+            'Actual emissions may vary due to factors not included in the calculation model.',
+            'EPA and EU limit values shown are reference values only. Confirm with current local regulations.'
+          ]
+        },
+        {
+          heading: 'Regulatory Compliance',
+          items: [
+            'Compliance status is based on the selected fuel type and standard reference limits.',
+            'Actual compliance must be verified by a qualified environmental engineer.',
+            'Local, state, and national regulations may have different requirements.'
+          ]
+        },
+        {
+          heading: 'User Responsibilities',
+          items: [
+            'Verify all input parameters for correctness.',
+            'Confirm applicable emission limits with local regulatory authorities.',
+            'Obtain professional environmental engineering review before relying on results.',
+            'Ensure proper stack testing for regulatory compliance reporting.'
+          ]
+        }
+      ]
+    })
+    drawPageFooter(doc, 'Emission results for reference only. Confirm with local regulations and qualified environmental engineers.')
+
     doc.save('emission-analysis-report.pdf')
   }
 
