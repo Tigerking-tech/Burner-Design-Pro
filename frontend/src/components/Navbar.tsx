@@ -28,8 +28,8 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-[#2c3e50] dark:bg-gray-900 text-white px-4 md:px-12 py-4 flex justify-between items-center shadow-lg">
-      <Link to="/" className="text-xl md:text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors flex-shrink-0">
-        <span className="text-[#f39c12]">🔥</span> Burner-Design-Pro
+      <Link to="/" className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-white hover:text-[#bdc3c7] transition-colors flex-shrink-0">
+        <span className="text-[#f39c12]">🔥</span> <span className="hidden sm:inline">Burner-</span>Design-Pro
       </Link>
 
       {/* Desktop Menu */}
