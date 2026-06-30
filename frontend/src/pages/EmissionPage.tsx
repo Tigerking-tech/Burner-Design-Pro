@@ -271,7 +271,7 @@ export default function EmissionPage() {
       ['CO Limit', `${epaCompliance?.coLimit || 0} mg/m3`],
       ['Overall Status', epaStatus],
     ]
-    drawInfoTable(doc, epaRows, MARGIN_LEFT, y, halfWidth, {
+    const leftY = drawInfoTable(doc, epaRows, MARGIN_LEFT, y, halfWidth, {
       title: 'EPA Standard',
     })
 
@@ -282,9 +282,10 @@ export default function EmissionPage() {
       ['CO Limit', `${euCompliance?.coLimit || 0} mg/m3`],
       ['Overall Status', euStatus],
     ]
-    y = drawInfoTable(doc, euRows, MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
+    const rightY = drawInfoTable(doc, euRows, MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
       title: 'EU IED Standard',
     })
+    y = Math.max(leftY, rightY)
 
     y = checkPageBreak(doc, y, 120, docTitle, 'Annual Emissions')
     y = drawSectionTitle(doc, 'ANNUAL EMISSION ESTIMATE', y, 'Annualized emission calculation based on operating hours')

@@ -560,12 +560,13 @@ export default function FuelManagerPage() {
     y = drawSectionTitle(doc, 'INDIVIDUAL GAS DATA', y, 'Key data for each gas stream')
 
     const halfWidth = (CONTENT_WIDTH - 8) / 2
-    drawInfoTable(doc, gasResultRows(gas1Data), MARGIN_LEFT, y, halfWidth, {
+    const leftY = drawInfoTable(doc, gasResultRows(gas1Data), MARGIN_LEFT, y, halfWidth, {
       title: 'Gas 1 Key Data',
     })
-    y = drawInfoTable(doc, gasResultRows(gas2Data), MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
+    const rightY = drawInfoTable(doc, gasResultRows(gas2Data), MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
       title: 'Gas 2 Key Data',
     })
+    y = Math.max(leftY, rightY)
 
     y = checkPageBreak(doc, y, 100, docTitle, 'Mixture Data')
     y = drawSectionTitle(doc, 'GAS MIXTURE KEY DATA', y, 'Complete calculated mixture properties')
