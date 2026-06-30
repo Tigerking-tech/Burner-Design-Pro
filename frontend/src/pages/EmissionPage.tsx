@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Download } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { addDisclaimerPage, createPDF, drawFooter, drawInfoTable, drawReportHeader, drawSectionTitle } from '../utils/pdfUtils'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -185,6 +186,56 @@ export default function EmissionPage() {
     navigator.clipboard.writeText(text);
   };
 
+  const exportToPDF = () => {
+    const doc = createPDF()
+    let y = drawReportHeader(doc, 'Emission Analysis Report', 'NOx, CO, CO2 and SOx unit conversion with compliance review.')
+
+    y = drawSectionTitle(doc, 'Input Parameters', y)
+    y = drawInfoTable(doc, [
+      ['Pollutant', pollutant],
+      ['Input Value', `${value} ${fromUnit === 'mg_m3' ? 'mg/m3' : fromUnit === 'lb_MMBtu' ? 'lb/MMBtu' : 'ppm'}`],
+      ['Measured O2', `${o2Measured}%`],
+      ['Reference O2', `${o2Reference}%`],
+      ['EPA Fuel Type', FUEL_TYPES.find(f => f.value === fuelType)?.label || fuelType],
+      ['EU Fuel Type', EU_FUEL_TYPES.find(f => f.value === euFuelType)?.label || euFuelType],
+    ], 18, y, 174, { title: 'Operating Basis' })
+
+    y = drawSectionTitle(doc, 'Converted Values', y)
+    y = drawInfoTable(doc, [
+      ['ppm', formatNumber(results.ppm)],
+      ['mg/m3', formatNumber(results.mgM3)],
+      ['lb/MMBtu', formatNumber(results.lbMMBtu, 4)],
+    ], 18, y, 174, { title: 'Emission Concentration Results', highlight: true })
+
+    y = drawSectionTitle(doc, 'Compliance Status', y)
+    const epaStatus = epaCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
+    const euStatus = euCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
+    y = drawInfoTable(doc, [
+      ['EPA NOx', `${formatNumber(epaCompliance?.noxMeasured || 0)} / ${epaCompliance?.noxLimit || 0} mg/m3`],
+      ['EPA CO', `${formatNumber(epaCompliance?.coMeasured || 0)} / ${epaCompliance?.coLimit || 0} mg/m3`],
+      ['EPA Overall', epaStatus],
+      ['EU NOx', `${formatNumber(euCompliance?.noxMeasured || 0)} / ${euCompliance?.noxLimit || 0} mg/m3`],
+      ['EU CO', `${formatNumber(euCompliance?.coMeasured || 0)} / ${euCompliance?.coLimit || 0} mg/m3`],
+      ['EU Overall', euStatus],
+    ], 18, y, 174, { title: 'Regulatory Check Summary' })
+
+    y = drawSectionTitle(doc, 'Annual Emissions', y)
+    drawInfoTable(doc, [
+      ['NOx Input', `${noxValue} mg/m3`],
+      ['CO Input', `${coValue} mg/m3`],
+      ['Flue Gas Flow', `${flueGasFlow} m3/h`],
+      ['Annual Hours', `${annualHours} h/year`],
+      ['Load Factor', _loadFactor],
+      ['Hourly Emissions', `${formatNumber(annualEmissions.hourlyKg)} kg/h`],
+      ['Monthly Emissions', `${formatNumber(annualEmissions.monthlyTons)} tons/month`],
+      ['Annual Emissions', `${formatNumber(annualEmissions.annualTons)} tons/year`],
+    ], 18, y, 174, { title: 'Annualized Estimate', highlight: true })
+
+    addDisclaimerPage(doc, 'Emission Report Disclaimer')
+    drawFooter(doc, 'Emission results are for reference only. Confirm limits with local regulations and qualified environmental engineers.')
+    doc.save('emission-analysis-report.pdf')
+  }
+
   const FUEL_TYPES = [
     { value: 'natural_gas_low', label: 'Natural Gas (Low NOx)' },
     { value: 'natural_gas_high', label: 'Natural Gas (High NOx)' },
@@ -323,15 +374,24 @@ export default function EmissionPage() {
           <div className="bg-gray-100 rounded-lg p-6 mb-6 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-[#2c3e50]">Converted Values</h3>
-              <button
-                onClick={() => copyToClipboard(`ppm: ${formatNumber(results.ppm)}, mg/m³: ${formatNumber(results.mgM3)}, lb/MMBtu: ${formatNumber(results.lbMMBtu)}`)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] rounded-lg transition-colors text-sm font-semibold"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v8m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => copyToClipboard(`ppm: ${formatNumber(results.ppm)}, mg/m³: ${formatNumber(results.mgM3)}, lb/MMBtu: ${formatNumber(results.lbMMBtu)}`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] rounded-lg transition-colors text-sm font-semibold"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v8m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white rounded-lg transition-colors text-sm font-semibold"
+                >
+                  <Download size={16} />
+                  Export PDF
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
-import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
+import { Cylinder, Square, BrickWall, AlertTriangle, Download } from 'lucide-react'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { addDisclaimerPage, createPDF, drawFooter, drawInfoTable, drawReportHeader, drawSectionTitle } from '../utils/pdfUtils'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -384,6 +385,84 @@ function InsulationCalculatorPage() {
     setShowResults(true)
   }
 
+  const exportToPDF = () => {
+    if (!result) return
+
+    const doc = createPDF()
+    const modeLabel = mode === 'surface' ? 'Surface Temperature' : mode === 'heatloss' ? 'Heat Loss' : 'Anti-Condensation'
+    const equipmentLabel = equipmentType === 'pipe' ? 'Pipe' : 'Flat Surface'
+    const materialName = materialType === 'custom' ? 'Custom Material' : materialProperties[materialType]?.name || materialType
+    const environmentLabel = {
+      indoor: 'Indoor (Still Air)',
+      outdoor_calm: 'Outdoor (Calm)',
+      outdoor_moderate: 'Outdoor (Moderate Wind)',
+      outdoor_strong: 'Outdoor (Strong Wind)',
+    }[environment]
+
+    let y = drawReportHeader(doc, 'Insulation Thickness Report', 'ISO 12241 and ASTM C680 style thermal insulation calculation summary.')
+
+    y = drawSectionTitle(doc, 'Calculation Basis', y)
+    y = drawInfoTable(doc, [
+      ['Calculation Mode', modeLabel],
+      ['Equipment Type', equipmentLabel],
+      ['Unit System', unitSystem],
+      ['Material', materialName],
+      ['Thermal Conductivity', `${getThermalConductivity().toFixed(3)} W/m.K`],
+      ['Operating Hours', `${operatingHours} h/year`],
+    ], 18, y, 174, { title: 'Project Inputs' })
+
+    y = drawSectionTitle(doc, 'Geometry & Temperatures', y)
+    const geometryRows = equipmentType === 'pipe'
+      ? [
+          ['Pipe Size', pipeSize],
+          ['Outer Diameter', `${outerDiameter} mm`],
+        ] as [string, string][]
+      : [
+          ['Surface Length', `${surfaceLength} m`],
+          ['Surface Width', `${surfaceWidth} m`],
+          ['Area', `${(surfaceLength * surfaceWidth).toFixed(2)} m2`],
+        ] as [string, string][]
+
+    y = drawInfoTable(doc, [
+      ...geometryRows,
+      ['Medium Temperature', `${mediumTemp} deg C`],
+      ['Ambient Temperature', `${ambientTemp} deg C`],
+      ...(mode === 'surface' ? [['Target Surface Temperature', `${targetSurfaceTemp} deg C`] as [string, string]] : []),
+      ...(mode === 'heatloss' ? [['Target Heat Loss', `${targetHeatLoss} W/m2`] as [string, string]] : []),
+      ...(mode === 'condensation' ? [['Relative Humidity', `${relativeHumidity}%`] as [string, string]] : []),
+    ], 18, y, 174, { title: 'Geometry and Thermal Conditions' })
+
+    y = drawSectionTitle(doc, 'Environment & Heat Transfer', y)
+    y = drawInfoTable(doc, [
+      ['Environment', environmentLabel],
+      ['Wind Speed', `${windSpeed.toFixed(1)} m/s`],
+      ['Surface Emittance', getEmittance().toFixed(2)],
+      ['Total Heat Transfer Coefficient', `${heatTransferCoeff.toFixed(1)} W/m2.K`],
+      ['Convection Component', `${hc.toFixed(1)} W/m2.K`],
+      ['Radiation Component', `${hr.toFixed(1)} W/m2.K`],
+    ], 18, y, 174, { title: 'External Heat Transfer' })
+
+    if (y > 220) {
+      doc.addPage()
+      y = drawReportHeader(doc, 'Insulation Thickness Report', 'Calculation results continued.')
+    }
+
+    y = drawSectionTitle(doc, 'Calculation Results', y)
+    drawInfoTable(doc, [
+      ...(result.dewPoint !== undefined ? [['Dew Point Temperature', `${result.dewPoint.toFixed(1)} deg C`] as [string, string]] : []),
+      ['Required Insulation Thickness', `${result.thickness.toFixed(1)} mm`],
+      ['Recommended Standard Thickness', `${result.standardThickness || result.thickness.toFixed(1)} mm`],
+      ['Surface Temperature', `${result.surfaceTemp.toFixed(1)} deg C`],
+      ['Heat Flux', `${Math.abs(result.heatFlux).toFixed(1)} W/m2`],
+      ...(result.linearHeatLoss !== undefined ? [['Linear Heat Loss', `${Math.abs(result.linearHeatLoss).toFixed(1)} W/m`] as [string, string]] : []),
+      ['Annual Heat Loss', `${Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year`],
+    ], 18, y, 174, { title: 'Insulation Recommendation', highlight: true })
+
+    addDisclaimerPage(doc, 'Insulation Report Disclaimer')
+    drawFooter(doc, 'Insulation results are for reference only. Verify material properties and final specification with qualified thermal engineers.')
+    doc.save('insulation-thickness-report.pdf')
+  }
+
   useEffect(() => {
     if (pipeSizes.metric[pipeSize]) {
       setOuterDiameter(pipeSizes.metric[pipeSize])
@@ -685,6 +764,13 @@ function InsulationCalculatorPage() {
                       <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
                   </div>
+                  <button
+                    onClick={exportToPDF}
+                    className="mt-6 w-full py-3 bg-[#2c3e50] hover:bg-[#34495e] text-white font-bold rounded transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Download size={18} />
+                    Export PDF Report
+                  </button>
                 </>
               )}
             </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Download } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { addDisclaimerPage, createPDF, drawFooter, drawInfoTable, drawReportHeader, drawSectionTitle, type PdfTableRow } from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -395,6 +396,106 @@ export default function FuelManagerPage() {
     return oilElements.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
   }
 
+  const gasResultRows = (data: ReturnType<typeof calculateGasKeyData>): PdfTableRow[] => {
+    if (!data) return [['Status', 'Invalid composition. Total percentage must equal 100%.']]
+    return [
+      ['Density', `${data.density.toFixed(3)} kg/m3`],
+      ['Higher Heating Value (Hs)', `${data.hs.toFixed(2)} kWh/m3`],
+      ['Lower Heating Value (Hi)', `${data.hi.toFixed(2)} kWh/m3`],
+      ['Superior Wobbe Index (Ws)', `${data.ws.toFixed(2)} kWh/m3`],
+      ['Inferior Wobbe Index (Wi)', `${data.wi.toFixed(2)} kWh/m3`],
+    ]
+  }
+
+  const compositionRows = (components: GasComponent[]): PdfTableRow[] => {
+    const rows = components
+      .filter(c => (parseFloat(c.percentage) || 0) > 0)
+      .map(c => [`${c.name} (${c.symbol})`, `${parseFloat(c.percentage).toFixed(2)}%`] as PdfTableRow)
+    return rows.length ? rows : [['Composition', 'No component percentage entered.']]
+  }
+
+  const exportGasPDF = () => {
+    const gas1Data = calculateGasKeyData(gas1Components)
+    const gas2Data = calculateGasKeyData(gas2Components)
+    const mixtureData = calculateMixture()
+    const gas2Percent = 100 - (parseFloat(gas1MixturePercent) || 0)
+
+    const doc = createPDF()
+    let y = drawReportHeader(doc, 'Fuel Gas Key Data Report', 'Gas composition, heating value, Wobbe index and mixture summary.')
+
+    y = drawSectionTitle(doc, 'Mixture Basis', y)
+    y = drawInfoTable(doc, [
+      ['Gas 1 Preset', selectedGas1Preset || 'Custom gas composition'],
+      ['Gas 2 Preset', selectedGas2Preset || 'Custom gas composition'],
+      ['Gas 1 Mixture Share', `${gas1MixturePercent}%`],
+      ['Gas 2 Mixture Share', `${gas2Percent.toFixed(2)}%`],
+      ['Gas 1 Total', `${getTotalPercentage(gas1Components).toFixed(2)}%`],
+      ['Gas 2 Total', `${getTotalPercentage(gas2Components).toFixed(2)}%`],
+    ], 18, y, 174, { title: 'Input Summary' })
+
+    y = drawSectionTitle(doc, 'Gas 1 Results', y)
+    y = drawInfoTable(doc, gasResultRows(gas1Data), 18, y, 174, { title: 'Gas 1 Key Data', highlight: true })
+
+    y = drawSectionTitle(doc, 'Gas 2 Results', y)
+    y = drawInfoTable(doc, gasResultRows(gas2Data), 18, y, 174, { title: 'Gas 2 Key Data', highlight: true })
+
+    if (y > 220) {
+      doc.addPage()
+      y = drawReportHeader(doc, 'Fuel Gas Key Data Report', 'Mixture and composition details continued.')
+    }
+
+    y = drawSectionTitle(doc, 'Mixture Results', y)
+    y = drawInfoTable(doc, gasResultRows(mixtureData), 18, y, 174, { title: 'Gas Mixture Key Data', highlight: true })
+
+    doc.addPage()
+    y = drawReportHeader(doc, 'Fuel Gas Composition Details', 'Non-zero gas components included in the calculation.')
+    y = drawSectionTitle(doc, 'Gas 1 Composition', y)
+    y = drawInfoTable(doc, compositionRows(gas1Components), 18, y, 174, { title: 'Gas 1 Components' })
+
+    if (y > 210) {
+      doc.addPage()
+      y = drawReportHeader(doc, 'Fuel Gas Composition Details', 'Gas 2 components continued.')
+    }
+
+    y = drawSectionTitle(doc, 'Gas 2 Composition', y)
+    drawInfoTable(doc, compositionRows(gas2Components), 18, y, 174, { title: 'Gas 2 Components' })
+
+    addDisclaimerPage(doc, 'Fuel Gas Report Disclaimer')
+    drawFooter(doc, 'Fuel gas data is for reference only. Verify fuel properties with laboratory analysis before engineering application.')
+    doc.save('fuel-gas-key-data-report.pdf')
+  }
+
+  const exportOilPDF = () => {
+    const oilData = calculateOilKeyData()
+    const doc = createPDF()
+    let y = drawReportHeader(doc, 'Oil Fuel Data Report', 'Elemental analysis, heating value and oil property summary.')
+
+    y = drawSectionTitle(doc, 'Selected Oil', y)
+    y = drawInfoTable(doc, [
+      ['Oil Type', oilPresets[selectedOil].name],
+      ['Element Total', `${getOilElementTotal().toFixed(2)}%`],
+    ], 18, y, 174, { title: 'Fuel Selection' })
+
+    y = drawSectionTitle(doc, 'Elemental Analysis', y)
+    y = drawInfoTable(doc, oilElements.map(el => [el.name, `${parseFloat(el.percentage || '0').toFixed(2)}%`] as PdfTableRow), 18, y, 174, { title: 'Mass Composition' })
+
+    y = drawSectionTitle(doc, 'Oil Key Data', y)
+    drawInfoTable(doc, [
+      ['Density', `${oilData.density.toFixed(3)} kg/L`],
+      ['Higher Heating Value (Hs)', `${oilData.hs.toFixed(2)} kWh/kg`],
+      ['Lower Heating Value (Hi)', `${oilData.hi.toFixed(2)} kWh/kg`],
+      ['Viscosity', `${oilData.viscosity.toFixed(1)} cSt`],
+      ['Flash Point', `${oilData.flashPoint.toFixed(0)} deg C`],
+      ['Pour Point', `${oilData.pourPoint.toFixed(0)} deg C`],
+      ['Dry Mass', `${oilData.dryMass.toFixed(2)}%`],
+      ['Wet Mass', `${oilData.wetMass.toFixed(2)}%`],
+    ], 18, y, 174, { title: 'Calculated Fuel Properties', highlight: true })
+
+    addDisclaimerPage(doc, 'Oil Fuel Report Disclaimer')
+    drawFooter(doc, 'Oil fuel data is for reference only. Verify fuel properties with laboratory analysis before engineering application.')
+    doc.save('oil-fuel-data-report.pdf')
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Navbar />
@@ -656,6 +757,14 @@ export default function FuelManagerPage() {
                 {showMixtureResults ? 'Hide' : 'Calculate'} Mixture Key Data
               </button>
 
+              <button
+                onClick={exportGasPDF}
+                className="mt-3 w-full bg-[#2c3e50] hover:bg-[#34495e] text-white py-3 rounded font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                <Download size={18} />
+                Export Gas PDF Report
+              </button>
+
               {showMixtureResults && calculateMixture() && (
                 <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas Mixture Key Data</h3>
@@ -735,6 +844,14 @@ export default function FuelManagerPage() {
               className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
             >
               {showOilResults ? 'Hide' : 'Show'} Oil Key Data
+            </button>
+
+            <button
+              onClick={exportOilPDF}
+              className="mt-3 w-full bg-[#2c3e50] hover:bg-[#34495e] text-white py-3 rounded font-semibold transition-colors flex items-center justify-center gap-2"
+            >
+              <Download size={18} />
+              Export Oil PDF Report
             </button>
 
             {showOilResults && calculateOilKeyData() && (
