@@ -288,7 +288,9 @@ export default function FuelManagerPage() {
     const gas1Data = calculateGasKeyData(gas1Components)
     const gas2Data = calculateGasKeyData(gas2Components)
     
-    if (!gas1Data || !gas2Data) return null
+    if (!gas1Data && !gas2Data) return null
+    if (!gas1Data) return gas2Data
+    if (!gas2Data) return gas1Data
 
     const pct1 = parseFloat(gas1MixturePercent) || 50
     const gas2MixturePercent = 100 - pct1
