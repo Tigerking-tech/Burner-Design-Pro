@@ -4,24 +4,7 @@ import { Link } from 'react-router-dom'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
-import { Cylinder, Square, BrickWall, AlertTriangle, Download } from 'lucide-react'
-import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import {
-  createPDF,
-  addCoverPage,
-  drawPageHeader,
-  drawSectionTitle,
-  drawSubSectionTitle,
-  drawInfoTable,
-  drawResultCard,
-  drawPageFooter,
-  addDisclaimerPage,
-  checkPageBreak,
-  formatNumber,
-  sanitizeText,
-  MARGIN_LEFT,
-  CONTENT_WIDTH,
-} from '../utils/pdfUtils'
+import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -72,36 +55,36 @@ const pipeSizes = {
 }
 
 function InsulationCalculatorPage() {
-  const [unitSystem, setUnitSystem] = useLocalStorageState<UnitSystem>('insulation-unit-system', 'metric')
-  const [equipmentType, setEquipmentType] = useLocalStorageState<EquipmentType>('insulation-equipment-type', 'pipe')
-  const [mode, setMode] = useLocalStorageState<Mode>('insulation-mode', 'surface')
-
-  const [pipeSize, setPipeSize] = useLocalStorageState<string>('insulation-pipe-size', '2"')
-  const [outerDiameter, setOuterDiameter] = useLocalStorageState<number>('insulation-outer-dia', 60.3)
-
-  const [surfaceLength, setSurfaceLength] = useLocalStorageState<number>('insulation-surface-length', 1)
-  const [surfaceWidth, setSurfaceWidth] = useLocalStorageState<number>('insulation-surface-width', 1)
-
-  const [materialType, setMaterialType] = useLocalStorageState<MaterialType>('insulation-material', 'mineralwool')
-  const [customLambda, setCustomLambda] = useLocalStorageState<number>('insulation-custom-lambda', 0.040)
-
-  const [mediumTemp, setMediumTemp] = useLocalStorageState<number>('insulation-medium-temp', 150)
-  const [ambientTemp, setAmbientTemp] = useLocalStorageState<number>('insulation-ambient-temp', 20)
-  const [targetSurfaceTemp, setTargetSurfaceTemp] = useLocalStorageState<number>('insulation-target-surface-temp', 50)
-  const [targetHeatLoss, setTargetHeatLoss] = useLocalStorageState<number>('insulation-target-heat-loss', 100)
-  const [relativeHumidity, setRelativeHumidity] = useLocalStorageState<number>('insulation-relative-humidity', 60)
-
-  const [environment, setEnvironment] = useLocalStorageState<Environment>('insulation-environment', 'indoor')
-  const [windSpeed, setWindSpeed] = useLocalStorageState<number>('insulation-wind-speed', 0)
-  const [surfaceFinish, setSurfaceFinish] = useLocalStorageState<string>('insulation-surface-finish', '0.9')
-  const [customEmittance, setCustomEmittance] = useLocalStorageState<number>('insulation-custom-emittance', 0.9)
-
-  const [operatingHours, setOperatingHours] = useLocalStorageState<number>('insulation-operating-hours', 8760)
-
-  const [heatTransferCoeff, setHeatTransferCoeff] = useLocalStorageState<number>('insulation-heat-transfer-coeff', 12)
-  const [hc, setHc] = useLocalStorageState<number>('insulation-hc', 10)
-  const [hr, setHr] = useLocalStorageState<number>('insulation-hr', 2)
-
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
+  const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
+  const [mode, setMode] = useState<Mode>('surface')
+  
+  const [pipeSize, setPipeSize] = useState<string>('2"')
+  const [outerDiameter, setOuterDiameter] = useState<number>(60.3)
+  
+  const [surfaceLength, setSurfaceLength] = useState<number>(1)
+  const [surfaceWidth, setSurfaceWidth] = useState<number>(1)
+  
+  const [materialType, setMaterialType] = useState<MaterialType>('mineralwool')
+  const [customLambda, setCustomLambda] = useState<number>(0.040)
+  
+  const [mediumTemp, setMediumTemp] = useState<number>(150)
+  const [ambientTemp, setAmbientTemp] = useState<number>(20)
+  const [targetSurfaceTemp, setTargetSurfaceTemp] = useState<number>(50)
+  const [targetHeatLoss, setTargetHeatLoss] = useState<number>(100)
+  const [relativeHumidity, setRelativeHumidity] = useState<number>(60)
+  
+  const [environment, setEnvironment] = useState<Environment>('indoor')
+  const [windSpeed, setWindSpeed] = useState<number>(0)
+  const [surfaceFinish, setSurfaceFinish] = useState<string>('0.9')
+  const [customEmittance, setCustomEmittance] = useState<number>(0.9)
+  
+  const [operatingHours, setOperatingHours] = useState<number>(8760)
+  
+  const [heatTransferCoeff, setHeatTransferCoeff] = useState<number>(12)
+  const [hc, setHc] = useState<number>(10)
+  const [hr, setHr] = useState<number>(2)
+  
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
@@ -398,213 +381,6 @@ function InsulationCalculatorPage() {
     
     setResult(newResult)
     setShowResults(true)
-  }
-
-  const exportToPDF = () => {
-    if (!result) return
-
-    const doc = createPDF()
-    const modeLabel = mode === 'surface' ? 'Surface Temperature' : mode === 'heatloss' ? 'Heat Loss' : 'Anti-Condensation'
-    const equipmentLabel = equipmentType === 'pipe' ? 'Pipe' : 'Flat Surface'
-    const materialName = materialType === 'custom' ? 'Custom Material' : materialProperties[materialType]?.name || materialType
-    const environmentLabel = {
-      indoor: 'Indoor (Still Air)',
-      outdoor_calm: 'Outdoor (Calm)',
-      outdoor_moderate: 'Outdoor (Moderate Wind)',
-      outdoor_strong: 'Outdoor (Strong Wind)',
-    }[environment]
-    const docTitle = 'Insulation Thickness Report'
-
-    addCoverPage(doc, {
-      title: 'Insulation Thickness',
-      subtitle: `${modeLabel} calculation for ${equipmentLabel.toLowerCase()}`,
-      reportType: 'Thermal Engineering',
-      standard: 'ISO 12241 / ASTM C680 Reference',
-      version: 'v1.0',
-    })
-
-    let y = drawPageHeader(doc, docTitle, 'Results Summary')
-    y = drawSectionTitle(doc, 'KEY RESULTS', y, `Insulation recommendation - ${modeLabel} mode`)
-
-    const cardWidth = (CONTENT_WIDTH - 16) / 3
-    drawResultCard(doc, {
-      label: 'Required Thickness',
-      value: formatNumber(result.thickness, 1),
-      unit: 'mm',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      highlight: true,
-    })
-    drawResultCard(doc, {
-      label: 'Surface Temperature',
-      value: formatNumber(result.surfaceTemp, 1),
-      unit: 'deg C',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-      status: 'info',
-    })
-    drawResultCard(doc, {
-      label: 'Heat Flux',
-      value: formatNumber(Math.abs(result.heatFlux), 1),
-      unit: 'W/m2',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-      status: 'warning',
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 50, docTitle, 'Results Summary')
-    const secondRowY = y
-    drawResultCard(doc, {
-      label: 'Standard Thickness',
-      value: formatNumber(result.standardThickness || result.thickness, 1),
-      unit: 'mm (recommended)',
-      x: MARGIN_LEFT,
-      y: secondRowY,
-      width: cardWidth,
-      status: 'success',
-    })
-    if (result.linearHeatLoss !== undefined) {
-      drawResultCard(doc, {
-        label: 'Linear Heat Loss',
-        value: formatNumber(Math.abs(result.linearHeatLoss), 1),
-        unit: 'W/m',
-        x: MARGIN_LEFT + cardWidth + 8,
-        y: secondRowY,
-        width: cardWidth,
-      })
-    }
-    drawResultCard(doc, {
-      label: 'Annual Heat Loss',
-      value: formatNumber(Math.abs(result.annualHeatLoss || 0), 0),
-      unit: 'kWh/year',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: secondRowY,
-      width: cardWidth,
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 80, docTitle, 'Input Parameters')
-    y = drawSectionTitle(doc, 'PROJECT BASIS', y, 'Insulation calculation input parameters')
-
-    const projectRows: [string, string][] = [
-      ['Calculation Mode', modeLabel],
-      ['Equipment Type', equipmentLabel],
-      ['Unit System', unitSystem.charAt(0).toUpperCase() + unitSystem.slice(1)],
-      ['Insulation Material', materialName],
-      ['Thermal Conductivity', `${formatNumber(getThermalConductivity(), 4)} W/m-K`],
-      ['Operating Hours', `${operatingHours} h/year`],
-    ]
-    y = drawInfoTable(doc, projectRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'General Parameters',
-    })
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Geometry & Temperatures')
-    y = drawSectionTitle(doc, 'GEOMETRY & THERMAL CONDITIONS', y, 'Equipment dimensions and temperature data')
-
-    const geometryRows = equipmentType === 'pipe'
-      ? [
-          ['Pipe Size', pipeSize],
-          ['Outer Diameter', `${formatNumber(outerDiameter, 2)} mm`],
-        ] as [string, string][]
-      : [
-          ['Surface Length', `${formatNumber(surfaceLength, 2)} m`],
-          ['Surface Width', `${formatNumber(surfaceWidth, 2)} m`],
-          ['Surface Area', `${formatNumber(surfaceLength * surfaceWidth, 2)} m2`],
-        ] as [string, string][]
-
-    const thermalRows: [string, string][] = [
-      ...geometryRows,
-      ['Medium Temperature', `${mediumTemp} deg C`],
-      ['Ambient Temperature', `${ambientTemp} deg C`],
-      ...(mode === 'surface' ? [['Target Surface Temperature', `${targetSurfaceTemp} deg C`] as [string, string]] : []),
-      ...(mode === 'heatloss' ? [['Target Heat Loss', `${targetHeatLoss} W/m2`] as [string, string]] : []),
-      ...(mode === 'condensation'
-        ? [
-            ['Relative Humidity', `${relativeHumidity}%`],
-            ['Dew Point Temperature', `${formatNumber(result.dewPoint || 0, 1)} deg C`],
-          ] as [string, string][]
-        : []),
-    ]
-    y = drawInfoTable(doc, thermalRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Dimensions and Temperatures',
-    })
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Environment')
-    y = drawSectionTitle(doc, 'ENVIRONMENT & HEAT TRANSFER', y, 'External conditions and surface properties')
-
-    const envRows: [string, string][] = [
-      ['Environment', environmentLabel],
-      ['Wind Speed', `${formatNumber(windSpeed, 1)} m/s`],
-      ['Surface Emittance', formatNumber(getEmittance(), 2)],
-      ['Total Heat Transfer Coeff', `${formatNumber(heatTransferCoeff, 1)} W/m2-K`],
-      ['Convection Component', `${formatNumber(hc, 1)} W/m2-K`],
-      ['Radiation Component', `${formatNumber(hr, 1)} W/m2-K`],
-    ]
-    y = drawInfoTable(doc, envRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'External Heat Transfer',
-    })
-
-    y = checkPageBreak(doc, y, 80, docTitle, 'Detailed Results')
-    y = drawSectionTitle(doc, 'DETAILED RESULTS', y, 'Complete insulation calculation output')
-
-    const detailRows: [string, string][] = [
-      ['Required Insulation Thickness', `${formatNumber(result.thickness, 2)} mm`],
-      ['Recommended Standard Thickness', `${formatNumber(result.standardThickness || result.thickness, 1)} mm`],
-      ['Surface Temperature (Outer)', `${formatNumber(result.surfaceTemp, 2)} deg C`],
-      ['Heat Flux Density', `${formatNumber(Math.abs(result.heatFlux), 2)} W/m2`],
-      ...(result.linearHeatLoss !== undefined
-        ? [['Linear Heat Loss', `${formatNumber(Math.abs(result.linearHeatLoss), 2)} W/m`] as [string, string]]
-        : []),
-      ['Annual Heat Loss', `${formatNumber(Math.abs(result.annualHeatLoss || 0), 0)} kWh/year`],
-    ]
-    y = drawInfoTable(doc, detailRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Insulation Performance',
-    })
-
-    addDisclaimerPage(doc, {
-      title: 'INSULATION REPORT DISCLAIMER',
-      sections: [
-        {
-          heading: 'General Information',
-          items: [
-            'This insulation calculation report is provided for informational and reference purposes only.',
-            'All results are based on simplified heat transfer models and standard material properties.',
-            'Burner-Design-Pro does not guarantee the accuracy or suitability of results for any specific application.'
-          ]
-        },
-        {
-          heading: 'Material Properties',
-          items: [
-            'Thermal conductivity values shown are typical values at reference temperature.',
-            'Actual material properties may vary with temperature, density, and manufacturing tolerance.',
-            'Confirm material properties with the manufacturer before specification.'
-          ]
-        },
-        {
-          heading: 'Engineering Review Required',
-          items: [
-            'All insulation calculations should be reviewed by a qualified thermal engineer.',
-            'Consider all operating conditions including startup, shutdown, and upset conditions.',
-            'Ensure compliance with local building codes, fire safety regulations, and industry standards.',
-            'Verify thickness selection against economic analysis and project specifications.'
-          ]
-        },
-        {
-          heading: 'Limitation of Liability',
-          items: [
-            'In no event shall Burner-Design-Pro be liable for damages arising from use of these calculations.',
-            'Use of this tool and its results is at the sole risk of the user.'
-          ]
-        }
-      ]
-    })
-    drawPageFooter(doc, 'Insulation results for reference only. Verify with qualified thermal engineers and material suppliers.')
-
-    doc.save('insulation-thickness-report.pdf')
   }
 
   useEffect(() => {
@@ -908,13 +684,6 @@ function InsulationCalculatorPage() {
                       <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
                   </div>
-                  <button
-                    onClick={exportToPDF}
-                    className="mt-6 w-full py-3 bg-[#2c3e50] hover:bg-[#34495e] text-white font-bold rounded transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Download size={18} />
-                    Export PDF Report
-                  </button>
                 </>
               )}
             </div>

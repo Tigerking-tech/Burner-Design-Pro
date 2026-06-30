@@ -1,23 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, Download } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
-import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import {
-  createPDF,
-  addCoverPage,
-  drawPageHeader,
-  drawSectionTitle,
-  drawSubSectionTitle,
-  drawInfoTable,
-  drawResultCard,
-  drawPageFooter,
-  addDisclaimerPage,
-  checkPageBreak,
-  sanitizeText,
-  MARGIN_LEFT,
-  CONTENT_WIDTH,
-} from '../utils/pdfUtils'
 
 const POLLUTANTS = ['NOx', 'CO', 'CO2', 'SOx'];
 
@@ -145,18 +129,18 @@ const formatNumber = (num: number, decimals: number = 2) => {
 };
 
 export default function EmissionPage() {
-  const [pollutant, setPollutant] = useLocalStorageState('emission-pollutant', 'NOx')
-  const [value, setValue] = useLocalStorageState('emission-value', '100')
-  const [fromUnit, setFromUnit] = useLocalStorageState('emission-from-unit', 'ppm')
-  const [o2Measured, setO2Measured] = useLocalStorageState('emission-o2-measured', '5')
-  const [o2Reference, setO2Reference] = useLocalStorageState('emission-o2-reference', '3')
-  const [fuelType, setFuelType] = useLocalStorageState('emission-fuel-type', 'natural_gas_low')
-  const [euFuelType, setEuFuelType] = useLocalStorageState('emission-eu-fuel-type', 'natural_gas')
-  const [noxValue, setNoxValue] = useLocalStorageState('emission-nox-value', '100')
-  const [coValue, setCoValue] = useLocalStorageState('emission-co-value', '80')
-  const [flueGasFlow, setFlueGasFlow] = useLocalStorageState('emission-flue-gas-flow', '1000')
-  const [annualHours, setAnnualHours] = useLocalStorageState('emission-annual-hours', '8000')
-  const _loadFactor = '0.8';
+  const [pollutant, setPollutant] = useState('NOx')
+  const [value, setValue] = useState('100')
+  const [fromUnit, setFromUnit] = useState('ppm')
+  const [o2Measured, setO2Measured] = useState('5')
+  const [o2Reference, setO2Reference] = useState('3')
+  const [fuelType, setFuelType] = useState('natural_gas_low')
+  const [euFuelType, setEuFuelType] = useState('natural_gas')
+  const [noxValue, setNoxValue] = useState('100')
+  const [coValue, setCoValue] = useState('80')
+  const [flueGasFlow, setFlueGasFlow] = useState('1000')
+  const [annualHours, setAnnualHours] = useState('8000')
+  const [_loadFactor] = useState('0.8');
   
   const [results, setResults] = useState({ ppm: 0, mgM3: 0, lbMMBtu: 0 });
   const [epaCompliance, setEpaCompliance] = useState<any>(null);
@@ -200,164 +184,6 @@ export default function EmissionPage() {
     navigator.clipboard.writeText(text);
   };
 
-  const exportToPDF = () => {
-    const doc = createPDF()
-    const docTitle = 'Emission Analysis Report'
-
-    addCoverPage(doc, {
-      title: 'Emission Analysis',
-      subtitle: 'NOx, CO, CO2 and SOx emission unit conversion and compliance review',
-      reportType: 'Environmental Engineering',
-      standard: 'EPA / EU IED Reference',
-      version: 'v1.0',
-    })
-
-    let y = drawPageHeader(doc, docTitle, 'Concentration Results')
-    y = drawSectionTitle(doc, 'EMISSION CONCENTRATION', y, `${pollutant} emission at reference O2 conditions`)
-
-    const cardWidth = (CONTENT_WIDTH - 16) / 3
-    drawResultCard(doc, {
-      label: 'ppm',
-      value: formatNumber(results.ppm),
-      unit: 'parts per million',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      highlight: true,
-    })
-    drawResultCard(doc, {
-      label: 'mg/m3',
-      value: formatNumber(results.mgM3),
-      unit: 'milligram per m3',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-      status: 'info',
-    })
-    drawResultCard(doc, {
-      label: 'lb/MMBtu',
-      value: formatNumber(results.lbMMBtu, 4),
-      unit: 'pound per MMBtu',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-      status: 'success',
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 60, docTitle, 'Concentration Results')
-    y = drawSubSectionTitle(doc, 'Calculation Basis', y)
-    const basisRows: [string, string][] = [
-      ['Pollutant', pollutant],
-      ['Input Value', `${value} ${fromUnit === 'mg_m3' ? 'mg/m3' : fromUnit === 'lb_MMBtu' ? 'lb/MMBtu' : 'ppm'}`],
-      ['Measured O2', `${o2Measured}%`],
-      ['Reference O2', `${o2Reference}%`],
-    ]
-    y = drawInfoTable(doc, basisRows, MARGIN_LEFT, y + 4, CONTENT_WIDTH)
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Compliance')
-    y = drawSectionTitle(doc, 'REGULATORY COMPLIANCE', y, 'EPA and EU IED standard compliance check')
-
-    const epaStatus = epaCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
-    const euStatus = euCompliance?.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'
-    const epaStatusColor = epaCompliance?.overallCompliant ? 'success' : 'danger'
-    const euStatusColor = euCompliance?.overallCompliant ? 'success' : 'danger'
-
-    const halfWidth = (CONTENT_WIDTH - 8) / 2
-    const epaRows: [string, string][] = [
-      ['NOx Measured', `${formatNumber(epaCompliance?.noxMeasured || 0)} mg/m3`],
-      ['NOx Limit', `${epaCompliance?.noxLimit || 0} mg/m3`],
-      ['CO Measured', `${formatNumber(epaCompliance?.coMeasured || 0)} mg/m3`],
-      ['CO Limit', `${epaCompliance?.coLimit || 0} mg/m3`],
-      ['Overall Status', epaStatus],
-    ]
-    const leftY = drawInfoTable(doc, epaRows, MARGIN_LEFT, y, halfWidth, {
-      title: 'EPA Standard',
-    })
-
-    const euRows: [string, string][] = [
-      ['NOx Measured', `${formatNumber(euCompliance?.noxMeasured || 0)} mg/m3`],
-      ['NOx Limit', `${euCompliance?.noxLimit || 0} mg/m3`],
-      ['CO Measured', `${formatNumber(euCompliance?.coMeasured || 0)} mg/m3`],
-      ['CO Limit', `${euCompliance?.coLimit || 0} mg/m3`],
-      ['Overall Status', euStatus],
-    ]
-    const rightY = drawInfoTable(doc, euRows, MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
-      title: 'EU IED Standard',
-    })
-    y = Math.max(leftY, rightY)
-
-    y = checkPageBreak(doc, y, 120, docTitle, 'Annual Emissions')
-    y = drawSectionTitle(doc, 'ANNUAL EMISSION ESTIMATE', y, 'Annualized emission calculation based on operating hours')
-
-    const annualRows: [string, string][] = [
-      ['NOx Concentration', `${noxValue} mg/m3`],
-      ['CO Concentration', `${coValue} mg/m3`],
-      ['Flue Gas Flow', `${flueGasFlow} m3/h`],
-      ['Annual Operating Hours', `${annualHours} h/year`],
-      ['Load Factor', _loadFactor],
-      ['Hourly Emissions (NOx)', `${formatNumber(annualEmissions.hourlyKg)} kg/h`],
-      ['Monthly Emissions (NOx)', `${formatNumber(annualEmissions.monthlyTons)} tons/month`],
-      ['Annual Emissions (NOx)', `${formatNumber(annualEmissions.annualTons)} tons/year`],
-    ]
-    y = drawInfoTable(doc, annualRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Annualized Estimate',
-    })
-
-    y = checkPageBreak(doc, y, 80, docTitle, 'Input Parameters')
-    y = drawSectionTitle(doc, 'INPUT PARAMETERS', y, 'Fuel types and reference standards')
-
-    const inputRows: [string, string][] = [
-      ['EPA Fuel Type', FUEL_TYPES.find(f => f.value === fuelType)?.label || fuelType],
-      ['EU Fuel Type', EU_FUEL_TYPES.find(f => f.value === euFuelType)?.label || euFuelType],
-    ]
-    y = drawInfoTable(doc, inputRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Fuel and Reference Standards',
-    })
-
-    addDisclaimerPage(doc, {
-      title: 'EMISSION REPORT DISCLAIMER',
-      sections: [
-        {
-          heading: 'General Information',
-          items: [
-            'This emission report is provided for informational and reference purposes only.',
-            'All calculations are based on the input parameters provided by the user.',
-            'Results should not be used for regulatory compliance reporting without independent verification.'
-          ]
-        },
-        {
-          heading: 'Accuracy and Reliability',
-          items: [
-            'Emission calculations are based on simplified models and standard conversion factors.',
-            'Actual emissions may vary due to factors not included in the calculation model.',
-            'EPA and EU limit values shown are reference values only. Confirm with current local regulations.'
-          ]
-        },
-        {
-          heading: 'Regulatory Compliance',
-          items: [
-            'Compliance status is based on the selected fuel type and standard reference limits.',
-            'Actual compliance must be verified by a qualified environmental engineer.',
-            'Local, state, and national regulations may have different requirements.'
-          ]
-        },
-        {
-          heading: 'User Responsibilities',
-          items: [
-            'Verify all input parameters for correctness.',
-            'Confirm applicable emission limits with local regulatory authorities.',
-            'Obtain professional environmental engineering review before relying on results.',
-            'Ensure proper stack testing for regulatory compliance reporting.'
-          ]
-        }
-      ]
-    })
-    drawPageFooter(doc, 'Emission results for reference only. Confirm with local regulations and qualified environmental engineers.')
-
-    doc.save('emission-analysis-report.pdf')
-  }
-
   const FUEL_TYPES = [
     { value: 'natural_gas_low', label: 'Natural Gas (Low NOx)' },
     { value: 'natural_gas_high', label: 'Natural Gas (High NOx)' },
@@ -376,16 +202,16 @@ export default function EmissionPage() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Navbar />
 
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-8 px-4 text-center">
+      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 px-6 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl md:text-4xl font-semibold mb-3">Emission Analysis</h1>
-          <p className="text-[#bdc3c7] text-sm md:text-base max-w-2xl mx-auto">
+          <h1 className="text-4xl font-semibold mb-4">Emission Analysis</h1>
+          <p className="text-[#bdc3c7] max-w-2xl mx-auto">
             NOx, CO, SO₂ emission calculations with EPA and EU IED compliance checking.
           </p>
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-3 py-6 md:px-5 md:py-10">
+      <div className="max-w-5xl mx-auto px-5 py-10">
         {/* Inline Disclaimer */}
         <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
           <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
@@ -398,8 +224,8 @@ export default function EmissionPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-4 md:p-6 mb-6">
-          <h2 className="text-xl md:text-2xl font-semibold text-[#2c3e50] mb-4 md:mb-6">Emissions Estimation & Compliance</h2>
+        <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6 mb-6">
+          <h2 className="text-2xl font-semibold text-[#2c3e50] mb-6">Emissions Estimation & Compliance</h2>
 
           <div className="flex flex-wrap gap-2 mb-6">
             {POLLUTANTS.map((p) => (
@@ -493,54 +319,47 @@ export default function EmissionPage() {
             </div>
           </div>
 
-          <div className="bg-gray-100 rounded-lg p-4 md:p-6 mb-6 border border-gray-200">
-            <h3 className="text-base md:text-lg font-semibold text-[#2c3e50] mb-4">Converted Values</h3>
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="bg-gray-100 rounded-lg p-6 mb-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[#2c3e50]">Converted Values</h3>
               <button
                 onClick={() => copyToClipboard(`ppm: ${formatNumber(results.ppm)}, mg/m³: ${formatNumber(results.mgM3)}, lb/MMBtu: ${formatNumber(results.lbMMBtu)}`)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] rounded-lg transition-colors text-xs md:text-sm font-semibold"
+                className="flex items-center gap-2 px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] rounded-lg transition-colors text-sm font-semibold"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v8m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Copy
               </button>
-              <button
-                onClick={exportToPDF}
-                className="flex items-center gap-2 px-3 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white rounded-lg transition-colors text-xs md:text-sm font-semibold"
-              >
-                <Download size={14} />
-                Export PDF
-              </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">ppm</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">ppm</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.ppm)}</p>
               </div>
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">mg/m³</p>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">mg/m³</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.mgM3)}</p>
               </div>
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">lb/MMBtu</p>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">lb/MMBtu</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(results.lbMMBtu, 4)}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-100 rounded-lg p-4 md:p-6 mb-6 border border-gray-200">
-            <h3 className="text-base md:text-lg font-semibold text-[#2c3e50] mb-4">Compliance Status</h3>
+          <div className="bg-gray-100 rounded-lg p-6 mb-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">Compliance Status</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4">
-              <div className="bg-white rounded-lg p-3 md:p-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 md:mb-4 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+              <div className="bg-white rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-[#34495e]">EPA Standards</h4>
                   <select
                     value={fuelType}
                     onChange={(e) => setFuelType(e.target.value)}
-                    className="px-3 py-1.5 border border-gray-300 rounded text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] w-full sm:w-auto"
+                    className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                   >
                     {FUEL_TYPES.map((f) => (
                       <option key={f.value} value={f.value}>{f.label}</option>
@@ -548,33 +367,33 @@ export default function EmissionPage() {
                   </select>
                 </div>
                 {epaCompliance && (
-                  <div className="space-y-2 md:space-y-3">
-                    <div className="flex items-center justify-between p-2 md:p-3 bg-gray-100 rounded border border-gray-200">
-                      <span className="text-xs md:text-sm text-[#34495e]">NOx: {formatNumber(epaCompliance.noxMeasured)} / {epaCompliance.noxLimit} mg/m³</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-100 rounded border border-gray-200">
+                      <span className="text-[#34495e]">NOx: {formatNumber(epaCompliance.noxMeasured)} / {epaCompliance.noxLimit} mg/m³</span>
                       <span className={epaCompliance.noxCompliant ? 'text-green-600' : 'text-red-600'}>
                         {epaCompliance.noxCompliant ? '✓' : '✗'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-2 md:p-3 bg-gray-100 rounded border border-gray-200">
-                      <span className="text-xs md:text-sm text-[#34495e]">CO: {formatNumber(epaCompliance.coMeasured)} / {epaCompliance.coLimit} mg/m³</span>
+                    <div className="flex items-center justify-between p-3 bg-gray-100 rounded border border-gray-200">
+                      <span className="text-[#34495e]">CO: {formatNumber(epaCompliance.coMeasured)} / {epaCompliance.coLimit} mg/m³</span>
                       <span className={epaCompliance.coCompliant ? 'text-green-600' : 'text-red-600'}>
                         {epaCompliance.coCompliant ? '✓' : '✗'}
                       </span>
                     </div>
-                    <div className={`p-2 md:p-3 rounded text-center font-semibold text-xs md:text-sm ${epaCompliance.overallCompliant ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                    <div className={`p-3 rounded text-center font-semibold ${epaCompliance.overallCompliant ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
                       {epaCompliance.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="bg-white rounded-lg p-3 md:p-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 md:mb-4 gap-2">
+              <div className="bg-white rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-[#34495e]">EU Standards</h4>
                   <select
                     value={euFuelType}
                     onChange={(e) => setEuFuelType(e.target.value)}
-                    className="px-3 py-1.5 border border-gray-300 rounded text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] w-full sm:w-auto"
+                    className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                   >
                     {EU_FUEL_TYPES.map((f) => (
                       <option key={f.value} value={f.value}>{f.label}</option>
@@ -582,20 +401,20 @@ export default function EmissionPage() {
                   </select>
                 </div>
                 {euCompliance && (
-                  <div className="space-y-2 md:space-y-3">
-                    <div className="flex items-center justify-between p-2 md:p-3 bg-gray-100 rounded border border-gray-200">
-                      <span className="text-xs md:text-sm text-[#34495e]">NOx: {formatNumber(euCompliance.noxMeasured)} / {euCompliance.noxLimit} mg/m³</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-100 rounded border border-gray-200">
+                      <span className="text-[#34495e]">NOx: {formatNumber(euCompliance.noxMeasured)} / {euCompliance.noxLimit} mg/m³</span>
                       <span className={euCompliance.noxCompliant ? 'text-green-600' : 'text-red-600'}>
                         {euCompliance.noxCompliant ? '✓' : '✗'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-2 md:p-3 bg-gray-100 rounded border border-gray-200">
-                      <span className="text-xs md:text-sm text-[#34495e]">CO: {formatNumber(euCompliance.coMeasured)} / {euCompliance.coLimit} mg/m³</span>
+                    <div className="flex items-center justify-between p-3 bg-gray-100 rounded border border-gray-200">
+                      <span className="text-[#34495e]">CO: {formatNumber(euCompliance.coMeasured)} / {euCompliance.coLimit} mg/m³</span>
                       <span className={euCompliance.coCompliant ? 'text-green-600' : 'text-red-600'}>
                         {euCompliance.coCompliant ? '✓' : '✗'}
                       </span>
                     </div>
-                    <div className={`p-2 md:p-3 rounded text-center font-semibold text-xs md:text-sm ${euCompliance.overallCompliant ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                    <div className={`p-3 rounded text-center font-semibold ${euCompliance.overallCompliant ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
                       {euCompliance.overallCompliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
                     </div>
                   </div>
@@ -604,59 +423,59 @@ export default function EmissionPage() {
             </div>
           </div>
 
-          <div className="bg-gray-100 rounded-lg p-4 md:p-6 border border-gray-200">
-            <h3 className="text-base md:text-lg font-semibold text-[#2c3e50] mb-4">Annual Emissions Estimation</h3>
+          <div className="bg-gray-100 rounded-lg p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">Annual Emissions Estimation</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div>
-                <label className="block text-xs md:text-sm font-medium text-[#34495e] mb-1.5 md:mb-2">NOx (mg/m³)</label>
+                <label className="block text-sm font-medium text-[#34495e] mb-2">NOx (mg/m³)</label>
                 <input
                   type="text"
                   value={noxValue}
                   onChange={(e) => handleValueChange(setNoxValue, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                 />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-[#34495e] mb-1.5 md:mb-2">CO (mg/m³)</label>
+                <label className="block text-sm font-medium text-[#34495e] mb-2">CO (mg/m³)</label>
                 <input
                   type="text"
                   value={coValue}
                   onChange={(e) => handleValueChange(setCoValue, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                 />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-[#34495e] mb-1.5 md:mb-2">Flue Gas Flow (m³/h)</label>
+                <label className="block text-sm font-medium text-[#34495e] mb-2">Flue Gas Flow (m³/h)</label>
                 <input
                   type="text"
                   value={flueGasFlow}
                   onChange={(e) => handleValueChange(setFlueGasFlow, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                 />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-[#34495e] mb-1.5 md:mb-2">Annual Hours</label>
+                <label className="block text-sm font-medium text-[#34495e] mb-2">Annual Hours</label>
                 <input
                   type="text"
                   value={annualHours}
                   onChange={(e) => handleValueChange(setAnnualHours, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">Hourly (kg)</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">Hourly (kg)</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.hourlyKg)}</p>
               </div>
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">Annual (tons)</p>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">Annual (tons)</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.annualTons)}</p>
               </div>
-              <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-200">
-                <p className="text-xs md:text-sm text-[#7f8c8d] mb-1">Monthly (tons)</p>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-sm text-[#7f8c8d] mb-1">Monthly (tons)</p>
                 <p className="text-lg md:text-2xl font-bold text-[#2c3e50]">{formatNumber(annualEmissions.monthlyTons)}</p>
               </div>
             </div>

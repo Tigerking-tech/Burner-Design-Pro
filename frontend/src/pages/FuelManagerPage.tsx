@@ -1,23 +1,6 @@
 import { useState } from 'react'
-import { AlertTriangle, Download } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
-import { useLocalStorageState } from '../hooks/useLocalStorageState'
-import {
-  createPDF,
-  addCoverPage,
-  drawPageHeader,
-  drawSectionTitle,
-  drawSubSectionTitle,
-  drawInfoTable,
-  drawResultCard,
-  drawPageFooter,
-  addDisclaimerPage,
-  checkPageBreak,
-  formatNumber,
-  sanitizeText,
-  MARGIN_LEFT,
-  CONTENT_WIDTH,
-} from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -218,18 +201,18 @@ const oilPresets = [
 ]
 
 export default function FuelManagerPage() {
-  const [activeTab, setActiveTab] = useLocalStorageState<'gas' | 'oil'>('fuel-manager-active-tab', 'gas')
-  const [gas1Components, setGas1Components] = useLocalStorageState<GasComponent[]>('fuel-manager-gas1', defaultGasComponents.map(c => ({ ...c })))
-  const [gas2Components, setGas2Components] = useLocalStorageState<GasComponent[]>('fuel-manager-gas2', defaultGasComponents.map(c => ({ ...c })))
-  const [selectedGas1Preset, setSelectedGas1Preset] = useLocalStorageState('fuel-manager-gas1-preset', '')
-  const [selectedGas2Preset, setSelectedGas2Preset] = useLocalStorageState('fuel-manager-gas2-preset', '')
-  const [gas1MixturePercent, setGas1MixturePercent] = useLocalStorageState('fuel-manager-mixture-pct', '50')
+  const [activeTab, setActiveTab] = useState<'gas' | 'oil'>('gas')
+  const [gas1Components, setGas1Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
+  const [gas2Components, setGas2Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
+  const [selectedGas1Preset, setSelectedGas1Preset] = useState('')
+  const [selectedGas2Preset, setSelectedGas2Preset] = useState('')
+  const [gas1MixturePercent, setGas1MixturePercent] = useState('50')
   const [showGas1Results, setShowGas1Results] = useState(false)
   const [showGas2Results, setShowGas2Results] = useState(false)
   const [showMixtureResults, setShowMixtureResults] = useState(false)
-
-  const [selectedOil, setSelectedOil] = useLocalStorageState('fuel-manager-oil-index', 0)
-  const [oilElements, setOilElements] = useLocalStorageState<OilElement[]>('fuel-manager-oil-elements', () => {
+  
+  const [selectedOil, setSelectedOil] = useState(0)
+  const [oilElements, setOilElements] = useState<OilElement[]>(() => {
     const preset = oilPresets[0]
     return [
       { name: 'C', symbol: 'C', percentage: preset.C.toString() },
@@ -288,29 +271,9 @@ export default function FuelManagerPage() {
     const gas1Data = calculateGasKeyData(gas1Components)
     const gas2Data = calculateGasKeyData(gas2Components)
     
-    if (!gas1Data && !gas2Data) return null
+    if (!gas1Data || !gas2Data) return null
 
-    // 单一气体情况：直接返回该气体的数据，并补充缺少的属性
-    if (!gas1Data) {
-      return {
-        ...gas2Data,
-        relativeDensity: gas2Data.density / AIR_DENSITY,
-        wobbe: gas2Data.ws,
-        methaneNumber: 0,
-      }
-    }
-    if (!gas2Data) {
-      return {
-        ...gas1Data,
-        relativeDensity: gas1Data.density / AIR_DENSITY,
-        wobbe: gas1Data.ws,
-        methaneNumber: 0,
-      }
-    }
-
-    // 混合气体情况
-    const parsedPct1 = parseFloat(gas1MixturePercent)
-    const pct1 = Number.isFinite(parsedPct1) ? parsedPct1 : 50
+    const pct1 = parseFloat(gas1MixturePercent) || 50
     const gas2MixturePercent = 100 - pct1
     const gas1Fraction = pct1 / 100
     const gas2Fraction = gas2MixturePercent / 100
@@ -321,16 +284,7 @@ export default function FuelManagerPage() {
     const ws = hs / Math.sqrt(density / AIR_DENSITY)
     const wi = hi / Math.sqrt(density / AIR_DENSITY)
 
-    return {
-      density,
-      hs,
-      hi,
-      ws,
-      wi,
-      relativeDensity: density / AIR_DENSITY,
-      wobbe: ws,
-      methaneNumber: 0,
-    }
+    return { density, hs, hi, ws, wi }
   }
 
   const calculateOilKeyData = () => {
@@ -438,356 +392,6 @@ export default function FuelManagerPage() {
 
   const getOilElementTotal = () => {
     return oilElements.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
-  }
-
-  const gasResultRows = (data: ReturnType<typeof calculateGasKeyData>): PdfTableRow[] => {
-    if (!data) return [['Status', 'Invalid composition. Total percentage must equal 100%.']]
-    return [
-      ['Density', `${data.density.toFixed(3)} kg/m3`],
-      ['Higher Heating Value (Hs)', `${data.hs.toFixed(2)} kWh/m3`],
-      ['Lower Heating Value (Hi)', `${data.hi.toFixed(2)} kWh/m3`],
-      ['Superior Wobbe Index (Ws)', `${data.ws.toFixed(2)} kWh/m3`],
-      ['Inferior Wobbe Index (Wi)', `${data.wi.toFixed(2)} kWh/m3`],
-    ]
-  }
-
-  const compositionRows = (components: GasComponent[]): PdfTableRow[] => {
-    const rows = components
-      .filter(c => (parseFloat(c.percentage) || 0) > 0)
-      .map(c => [`${c.name} (${c.symbol})`, `${parseFloat(c.percentage).toFixed(2)}%`] as PdfTableRow)
-    return rows.length ? rows : [['Composition', 'No component percentage entered.']]
-  }
-
-  const exportGasPDF = () => {
-    const gas1Data = calculateGasKeyData(gas1Components)
-    const gas2Data = calculateGasKeyData(gas2Components)
-    const mixtureData = calculateMixture()
-    if (!mixtureData) {
-      alert('Please enter at least one valid gas composition with a total of 100% before exporting the PDF report.')
-      return
-    }
-
-    const gas2Percent = 100 - (parseFloat(gas1MixturePercent) || 0)
-    const docTitle = 'Fuel Gas Key Data Report'
-
-    const doc = createPDF()
-
-    addCoverPage(doc, {
-      title: 'Fuel Gas Analysis',
-      subtitle: 'Gas composition, heating value, Wobbe index and mixture summary',
-      reportType: 'Fuel Engineering',
-      standard: 'ISO 6976 / DIN 51627 Reference',
-      version: 'v1.0',
-    })
-
-    let y = drawPageHeader(doc, docTitle, 'Mixture Summary')
-    y = drawSectionTitle(doc, 'GAS MIXTURE RESULTS', y, 'Combined gas properties at selected mixture ratio')
-
-    const cardWidth = (CONTENT_WIDTH - 16) / 3
-    drawResultCard(doc, {
-      label: 'Lower Heating Value',
-      value: formatNumber(mixtureData.hi, 2),
-      unit: 'kWh/Nm3',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      highlight: true,
-    })
-    drawResultCard(doc, {
-      label: 'Higher Heating Value',
-      value: formatNumber(mixtureData.hs, 2),
-      unit: 'kWh/Nm3',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-      status: 'info',
-    })
-    drawResultCard(doc, {
-      label: 'Wobbe Index',
-      value: formatNumber(mixtureData.wobbe, 2),
-      unit: 'kWh/Nm3',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-      status: 'success',
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 50, docTitle, 'Mixture Summary')
-    drawResultCard(doc, {
-      label: 'Density',
-      value: formatNumber(mixtureData.density, 4),
-      unit: 'kg/Nm3',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      status: 'warning',
-    })
-    drawResultCard(doc, {
-      label: 'Relative Density',
-      value: formatNumber(mixtureData.relativeDensity, 4),
-      unit: 'd (air = 1)',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-    })
-    drawResultCard(doc, {
-      label: 'Methane Number',
-      value: formatNumber(mixtureData.methaneNumber, 1),
-      unit: 'MN',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 80, docTitle, 'Mixture Basis')
-    y = drawSectionTitle(doc, 'MIXTURE BASIS', y, 'Input parameters and mixture configuration')
-
-    const basisRows: [string, string][] = [
-      ['Gas 1 Preset', selectedGas1Preset || 'Custom gas composition'],
-      ['Gas 2 Preset', selectedGas2Preset || 'Custom gas composition'],
-      ['Gas 1 Mixture Share', `${gas1MixturePercent}%`],
-      ['Gas 2 Mixture Share', `${formatNumber(gas2Percent, 2)}%`],
-      ['Gas 1 Total Composition', `${formatNumber(getTotalPercentage(gas1Components), 2)}%`],
-      ['Gas 2 Total Composition', `${formatNumber(getTotalPercentage(gas2Components), 2)}%`],
-    ]
-    y = drawInfoTable(doc, basisRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Input Summary',
-    })
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Individual Gas Data')
-    y = drawSectionTitle(doc, 'INDIVIDUAL GAS DATA', y, 'Key data for each gas stream')
-
-    const halfWidth = (CONTENT_WIDTH - 8) / 2
-    const leftY = drawInfoTable(doc, gasResultRows(gas1Data), MARGIN_LEFT, y, halfWidth, {
-      title: 'Gas 1 Key Data',
-    })
-    const rightY = drawInfoTable(doc, gasResultRows(gas2Data), MARGIN_LEFT + halfWidth + 8, y, halfWidth, {
-      title: 'Gas 2 Key Data',
-    })
-    y = Math.max(leftY, rightY)
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Mixture Data')
-    y = drawSectionTitle(doc, 'GAS MIXTURE KEY DATA', y, 'Complete calculated mixture properties')
-
-    y = drawInfoTable(doc, gasResultRows(mixtureData), MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Mixture Properties',
-    })
-
-    doc.addPage()
-    y = drawPageHeader(doc, docTitle, 'Composition Details')
-    y = drawSectionTitle(doc, 'GAS 1 COMPOSITION', y, 'Non-zero components in Gas 1')
-
-    const gas1CompRows = compositionRows(gas1Components)
-    y = drawInfoTable(doc, gas1CompRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Gas 1 Components',
-    })
-
-    y = checkPageBreak(doc, y, Math.min(150, gas2Components.filter(c => parseFloat(c.percentage) > 0).length * 8 + 20), docTitle, 'Composition Details')
-    y = drawSectionTitle(doc, 'GAS 2 COMPOSITION', y, 'Non-zero components in Gas 2')
-
-    drawInfoTable(doc, compositionRows(gas2Components), MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Gas 2 Components',
-    })
-
-    addDisclaimerPage(doc, {
-      title: 'FUEL GAS REPORT DISCLAIMER',
-      sections: [
-        {
-          heading: 'General Information',
-          items: [
-            'This fuel gas analysis report is provided for informational and reference purposes only.',
-            'Calculations are based on the input composition data provided by the user.',
-            'Results should not be used for final engineering design without independent verification.'
-          ]
-        },
-        {
-          heading: 'Accuracy and Reliability',
-          items: [
-            'Gas property calculations are based on standard thermodynamic models and correlations.',
-            'Actual gas properties may differ due to impurities, trace components, and measurement uncertainty.',
-            'Wobbe index and methane number values are estimates based on simplified correlations.'
-          ]
-        },
-        {
-          heading: 'Engineering Application',
-          items: [
-            'All fuel gas data should be verified with laboratory gas chromatography analysis.',
-            'Combustion system design should consider the full range of expected gas compositions.',
-            'Consult qualified combustion engineers for burner design and safety assessment.',
-            'Verify compliance with local gas quality standards and pipeline specifications.'
-          ]
-        },
-        {
-          heading: 'Limitation of Liability',
-          items: [
-            'In no event shall Burner-Design-Pro be liable for damages arising from use of these calculations.',
-            'Use of this tool and its results is at the sole risk of the user.'
-          ]
-        }
-      ]
-    })
-    drawPageFooter(doc, 'Fuel gas data for reference only. Verify with laboratory analysis and qualified combustion engineers.')
-
-    doc.save('fuel-gas-key-data-report.pdf')
-  }
-
-  const exportOilPDF = () => {
-    const oilData = calculateOilKeyData()
-    const docTitle = 'Oil Fuel Data Report'
-
-    const doc = createPDF()
-
-    addCoverPage(doc, {
-      title: 'Oil Fuel Analysis',
-      subtitle: 'Elemental analysis, heating value and fuel property summary',
-      reportType: 'Fuel Engineering',
-      standard: 'DIN 51603 / ISO 8217 Reference',
-      version: 'v1.0',
-    })
-
-    let y = drawPageHeader(doc, docTitle, 'Key Results')
-    y = drawSectionTitle(doc, 'FUEL OIL KEY DATA', y, 'Calculated fuel properties from elemental analysis')
-
-    const cardWidth = (CONTENT_WIDTH - 16) / 3
-    drawResultCard(doc, {
-      label: 'Lower Heating Value',
-      value: formatNumber(oilData.hi, 2),
-      unit: 'kWh/kg',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      highlight: true,
-    })
-    drawResultCard(doc, {
-      label: 'Higher Heating Value',
-      value: formatNumber(oilData.hs, 2),
-      unit: 'kWh/kg',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-      status: 'info',
-    })
-    drawResultCard(doc, {
-      label: 'Density',
-      value: formatNumber(oilData.density, 3),
-      unit: 'kg/L',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-      status: 'success',
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 50, docTitle, 'Key Results')
-    drawResultCard(doc, {
-      label: 'Viscosity',
-      value: formatNumber(oilData.viscosity, 1),
-      unit: 'cSt',
-      x: MARGIN_LEFT,
-      y: y,
-      width: cardWidth,
-      status: 'warning',
-    })
-    drawResultCard(doc, {
-      label: 'Flash Point',
-      value: formatNumber(oilData.flashPoint, 0),
-      unit: 'deg C',
-      x: MARGIN_LEFT + cardWidth + 8,
-      y: y,
-      width: cardWidth,
-    })
-    drawResultCard(doc, {
-      label: 'Pour Point',
-      value: formatNumber(oilData.pourPoint, 0),
-      unit: 'deg C',
-      x: MARGIN_LEFT + (cardWidth + 8) * 2,
-      y: y,
-      width: cardWidth,
-    })
-    y += 42
-
-    y = checkPageBreak(doc, y, 80, docTitle, 'Fuel Selection')
-    y = drawSectionTitle(doc, 'FUEL SELECTION', y, 'Oil type and basic parameters')
-
-    const selectionRows: [string, string][] = [
-      ['Oil Type', oilPresets[selectedOil].name],
-      ['Element Total', `${formatNumber(getOilElementTotal(), 2)}%`],
-    ]
-    y = drawInfoTable(doc, selectionRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Fuel Identification',
-    })
-
-    y = checkPageBreak(doc, y, Math.min(200, oilElements.length * 8 + 30), docTitle, 'Elemental Analysis')
-    y = drawSectionTitle(doc, 'ELEMENTAL ANALYSIS', y, 'Mass composition by element')
-
-    const elementRows: [string, string][] = oilElements.map(el => [
-      el.name,
-      `${formatNumber(parseFloat(el.percentage || '0'), 2)}%`,
-    ])
-    y = drawInfoTable(doc, elementRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Mass Composition',
-    })
-
-    y = checkPageBreak(doc, y, 100, docTitle, 'Fuel Properties')
-    y = drawSectionTitle(doc, 'CALCULATED FUEL PROPERTIES', y, 'Complete derived fuel property data')
-
-    const propRows: [string, string][] = [
-      ['Density', `${formatNumber(oilData.density, 4)} kg/L`],
-      ['Higher Heating Value (Hs)', `${formatNumber(oilData.hs, 3)} kWh/kg`],
-      ['Lower Heating Value (Hi)', `${formatNumber(oilData.hi, 3)} kWh/kg`],
-      ['Volumetric LHV', `${formatNumber(oilData.hi * oilData.density, 2)} kWh/L`],
-      ['Kinematic Viscosity', `${formatNumber(oilData.viscosity, 2)} cSt`],
-      ['Flash Point', `${formatNumber(oilData.flashPoint, 1)} deg C`],
-      ['Pour Point', `${formatNumber(oilData.pourPoint, 1)} deg C`],
-      ['Dry Mass Basis', `${formatNumber(oilData.dryMass, 2)}%`],
-      ['Wet Mass Basis', `${formatNumber(oilData.wetMass, 2)}%`],
-    ]
-    y = drawInfoTable(doc, propRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
-      title: 'Derived Properties',
-    })
-
-    addDisclaimerPage(doc, {
-      title: 'OIL FUEL REPORT DISCLAIMER',
-      sections: [
-        {
-          heading: 'General Information',
-          items: [
-            'This oil fuel analysis report is provided for informational and reference purposes only.',
-            'Calculations are based on the input elemental analysis data provided by the user.',
-            'Results should not be used for final engineering design without independent verification.'
-          ]
-        },
-        {
-          heading: 'Accuracy and Reliability',
-          items: [
-            'Fuel property calculations are based on standard empirical correlations.',
-            'Actual oil properties may differ due to crude source, refining process, and additive packages.',
-            'Heating values are calculated estimates and should be verified with bomb calorimetry testing.'
-          ]
-        },
-        {
-          heading: 'Engineering Application',
-          items: [
-            'All fuel oil data should be verified with certified laboratory analysis.',
-            'Combustion system design should consider the full range of expected fuel properties.',
-            'Consult qualified combustion engineers for burner design, handling, and safety assessment.',
-            'Verify compliance with fuel oil standards and local environmental regulations.'
-          ]
-        },
-        {
-          heading: 'Limitation of Liability',
-          items: [
-            'In no event shall Burner-Design-Pro be liable for damages arising from use of these calculations.',
-            'Use of this tool and its results is at the sole risk of the user.'
-          ]
-        }
-      ]
-    })
-    drawPageFooter(doc, 'Oil fuel data for reference only. Verify with laboratory analysis and qualified combustion engineers.')
-
-    doc.save('oil-fuel-data-report.pdf')
   }
 
   return (
@@ -1051,14 +655,6 @@ export default function FuelManagerPage() {
                 {showMixtureResults ? 'Hide' : 'Calculate'} Mixture Key Data
               </button>
 
-              <button
-                onClick={exportGasPDF}
-                className="mt-3 w-full bg-[#2c3e50] hover:bg-[#34495e] text-white py-3 rounded font-semibold transition-colors flex items-center justify-center gap-2"
-              >
-                <Download size={18} />
-                Export Gas PDF Report
-              </button>
-
               {showMixtureResults && calculateMixture() && (
                 <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas Mixture Key Data</h3>
@@ -1138,14 +734,6 @@ export default function FuelManagerPage() {
               className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
             >
               {showOilResults ? 'Hide' : 'Show'} Oil Key Data
-            </button>
-
-            <button
-              onClick={exportOilPDF}
-              className="mt-3 w-full bg-[#2c3e50] hover:bg-[#34495e] text-white py-3 rounded font-semibold transition-colors flex items-center justify-center gap-2"
-            >
-              <Download size={18} />
-              Export Oil PDF Report
             </button>
 
             {showOilResults && calculateOilKeyData() && (
