@@ -1,0 +1,744 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 4873
+>>
+stream
+0.5670000000000001 w
+0 G
+0.03 0.26 0.32 rg
+0. 841.8899999999999864 595.2755905511811534 -841.8897637795276978 re
+f
+0.05 0.45 0.56 rg
+0. 544.2522047244093528 595.2755905511811534 -5.6692913385826778 re
+f
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+1. g
+51.0236220472441033 742.6774015748030706 Td
+(BURNER-DESIGN-PRO) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+1. g
+51.0236220472441033 722.8348818897637784 Td
+(Professional Engineering Calculation Tools) Tj
+ET
+BT
+/F2 26 Tf
+29.8999999999999986 TL
+1. g
+51.0236220472441033 487.559291338582625 Td
+(Test Report) Tj
+ET
+BT
+/F3 8 Tf
+9.1999999999999993 TL
+0.706 g
+51.0236220472441033 76.5356692913385359 Td
+(Confidential - For internal use and client reference only) Tj
+ET
+BT
+/F3 8 Tf
+9.1999999999999993 TL
+0.706 g
+51.0236220472441033 56.69314960629913 Td
+(\(c\) 2026 Burner-Design-Pro. All rights reserved.) Tj
+ET
+0.03 0.26 0.32 rg
+0. 841.8899999999999864 595.2755905511811534 -51.0236220472441033 re
+f
+0.05 0.45 0.56 rg
+0. 790.8663779527558972 595.2755905511811534 -3.4015748031496065 re
+f
+BT
+/F2 10 Tf
+11.5 TL
+1. g
+51.0236220472441033 810.7088976377953031 Td
+(Test Report) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+1. g
+517.6919685039370052 810.7088976377953031 Td
+(Results) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 705.8270078740157487 Td
+(Content line 1: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 688.819133858267719 Td
+(Content line 2: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 671.8112598425196893 Td
+(Content line 3: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 654.8033858267716596 Td
+(Content line 4: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 637.7955118110235162 Td
+(Content line 5: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 620.7876377952754865 Td
+(Content line 6: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 603.7797637795274568 Td
+(Content line 7: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 586.7718897637794271 Td
+(Content line 8: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 569.7640157480313974 Td
+(Content line 9: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 552.7561417322833677 Td
+(Content line 10: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 535.748267716535338 Td
+(Content line 11: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 518.7403937007873083 Td
+(Content line 12: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 501.7325196850393354 Td
+(Content line 13: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 484.7246456692913057 Td
+(Content line 14: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 467.716771653543276 Td
+(Content line 15: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 450.7088976377952463 Td
+(Content line 16: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 433.7010236220471597 Td
+(Content line 17: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 416.69314960629913 Td
+(Content line 18: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 399.6852755905511003 Td
+(Content line 19: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 382.6774015748030706 Td
+(Content line 20: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 365.6695275590550409 Td
+(Content line 21: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 348.6616535433070112 Td
+(Content line 22: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 331.6537795275589815 Td
+(Content line 23: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 314.6459055118109518 Td
+(Content line 24: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 297.6380314960629221 Td
+(Content line 25: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 280.6301574803148924 Td
+(Content line 26: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 263.6222834645668627 Td
+(Content line 27: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 246.614409448818833 Td
+(Content line 28: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 229.6065354330708033 Td
+(Content line 29: Sample data.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 212.5986614173227736 Td
+(Content line 30: Sample data.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 4019
+>>
+stream
+0.5670000000000001 w
+0 G
+0.03 0.26 0.32 rg
+0. 841.8899999999999864 595.2755905511811534 -51.0236220472441033 re
+f
+0.05 0.45 0.56 rg
+0. 790.8663779527558972 595.2755905511811534 -3.4015748031496065 re
+f
+BT
+/F2 10 Tf
+11.5 TL
+1. g
+51.0236220472441033 810.7088976377953031 Td
+(Test Report) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+1. g
+507.1319685039370029 810.7088976377953031 Td
+(More Data) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 705.8270078740157487 Td
+(Page 2 line 1: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 688.819133858267719 Td
+(Page 2 line 2: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 671.8112598425196893 Td
+(Page 2 line 3: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 654.8033858267716596 Td
+(Page 2 line 4: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 637.7955118110235162 Td
+(Page 2 line 5: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 620.7876377952754865 Td
+(Page 2 line 6: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 603.7797637795274568 Td
+(Page 2 line 7: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 586.7718897637794271 Td
+(Page 2 line 8: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 569.7640157480313974 Td
+(Page 2 line 9: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 552.7561417322833677 Td
+(Page 2 line 10: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 535.748267716535338 Td
+(Page 2 line 11: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 518.7403937007873083 Td
+(Page 2 line 12: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 501.7325196850393354 Td
+(Page 2 line 13: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 484.7246456692913057 Td
+(Page 2 line 14: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 467.716771653543276 Td
+(Page 2 line 15: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 450.7088976377952463 Td
+(Page 2 line 16: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 433.7010236220471597 Td
+(Page 2 line 17: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 416.69314960629913 Td
+(Page 2 line 18: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 399.6852755905511003 Td
+(Page 2 line 19: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 382.6774015748030706 Td
+(Page 2 line 20: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 365.6695275590550409 Td
+(Page 2 line 21: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 348.6616535433070112 Td
+(Page 2 line 22: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 331.6537795275589815 Td
+(Page 2 line 23: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 314.6459055118109518 Td
+(Page 2 line 24: More content.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 297.6380314960629221 Td
+(Page 2 line 25: More content.) Tj
+ET
+0.86 G
+0.5669291338582678 w
+51.0236220472441033 62.3624409448817829 m
+544.2519685039370643 62.3624409448817829 l
+S
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0.498 0.549 0.553 rg
+51.0236220472441033 51.0238582677164914 Td
+(Fuel gas data for reference only. Verify with laboratory analysis and qualified combustion engineers.) Tj
+ET
+BT
+/F2 7 Tf
+8.0499999999999989 TL
+0.498 0.549 0.553 rg
+51.0236220472441033 28.3466929133857093 Td
+(Burner-Design-Pro) Tj
+ET
+BT
+/F1 7 Tf
+8.0499999999999989 TL
+0.498 0.549 0.553 rg
+508.691968503937062 28.3466929133857093 Td
+(Page 2 of 2) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260630101150-00'00')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000009285 00000 n 
+0000011110 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000005077 00000 n 
+0000005214 00000 n 
+0000009348 00000 n 
+0000009473 00000 n 
+0000009603 00000 n 
+0000009736 00000 n 
+0000009874 00000 n 
+0000009998 00000 n 
+0000010127 00000 n 
+0000010259 00000 n 
+0000010395 00000 n 
+0000010523 00000 n 
+0000010650 00000 n 
+0000010779 00000 n 
+0000010912 00000 n 
+0000011014 00000 n 
+0000011360 00000 n 
+0000011446 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <BA13CF1D69F1653D9DF9754D560E6713> <BA13CF1D69F1653D9DF9754D560E6713> ]
+>>
+startxref
+11550
+%%EOF

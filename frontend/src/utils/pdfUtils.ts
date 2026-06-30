@@ -111,12 +111,6 @@ export const MARGIN_LEFT = 18
 export const MARGIN_RIGHT = 18
 export const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT
 export const HEADER_HEIGHT = 36
-export const FOOTER_BOTTOM_MARGIN = 8
-export const FOOTER_BRAND_LINE_HEIGHT = 5
-export const FOOTER_NOTE_LINE_HEIGHT = 4
-export const FOOTER_GAP_BRAND_NOTE = 3
-export const FOOTER_GAP_NOTE_SEPARATOR = 2
-export const FOOTER_MIN_HEIGHT = 22
 
 export const COLORS = {
   primary: { r: 44, g: 62, b: 80 },
@@ -482,11 +476,6 @@ export function drawPageFooter(doc: jsPDF, customNote?: string): void {
     doc.setPage(i)
 
     if (i === 1 && pageCount > 1) {
-      setTextColor(doc, COLORS.textLight)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(7)
-      doc.text('Burner-Design-Pro', MARGIN_LEFT, brandY)
-      doc.text('Page 1 of ' + pageCount, PAGE_WIDTH - MARGIN_RIGHT, brandY, { align: 'right' })
       continue
     }
 
@@ -557,13 +546,17 @@ export function addDisclaimerPage(
   ]
 
   const sections = options?.sections || defaultSections
+  const docTitle = options?.title || 'IMPORTANT DISCLAIMER'
 
   sections.forEach(section => {
+    const estimatedHeight = 20 + section.items.length * 12
+    y = checkPageBreak(doc, y, estimatedHeight, docTitle, 'Appendix')
     y = drawSubSectionTitle(doc, section.heading, y)
     y = drawBulletList(doc, section.items, MARGIN_LEFT + 3, y + 3, CONTENT_WIDTH - 3)
     y += 4
   })
 
+  y = checkPageBreak(doc, y, 30, docTitle, 'Appendix')
   y += 6
   setFillColor(doc, { r: 254, g: 249, b: 235 })
   setDrawColor(doc, COLORS.warning)
