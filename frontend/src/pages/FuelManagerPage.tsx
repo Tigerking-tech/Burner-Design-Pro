@@ -309,7 +309,8 @@ export default function FuelManagerPage() {
     }
 
     // 混合气体情况
-    const pct1 = parseFloat(gas1MixturePercent) || 50
+    const parsedPct1 = parseFloat(gas1MixturePercent)
+    const pct1 = Number.isFinite(parsedPct1) ? parsedPct1 : 50
     const gas2MixturePercent = 100 - pct1
     const gas1Fraction = pct1 / 100
     const gas2Fraction = gas2MixturePercent / 100
@@ -461,6 +462,11 @@ export default function FuelManagerPage() {
     const gas1Data = calculateGasKeyData(gas1Components)
     const gas2Data = calculateGasKeyData(gas2Components)
     const mixtureData = calculateMixture()
+    if (!mixtureData) {
+      alert('Please enter at least one valid gas composition with a total of 100% before exporting the PDF report.')
+      return
+    }
+
     const gas2Percent = 100 - (parseFloat(gas1MixturePercent) || 0)
     const docTitle = 'Fuel Gas Key Data Report'
 
