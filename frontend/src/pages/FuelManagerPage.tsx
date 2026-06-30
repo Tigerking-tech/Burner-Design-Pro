@@ -289,9 +289,26 @@ export default function FuelManagerPage() {
     const gas2Data = calculateGasKeyData(gas2Components)
     
     if (!gas1Data && !gas2Data) return null
-    if (!gas1Data) return gas2Data
-    if (!gas2Data) return gas1Data
 
+    // 单一气体情况：直接返回该气体的数据，并补充缺少的属性
+    if (!gas1Data) {
+      return {
+        ...gas2Data,
+        relativeDensity: gas2Data.density / AIR_DENSITY,
+        wobbe: gas2Data.ws,
+        methaneNumber: 0,
+      }
+    }
+    if (!gas2Data) {
+      return {
+        ...gas1Data,
+        relativeDensity: gas1Data.density / AIR_DENSITY,
+        wobbe: gas1Data.ws,
+        methaneNumber: 0,
+      }
+    }
+
+    // 混合气体情况
     const pct1 = parseFloat(gas1MixturePercent) || 50
     const gas2MixturePercent = 100 - pct1
     const gas1Fraction = pct1 / 100
@@ -303,7 +320,16 @@ export default function FuelManagerPage() {
     const ws = hs / Math.sqrt(density / AIR_DENSITY)
     const wi = hi / Math.sqrt(density / AIR_DENSITY)
 
-    return { density, hs, hi, ws, wi }
+    return {
+      density,
+      hs,
+      hi,
+      ws,
+      wi,
+      relativeDensity: density / AIR_DENSITY,
+      wobbe: ws,
+      methaneNumber: 0,
+    }
   }
 
   const calculateOilKeyData = () => {
