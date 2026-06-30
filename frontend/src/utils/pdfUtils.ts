@@ -473,7 +473,7 @@ export function drawPageFooter(doc: jsPDF, customNote?: string): void {
 
     setDrawColor(doc, COLORS.border)
     doc.setLineWidth(0.2)
-    doc.line(MARGIN_LEFT, FOOTER_Y - 6, PAGE_WIDTH - MARGIN_RIGHT, FOOTER_Y - 6)
+    doc.line(MARGIN_LEFT, FOOTER_Y - 12, PAGE_WIDTH - MARGIN_RIGHT, FOOTER_Y - 12)
     doc.setLineWidth(0.2)
 
     setTextColor(doc, COLORS.textLight)
@@ -481,13 +481,16 @@ export function drawPageFooter(doc: jsPDF, customNote?: string): void {
     doc.setFontSize(7)
 
     const note = customNote || 'For reference only - Professional engineering review required'
-    doc.text(sanitizeText(note), MARGIN_LEFT, FOOTER_Y)
+    const noteLines = doc.splitTextToSize(sanitizeText(note), CONTENT_WIDTH)
+    doc.text(noteLines, MARGIN_LEFT, FOOTER_Y - 5)
+
+    const footerBottom = FOOTER_Y - 5 + noteLines.length * 4.5
 
     doc.setFont('helvetica', 'bold')
-    doc.text('Burner-Design-Pro', PAGE_WIDTH / 2, FOOTER_Y, { align: 'center' })
+    doc.text('Burner-Design-Pro', MARGIN_LEFT, footerBottom + 4)
 
     doc.setFont('helvetica', 'normal')
-    doc.text(sanitizeText(`Page ${i} of ${pageCount}`), PAGE_WIDTH - MARGIN_RIGHT, FOOTER_Y, { align: 'right' })
+    doc.text(sanitizeText(`Page ${i} of ${pageCount}`), PAGE_WIDTH - MARGIN_RIGHT, footerBottom + 4, { align: 'right' })
   }
   setTextColor(doc, { r: 0, g: 0, b: 0 })
 }
