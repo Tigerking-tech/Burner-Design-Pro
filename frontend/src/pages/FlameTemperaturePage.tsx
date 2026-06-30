@@ -5,6 +5,7 @@ import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { sanitizeText, createPDF } from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -318,67 +319,68 @@ export default function FlameTemperaturePage() {
   const exportToPDF = () => {
     if (!results) return
 
-    const doc = new jsPDF()
+    const doc = createPDF()
+    const t = (s: string) => sanitizeText(s)
     
     doc.setFontSize(18)
-    doc.setFont(undefined, 'bold')
-    doc.text('Flame Temperature Calculation Report', 20, 20)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Flame Temperature Calculation Report'), 20, 20)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text('Standard: Thermodynamic heat balance calculation', 20, 36)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`Date: ${new Date().toLocaleDateString()}`), 20, 30)
+    doc.text(t('Standard: Thermodynamic heat balance calculation'), 20, 36)
     
     doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Input Parameters:', 20, 48)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Input Parameters:'), 20, 48)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
+    doc.setFont('helvetica', 'normal')
     let yPos = 56
     gasComponents.forEach(c => {
       const pct = parseFloat(c.percentage) || 0
       if (pct > 0) {
-        doc.text(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`, 20, yPos)
+        doc.text(t(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`), 20, yPos)
         yPos += 6
       }
     })
     
     yPos += 4
-    doc.text(`Fuel Temperature: ${fuelTemperature} °C`, 20, yPos)
+    doc.text(t(`Fuel Temperature: ${fuelTemperature} deg C`), 20, yPos)
     yPos += 6
-    doc.text(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`, 20, yPos)
+    doc.text(t(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`), 20, yPos)
     yPos += 6
-    doc.text(`Oxidizer Temperature: ${oxidizerTemperature} °C`, 20, yPos)
+    doc.text(t(`Oxidizer Temperature: ${oxidizerTemperature} deg C`), 20, yPos)
     yPos += 6
-    doc.text(`Excess Oxygen: ${excessOxygen}%`, 20, yPos)
+    doc.text(t(`Excess Oxygen: ${excessOxygen}%`), 20, yPos)
     
     yPos += 10
     doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Calculation Results:', 120, 48)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Calculation Results:'), 120, 48)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} °C`, 120, 56)
-    doc.text(`Actual Flame Temperature: ${results.actual.toFixed(0)} °C`, 120, 62)
-    doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} deg C`), 120, 56)
+    doc.text(t(`Actual Flame Temperature: ${results.actual.toFixed(0)} deg C`), 120, 62)
+    doc.text(t(`Stoichiometric O2: ${results.stoichO2.toFixed(4)} mol/mol`), 120, 68)
     
     yPos = 78
     doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Combustion Products (per mole fuel):', 20, yPos)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Combustion Products (per mole fuel):'), 20, yPos)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`CO₂: ${results.molesCO2.toFixed(4)} mol`, 20, yPos + 8)
-    doc.text(`H₂O: ${results.molesH2O.toFixed(4)} mol`, 20, yPos + 14)
-    doc.text(`N₂: ${results.molesN2.toFixed(4)} mol`, 20, yPos + 20)
-    doc.text(`Excess O₂: ${results.molesO2.toFixed(4)} mol`, 20, yPos + 26)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`CO2: ${results.molesCO2.toFixed(4)} mol`), 20, yPos + 8)
+    doc.text(t(`H2O: ${results.molesH2O.toFixed(4)} mol`), 20, yPos + 14)
+    doc.text(t(`N2: ${results.molesN2.toFixed(4)} mol`), 20, yPos + 20)
+    doc.text(t(`Excess O2: ${results.molesO2.toFixed(4)} mol`), 20, yPos + 26)
     
     doc.setFontSize(8)
     doc.setTextColor(128, 128, 128)
-    doc.text('Note: Results are for reference only. Consult qualified combustion engineers.', 20, 280)
+    doc.text(t('Note: Results are for reference only. Consult qualified combustion engineers.'), 20, 280)
     
     doc.save('flame-temperature-report.pdf')
   }

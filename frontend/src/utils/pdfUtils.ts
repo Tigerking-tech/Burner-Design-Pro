@@ -1,0 +1,121 @@
+import { jsPDF } from 'jspdf'
+
+const unicodeReplacements: Record<string, string> = {
+  '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4',
+  '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9',
+  '⁰': '^0', '¹': '^1', '²': '^2', '³': '^3', '⁴': '^4',
+  '⁵': '^5', '⁶': '^6', '⁷': '^7', '⁸': '^8', '⁹': '^9',
+  'α': 'alpha', 'β': 'beta', 'γ': 'gamma', 'δ': 'delta',
+  'ε': 'epsilon', 'ζ': 'zeta', 'η': 'eta', 'θ': 'theta',
+  'ι': 'iota', 'κ': 'kappa', 'λ': 'lambda', 'μ': 'mu',
+  'ν': 'nu', 'ξ': 'xi', 'ο': 'omicron', 'π': 'pi',
+  'ρ': 'rho', 'σ': 'sigma', 'τ': 'tau', 'υ': 'upsilon',
+  'φ': 'phi', 'χ': 'chi', 'ψ': 'psi', 'ω': 'omega',
+  'Α': 'Alpha', 'Β': 'Beta', 'Γ': 'Gamma', 'Δ': 'Delta',
+  'Ε': 'Epsilon', 'Ζ': 'Zeta', 'Η': 'Eta', 'Θ': 'Theta',
+  'Ι': 'Iota', 'Κ': 'Kappa', 'Λ': 'Lambda', 'Μ': 'Mu',
+  'Ν': 'Nu', 'Ξ': 'Xi', 'Ο': 'Omicron', 'Π': 'Pi',
+  'Ρ': 'Rho', 'Σ': 'Sigma', 'Τ': 'Tau', 'Υ': 'Upsilon',
+  'Φ': 'Phi', 'Χ': 'Chi', 'Ψ': 'Psi', 'Ω': 'Omega',
+  '°': 'deg ',
+  '·': '.',
+  '×': 'x',
+  '÷': '/',
+  '±': '+/-',
+  '≤': '<=',
+  '≥': '>=',
+  '≠': '!=',
+  '≈': '~=',
+  '∞': 'infinity',
+  '√': 'sqrt',
+  '∆': 'Delta ',
+  '∑': 'Sigma ',
+  '∫': 'integral ',
+  '‰': 'permil',
+  '‱': 'basis point',
+  '—': '-',
+  '–': '-',
+  '―': '-',
+  '‘': "'",
+  '’': "'",
+  '“': '"',
+  '”': '"',
+  '«': '<<',
+  '»': '>>',
+  '…': '...',
+  '•': '*',
+  '▪': '-',
+  '▫': '-',
+  '◆': '*',
+  '◇': '*',
+  '○': 'o',
+  '●': '*',
+  '■': '*',
+  '□': '[]',
+  '▲': '^',
+  '▼': 'v',
+  '◀': '<',
+  '▶': '>',
+  '←': '<-',
+  '→': '->',
+  '↑': '^',
+  '↓': 'v',
+  '↔': '<->',
+  '↕': '^v',
+  '⇐': '<=',
+  '⇒': '=>',
+  '⇑': '^',
+  '⇓': 'v',
+  '⚠': '[!]',
+  '✓': '[x]',
+  '✗': '[ ]',
+  '✔': '[x]',
+  '✘': '[ ]',
+  '©': '(c)',
+  '®': '(r)',
+  '™': '(tm)',
+  '€': 'EUR',
+  '£': 'GBP',
+  '¥': 'JPY',
+  '₩': 'KRW',
+  '₽': 'RUB',
+  '₹': 'INR',
+  '₺': 'TRY',
+  '₴': 'UAH',
+  '₦': 'NGN',
+  '₱': 'PHP',
+  '₫': 'VND',
+  '฿': 'THB',
+  '₵': 'GHS',
+  '₲': 'PYG',
+  '₼': 'AZN',
+  '₾': 'GEL',
+  '₸': 'KZT',
+  '₿': 'BTC',
+  'm³': 'm3',
+  'kg/m³': 'kg/m3',
+  'm³/h': 'm3/h',
+  'm³/s': 'm3/s',
+  'Δp': 'Delta P',
+  'ΔP': 'Delta P',
+  'ΔT': 'Delta T',
+}
+
+export function sanitizeText(text: string): string {
+  let result = text
+  for (const [unicode, ascii] of Object.entries(unicodeReplacements)) {
+    result = result.split(unicode).join(ascii)
+  }
+  result = result.replace(/[^\x00-\x7F]/g, '')
+  return result
+}
+
+export function createPDF(): jsPDF {
+  const doc = new jsPDF()
+  doc.setFont('helvetica', 'normal')
+  return doc
+}
+
+export function setBold(doc: jsPDF, bold: boolean = true): void {
+  doc.setFont('helvetica', bold ? 'bold' : 'normal')
+}

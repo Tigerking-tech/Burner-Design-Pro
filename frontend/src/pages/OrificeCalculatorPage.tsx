@@ -6,6 +6,7 @@ import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { sanitizeText, createPDF } from '../utils/pdfUtils'
 
 interface CalculationResult {
   orificeDiameter: number
@@ -466,54 +467,54 @@ export default function OrificeCalculatorPage() {
   const exportToPDF = () => {
     if (!results) return
 
-    const doc = new jsPDF()
+    const doc = createPDF()
+    const t = (s: string) => sanitizeText(s)
     
     doc.setFontSize(18)
-    doc.setFont(undefined, 'bold')
-    doc.text('Orifice Plate Calculation Report', 20, 20)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Orifice Plate Calculation Report'), 20, 20)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text(`Type: ${calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'}`, 20, 36)
-    doc.text(`Standard: ISO 5167 / DIN EN ISO 5167`, 20, 42)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`Date: ${new Date().toLocaleDateString()}`), 20, 30)
+    doc.text(t(`Type: ${calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'}`), 20, 36)
+    doc.text(t('Standard: ISO 5167 / DIN EN ISO 5167'), 20, 42)
     
     doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Input Parameters:', 20, 54)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Input Parameters:'), 20, 54)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Gas Type: ${selectedGasType.name}`, 20, 62)
-    doc.text(`Density: ${getDensity().toFixed(2)} kg/m³`, 20, 68)
-    doc.text(`Nominal Size DN: ${selectedPipeDN}`, 20, 74)
-    doc.text(`Internal Diameter D: ${internalDiameter} mm`, 20, 80)
-    doc.text(`Max Flow Rate Q: ${maxFlowRate} m³/h`, 20, 86)
-    doc.text(`${calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure'} Δp: ${pressureDrop} mbar`, 20, 92)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`Gas Type: ${selectedGasType.name}`), 20, 62)
+    doc.text(t(`Density: ${getDensity().toFixed(2)} kg/m3`), 20, 68)
+    doc.text(t(`Nominal Size DN: ${selectedPipeDN}`), 20, 74)
+    doc.text(t(`Internal Diameter D: ${internalDiameter} mm`), 20, 80)
+    doc.text(t(`Max Flow Rate Q: ${maxFlowRate} m3/h`), 20, 86)
+    doc.text(t(`${calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure'} Delta p: ${pressureDrop} mbar`), 20, 92)
     
     doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Calculation Results:', 120, 54)
+    doc.setFont('helvetica', 'bold')
+    doc.text(t('Calculation Results:'), 120, 54)
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Orifice Diameter d: ${results.orificeDiameter} mm`, 120, 62)
-    doc.text(`Beta Ratio β: ${results.betaRatio}`, 120, 68)
-    doc.text(`Discharge Coefficient Cd: ${results.dischargeCoef}`, 120, 74)
-    doc.text(`Reynolds Number Re: ${results.reynoldsNum.toLocaleString()}`, 120, 80)
+    doc.setFont('helvetica', 'normal')
+    doc.text(t(`Orifice Diameter d: ${results.orificeDiameter} mm`), 120, 62)
+    doc.text(t(`Beta Ratio: ${results.betaRatio}`), 120, 68)
+    doc.text(t(`Discharge Coefficient Cd: ${results.dischargeCoef}`), 120, 74)
+    doc.text(t(`Reynolds Number Re: ${results.reynoldsNum.toLocaleString()}`), 120, 80)
 
-    // Add Disclaimer Page
     doc.addPage()
     doc.setFillColor(255, 255, 230)
     doc.rect(0, 0, 210, 297, 'F')
     
     doc.setFontSize(16)
-    doc.setFont(undefined, 'bold')
+    doc.setFont('helvetica', 'bold')
     doc.setTextColor(180, 0, 0)
-    doc.text('IMPORTANT DISCLAIMER', 105, 30, { align: 'center' })
+    doc.text(t('IMPORTANT DISCLAIMER'), 105, 30, { align: 'center' })
     
     doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
+    doc.setFont('helvetica', 'normal')
     doc.setTextColor(0, 0, 0)
     
     const disclaimerLines = [
@@ -523,21 +524,21 @@ export default function OrificeCalculatorPage() {
       'BURNER-DESIGN-PRO MAKES NO WARRANTY regarding the accuracy, reliability,',
       'or applicability of these results.',
       '',
-      '⚠️ PROFESSIONAL ENGINEERING JUDGMENT REQUIRED:',
+      '[!] PROFESSIONAL ENGINEERING JUDGMENT REQUIRED:',
       '',
       'All results should be reviewed and validated by a qualified professional engineer',
       'BEFORE APPLICATION to any real-world project.',
       '',
-      '⚠️ NO LIABILITY:',
+      '[!] NO LIABILITY:',
       '',
       'In no event shall Burner-Design-Pro be liable for any direct, indirect,',
       'incidental, special, or consequential damages arising from the use of these calculations.',
       '',
       'The user is solely responsible for:',
-      '• Verifying all input parameters',
-      '• Confirming results with independent calculations',
-      '• Ensuring compliance with local regulations',
-      '• Obtaining professional engineering consultation',
+      '- Verifying all input parameters',
+      '- Confirming results with independent calculations',
+      '- Ensuring compliance with local regulations',
+      '- Obtaining professional engineering consultation',
       '',
       'For questions or concerns, consult a licensed professional engineer.'
     ]
@@ -546,13 +547,13 @@ export default function OrificeCalculatorPage() {
     disclaimerLines.forEach(line => {
       if (line === '') {
         yPos += 4
-      } else if (line.startsWith('⚠️')) {
-        doc.setFont(undefined, 'bold')
-        doc.text(line, 20, yPos)
+      } else if (line.startsWith('[!]')) {
+        doc.setFont('helvetica', 'bold')
+        doc.text(t(line), 20, yPos)
         yPos += 6
       } else {
-        doc.setFont(undefined, 'normal')
-        doc.text(line, 20, yPos)
+        doc.setFont('helvetica', 'normal')
+        doc.text(t(line), 20, yPos)
         yPos += 5
       }
     })
