@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import jsPDF from 'jspdf'
+import { Download } from 'lucide-react'
 
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
+import {
+  PAGE_WIDTH,
+  PAGE_HEIGHT,
+  MARGIN_LEFT,
+  MARGIN_RIGHT,
+  CONTENT_WIDTH,
+  COLORS,
+  setTextColor,
+  sanitizeText,
+  drawPageFooter,
+  checkPageBreak,
+  addCoverPage,
+  addDisclaimerPage,
+  drawSectionTitle,
+  drawInfoTable
+} from '../utils/pdfUtils'
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
@@ -383,6 +401,94 @@ function InsulationCalculatorPage() {
     setShowResults(true)
   }
 
+  const exportToPDF = () => {
+    if (!result) return
+
+    const doc = new jsPDF()
+    let y = 0
+
+    addCoverPage(doc, {
+      title: 'Insulation Thickness Report',
+      subtitle: 'Thermal insulation calculation',
+      reportType: 'Insulation Analysis',
+      standard: 'ISO 12241 & ASTM C680'
+    })
+
+    doc.addPage()
+    y = 45
+
+    y = drawSectionTitle(doc, '1. Input Parameters', y, 'User-provided insulation design parameters');
+
+    const inputItems: [string, string][] = [
+      ['Unit System', unitSystem === 'metric' ? 'Metric (mm, °C, W/mK)' : 'Imperial (in, °F, Btu/h·ft·°F)'],
+      ['Equipment Type', equipmentType === 'pipe' ? 'Pipe / Cylindrical' : 'Flat Surface'],
+      ['Calculation Mode', mode === 'surface' ? 'Max Surface Temperature' : mode === 'heatloss' ? 'Max Heat Loss' : 'Anti-Condensation'],
+      ['Insulation Material', materialProperties[materialType]?.name || 'Custom'],
+      ['Thermal Conductivity (k)', `${getThermalConductivity().toFixed(3)} W/mK`],
+      ['Medium Temperature', `${mediumTemp.toFixed(1)} °C`],
+      ['Ambient Temperature', `${ambientTemp.toFixed(1)} °C`],
+      ['Environment', environment.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())],
+      ['Surface Emittance', getEmittance().toFixed(2)],
+      ['Operating Hours', `${operatingHours.toFixed(0)} h/year`],
+    ]
+
+    if (equipmentType === 'pipe') {
+      inputItems.splice(2, 0, ['Pipe Size / OD', `${outerDiameter.toFixed(1)} mm`])
+    } else {
+      inputItems.splice(2, 0, ['Surface Dimensions', `${surfaceLength.toFixed(2)} m × ${surfaceWidth.toFixed(2)} m`])
+    }
+
+    if (mode === 'surface') {
+      inputItems.push(['Target Surface Temperature', `${targetSurfaceTemp.toFixed(1)} °C`])
+    } else if (mode === 'heatloss') {
+      inputItems.push(['Target Heat Loss', `${targetHeatLoss.toFixed(1)} W/m²`])
+    } else {
+      inputItems.push(['Relative Humidity', `${relativeHumidity.toFixed(0)} %`])
+    }
+
+    y = checkPageBreak(doc, y, 120, 'Insulation Report', 'Input Parameters');
+    y = drawInfoTable(doc, inputItems, MARGIN_LEFT, y, CONTENT_WIDTH);
+
+    y += 8
+    y = drawSectionTitle(doc, '2. Calculation Results', y, 'Thermal insulation calculation results')
+
+    const resultItems: [string, string][] = [
+      ['Required Insulation Thickness', `${result.thickness.toFixed(1)} mm`],
+      ['Standard Thickness', result.standardThickness ? `${result.standardThickness} mm` : 'N/A'],
+      ['Surface Temperature', `${result.surfaceTemp.toFixed(1)} °C`],
+      ['Heat Flux', `${Math.abs(result.heatFlux).toFixed(1)} W/m²`],
+      ['Annual Heat Loss', `${Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year`],
+    ]
+
+    if (result.linearHeatLoss !== undefined) {
+      resultItems.splice(3, 0, ['Linear Heat Loss', `${Math.abs(result.linearHeatLoss).toFixed(1)} W/m`])
+    }
+    if (result.dewPoint !== undefined) {
+      resultItems.unshift(['Dew Point Temperature', `${result.dewPoint.toFixed(1)} °C`])
+    }
+
+    y = checkPageBreak(doc, y, 100, 'Insulation Report', 'Calculation Results');
+    y = drawInfoTable(doc, resultItems, MARGIN_LEFT, y, CONTENT_WIDTH);
+
+    y += 8
+    y = drawSectionTitle(doc, '3. Heat Transfer Coefficient', y, 'Convective and radiative heat transfer')
+
+    const hItems: [string, string][] = [
+      ['Convective Coefficient (hc)', `${hc.toFixed(2)} W/m²K`],
+      ['Radiative Coefficient (hr)', `${hr.toFixed(2)} W/m²K`],
+      ['Total Heat Transfer Coeff (h)', `${heatTransferCoeff.toFixed(2)} W/m²K`],
+      ['Wind Speed (approx.)', `${windSpeed.toFixed(1)} m/s`],
+    ]
+
+    y = checkPageBreak(doc, y, 60, 'Insulation Report', 'Heat Transfer Coefficient');
+    y = drawInfoTable(doc, hItems, MARGIN_LEFT, y, CONTENT_WIDTH);
+
+    addDisclaimerPage(doc)
+    drawPageFooter(doc)
+
+    doc.save('insulation-report.pdf')
+  }
+
   useEffect(() => {
     if (pipeSizes.metric[pipeSize]) {
       setOuterDiameter(pipeSizes.metric[pipeSize])
@@ -683,6 +789,16 @@ function InsulationCalculatorPage() {
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
                       <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <button
+                      onClick={exportToPDF}
+                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                    >
+                      <Download size={20} />
+                      Export PDF Report
+                    </button>
                   </div>
                 </>
               )}

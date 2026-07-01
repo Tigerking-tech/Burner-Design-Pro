@@ -1,6 +1,23 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Download } from 'lucide-react'
+import { jsPDF } from 'jspdf'
 import { Navbar } from '../components/Navbar'
+import {
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawBulletList,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+  sanitizeText,
+  formatNumber as pdfFormatNumber,
+} from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -394,6 +411,119 @@ export default function FuelManagerPage() {
     return oilElements.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
   }
 
+  const exportToPDF = () => {
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    addCoverPage(doc, {
+      title: 'Fuel Analysis Report',
+      subtitle: activeTab === 'gas' ? 'Fuel gas composition and property calculation' : 'Liquid fuel elemental analysis and property calculation',
+      reportType: 'Fuel Manager Analysis',
+    });
+
+    let y = drawPageHeader(doc, 'Fuel Analysis Report', 'Calculation Results');
+
+    if (activeTab === 'gas') {
+      const gas1Data = calculateGasKeyData(gas1Components);
+      const gas2Data = calculateGasKeyData(gas2Components);
+      const mixtureData = calculateMixture();
+
+      y = drawSectionTitle(doc, 'Gas 1 Composition', y, selectedGas1Preset || 'Custom gas composition');
+      const gas1Rows = gas1Components
+        .filter(c => parseFloat(c.percentage) > 0)
+        .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
+      if (gas1Rows.length > 0) {
+        y = drawInfoTable(doc, gas1Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+      } else {
+        y += 10;
+      }
+
+      if (gas1Data) {
+        y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 1 Properties');
+        y = drawSubSectionTitle(doc, 'Gas 1 Key Properties', y);
+        const cardWidth = (CONTENT_WIDTH - 8) / 3;
+        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas1Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas1Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas1Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+        y += 37;
+        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas1Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas1Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        y += 37;
+      }
+
+      y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas 2 Composition');
+      y = drawSectionTitle(doc, 'Gas 2 Composition', y, selectedGas2Preset || 'Custom gas composition');
+      const gas2Rows = gas2Components
+        .filter(c => parseFloat(c.percentage) > 0)
+        .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
+      if (gas2Rows.length > 0) {
+        y = drawInfoTable(doc, gas2Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+      } else {
+        y += 10;
+      }
+
+      if (gas2Data) {
+        y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 2 Properties');
+        y = drawSubSectionTitle(doc, 'Gas 2 Key Properties', y);
+        const cardWidth = (CONTENT_WIDTH - 8) / 3;
+        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas2Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas2Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas2Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+        y += 37;
+        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas2Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas2Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        y += 37;
+      }
+
+      if (mixtureData) {
+        y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas Mixture');
+        y = drawSectionTitle(doc, 'Gas Mixture Properties', y, `Mixture ratio: ${gas1MixturePercent}% Gas 1 / ${(100 - parseFloat(gas1MixturePercent) || 0).toFixed(0)}% Gas 2`);
+        const cardWidth = (CONTENT_WIDTH - 8) / 3;
+        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(mixtureData.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(mixtureData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(mixtureData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+        y += 37;
+        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(mixtureData.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(mixtureData.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        y += 37;
+      }
+    } else {
+      const oilData = calculateOilKeyData();
+      const oilName = oilPresets[selectedOil]?.name || 'Custom oil';
+
+      y = drawSectionTitle(doc, 'Oil Fuel Analysis', y, oilName);
+
+      y = drawSubSectionTitle(doc, 'Elemental Analysis', y);
+      const oilRows = oilElements
+        .filter(el => parseFloat(el.percentage) > 0)
+        .map(el => [el.name + ' (' + el.symbol + ')', el.percentage + '%'] as [string, string]);
+      if (oilRows.length > 0) {
+        y = drawInfoTable(doc, oilRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+      }
+
+      if (oilData) {
+        y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Oil Properties');
+        y = drawSubSectionTitle(doc, 'Key Properties', y);
+        const cardWidth = (CONTENT_WIDTH - 8) / 3;
+        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(oilData.density, 3) + ' kg/L', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hs (kWh/kg)', value: pdfFormatNumber(oilData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hi (kWh/kg)', value: pdfFormatNumber(oilData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+        y += 37;
+        drawResultCard(doc, { label: 'Viscosity', value: pdfFormatNumber(oilData.viscosity, 1) + ' cSt', x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Flash Point', value: pdfFormatNumber(oilData.flashPoint, 0) + ' deg C', x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Pour Point', value: pdfFormatNumber(oilData.pourPoint, 0) + ' deg C', x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, status: 'info' });
+        y += 37;
+      }
+    }
+
+    addDisclaimerPage(doc, {
+      title: 'FUEL ANALYSIS DISCLAIMER',
+    });
+
+    drawPageFooter(doc);
+
+    doc.save('fuel-analysis-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Navbar />
@@ -680,11 +810,21 @@ export default function FuelManagerPage() {
                       <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.wi.toFixed(2)} kWh/m³</div>
                     </div>
                   </div>
-                </div>
-              )}
+              </div>
+            )}
+
+            <div className="mt-4 sm:mt-6">
+              <button
+                onClick={exportToPDF}
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+              >
+                <Download size={20} />
+                Export PDF Report
+              </button>
             </div>
-          </>
-        ) : (
+          </div>
+        </>
+      ) : (
           <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg">
             <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] mb-4 sm:mb-6">Oil Fuel Data</h2>
 
@@ -767,6 +907,16 @@ export default function FuelManagerPage() {
                 </div>
               </div>
             )}
+
+            <div className="mt-4 sm:mt-6">
+              <button
+                onClick={exportToPDF}
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+              >
+                <Download size={20} />
+                Export PDF Report
+              </button>
+            </div>
           </div>
         )}
       </div>
