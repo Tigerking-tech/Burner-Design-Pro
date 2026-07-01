@@ -309,7 +309,7 @@ export default function OrificeCalculatorPage() {
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
   const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
 
-  const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+  const isProUser = import.meta.env.DEV || (authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free')
 
   useEffect(() => {
     const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
@@ -1165,20 +1165,23 @@ export default function OrificeCalculatorPage() {
               <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
                 Pressure Drop vs Flow Rate
               </h2>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={curveData} margin={{ top: 20, right: 40, left: 20, bottom: 40 }}>
+              <ResponsiveContainer width="100%" height={430}>
+                <LineChart data={curveData} margin={{ top: 42, right: 46, left: 28, bottom: 58 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                   <XAxis
                     dataKey="pressureDrop"
-                    label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 10, style: { fontSize: 12, fill: '#555' } }}
+                    tickCount={6}
+                    minTickGap={28}
+                    label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 12, fill: '#555' } }}
                     tick={{ fontSize: 11 }}
                   />
                   <YAxis
-                    label={{ value: 'Flow Rate Q (m3/h)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: 12, fill: '#555' } }}
+                    tickCount={5}
+                    label={{ value: 'Flow Rate Q (m3/h)', angle: -90, position: 'insideLeft', offset: 8, style: { fontSize: 12, fill: '#555' } }}
                     tick={{ fontSize: 11 }}
                   />
                   <Tooltip />
-                  <Legend wrapperStyle={{ paddingTop: 8 }} />
+                  <Legend verticalAlign="top" align="right" height={28} wrapperStyle={{ top: 0, right: 0, fontSize: 12 }} />
                   {results && (
                     <ReferenceLine
                       x={results.pressureDrop}
