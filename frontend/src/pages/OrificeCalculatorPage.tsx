@@ -5,6 +5,30 @@ import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
+import {
+  createPDF,
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawTwoColumnTables,
+  drawBulletList,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  sanitizeText,
+  setTextColor,
+  setFillColor,
+  setDrawColor,
+  COLORS,
+  PAGE_WIDTH,
+  PAGE_HEIGHT,
+  MARGIN_LEFT,
+  MARGIN_RIGHT,
+  CONTENT_WIDTH,
+} from '../utils/pdfUtils'
 
 interface CalculationResult {
   orificeDiameter: number
@@ -285,7 +309,7 @@ export default function OrificeCalculatorPage() {
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
   const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
 
-  const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+  const isProUser = import.meta.env.DEV || (authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free')
 
   useEffect(() => {
     const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
@@ -327,24 +351,49 @@ export default function OrificeCalculatorPage() {
     }
   }
 
-  const calculateExpansibilityFactor = (beta: number, deltaP: number, P1: number, k: number) => {
-    if (featureMode === 'basic') {
-      return 0.98
-    }
-    return 1 - (0.41 + 0.35 * Math.pow(beta, 4)) * deltaP / (P1 * k)
+  const calculateExpansibilityFactor = (beta: number, deltaP_Pa: number, P1_Pa: number, k: number) => {
+    // ISO 5167-2 expansibility factor (for all modes)
+    // epsilon = 1 - (0.41 + 0.35*beta^4) * deltaP / (k * P1)
+    // Valid for deltaP/P1 < 0.25
+    if (P1_Pa <= 0) return 1.0
+    return 1 - (0.41 + 0.35 * Math.pow(beta, 4)) * deltaP_Pa / (k * P1_Pa)
+  }
+
+  const calculateVelocityApproachFactor = (beta: number) => {
+    // Velocity of approach factor E = 1/sqrt(1 - beta^4)
+    // ISO 5167 fundamental factor
+    const beta4 = Math.pow(beta, 4)
+    if (beta4 >= 1) return 1.0
+    return 1 / Math.sqrt(1 - beta4)
+  }
+
+  const calculateDischargeCoefficient = (beta: number, ReD: number): number => {
+    // Reader-Harris/Gallagher equation (ISO 5167-2:2022 §5.3.2.1)
+    // for corner taps (closest to Krom Schröder restricting/measuring orifice)
+    // Cd = 0.5961 + 0.0261*beta^2 - 0.216*beta^8
+    //      + 0.000521*(1e6*beta/ReD)^0.7
+    //      + [0.0188 + 0.0063*(19000*beta/ReD)^0.8] * beta^4/(1-beta^4)
+    if (ReD <= 0) return 0.5961
+    const beta2 = Math.pow(beta, 2)
+    const beta4 = Math.pow(beta, 4)
+    const beta8 = Math.pow(beta, 8)
+    const termA = 0.5961 + 0.0261 * beta2 - 0.216 * beta8
+    const termB = 0.000521 * Math.pow((1e6 * beta) / ReD, 0.7)
+    const termC = (0.0188 + 0.0063 * Math.pow((19000 * beta) / ReD, 0.8)) * beta4 / (1 - beta4)
+    return termA + termB + termC
   }
 
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
-    const pressureInBar = featureMode === 'advanced' 
+    const pressureInBar = featureMode === 'advanced'
       ? (pressureUnits.find(p => p.value === pressureUnit)?.toBar(parseFloat(operatingPressure)) || 1.013)
       : 1.01325
     const atmPressure = 1.01325
     const absolutePressure = featureMode === 'advanced' && pressureType === 'gauge'
       ? pressureInBar + atmPressure
       : pressureInBar
-    const P1 = absolutePressure * 100000
+    const P1 = absolutePressure * 100000 // Pa
     const k = parseFloat(isentropicExponentK)
 
     if (!D || D > 325) {
@@ -352,16 +401,17 @@ export default function OrificeCalculatorPage() {
       return
     }
 
-    const C = calculationMode === 'restricting' ? 0.61 : 0.62
+    const mu = 1.7e-5 // dynamic viscosity of gas (Pa·s), approximate for common gases at 20°C
     let finalOrificeDiameter: number
     let finalPressureDrop: number
     let Q: number
-    let epsilon: number
+    let finalEpsilon: number
+    let finalCd: number
 
     if (outputMode === 'orifice') {
       Q = parseFloat(maxFlowRate)
       const deltaP = parseFloat(pressureDrop)
-      
+
       if (!Q || Q <= 0 || Q > 10000) {
         alert('Please enter valid flow rate (max 10000 m³/h)')
         return
@@ -371,17 +421,39 @@ export default function OrificeCalculatorPage() {
         return
       }
 
-      const qm = (Q / 3600) * rho
-      const epsilon_est = 0.98
-      const A_orifice = qm / (C * epsilon_est * Math.sqrt(2 * rho * deltaP * 100))
-      finalOrificeDiameter = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
+      const deltaP_Pa = deltaP * 100 // mbar → Pa
+      const qm = (Q / 3600) * rho   // kg/s
+
+      // ISO 5167 iterative calculation: solve for d
+      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
+      // where E = 1/sqrt(1 - beta^4), beta = d/D
+      // Cd = Reader-Harris/Gallagher f(beta, Re)
+      // epsilon = 1 - (0.41 + 0.35*beta^4) * deltaP/(k*P1)
+      let d_est = Math.sqrt(qm / (0.6 * 0.98 * Math.sqrt(2 * rho * deltaP_Pa)) * 4 / Math.PI) * 1000 // initial guess in mm
+      for (let iter = 0; iter < 30; iter++) {
+        const beta = d_est / D
+        const E = calculateVelocityApproachFactor(beta)
+        const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+        // Estimate Re for Cd calculation
+        const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const A_orifice = qm / (Cd * E * epsilon * Math.sqrt(2 * rho * deltaP_Pa))
+        const d_new = Math.sqrt(A_orifice * 4 / Math.PI) * 1000 // mm
+        if (Math.abs(d_new - d_est) < 0.001) { d_est = d_new; break }
+        d_est = d_new
+      }
+
+      finalOrificeDiameter = d_est
       finalPressureDrop = deltaP
-      const beta = finalOrificeDiameter / D
-      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
+      const beta_final = d_est / D
+      finalEpsilon = calculateExpansibilityFactor(beta_final, deltaP_Pa, P1, k)
+      const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta_final, Re_final)
+
     } else if (outputMode === 'pressure') {
       Q = parseFloat(maxFlowRate)
       const d = parseFloat(orificeDiameterInput)
-      
+
       if (!Q || Q <= 0 || Q > 10000) {
         alert('Please enter valid flow rate (max 10000 m³/h)')
         return
@@ -392,15 +464,36 @@ export default function OrificeCalculatorPage() {
       }
 
       finalOrificeDiameter = d
-      const beta = d / D
-      epsilon = 0.98
       const qm = (Q / 3600) * rho
-      finalPressureDrop = (qm * qm) / (rho * C * C * epsilon * epsilon * Math.pow((Math.PI / 4) * Math.pow(d / 1000, 2), 2)) / 2 / 100
-      epsilon = calculateExpansibilityFactor(beta, finalPressureDrop * 100, P1, k)
+      const beta = d / D
+      const E = calculateVelocityApproachFactor(beta)
+      const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
+
+      // ISO 5167 iterative: solve for deltaP
+      // qm = Cd * E * epsilon * A * sqrt(2 * rho * deltaP)
+      // epsilon depends on deltaP, Cd depends on Re which depends on deltaP
+      let deltaP_est = 10 // initial guess in mbar
+      for (let iter = 0; iter < 30; iter++) {
+        const deltaP_Pa = deltaP_est * 100
+        const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+        const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        // deltaP = (qm / (Cd * E * epsilon * A))^2 / (2 * rho)
+        const deltaP_Pa_new = Math.pow(qm / (Cd * E * epsilon * A_orifice), 2) / (2 * rho)
+        const deltaP_mbar_new = deltaP_Pa_new / 100
+        if (Math.abs(deltaP_mbar_new - deltaP_est) < 0.001) { deltaP_est = deltaP_mbar_new; break }
+        deltaP_est = deltaP_mbar_new
+      }
+
+      finalPressureDrop = deltaP_est
+      finalEpsilon = calculateExpansibilityFactor(beta, deltaP_est * 100, P1, k)
+      const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta, Re_final)
+
     } else {
       const d = parseFloat(orificeDiameterInput)
       const deltaP = parseFloat(pressureDrop)
-      
+
       if (!d || d <= 0 || d > 325) {
         alert('Please enter valid orifice diameter (max 325 mm)')
         return
@@ -413,47 +506,74 @@ export default function OrificeCalculatorPage() {
       finalOrificeDiameter = d
       finalPressureDrop = deltaP
       const beta = d / D
-      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
-      const qm = C * epsilon * (Math.PI / 4) * Math.pow(d / 1000, 2) * Math.sqrt(2 * rho * deltaP * 100)
-      Q = (qm / rho) * 3600
+      const E = calculateVelocityApproachFactor(beta)
+      const deltaP_Pa = deltaP * 100
+      finalEpsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+
+      // ISO 5167 iterative: solve for Q (via qm)
+      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
+      // Cd depends on Re which depends on qm → iterate
+      const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
+      let qm_est = 0.6 * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa) // initial guess
+      for (let iter = 0; iter < 30; iter++) {
+        const Re_est = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const qm_new = Cd * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa)
+        if (Math.abs(qm_new - qm_est) < 1e-8) { qm_est = qm_new; break }
+        qm_est = qm_new
+      }
+
+      Q = (qm_est / rho) * 3600
+      const Re_final = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta, Re_final)
     }
 
     const beta = finalOrificeDiameter / D
     const qm = (Q / 3600) * rho
-    const Re = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * 0.000017)
+    const Re = (4 * qm) / (Math.PI * (D / 1000) * mu)
 
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
       betaRatio: Math.round(beta * 10000) / 10000,
-      dischargeCoef: C,
+      dischargeCoef: Math.round(finalCd * 10000) / 10000,
       reynoldsNum: Math.round(Re),
       velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D / 1000, 2)),
       massFlowRate: qm,
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, C, P1, k)
+    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, finalCd, P1, k)
     setResults(finalResults)
     setShowResults(true)
   }
 
-  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, C: number, P1: number, k: number) => {
+  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, Cd: number, P1: number, k: number) => {
     const points: CurvePoint[] = []
+    const mu = 1.7e-5 // dynamic viscosity of gas (Pa·s)
     
     const maxDeltaP = deltaP * 1.5
     const steps = 50
+    const d = d_mm / 1000 // m
+    const E = calculateVelocityApproachFactor(beta)
+    const A_orifice = (Math.PI / 4) * d * d
     
     for (let i = 0; i <= steps; i++) {
       const currentDeltaP = (maxDeltaP / steps) * i
-      const epsilon = calculateExpansibilityFactor(beta, currentDeltaP * 100, P1, k)
-      const d = d_mm / 1000
+      const currentDeltaP_Pa = currentDeltaP * 100
+      const epsilon = calculateExpansibilityFactor(beta, currentDeltaP_Pa, P1, k)
       
-      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP * 100)
+      // Use iterative Cd based on estimated Re
+      const qm_est = Cd * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
+      const Re_est = (4 * qm_est) / (Math.PI * (D_mm / 1000) * mu)
+      const Cd_calc = calculateDischargeCoefficient(beta, Re_est)
+      
+      // Recalculate with proper Cd
+      const qm_calc = Cd_calc * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
       const Q_calc = (qm_calc / rho) * 3600
 
       points.push({
         beta: beta,
-        dischargeCoef: C,
+        dischargeCoef: Math.round(Cd_calc * 10000) / 10000,
         pressureDrop: Math.round(currentDeltaP * 100) / 100,
         flowRate: Math.round(Q_calc * 100) / 100
       })
@@ -465,97 +585,228 @@ export default function OrificeCalculatorPage() {
   const exportToPDF = () => {
     if (!results) return
 
-    const doc = new jsPDF()
-    
-    doc.setFontSize(18)
-    doc.setFont(undefined, 'bold')
-    doc.text('Orifice Plate Calculation Report', 20, 20)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text(`Type: ${calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'}`, 20, 36)
-    doc.text(`Standard: ISO 5167 / DIN EN ISO 5167`, 20, 42)
-    
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Input Parameters:', 20, 54)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Gas Type: ${selectedGasType.name}`, 20, 62)
-    doc.text(`Density: ${getDensity().toFixed(2)} kg/m³`, 20, 68)
-    doc.text(`Nominal Size DN: ${selectedPipeDN}`, 20, 74)
-    doc.text(`Internal Diameter D: ${internalDiameter} mm`, 20, 80)
-    doc.text(`Max Flow Rate Q: ${maxFlowRate} m³/h`, 20, 86)
-    doc.text(`${calculationMode === 'restricting' ? 'Pressure Loss' : 'Differential Pressure'} Δp: ${pressureDrop} mbar`, 20, 92)
-    
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Calculation Results:', 120, 54)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Orifice Diameter d: ${results.orificeDiameter} mm`, 120, 62)
-    doc.text(`Beta Ratio β: ${results.betaRatio}`, 120, 68)
-    doc.text(`Discharge Coefficient Cd: ${results.dischargeCoef}`, 120, 74)
-    doc.text(`Reynolds Number Re: ${results.reynoldsNum.toLocaleString()}`, 120, 80)
+    const doc = createPDF()
+    const docTitle = 'Orifice Plate Calculation Report'
+    const modeLabel = calculationMode === 'restricting' ? 'Restricting Orifice' : 'Measuring Orifice'
 
-    // Add Disclaimer Page
-    doc.addPage()
-    doc.setFillColor(255, 255, 230)
-    doc.rect(0, 0, 210, 297, 'F')
-    
-    doc.setFontSize(16)
-    doc.setFont(undefined, 'bold')
-    doc.setTextColor(180, 0, 0)
-    doc.text('IMPORTANT DISCLAIMER', 105, 30, { align: 'center' })
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.setTextColor(0, 0, 0)
-    
-    const disclaimerLines = [
-      'This calculation is provided for informational and reference purposes only.',
-      '',
-      'WHILE EVERY EFFORT HAS BEEN MADE TO ENSURE ACCURACY based on ISO 5167 standards,',
-      'BURNER-DESIGN-PRO MAKES NO WARRANTY regarding the accuracy, reliability,',
-      'or applicability of these results.',
-      '',
-      '⚠️ PROFESSIONAL ENGINEERING JUDGMENT REQUIRED:',
-      '',
-      'All results should be reviewed and validated by a qualified professional engineer',
-      'BEFORE APPLICATION to any real-world project.',
-      '',
-      '⚠️ NO LIABILITY:',
-      '',
-      'In no event shall Burner-Design-Pro be liable for any direct, indirect,',
-      'incidental, special, or consequential damages arising from the use of these calculations.',
-      '',
-      'The user is solely responsible for:',
-      '• Verifying all input parameters',
-      '• Confirming results with independent calculations',
-      '• Ensuring compliance with local regulations',
-      '• Obtaining professional engineering consultation',
-      '',
-      'For questions or concerns, consult a licensed professional engineer.'
-    ]
-    
-    let yPos = 50
-    disclaimerLines.forEach(line => {
-      if (line === '') {
-        yPos += 4
-      } else if (line.startsWith('⚠️')) {
-        doc.setFont(undefined, 'bold')
-        doc.text(line, 20, yPos)
-        yPos += 6
-      } else {
-        doc.setFont(undefined, 'normal')
-        doc.text(line, 20, yPos)
-        yPos += 5
-      }
+    // -- Cover page --
+    addCoverPage(doc, {
+      title: 'Orifice Plate Calculation Report',
+      subtitle: `${modeLabel} sizing per ISO 5167 & DIN EN ISO 5167`,
+      reportType: modeLabel,
+      standard: 'ISO 5167-1:2003 / DIN EN ISO 5167',
+      version: '1.0',
     })
-    
+
+    // -- Page 2: Input + Results --
+    let y = drawPageHeader(doc, docTitle, 'Input Parameters & Results')
+
+    // Section: Input Parameters
+    y = drawSectionTitle(doc, '1. Input Parameters', y, 'Fluid and pipe configuration')
+    const inputRows: [string, string][] = [
+      ['Calculation Mode', modeLabel],
+      ['Gas Type', selectedGasType.name],
+      ['Density', `${getDensity().toFixed(2)} kg/m3`],
+      ['Nominal Size', String(selectedPipeDN)],
+      ['Internal Diameter D', `${internalDiameter} mm`],
+      ['Max Flow Rate Q', `${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))} m3/h`],
+      [calculationMode === 'restricting' ? 'Pressure Loss dp' : 'Differential Pressure dp', `${pressureDrop} mbar`],
+    ]
+    y = drawInfoTable(doc, inputRows, MARGIN_LEFT, y, CONTENT_WIDTH, { title: 'Input Parameters' })
+
+    // Section: Results
+    y = checkPageBreak(doc, y, 90, docTitle, 'Input Parameters & Results')
+    y = drawSectionTitle(doc, '2. Calculation Results', y, 'ISO 5167 based orifice sizing')
+
+    // Result cards
+    const cardW = (CONTENT_WIDTH - 12) / 3
+    y = checkPageBreak(doc, y, 40, docTitle, 'Input Parameters & Results')
+    drawResultCard(doc, {
+      label: 'Orifice Diameter d', value: String(results.orificeDiameter), unit: 'mm',
+      x: MARGIN_LEFT, y, width: cardW, highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Beta Ratio', value: String(results.betaRatio),
+      x: MARGIN_LEFT + cardW + 6, y, width: cardW,
+    })
+    drawResultCard(doc, {
+      label: 'Discharge Coefficient Cd', value: String(results.dischargeCoef),
+      x: MARGIN_LEFT + (cardW + 6) * 2, y, width: cardW,
+    })
+    y += 40
+
+    y = checkPageBreak(doc, y, 40, docTitle, 'Input Parameters & Results')
+    drawResultCard(doc, {
+      label: 'Reynolds Number Re', value: results.reynoldsNum.toLocaleString(),
+      x: MARGIN_LEFT, y, width: cardW,
+    })
+    drawResultCard(doc, {
+      label: 'Velocity', value: results.velocity.toFixed(2), unit: 'm/s',
+      x: MARGIN_LEFT + cardW + 6, y, width: cardW,
+    })
+    drawResultCard(doc, {
+      label: 'Mass Flow Rate', value: (results.massFlowRate / getDensity() * 3600).toFixed(2), unit: 'm3/h',
+      x: MARGIN_LEFT + (cardW + 6) * 2, y, width: cardW,
+    })
+    y += 45
+
+    // Two-column tables: Fluid properties + Intermediate values
+    y = checkPageBreak(doc, y, 60, docTitle, 'Input Parameters & Results')
+    y = drawTwoColumnTables(doc, {
+      title: 'Fluid Properties',
+      rows: [
+        ['Gas Type', selectedGasType.name],
+        ['Density', `${getDensity().toFixed(4)} kg/m3`],
+        ['Temperature', `${operatingTemperature || 20} ${temperatureUnit}`],
+        ['Pressure', `${operatingPressure} ${pressureUnit}`],
+      ],
+    }, {
+      title: 'Intermediate Values',
+      rows: [
+        ['Beta Ratio', String(results.betaRatio)],
+        ['Discharge Cd', String(results.dischargeCoef)],
+        ['Isentropic k', isentropicExponentK],
+        ['Pipe Area', `${(Math.PI / 4 * Math.pow(parseFloat(internalDiameter) / 1000, 2) * 1e6).toFixed(2)} mm2`],
+      ],
+    }, y)
+
+    // -- Page 3: Curve chart --
+    y = checkPageBreak(doc, y, 120, docTitle, 'Performance Curve')
+    y = drawSectionTitle(doc, '3. Performance Curve', y, 'Pressure Drop vs Flow Rate')
+
+    // Draw the curve chart in the PDF
+    if (curveData.length > 0) {
+      const chartX = MARGIN_LEFT + 5
+      const chartY = y + 5
+      const chartW = CONTENT_WIDTH - 10
+      const chartH = 100
+
+      // Chart background
+      setFillColor(doc, { r: 252, g: 252, b: 252 })
+      setDrawColor(doc, COLORS.border)
+      doc.setLineWidth(0.2)
+      doc.rect(chartX, chartY, chartW, chartH, 'FD')
+
+      // Chart margins inside
+      const padLeft = 20
+      const padBottom = 18
+      const padTop = 8
+      const padRight = 8
+      const plotX = chartX + padLeft
+      const plotY = chartY + padTop
+      const plotW = chartW - padLeft - padRight
+      const plotH = chartH - padTop - padBottom
+
+      // Find data ranges
+      const maxDP = Math.max(...curveData.map(d => d.pressureDrop))
+      const minDP = Math.min(...curveData.map(d => d.pressureDrop))
+      const maxQ = Math.max(...curveData.map(d => d.flowRate))
+      const minQ = Math.min(...curveData.map(d => d.flowRate))
+
+      // Draw grid lines
+      setDrawColor(doc, { r: 224, g: 224, b: 224 })
+      doc.setLineWidth(0.1)
+      const gridSteps = 5
+      for (let i = 0; i <= gridSteps; i++) {
+        const gx = plotX + (plotW / gridSteps) * i
+        const gy = plotY + (plotH / gridSteps) * i
+        doc.line(gx, plotY, gx, plotY + plotH)
+        doc.line(plotX, gy, plotX + plotW, gy)
+      }
+
+      // Draw axes
+      setDrawColor(doc, COLORS.textMedium)
+      doc.setLineWidth(0.3)
+      doc.line(plotX, plotY, plotX, plotY + plotH)           // Y axis
+      doc.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH)  // X axis
+
+      // Axis labels
+      setTextColor(doc, COLORS.textMedium)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7)
+      doc.text('dp (mbar)', plotX + plotW / 2, chartY + chartH - 4, { align: 'center' })
+      doc.text('Q (m3/h)', chartX + 4, plotY + plotH / 2, { align: 'center', angle: 90 })
+
+      // Axis tick labels
+      doc.setFontSize(6)
+      for (let i = 0; i <= gridSteps; i++) {
+        const dpVal = minDP + ((maxDP - minDP) / gridSteps) * i
+        const gx = plotX + (plotW / gridSteps) * i
+        doc.text(dpVal.toFixed(1), gx, plotY + plotH + 3, { align: 'center' })
+
+        const qVal = maxQ - ((maxQ - minQ) / gridSteps) * i
+        const gy = plotY + (plotH / gridSteps) * i
+        doc.text(qVal.toFixed(0), plotX - 3, gy + 1, { align: 'right' })
+      }
+
+      // Draw the curve
+      setDrawColor(doc, { r: 43, g: 107, b: 160 })
+      doc.setLineWidth(0.6)
+      for (let i = 1; i < curveData.length; i++) {
+        const x1 = plotX + ((curveData[i - 1].pressureDrop - minDP) / (maxDP - minDP || 1)) * plotW
+        const y1 = plotY + plotH - ((curveData[i - 1].flowRate - minQ) / (maxQ - minQ || 1)) * plotH
+        const x2 = plotX + ((curveData[i].pressureDrop - minDP) / (maxDP - minDP || 1)) * plotW
+        const y2 = plotY + plotH - ((curveData[i].flowRate - minQ) / (maxQ - minQ || 1)) * plotH
+        doc.line(x1, y1, x2, y2)
+      }
+
+      // Reference lines
+      const selX = plotX + ((results.pressureDrop - minDP) / (maxDP - minDP || 1)) * plotW
+      setDrawColor(doc, COLORS.danger)
+      doc.setLineWidth(0.4)
+      doc.setLineDashPattern([2, 1], 0)
+      doc.line(selX, plotY, selX, plotY + plotH)
+      doc.setLineDashPattern([], 0)
+
+      const selQ = parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)
+      const selY = plotY + plotH - ((selQ - minQ) / (maxQ - minQ || 1)) * plotH
+      setDrawColor(doc, COLORS.success)
+      doc.setLineWidth(0.4)
+      doc.setLineDashPattern([2, 1], 0)
+      doc.line(plotX, selY, plotX + plotW, selY)
+      doc.setLineDashPattern([], 0)
+
+      // Operating point marker
+      setFillColor(doc, COLORS.danger)
+      doc.circle(selX, selY, 1.5, 'F')
+
+      // Legend
+      doc.setFontSize(7)
+      setTextColor(doc, { r: 43, g: 107, b: 160 })
+      doc.setFont('helvetica', 'normal')
+      doc.text('Q (m3/h)', plotX + plotW - 30, plotY + 4)
+      setTextColor(doc, COLORS.danger)
+      doc.text(`dp = ${results.pressureDrop} mbar`, plotX + plotW - 30, plotY + 9)
+      setTextColor(doc, COLORS.success)
+      doc.text(`Q = ${selQ.toFixed(2)} m3/h`, plotX + plotW - 30, plotY + 14)
+
+      y = chartY + chartH + 10
+    }
+
+    // Section: Standards & References
+    y = checkPageBreak(doc, y, 60, docTitle, 'Standards & References')
+    y = drawSectionTitle(doc, '4. Standards & References', y, 'Applicable codes and standards')
+    y = drawTwoColumnTables(doc, {
+      title: 'Standards',
+      rows: [
+        ['ISO 5167-1:2003', 'Measurement of fluid flow by means of orifice plates'],
+        ['DIN EN ISO 5167', 'German standard for orifice plate measurements'],
+      ],
+    }, {
+      title: 'Application Notes',
+      rows: [
+        ['Max Flow Rate', '10,000 m3/h'],
+        ['Max Pressure Drop', '100 mbar'],
+        ['Max Pipe Diameter', '325 mm'],
+      ],
+    }, y)
+
+    // Disclaimer page
+    addDisclaimerPage(doc, { title: 'IMPORTANT DISCLAIMER' })
+
+    // Footer on all content pages
+    drawPageFooter(doc)
+
     doc.save(`orifice-${calculationMode}-report.pdf`)
   }
 
@@ -1010,41 +1261,46 @@ export default function OrificeCalculatorPage() {
               <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
                 Pressure Drop vs Flow Rate
               </h2>
-              <ResponsiveContainer width="100%" height={350}>
-                <LineChart data={curveData}>
+              <ResponsiveContainer width="100%" height={430}>
+                <LineChart data={curveData} margin={{ top: 42, right: 46, left: 28, bottom: 58 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                  <XAxis 
-                    dataKey="pressureDrop" 
-                    label={{ value: 'Pressure Drop Δp (mbar)', position: 'bottom' }}
+                  <XAxis
+                    dataKey="pressureDrop"
+                    tickCount={6}
+                    minTickGap={28}
+                    label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 12, fill: '#555' } }}
+                    tick={{ fontSize: 11 }}
                   />
-                  <YAxis 
-                    label={{ value: 'Flow Rate Q (m³/h)', angle: -90, position: 'insideLeft' }}
+                  <YAxis
+                    tickCount={5}
+                    label={{ value: 'Flow Rate Q (m3/h)', angle: -90, position: 'insideLeft', offset: 8, style: { fontSize: 12, fill: '#555' } }}
+                    tick={{ fontSize: 11 }}
                   />
                   <Tooltip />
-                  <Legend />
+                  <Legend verticalAlign="top" align="right" height={28} wrapperStyle={{ top: 0, right: 0, fontSize: 12 }} />
                   {results && (
-                    <ReferenceLine 
-                      x={results.pressureDrop} 
-                      stroke="#e74c3c" 
+                    <ReferenceLine
+                      x={results.pressureDrop}
+                      stroke="#e74c3c"
                       strokeWidth={2}
-                      label={{ value: `Selected Δp=${results.pressureDrop} mbar`, position: 'top' }}
+                      label={{ value: `dp=${results.pressureDrop}`, position: 'top', fontSize: 11, fill: '#e74c3c' }}
                     />
                   )}
                   {results && (
-                    <ReferenceLine 
-                      y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)} 
-                      stroke="#27ae60" 
+                    <ReferenceLine
+                      y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)}
+                      stroke="#27ae60"
                       strokeWidth={2}
-                      label={{ value: `Selected Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))} m³/h`, position: 'right' }}
+                      label={{ value: `Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))}`, position: 'right', fontSize: 11, fill: '#27ae60' }}
                     />
                   )}
-                  <Line 
-                    type="monotone" 
-                    dataKey="flowRate" 
-                    stroke="#2B6BA0" 
+                  <Line
+                    type="monotone"
+                    dataKey="flowRate"
+                    stroke="#2B6BA0"
                     strokeWidth={2}
                     dot={false}
-                    name="Q (m³/h)"
+                    name="Q (m3/h)"
                   />
                 </LineChart>
               </ResponsiveContainer>
