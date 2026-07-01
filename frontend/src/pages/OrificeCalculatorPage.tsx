@@ -959,6 +959,16 @@ export default function OrificeCalculatorPage() {
                   </button>
                 </div>
 
+                <div className="mt-4">
+                  <button
+                    onClick={exportToPDF}
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Download size={20} />
+                    Export PDF Report
+                  </button>
+                </div>
+
                 {showResults && results && (
                   <div className="mt-5 p-4 bg-gray-50 rounded border border-gray-200">
                     <div className="text-3xl font-bold text-[#2B6BA0] mb-1">
@@ -973,14 +983,6 @@ export default function OrificeCalculatorPage() {
                       <div><span className="font-medium">Re:</span> {results.reynoldsNum.toLocaleString()}</div>
                       <div><span className="font-medium">Velocity:</span> {results.velocity.toFixed(2)} m/s</div>
                     </div>
-
-                    <button
-                      onClick={() => handleProAction(exportToPDF)}
-                      className="mt-3 bg-[#27ae60] hover:bg-[#229954] text-white py-2 px-5 rounded text-sm font-medium transition-all inline-flex items-center gap-2"
-                    >
-                      <Download size={14} />
-                      Export to PDF
-                    </button>
                   </div>
                 )}
 

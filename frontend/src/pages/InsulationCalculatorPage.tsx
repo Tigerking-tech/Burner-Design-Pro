@@ -753,6 +753,17 @@ function InsulationCalculatorPage() {
                 </button>
               </div>
 
+              {/* Export PDF Button */}
+              <div className="mt-4">
+                <button
+                  onClick={exportToPDF}
+                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                >
+                  <Download size={20} />
+                  Export PDF Report
+                </button>
+              </div>
+
               {/* Results */}
               {showResults && result && (
                 <>
@@ -791,15 +802,6 @@ function InsulationCalculatorPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6">
-                    <button
-                      onClick={exportToPDF}
-                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-                    >
-                      <Download size={20} />
-                      Export PDF Report
-                    </button>
-                  </div>
                 </>
               )}
             </div>

@@ -602,6 +602,17 @@ export default function FlameTemperaturePage() {
               >
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
               </button>
+
+              {/* Export PDF Button */}
+              <div className="mt-4">
+                <button
+                  onClick={exportToPDF}
+                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Download size={20} />
+                  Export PDF Report
+                </button>
+              </div>
             </div>
           </div>
 
@@ -628,17 +639,6 @@ export default function FlameTemperaturePage() {
                   <div>N₂: {results.molesN2.toFixed(2)} mol</div>
                   <div>Excess O₂: {results.molesO2.toFixed(2)} mol</div>
                 </div>
-              </div>
-
-              {/* Export PDF Button */}
-              <div className="mt-6">
-                <button
-                  onClick={exportToPDF}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors flex items-center justify-center gap-2"
-                >
-                  <Download size={20} />
-                  Export PDF Report
-                </button>
               </div>
             </div>
           )}
