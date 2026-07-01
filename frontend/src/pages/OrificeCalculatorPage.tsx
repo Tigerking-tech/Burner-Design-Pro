@@ -1257,53 +1257,56 @@ export default function OrificeCalculatorPage() {
           </div>
 
           {showResults && curveData.length > 0 && (
-            <div className="bg-white rounded p-6 shadow border border-gray-200">
+            <div className="bg-white rounded p-4 sm:p-6 shadow border border-gray-200">
               <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
                 Pressure Drop vs Flow Rate
               </h2>
-              <ResponsiveContainer width="100%" height={430}>
-                <LineChart data={curveData} margin={{ top: 42, right: 46, left: 28, bottom: 58 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                  <XAxis
-                    dataKey="pressureDrop"
-                    tickCount={6}
-                    minTickGap={28}
-                    label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 12, fill: '#555' } }}
-                    tick={{ fontSize: 11 }}
-                  />
-                  <YAxis
-                    tickCount={5}
-                    label={{ value: 'Flow Rate Q (m3/h)', angle: -90, position: 'insideLeft', offset: 8, style: { fontSize: 12, fill: '#555' } }}
-                    tick={{ fontSize: 11 }}
-                  />
-                  <Tooltip />
-                  <Legend verticalAlign="top" align="right" height={28} wrapperStyle={{ top: 0, right: 0, fontSize: 12 }} />
-                  {results && (
-                    <ReferenceLine
-                      x={results.pressureDrop}
-                      stroke="#e74c3c"
-                      strokeWidth={2}
-                      label={{ value: `dp=${results.pressureDrop}`, position: 'top', fontSize: 11, fill: '#e74c3c' }}
+              <div className="orifice-chart-container w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={curveData} margin={{ top: 40, right: 45, left: 55, bottom: 50 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis
+                      dataKey="pressureDrop"
+                      tickCount={5}
+                      minTickGap={20}
+                      label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 11, fill: '#555' } }}
+                      tick={{ fontSize: 10 }}
                     />
-                  )}
-                  {results && (
-                    <ReferenceLine
-                      y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)}
-                      stroke="#27ae60"
-                      strokeWidth={2}
-                      label={{ value: `Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))}`, position: 'right', fontSize: 11, fill: '#27ae60' }}
+                    <YAxis
+                      tickCount={5}
+                      width={45}
+                      label={{ value: 'Flow Rate Q (m³/h)', angle: -90, position: 'left', offset: 15, style: { fontSize: 11, fill: '#555' } }}
+                      tick={{ fontSize: 10 }}
                     />
-                  )}
-                  <Line
-                    type="monotone"
-                    dataKey="flowRate"
-                    stroke="#2B6BA0"
-                    strokeWidth={2}
-                    dot={false}
-                    name="Q (m3/h)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                    <Tooltip />
+                    <Legend verticalAlign="top" align="right" height={28} wrapperStyle={{ top: 0, right: 0, fontSize: 11 }} />
+                    {results && (
+                      <ReferenceLine
+                        x={results.pressureDrop}
+                        stroke="#e74c3c"
+                        strokeWidth={2}
+                        label={{ value: `dp=${results.pressureDrop}`, position: 'top', fontSize: 10, fill: '#e74c3c' }}
+                      />
+                    )}
+                    {results && (
+                      <ReferenceLine
+                        y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)}
+                        stroke="#27ae60"
+                        strokeWidth={2}
+                        label={{ value: `Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))}`, position: 'right', fontSize: 10, fill: '#27ae60' }}
+                      />
+                    )}
+                    <Line
+                      type="monotone"
+                      dataKey="flowRate"
+                      stroke="#2B6BA0"
+                      strokeWidth={2}
+                      dot={false}
+                      name="Q (m³/h)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
 
