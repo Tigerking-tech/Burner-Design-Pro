@@ -164,6 +164,8 @@ const gasPresets: GasPreset[] = [
 ]
 
 const AIR_DENSITY = 1.293
+const O2_IN_AIR = 0.2095
+const N2_IN_AIR = 0.7808
 
 const gasProperties: Record<string, { density: number; hs: number; hi: number }> = {
   'H₂': { density: 0.090, hs: 3.540, hi: 2.995 },
@@ -187,6 +189,58 @@ const gasProperties: Record<string, { density: number; hs: number; hi: number }>
   'O₂': { density: 1.429, hs: 0, hi: 0 },
   'H₂O': { density: 0.81459, hs: 0, hi: 0 },
   'Air': { density: 1.293, hs: 0, hi: 0 },
+}
+
+interface GasCombustionProps {
+  nC: number
+  nH: number
+  nO: number
+  nN: number
+  nS: number
+}
+
+interface CombustionResult {
+  density: number
+  relativeDensity: number
+  hi: number
+  lmin: number
+  gasFlowRate: number
+  airFlowRate: number
+  co2Volume: number
+  h2oVolume: number
+  o2Volume: number
+  n2Volume: number
+  dryFlueGasVolume: number
+  wetFlueGasVolume: number
+  co2Percent: number
+  o2Percent: number
+  n2Percent: number
+  h2oPercent: number
+  wetFlueGasDensity: number
+}
+
+const gasCombustionProps: Record<string, GasCombustionProps> = {
+  'H₂': { nC: 0, nH: 2, nO: 0, nN: 0, nS: 0 },
+  'CO': { nC: 1, nH: 0, nO: 1, nN: 0, nS: 0 },
+  'NH₃': { nC: 0, nH: 3, nO: 0, nN: 1, nS: 0 },
+  'H₂S': { nC: 0, nH: 2, nO: 0, nN: 0, nS: 1 },
+  'CH₄': { nC: 1, nH: 4, nO: 0, nN: 0, nS: 0 },
+  'C₂H₆': { nC: 2, nH: 6, nO: 0, nN: 0, nS: 0 },
+  'C₃H₈': { nC: 3, nH: 8, nO: 0, nN: 0, nS: 0 },
+  'C₄H₁₀': { nC: 4, nH: 10, nO: 0, nN: 0, nS: 0 },
+  'C₅H₁₂': { nC: 5, nH: 12, nO: 0, nN: 0, nS: 0 },
+  'C₆H₁₄': { nC: 6, nH: 14, nO: 0, nN: 0, nS: 0 },
+  'C₇H₁₆': { nC: 7, nH: 16, nO: 0, nN: 0, nS: 0 },
+  'C₆H₆': { nC: 6, nH: 6, nO: 0, nN: 0, nS: 0 },
+  'C₂H₄': { nC: 2, nH: 4, nO: 0, nN: 0, nS: 0 },
+  'C₃H₆': { nC: 3, nH: 6, nO: 0, nN: 0, nS: 0 },
+  'C₄H₈': { nC: 4, nH: 8, nO: 0, nN: 0, nS: 0 },
+  'C₂H₂': { nC: 2, nH: 2, nO: 0, nN: 0, nS: 0 },
+  'N₂': { nC: 0, nH: 0, nO: 0, nN: 1, nS: 0 },
+  'CO₂': { nC: 1, nH: 0, nO: 2, nN: 0, nS: 0 },
+  'O₂': { nC: 0, nH: 0, nO: 1, nN: 0, nS: 0 },
+  'H₂O': { nC: 0, nH: 2, nO: 1, nN: 0, nS: 0 },
+  'Air': { nC: 0, nH: 0, nO: 0.2095, nN: 0.7808, nS: 0 },
 }
 
 const oilPresets = [
@@ -242,6 +296,19 @@ export default function FuelManagerPage() {
     ]
   })
   const [showOilResults, setShowOilResults] = useState(false)
+
+  const [gasMode, setGasMode] = useState<'mixture' | 'combustion'>('mixture')
+  const [burnerCapacity, setBurnerCapacity] = useState('100')
+  const [lambda, setLambda] = useState('1.1')
+  const [selectedCombustionGasPreset, setSelectedCombustionGasPreset] = useState('Nordsee-Erdgas H')
+  const [combustionGasComponents, setCombustionGasComponents] = useState<GasComponent[]>(() => {
+    const preset = gasPresets.find(p => p.name === 'Nordsee-Erdgas H')
+    return defaultGasComponents.map(c => ({
+      ...c,
+      percentage: preset?.composition[c.symbol] || '0'
+    }))
+  })
+  const [showCombustionResults, setShowCombustionResults] = useState(false)
 
   const applyGasPreset = (presetName: string, gasNum: 1 | 2) => {
     const preset = gasPresets.find(p => p.name === presetName)
@@ -338,6 +405,84 @@ export default function FuelManagerPage() {
     }
   }
 
+  const calculateCombustion = (components: GasComponent[], capacityKW: number, lambdaVal: number): CombustionResult | null => {
+    const total = getTotalPercentage(components)
+    if (Math.abs(total - 100) > 0.01) return null
+
+    let density = 0
+    let hi = 0
+    let totalCO2 = 0
+    let totalH2O = 0
+    let o2Needed = 0
+    let fuelN2 = 0
+
+    components.forEach(c => {
+      const pct = parseFloat(c.percentage) || 0
+      if (pct > 0) {
+        const fraction = pct / 100
+        const props = gasProperties[c.symbol]
+        const combProps = gasCombustionProps[c.symbol]
+
+        if (props) {
+          density += props.density * fraction
+          hi += props.hi * fraction
+        }
+
+        if (combProps) {
+          totalCO2 += fraction * combProps.nC
+          totalH2O += fraction * (combProps.nH / 2)
+          o2Needed += fraction * (combProps.nC + combProps.nH / 4 - combProps.nO / 2)
+          fuelN2 += fraction * (combProps.nN / 2)
+        }
+      }
+    })
+
+    const lmin = o2Needed / O2_IN_AIR
+    const actualAir = lmin * lambdaVal
+    const n2FromAir = actualAir * N2_IN_AIR
+    const totalN2 = fuelN2 + n2FromAir
+    const excessO2 = actualAir * O2_IN_AIR - o2Needed
+    const dryVolume = totalCO2 + totalN2 + excessO2
+    const wetVolume = dryVolume + totalH2O
+
+    const co2Percent = dryVolume > 0 ? (totalCO2 / dryVolume) * 100 : 0
+    const o2Percent = dryVolume > 0 ? (excessO2 / dryVolume) * 100 : 0
+    const n2Percent = dryVolume > 0 ? (totalN2 / dryVolume) * 100 : 0
+    const h2oPercent = wetVolume > 0 ? (totalH2O / wetVolume) * 100 : 0
+
+    const CO2_DENSITY = 1.977
+    const H2O_DENSITY = 0.804
+    const O2_DENSITY = 1.429
+    const N2_DENSITY = 1.251
+
+    const wetFlueGasDensity = wetVolume > 0
+      ? (totalCO2 * CO2_DENSITY + totalH2O * H2O_DENSITY + excessO2 * O2_DENSITY + totalN2 * N2_DENSITY) / wetVolume
+      : 0
+
+    const gasFlowRate = hi > 0 ? capacityKW / hi : 0
+    const airFlowRate = gasFlowRate * lmin * lambdaVal
+
+    return {
+      density,
+      relativeDensity: density / AIR_DENSITY,
+      hi,
+      lmin,
+      gasFlowRate,
+      airFlowRate,
+      co2Volume: totalCO2,
+      h2oVolume: totalH2O,
+      o2Volume: excessO2,
+      n2Volume: totalN2,
+      dryFlueGasVolume: dryVolume,
+      wetFlueGasVolume: wetVolume,
+      co2Percent,
+      o2Percent,
+      n2Percent,
+      h2oPercent,
+      wetFlueGasDensity,
+    }
+  }
+
   const handleComponentChange = (gasNum: 1 | 2, symbol: string, value: string) => {
     if (value !== '') {
       const numValue = parseFloat(value)
@@ -369,6 +514,32 @@ export default function FuelManagerPage() {
       el.symbol === symbol ? { ...el, percentage: value } : el
     )
     setOilElements(newElements)
+  }
+
+  const handleCombustionComponentChange = (symbol: string, value: string) => {
+    if (value !== '') {
+      const numValue = parseFloat(value)
+      if (!isNaN(numValue) && numValue < 0) return
+    }
+    
+    const newComponents = combustionGasComponents.map(c =>
+      c.symbol === symbol ? { ...c, percentage: value } : c
+    )
+    setCombustionGasComponents(newComponents)
+    setSelectedCombustionGasPreset('')
+  }
+
+  const applyCombustionGasPreset = (presetName: string) => {
+    const preset = gasPresets.find(p => p.name === presetName)
+    if (!preset) return
+
+    const newComponents = defaultGasComponents.map(c => ({
+      ...c,
+      percentage: preset.composition[c.symbol] || '0'
+    }))
+
+    setCombustionGasComponents(newComponents)
+    setSelectedCombustionGasPreset(presetName)
   }
 
   const handleGasMixturePercentChange = (value: string) => {
@@ -423,68 +594,128 @@ export default function FuelManagerPage() {
     let y = drawPageHeader(doc, 'Fuel Analysis Report', 'Calculation Results');
 
     if (activeTab === 'gas') {
-      const gas1Data = calculateGasKeyData(gas1Components);
-      const gas2Data = calculateGasKeyData(gas2Components);
-      const mixtureData = calculateMixture();
+      if (gasMode === 'combustion') {
+        const combustionData = calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1);
 
-      y = drawSectionTitle(doc, 'Gas 1 Composition', y, selectedGas1Preset || 'Custom gas composition');
-      const gas1Rows = gas1Components
-        .filter(c => parseFloat(c.percentage) > 0)
-        .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
-      if (gas1Rows.length > 0) {
-        y = drawInfoTable(doc, gas1Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+        y = drawSectionTitle(doc, 'Fuel Gas Composition', y, selectedCombustionGasPreset || 'Custom gas composition');
+        const gasRows = combustionGasComponents
+          .filter(c => parseFloat(c.percentage) > 0)
+          .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
+        if (gasRows.length > 0) {
+          y = drawInfoTable(doc, gasRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+        } else {
+          y += 10;
+        }
+
+        if (combustionData) {
+          y = checkPageBreak(doc, y, 80, 'Fuel Analysis Report', 'Key Data');
+          y = drawSectionTitle(doc, 'Key Data', y);
+          const cardWidth = (CONTENT_WIDTH - 8) / 3;
+          drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(combustionData.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Relative Density', value: pdfFormatNumber(combustionData.relativeDensity, 4), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(combustionData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+          y += 37;
+          drawResultCard(doc, { label: 'Lmin (m3/m3)', value: pdfFormatNumber(combustionData.lmin, 3), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+          y += 37;
+
+          y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Capacity / Flow Rate');
+          y = drawSectionTitle(doc, 'Capacity / Flow Rate', y, `Burner capacity: ${burnerCapacity} kW, Lambda: ${lambda}`);
+          const flowRows: [string, string][] = [
+            ['Burner Capacity', burnerCapacity + ' kW'],
+            ['Air Ratio (λ)', lambda],
+            ['Gas Flow Rate', pdfFormatNumber(combustionData.gasFlowRate, 3) + ' m3/h'],
+            ['Air Flow Rate', pdfFormatNumber(combustionData.airFlowRate, 2) + ' m3/h'],
+          ];
+          y = drawInfoTable(doc, flowRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+
+          y = checkPageBreak(doc, y, 150, 'Fuel Analysis Report', 'Flue Gas');
+          y = drawSectionTitle(doc, 'Flue Gas Composition', y);
+          y = drawSubSectionTitle(doc, 'Gas Composition (per m3 fuel)', y);
+          const flueGasRows: [string, string][] = [
+            ['CO2 Volume', pdfFormatNumber(combustionData.co2Volume, 4) + ' m3/m3'],
+            ['H2O Volume', pdfFormatNumber(combustionData.h2oVolume, 4) + ' m3/m3'],
+            ['O2 Volume (excess)', pdfFormatNumber(combustionData.o2Volume, 4) + ' m3/m3'],
+            ['N2 Volume', pdfFormatNumber(combustionData.n2Volume, 4) + ' m3/m3'],
+            ['Dry Flue Gas Volume', pdfFormatNumber(combustionData.dryFlueGasVolume, 3) + ' m3/m3'],
+            ['Wet Flue Gas Volume', pdfFormatNumber(combustionData.wetFlueGasVolume, 3) + ' m3/m3'],
+          ];
+          y = drawInfoTable(doc, flueGasRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+
+          y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Flue Gas Percentages');
+          y = drawSubSectionTitle(doc, 'Volume Percentages', y);
+          const percentRows: [string, string][] = [
+            ['CO2 (dry basis)', pdfFormatNumber(combustionData.co2Percent, 2) + ' %'],
+            ['O2 (dry basis)', pdfFormatNumber(combustionData.o2Percent, 2) + ' %'],
+            ['N2 (dry basis)', pdfFormatNumber(combustionData.n2Percent, 2) + ' %'],
+            ['H2O (wet basis)', pdfFormatNumber(combustionData.h2oPercent, 2) + ' %'],
+            ['Wet Flue Gas Density', pdfFormatNumber(combustionData.wetFlueGasDensity, 4) + ' kg/m3'],
+          ];
+          y = drawInfoTable(doc, percentRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+        }
       } else {
-        y += 10;
-      }
+        const gas1Data = calculateGasKeyData(gas1Components);
+        const gas2Data = calculateGasKeyData(gas2Components);
+        const mixtureData = calculateMixture();
 
-      if (gas1Data) {
-        y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 1 Properties');
-        y = drawSubSectionTitle(doc, 'Gas 1 Key Properties', y);
-        const cardWidth = (CONTENT_WIDTH - 8) / 3;
-        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas1Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas1Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas1Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
-        y += 37;
-        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas1Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
-        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas1Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
-        y += 37;
-      }
+        y = drawSectionTitle(doc, 'Gas 1 Composition', y, selectedGas1Preset || 'Custom gas composition');
+        const gas1Rows = gas1Components
+          .filter(c => parseFloat(c.percentage) > 0)
+          .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
+        if (gas1Rows.length > 0) {
+          y = drawInfoTable(doc, gas1Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+        } else {
+          y += 10;
+        }
 
-      y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas 2 Composition');
-      y = drawSectionTitle(doc, 'Gas 2 Composition', y, selectedGas2Preset || 'Custom gas composition');
-      const gas2Rows = gas2Components
-        .filter(c => parseFloat(c.percentage) > 0)
-        .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
-      if (gas2Rows.length > 0) {
-        y = drawInfoTable(doc, gas2Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
-      } else {
-        y += 10;
-      }
+        if (gas1Data) {
+          y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 1 Properties');
+          y = drawSubSectionTitle(doc, 'Gas 1 Key Properties', y);
+          const cardWidth = (CONTENT_WIDTH - 8) / 3;
+          drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas1Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas1Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas1Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+          y += 37;
+          drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas1Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+          drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas1Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+          y += 37;
+        }
 
-      if (gas2Data) {
-        y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 2 Properties');
-        y = drawSubSectionTitle(doc, 'Gas 2 Key Properties', y);
-        const cardWidth = (CONTENT_WIDTH - 8) / 3;
-        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas2Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas2Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas2Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
-        y += 37;
-        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas2Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
-        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas2Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
-        y += 37;
-      }
+        y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas 2 Composition');
+        y = drawSectionTitle(doc, 'Gas 2 Composition', y, selectedGas2Preset || 'Custom gas composition');
+        const gas2Rows = gas2Components
+          .filter(c => parseFloat(c.percentage) > 0)
+          .map(c => [c.name + ' (' + c.symbol + ')', c.percentage + '%'] as [string, string]);
+        if (gas2Rows.length > 0) {
+          y = drawInfoTable(doc, gas2Rows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+        } else {
+          y += 10;
+        }
 
-      if (mixtureData) {
-        y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas Mixture');
-        y = drawSectionTitle(doc, 'Gas Mixture Properties', y, `Mixture ratio: ${gas1MixturePercent}% Gas 1 / ${(100 - parseFloat(gas1MixturePercent) || 0).toFixed(0)}% Gas 2`);
-        const cardWidth = (CONTENT_WIDTH - 8) / 3;
-        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(mixtureData.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(mixtureData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(mixtureData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
-        y += 37;
-        drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(mixtureData.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
-        drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(mixtureData.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
-        y += 37;
+        if (gas2Data) {
+          y = checkPageBreak(doc, y, 60, 'Fuel Analysis Report', 'Gas 2 Properties');
+          y = drawSubSectionTitle(doc, 'Gas 2 Key Properties', y);
+          const cardWidth = (CONTENT_WIDTH - 8) / 3;
+          drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(gas2Data.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(gas2Data.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(gas2Data.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+          y += 37;
+          drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(gas2Data.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+          drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(gas2Data.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+          y += 37;
+        }
+
+        if (mixtureData) {
+          y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Gas Mixture');
+          y = drawSectionTitle(doc, 'Gas Mixture Properties', y, `Mixture ratio: ${gas1MixturePercent}% Gas 1 / ${(100 - parseFloat(gas1MixturePercent) || 0).toFixed(0)}% Gas 2`);
+          const cardWidth = (CONTENT_WIDTH - 8) / 3;
+          drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(mixtureData.density, 3) + ' kg/m3', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hs (kWh/m3)', value: pdfFormatNumber(mixtureData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+          drawResultCard(doc, { label: 'Hi (kWh/m3)', value: pdfFormatNumber(mixtureData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+          y += 37;
+          drawResultCard(doc, { label: 'Ws (kWh/m3)', value: pdfFormatNumber(mixtureData.ws, 2), x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+          drawResultCard(doc, { label: 'Wi (kWh/m3)', value: pdfFormatNumber(mixtureData.wi, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+          y += 37;
+        }
       }
     } else {
       const oilData = calculateOilKeyData();
@@ -578,6 +809,31 @@ export default function FuelManagerPage() {
 
         {activeTab === 'gas' ? (
           <>
+            <div className="flex mb-6 bg-white rounded-lg shadow overflow-hidden">
+              <button
+                onClick={() => setGasMode('mixture')}
+                className={`flex-1 py-3 px-4 font-semibold transition-colors text-sm sm:text-base ${
+                  gasMode === 'mixture' 
+                    ? 'bg-[#2B6BA0] text-white' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-[#7f8c8d]'
+                }`}
+              >
+                Gas Mixture Calculation
+              </button>
+              <button
+                onClick={() => setGasMode('combustion')}
+                className={`flex-1 py-3 px-4 font-semibold transition-colors text-sm sm:text-base ${
+                  gasMode === 'combustion' 
+                    ? 'bg-[#2B6BA0] text-white' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-[#7f8c8d]'
+                }`}
+              >
+                Combustion Values Calculation
+              </button>
+            </div>
+
+            {gasMode === 'mixture' ? (
+              <>
             <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
                 <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] flex items-center">
@@ -812,6 +1068,7 @@ export default function FuelManagerPage() {
                   </div>
               </div>
             )}
+            </div>
 
             <div className="mt-4 sm:mt-6">
               <button
@@ -822,9 +1079,195 @@ export default function FuelManagerPage() {
                 Export PDF Report
               </button>
             </div>
-          </div>
-        </>
-      ) : (
+              </>
+            ) : (
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="bg-white rounded-lg px-3 py-4 sm:px-4 sm:py-5 md:px-5 md:py-6 border border-gray-300 shadow-lg">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#2c3e50] mb-3 sm:mb-4 flex items-center">
+                      <span className="w-7 h-7 bg-[#2B6BA0] rounded-full flex items-center justify-center text-white text-xs mr-2">1</span>
+                      Fuel Gas Input
+                    </h2>
+
+                    <div className="mb-4 sm:mb-5">
+                      <label className="block text-sm font-medium text-[#555] mb-2">Gas type</label>
+                      <select
+                        value={selectedCombustionGasPreset}
+                        onChange={(e) => {
+                          applyCombustionGasPreset(e.target.value)
+                        }}
+                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]/20 focus:border-[#2B6BA0] text-gray-900 text-sm"
+                      >
+                        <option value="">Select gas type...</option>
+                        {gasPresets.map(preset => (
+                          <option key={preset.name} value={preset.name}>{preset.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <details className="mb-3 sm:mb-4">
+                      <summary className="cursor-pointer text-sm font-medium text-[#2B6BA0] mb-2 hover:underline">
+                        Show gas composition details
+                      </summary>
+                      <div className="mt-2 sm:mt-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 sm:mb-4">
+                          {combustionGasComponents.filter(c => parseFloat(c.percentage) > 0).map((component) => (
+                            <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
+                              <div className="text-xs font-medium text-[#555]">{component.symbol}</div>
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="text"
+                                  value={component.percentage}
+                                  onChange={(e) => handleCombustionComponentChange(component.symbol, e.target.value)}
+                                  className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                                  placeholder="0"
+                                />
+                                <span className="text-xs text-[#7f8c8d]">%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </details>
+
+                    <div className="flex items-center justify-between mb-4 p-3 sm:p-4 bg-gray-100 rounded">
+                      <span className="text-sm font-medium text-[#555]">Total Percentage:</span>
+                      <span className={`text-lg font-bold ${Math.abs(getTotalPercentage(combustionGasComponents) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                        {getTotalPercentage(combustionGasComponents).toFixed(2)}%
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => setShowCombustionResults(!showCombustionResults)}
+                      className="w-full bg-[#2B6BA0] hover:bg-[#1e4e7a] text-white py-2.5 sm:py-3 rounded font-semibold transition-colors text-sm sm:text-base"
+                    >
+                      {showCombustionResults ? 'Hide' : 'Calculate'} Combustion Values
+                    </button>
+                  </div>
+
+                  <div className="bg-white rounded-lg px-3 py-4 sm:px-4 sm:py-5 md:px-5 md:py-6 border border-gray-300 shadow-lg">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#2c3e50] mb-3 sm:mb-4 flex items-center">
+                      <span className="w-7 h-7 bg-[#2B6BA0] rounded-full flex items-center justify-center text-white text-xs mr-2">2</span>
+                      Calculation Results
+                    </h2>
+
+                    {showCombustionResults && calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1) && (
+                      <>
+                        <div className="mb-4 sm:mb-5">
+                          <h3 className="text-base sm:text-lg font-semibold text-[#2c3e50] mb-2 sm:mb-3">Key Data</h3>
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                            <div className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4e7a] p-2 sm:p-3 rounded text-white">
+                              <div className="text-xs text-blue-200">Density</div>
+                              <div className="text-lg font-bold">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.density.toFixed(3)} kg/m³</div>
+                            </div>
+                            <div className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4e7a] p-2 sm:p-3 rounded text-white">
+                              <div className="text-xs text-blue-200">Relative Density</div>
+                              <div className="text-lg font-bold">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.relativeDensity.toFixed(4)}</div>
+                            </div>
+                            <div className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4e7a] p-2 sm:p-3 rounded text-white">
+                              <div className="text-xs text-blue-200">Hi (kWh/m³)</div>
+                              <div className="text-lg font-bold">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.hi.toFixed(2)}</div>
+                            </div>
+                            <div className="bg-gradient-to-br from-[#2B6BA0] to-[#1e4e7a] p-2 sm:p-3 rounded text-white">
+                              <div className="text-xs text-blue-200">Lmin (m³/m³)</div>
+                              <div className="text-lg font-bold">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.lmin.toFixed(3)}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mb-4 sm:mb-5">
+                          <h3 className="text-base sm:text-lg font-semibold text-[#2c3e50] mb-2 sm:mb-3">Capacity / Flow Rate</h3>
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <label className="text-xs font-medium text-[#555] block mb-1">Burner Capacity (kW)</label>
+                              <input
+                                type="text"
+                                value={burnerCapacity}
+                                onChange={(e) => setBurnerCapacity(e.target.value)}
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded text-sm text-gray-900"
+                              />
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <label className="text-xs font-medium text-[#555] block mb-1">Air Ratio λ</label>
+                              <input
+                                type="text"
+                                value={lambda}
+                                onChange={(e) => setLambda(e.target.value)}
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded text-sm text-gray-900"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                            <div className="bg-blue-50 p-2 sm:p-3 rounded border border-blue-200">
+                              <div className="text-xs text-[#555]">Gas Flow Rate</div>
+                              <div className="text-base font-bold text-[#2B6BA0]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.gasFlowRate.toFixed(3)} m³/h</div>
+                            </div>
+                            <div className="bg-blue-50 p-2 sm:p-3 rounded border border-blue-200">
+                              <div className="text-xs text-[#555]">Air Flow Rate</div>
+                              <div className="text-base font-bold text-[#2B6BA0]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.airFlowRate.toFixed(2)} m³/h</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-base sm:text-lg font-semibold text-[#2c3e50] mb-2 sm:mb-3">Flue Gas Composition</h3>
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">CO₂ (dry)</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.co2Percent.toFixed(2)} %</div>
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">O₂ (dry)</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.o2Percent.toFixed(2)} %</div>
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">N₂ (dry)</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.n2Percent.toFixed(2)} %</div>
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">H₂O (wet)</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.h2oPercent.toFixed(2)} %</div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">Dry Flue Gas Volume</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.dryFlueGasVolume.toFixed(3)} m³/m³</div>
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200">
+                              <div className="text-xs text-[#555]">Wet Flue Gas Volume</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.wetFlueGasVolume.toFixed(3)} m³/m³</div>
+                            </div>
+                            <div className="bg-gray-50 p-2 sm:p-3 rounded border border-gray-200 col-span-2">
+                              <div className="text-xs text-[#555]">Wet Flue Gas Density</div>
+                              <div className="text-base font-bold text-[#2c3e50]">{calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1)!.wetFlueGasDensity.toFixed(4)} kg/m³</div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {!showCombustionResults && (
+                      <div className="text-center py-12 text-gray-500">
+                        <p>Click "Calculate Combustion Values" to see results</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 sm:mt-6">
+                  <button
+                    onClick={exportToPDF}
+                    className="w-full py-2.5 sm:py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    <Download size={20} />
+                    Export PDF Report
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
           <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg">
             <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] mb-4 sm:mb-6">Oil Fuel Data</h2>
 
