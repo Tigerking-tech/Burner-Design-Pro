@@ -679,7 +679,7 @@ export default function OrificeCalculatorPage() {
       const chartX = MARGIN_LEFT + 5
       const chartY = y + 5
       const chartW = CONTENT_WIDTH - 10
-      const chartH = 100
+      const chartH = 110
 
       // Chart background
       setFillColor(doc, { r: 252, g: 252, b: 252 })
@@ -688,10 +688,10 @@ export default function OrificeCalculatorPage() {
       doc.rect(chartX, chartY, chartW, chartH, 'FD')
 
       // Chart margins inside
-      const padLeft = 20
+      const padLeft = 22
       const padBottom = 18
-      const padTop = 8
-      const padRight = 8
+      const padTop = 28
+      const padRight = 10
       const plotX = chartX + padLeft
       const plotY = chartY + padTop
       const plotW = chartW - padLeft - padRight
@@ -770,15 +770,52 @@ export default function OrificeCalculatorPage() {
       setFillColor(doc, COLORS.danger)
       doc.circle(selX, selY, 1.5, 'F')
 
-      // Legend
+      // Legend - drawn on top with white background to avoid overlap
       doc.setFontSize(7)
-      setTextColor(doc, { r: 43, g: 107, b: 160 })
       doc.setFont('helvetica', 'normal')
-      doc.text('Q (m3/h)', plotX + plotW - 30, plotY + 4)
-      setTextColor(doc, COLORS.danger)
-      doc.text(`dp = ${results.pressureDrop} mbar`, plotX + plotW - 30, plotY + 9)
-      setTextColor(doc, COLORS.success)
-      doc.text(`Q = ${selQ.toFixed(2)} m3/h`, plotX + plotW - 30, plotY + 14)
+      
+      // Legend items
+      const legendItems = [
+        { text: 'Q (m³/h)', color: { r: 43, g: 107, b: 160 } },
+        { text: `dp = ${results.pressureDrop} mbar`, color: COLORS.danger },
+        { text: `Q = ${selQ.toFixed(2)} m³/h`, color: COLORS.success }
+      ]
+      
+      // Calculate legend width
+      let maxLegendWidth = 0
+      legendItems.forEach(item => {
+        const w = doc.getTextWidth(item.text) + 12
+        if (w > maxLegendWidth) maxLegendWidth = w
+      })
+      
+      const legendX = plotX + 2
+      const legendY = chartY + 3
+      const legendW = maxLegendWidth + 4
+      const legendH = legendItems.length * 6 + 3
+      
+      // White background for legend
+      setFillColor(doc, { r: 255, g: 255, b: 255 })
+      setDrawColor(doc, COLORS.border)
+      doc.setLineWidth(0.1)
+      doc.roundedRect(legendX, legendY, legendW, legendH, 1, 1, 'FD')
+      
+      // Draw legend items with line samples
+      legendItems.forEach((item, i) => {
+        const ly = legendY + 4 + i * 6
+        setDrawColor(doc, item.color)
+        doc.setLineWidth(0.5)
+        if (i === 0) {
+          // Solid line for curve
+          doc.line(legendX + 2, ly, legendX + 8, ly)
+        } else {
+          // Dashed line for reference lines
+          doc.setLineDashPattern([1.5, 1], 0)
+          doc.line(legendX + 2, ly, legendX + 8, ly)
+          doc.setLineDashPattern([], 0)
+        }
+        setTextColor(doc, item.color)
+        doc.text(item.text, legendX + 11, ly + 1)
+      })
 
       y = chartY + chartH + 10
     }
