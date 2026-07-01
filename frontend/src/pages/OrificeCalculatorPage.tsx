@@ -351,24 +351,49 @@ export default function OrificeCalculatorPage() {
     }
   }
 
-  const calculateExpansibilityFactor = (beta: number, deltaP: number, P1: number, k: number) => {
-    if (featureMode === 'basic') {
-      return 0.98
-    }
-    return 1 - (0.41 + 0.35 * Math.pow(beta, 4)) * deltaP / (P1 * k)
+  const calculateExpansibilityFactor = (beta: number, deltaP_Pa: number, P1_Pa: number, k: number) => {
+    // ISO 5167-2 expansibility factor (for all modes)
+    // epsilon = 1 - (0.41 + 0.35*beta^4) * deltaP / (k * P1)
+    // Valid for deltaP/P1 < 0.25
+    if (P1_Pa <= 0) return 1.0
+    return 1 - (0.41 + 0.35 * Math.pow(beta, 4)) * deltaP_Pa / (k * P1_Pa)
+  }
+
+  const calculateVelocityApproachFactor = (beta: number) => {
+    // Velocity of approach factor E = 1/sqrt(1 - beta^4)
+    // ISO 5167 fundamental factor
+    const beta4 = Math.pow(beta, 4)
+    if (beta4 >= 1) return 1.0
+    return 1 / Math.sqrt(1 - beta4)
+  }
+
+  const calculateDischargeCoefficient = (beta: number, ReD: number): number => {
+    // Reader-Harris/Gallagher equation (ISO 5167-2:2022 §5.3.2.1)
+    // for corner taps (closest to Krom Schröder restricting/measuring orifice)
+    // Cd = 0.5961 + 0.0261*beta^2 - 0.216*beta^8
+    //      + 0.000521*(1e6*beta/ReD)^0.7
+    //      + [0.0188 + 0.0063*(19000*beta/ReD)^0.8] * beta^4/(1-beta^4)
+    if (ReD <= 0) return 0.5961
+    const beta2 = Math.pow(beta, 2)
+    const beta4 = Math.pow(beta, 4)
+    const beta8 = Math.pow(beta, 8)
+    const termA = 0.5961 + 0.0261 * beta2 - 0.216 * beta8
+    const termB = 0.000521 * Math.pow((1e6 * beta) / ReD, 0.7)
+    const termC = (0.0188 + 0.0063 * Math.pow((19000 * beta) / ReD, 0.8)) * beta4 / (1 - beta4)
+    return termA + termB + termC
   }
 
   const calculateOrifice = () => {
     const D = parseFloat(internalDiameter)
     const rho = getDensity()
-    const pressureInBar = featureMode === 'advanced' 
+    const pressureInBar = featureMode === 'advanced'
       ? (pressureUnits.find(p => p.value === pressureUnit)?.toBar(parseFloat(operatingPressure)) || 1.013)
       : 1.01325
     const atmPressure = 1.01325
     const absolutePressure = featureMode === 'advanced' && pressureType === 'gauge'
       ? pressureInBar + atmPressure
       : pressureInBar
-    const P1 = absolutePressure * 100000
+    const P1 = absolutePressure * 100000 // Pa
     const k = parseFloat(isentropicExponentK)
 
     if (!D || D > 325) {
@@ -376,16 +401,17 @@ export default function OrificeCalculatorPage() {
       return
     }
 
-    const C = calculationMode === 'restricting' ? 0.61 : 0.62
+    const mu = 1.7e-5 // dynamic viscosity of gas (Pa·s), approximate for common gases at 20°C
     let finalOrificeDiameter: number
     let finalPressureDrop: number
     let Q: number
-    let epsilon: number
+    let finalEpsilon: number
+    let finalCd: number
 
     if (outputMode === 'orifice') {
       Q = parseFloat(maxFlowRate)
       const deltaP = parseFloat(pressureDrop)
-      
+
       if (!Q || Q <= 0 || Q > 10000) {
         alert('Please enter valid flow rate (max 10000 m³/h)')
         return
@@ -395,17 +421,39 @@ export default function OrificeCalculatorPage() {
         return
       }
 
-      const qm = (Q / 3600) * rho
-      const epsilon_est = 0.98
-      const A_orifice = qm / (C * epsilon_est * Math.sqrt(2 * rho * deltaP * 100))
-      finalOrificeDiameter = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
+      const deltaP_Pa = deltaP * 100 // mbar → Pa
+      const qm = (Q / 3600) * rho   // kg/s
+
+      // ISO 5167 iterative calculation: solve for d
+      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
+      // where E = 1/sqrt(1 - beta^4), beta = d/D
+      // Cd = Reader-Harris/Gallagher f(beta, Re)
+      // epsilon = 1 - (0.41 + 0.35*beta^4) * deltaP/(k*P1)
+      let d_est = Math.sqrt(qm / (0.6 * 0.98 * Math.sqrt(2 * rho * deltaP_Pa)) * 4 / Math.PI) * 1000 // initial guess in mm
+      for (let iter = 0; iter < 30; iter++) {
+        const beta = d_est / D
+        const E = calculateVelocityApproachFactor(beta)
+        const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+        // Estimate Re for Cd calculation
+        const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const A_orifice = qm / (Cd * E * epsilon * Math.sqrt(2 * rho * deltaP_Pa))
+        const d_new = Math.sqrt(A_orifice * 4 / Math.PI) * 1000 // mm
+        if (Math.abs(d_new - d_est) < 0.001) { d_est = d_new; break }
+        d_est = d_new
+      }
+
+      finalOrificeDiameter = d_est
       finalPressureDrop = deltaP
-      const beta = finalOrificeDiameter / D
-      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
+      const beta_final = d_est / D
+      finalEpsilon = calculateExpansibilityFactor(beta_final, deltaP_Pa, P1, k)
+      const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta_final, Re_final)
+
     } else if (outputMode === 'pressure') {
       Q = parseFloat(maxFlowRate)
       const d = parseFloat(orificeDiameterInput)
-      
+
       if (!Q || Q <= 0 || Q > 10000) {
         alert('Please enter valid flow rate (max 10000 m³/h)')
         return
@@ -416,15 +464,36 @@ export default function OrificeCalculatorPage() {
       }
 
       finalOrificeDiameter = d
-      const beta = d / D
-      epsilon = 0.98
       const qm = (Q / 3600) * rho
-      finalPressureDrop = (qm * qm) / (rho * C * C * epsilon * epsilon * Math.pow((Math.PI / 4) * Math.pow(d / 1000, 2), 2)) / 2 / 100
-      epsilon = calculateExpansibilityFactor(beta, finalPressureDrop * 100, P1, k)
+      const beta = d / D
+      const E = calculateVelocityApproachFactor(beta)
+      const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
+
+      // ISO 5167 iterative: solve for deltaP
+      // qm = Cd * E * epsilon * A * sqrt(2 * rho * deltaP)
+      // epsilon depends on deltaP, Cd depends on Re which depends on deltaP
+      let deltaP_est = 10 // initial guess in mbar
+      for (let iter = 0; iter < 30; iter++) {
+        const deltaP_Pa = deltaP_est * 100
+        const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+        const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        // deltaP = (qm / (Cd * E * epsilon * A))^2 / (2 * rho)
+        const deltaP_Pa_new = Math.pow(qm / (Cd * E * epsilon * A_orifice), 2) / (2 * rho)
+        const deltaP_mbar_new = deltaP_Pa_new / 100
+        if (Math.abs(deltaP_mbar_new - deltaP_est) < 0.001) { deltaP_est = deltaP_mbar_new; break }
+        deltaP_est = deltaP_mbar_new
+      }
+
+      finalPressureDrop = deltaP_est
+      finalEpsilon = calculateExpansibilityFactor(beta, deltaP_est * 100, P1, k)
+      const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta, Re_final)
+
     } else {
       const d = parseFloat(orificeDiameterInput)
       const deltaP = parseFloat(pressureDrop)
-      
+
       if (!d || d <= 0 || d > 325) {
         alert('Please enter valid orifice diameter (max 325 mm)')
         return
@@ -437,47 +506,74 @@ export default function OrificeCalculatorPage() {
       finalOrificeDiameter = d
       finalPressureDrop = deltaP
       const beta = d / D
-      epsilon = calculateExpansibilityFactor(beta, deltaP * 100, P1, k)
-      const qm = C * epsilon * (Math.PI / 4) * Math.pow(d / 1000, 2) * Math.sqrt(2 * rho * deltaP * 100)
-      Q = (qm / rho) * 3600
+      const E = calculateVelocityApproachFactor(beta)
+      const deltaP_Pa = deltaP * 100
+      finalEpsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+
+      // ISO 5167 iterative: solve for Q (via qm)
+      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
+      // Cd depends on Re which depends on qm → iterate
+      const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
+      let qm_est = 0.6 * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa) // initial guess
+      for (let iter = 0; iter < 30; iter++) {
+        const Re_est = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
+        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const qm_new = Cd * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa)
+        if (Math.abs(qm_new - qm_est) < 1e-8) { qm_est = qm_new; break }
+        qm_est = qm_new
+      }
+
+      Q = (qm_est / rho) * 3600
+      const Re_final = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
+      finalCd = calculateDischargeCoefficient(beta, Re_final)
     }
 
     const beta = finalOrificeDiameter / D
     const qm = (Q / 3600) * rho
-    const Re = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * 0.000017)
+    const Re = (4 * qm) / (Math.PI * (D / 1000) * mu)
 
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
       betaRatio: Math.round(beta * 10000) / 10000,
-      dischargeCoef: C,
+      dischargeCoef: Math.round(finalCd * 10000) / 10000,
       reynoldsNum: Math.round(Re),
       velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D / 1000, 2)),
       massFlowRate: qm,
       pressureDrop: Math.round(finalPressureDrop * 100) / 100
     }
 
-    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, C, P1, k)
+    generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, finalCd, P1, k)
     setResults(finalResults)
     setShowResults(true)
   }
 
-  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, C: number, P1: number, k: number) => {
+  const generateCurveData = (d_mm: number, D_mm: number, rho: number, Q: number, deltaP: number, beta: number, Cd: number, P1: number, k: number) => {
     const points: CurvePoint[] = []
+    const mu = 1.7e-5 // dynamic viscosity of gas (Pa·s)
     
     const maxDeltaP = deltaP * 1.5
     const steps = 50
+    const d = d_mm / 1000 // m
+    const E = calculateVelocityApproachFactor(beta)
+    const A_orifice = (Math.PI / 4) * d * d
     
     for (let i = 0; i <= steps; i++) {
       const currentDeltaP = (maxDeltaP / steps) * i
-      const epsilon = calculateExpansibilityFactor(beta, currentDeltaP * 100, P1, k)
-      const d = d_mm / 1000
+      const currentDeltaP_Pa = currentDeltaP * 100
+      const epsilon = calculateExpansibilityFactor(beta, currentDeltaP_Pa, P1, k)
       
-      const qm_calc = C * epsilon * (Math.PI / 4) * d * d * Math.sqrt(2 * rho * currentDeltaP * 100)
+      // Use iterative Cd based on estimated Re
+      const qm_est = Cd * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
+      const Re_est = (4 * qm_est) / (Math.PI * (D_mm / 1000) * mu)
+      const Cd_calc = calculateDischargeCoefficient(beta, Re_est)
+      
+      // Recalculate with proper Cd
+      const qm_calc = Cd_calc * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
       const Q_calc = (qm_calc / rho) * 3600
 
       points.push({
         beta: beta,
-        dischargeCoef: C,
+        dischargeCoef: Math.round(Cd_calc * 10000) / 10000,
         pressureDrop: Math.round(currentDeltaP * 100) / 100,
         flowRate: Math.round(Q_calc * 100) / 100
       })
@@ -511,7 +607,7 @@ export default function OrificeCalculatorPage() {
       ['Calculation Mode', modeLabel],
       ['Gas Type', selectedGasType.name],
       ['Density', `${getDensity().toFixed(2)} kg/m3`],
-      ['Nominal Size', selectedPipeDN],
+      ['Nominal Size', String(selectedPipeDN)],
       ['Internal Diameter D', `${internalDiameter} mm`],
       ['Max Flow Rate Q', `${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))} m3/h`],
       [calculationMode === 'restricting' ? 'Pressure Loss dp' : 'Differential Pressure dp', `${pressureDrop} mbar`],
@@ -530,11 +626,11 @@ export default function OrificeCalculatorPage() {
       x: MARGIN_LEFT, y, width: cardW, highlight: true,
     })
     drawResultCard(doc, {
-      label: 'Beta Ratio', value: results.betaRatio,
+      label: 'Beta Ratio', value: String(results.betaRatio),
       x: MARGIN_LEFT + cardW + 6, y, width: cardW,
     })
     drawResultCard(doc, {
-      label: 'Discharge Coefficient Cd', value: results.dischargeCoef,
+      label: 'Discharge Coefficient Cd', value: String(results.dischargeCoef),
       x: MARGIN_LEFT + (cardW + 6) * 2, y, width: cardW,
     })
     y += 40
@@ -567,10 +663,10 @@ export default function OrificeCalculatorPage() {
     }, {
       title: 'Intermediate Values',
       rows: [
-        ['Beta Ratio', results.betaRatio],
+        ['Beta Ratio', String(results.betaRatio)],
         ['Discharge Cd', String(results.dischargeCoef)],
         ['Isentropic k', isentropicExponentK],
-        ['Pipe Area', `${(Math.PI / 4 * Math.pow(internalDiameter / 1000, 2) * 1e6).toFixed(2)} mm2`],
+        ['Pipe Area', `${(Math.PI / 4 * Math.pow(parseFloat(internalDiameter) / 1000, 2) * 1e6).toFixed(2)} mm2`],
       ],
     }, y)
 
