@@ -4,6 +4,21 @@ import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
+import {
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  addDisclaimerPage,
+  checkPageBreak,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+  sanitizeText,
+  formatNumber as pdfFormatNumber,
+} from '../utils/pdfUtils'
 
 interface GasComponent {
   name: string
@@ -313,71 +328,114 @@ export default function FlameTemperaturePage() {
 
   const results = calculateFlameTemperature()
 
+  const getOxidizerLabel = () => {
+    if (oxidizerType === 'air') return 'Air (21% O₂, 79% N₂)'
+    if (oxidizerType === 'oxygen') return 'Pure Oxygen (100% O₂)'
+    return `Mixed (${airRatio}% Air + ${oxygenRatio}% O₂)`
+  }
+
   const exportToPDF = () => {
     if (!results) return
 
-    const doc = new jsPDF()
-    
-    doc.setFontSize(18)
-    doc.setFont(undefined, 'bold')
-    doc.text('Flame Temperature Calculation Report', 20, 20)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text('Standard: Thermodynamic heat balance calculation', 20, 36)
-    
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Input Parameters:', 20, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    let yPos = 56
-    gasComponents.forEach(c => {
-      const pct = parseFloat(c.percentage) || 0
-      if (pct > 0) {
-        doc.text(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`, 20, yPos)
-        yPos += 6
-      }
-    })
-    
-    yPos += 4
-    doc.text(`Fuel Temperature: ${fuelTemperature} °C`, 20, yPos)
-    yPos += 6
-    doc.text(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`, 20, yPos)
-    yPos += 6
-    doc.text(`Oxidizer Temperature: ${oxidizerTemperature} °C`, 20, yPos)
-    yPos += 6
-    doc.text(`Excess Oxygen: ${excessOxygen}%`, 20, yPos)
-    
-    yPos += 10
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Calculation Results:', 120, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} °C`, 120, 56)
-    doc.text(`Actual Flame Temperature: ${results.actual.toFixed(0)} °C`, 120, 62)
-    doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
-    
-    yPos = 78
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Combustion Products (per mole fuel):', 20, yPos)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`CO₂: ${results.molesCO2.toFixed(4)} mol`, 20, yPos + 8)
-    doc.text(`H₂O: ${results.molesH2O.toFixed(4)} mol`, 20, yPos + 14)
-    doc.text(`N₂: ${results.molesN2.toFixed(4)} mol`, 20, yPos + 20)
-    doc.text(`Excess O₂: ${results.molesO2.toFixed(4)} mol`, 20, yPos + 26)
-    
-    doc.setFontSize(8)
-    doc.setTextColor(128, 128, 128)
-    doc.text('Note: Results are for reference only. Consult qualified combustion engineers.', 20, 280)
-    
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    addCoverPage(doc, {
+      title: 'Flame Temperature Report',
+      subtitle: 'Adiabatic flame temperature calculation',
+      reportType: 'Flame Temperature Analysis',
+      standard: 'Thermodynamic heat balance method',
+    });
+
+    let y = drawPageHeader(doc, 'Flame Temperature Report', 'Calculation Results');
+
+    y = drawSectionTitle(doc, '1. Input Parameters', y, 'User-provided fuel composition and operating conditions');
+
+    const activeComponents = gasComponents.filter(c => (parseFloat(c.percentage) || 0) > 0);
+    if (activeComponents.length > 0) {
+      y = drawSubSectionTitle(doc, 'Fuel Gas Composition', y);
+      const compRows = activeComponents.map(c => [
+        sanitizeText(c.name + ' (' + c.symbol + ')'),
+        pdfFormatNumber(parseFloat(c.percentage), 2) + ' %'
+      ] as [string, string]);
+      y = drawInfoTable(doc, compRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
+    }
+
+    y += 4
+    y = checkPageBreak(doc, y, 80, 'Flame Temperature Report', 'Input Parameters');
+    y = drawSubSectionTitle(doc, 'Operating Conditions', y);
+
+    const condItems: [string, string][] = [
+      ['Fuel Temperature', `${pdfFormatNumber(parseFloat(fuelTemperature), 1)} °C`],
+      ['Oxidizer Type', sanitizeText(getOxidizerLabel())],
+      ['Oxidizer Temperature', `${pdfFormatNumber(parseFloat(oxidizerTemperature), 1)} °C`],
+      ['Excess Oxygen', `${pdfFormatNumber(parseFloat(excessOxygen), 2)} %`],
+    ]
+    y = drawInfoTable(doc, condItems, MARGIN_LEFT, y, CONTENT_WIDTH);
+
+    y += 8
+    y = checkPageBreak(doc, y, 120, 'Flame Temperature Report', 'Flame Temperature Results');
+    y = drawSectionTitle(doc, '2. Flame Temperature Results', y, 'Theoretical and actual flame temperatures');
+
+    const cardWidth = (CONTENT_WIDTH - 4) / 2;
+    drawResultCard(doc, {
+      label: 'Theoretical Flame Temp',
+      value: pdfFormatNumber(results.theoretical, 0) + ' °C',
+      unit: 'Adiabatic',
+      x: MARGIN_LEFT,
+      y,
+      width: cardWidth,
+      highlight: true,
+      status: 'info',
+    });
+    drawResultCard(doc, {
+      label: 'Actual Flame Temp',
+      value: pdfFormatNumber(results.actual, 0) + ' °C',
+      unit: '10% heat loss',
+      x: MARGIN_LEFT + cardWidth + 4,
+      y,
+      width: cardWidth,
+      highlight: true,
+      status: 'success',
+    });
+    y += 37;
+
+    y += 4
+    y = checkPageBreak(doc, y, 60, 'Flame Temperature Report', 'Stoichiometric Data');
+    y = drawSubSectionTitle(doc, 'Stoichiometric Data', y);
+    drawResultCard(doc, {
+      label: 'Stoichiometric O₂',
+      value: pdfFormatNumber(results.stoichO2, 4) + ' mol/mol fuel',
+      x: MARGIN_LEFT,
+      y,
+      width: cardWidth,
+      status: 'info',
+    });
+    const excessAirRatio = 1 + parseFloat(excessOxygen) / 100;
+    drawResultCard(doc, {
+      label: 'Excess Air Ratio',
+      value: pdfFormatNumber(excessAirRatio, 3),
+      x: MARGIN_LEFT + cardWidth + 4,
+      y,
+      width: cardWidth,
+      status: 'info',
+    });
+    y += 34;
+
+    y += 4
+    y = checkPageBreak(doc, y, 100, 'Flame Temperature Report', 'Combustion Products');
+    y = drawSectionTitle(doc, '3. Combustion Products', y, 'Product composition per mole of fuel');
+
+    const productItems: [string, string][] = [
+      ['Carbon Dioxide (CO₂)', pdfFormatNumber(results.molesCO2, 4) + ' mol'],
+      ['Water Vapor (H₂O)', pdfFormatNumber(results.molesH2O, 4) + ' mol'],
+      ['Nitrogen (N₂)', pdfFormatNumber(results.molesN2, 4) + ' mol'],
+      ['Excess Oxygen (O₂)', pdfFormatNumber(results.molesO2, 4) + ' mol'],
+    ]
+    y = drawInfoTable(doc, productItems, MARGIN_LEFT, y, CONTENT_WIDTH);
+
+    addDisclaimerPage(doc)
+    drawPageFooter(doc)
+
     doc.save('flame-temperature-report.pdf')
   }
 
