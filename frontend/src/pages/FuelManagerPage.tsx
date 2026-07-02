@@ -869,20 +869,20 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 sm:mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
                 {gas1Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
-                    <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
-                    <div className="flex items-center gap-1">
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
+                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{component.name}</div>
+                    <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
+                    <div className="relative">
                       <input
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
                         placeholder="0"
                       />
-                      <span className="text-xs text-[#7f8c8d]">%</span>
+                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
                     </div>
                   </div>
                 ))}
@@ -966,20 +966,20 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 sm:mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
                 {gas2Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words">{component.name}</div>
-                    <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
-                    <div className="flex items-center gap-1">
+                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
+                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{component.name}</div>
+                    <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
+                    <div className="relative">
                       <input
                         type="text"
                         value={component.percentage}
                         onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
                         placeholder="0"
                       />
-                      <span className="text-xs text-[#7f8c8d]">%</span>
+                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
                     </div>
                   </div>
                 ))}
@@ -1110,20 +1110,20 @@ export default function FuelManagerPage() {
                         Gas composition (click to edit)
                       </summary>
                       <div className="mt-2 sm:mt-3">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 sm:mb-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 mb-3">
                           {combustionGasComponents.map((component) => (
-                            <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
-                              <div className="text-xs font-medium text-[#555]">{component.name}</div>
-                              <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
-                              <div className="flex items-center gap-1">
+                            <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
+                              <div className="text-xs font-medium text-[#555] leading-tight">{component.name}</div>
+                              <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
+                              <div className="relative">
                                 <input
                                   type="text"
                                   value={component.percentage}
                                   onChange={(e) => handleCombustionComponentChange(component.symbol, e.target.value)}
-                                  className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                                  className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
                                   placeholder="0"
                                 />
-                                <span className="text-xs text-[#7f8c8d]">%</span>
+                                <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
                               </div>
                             </div>
                           ))}
@@ -1287,19 +1287,19 @@ export default function FuelManagerPage() {
 
             <div className="mb-4 sm:mb-6">
               <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">Elemental Analysis</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-4 sm:mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-4">
                 {oilElements.map((element) => (
-                  <div key={element.symbol} className="flex flex-col bg-gray-50 p-2 sm:p-3 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words">{element.name}</div>
-                    <div className="flex items-center gap-1">
+                  <div key={element.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
+                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{element.name}</div>
+                    <div className="relative">
                       <input
                         type="text"
                         value={element.percentage}
                         onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-center text-gray-900"
+                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
                         placeholder="0"
                       />
-                      <span className="text-xs text-[#7f8c8d]">%</span>
+                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
                     </div>
                   </div>
                 ))}
