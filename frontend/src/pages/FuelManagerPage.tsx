@@ -869,23 +869,33 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
-                {gas1Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{component.name}</div>
-                    <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={component.percentage}
-                        onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
-                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
-                        placeholder="0"
-                      />
-                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-700 text-white">
+                      <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
+                      <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
+                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gas1Components.map((component, idx) => (
+                      <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="py-1 px-2 text-gray-700">{component.name}</td>
+                        <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
+                        <td className="py-1 px-2 text-right">
+                          <input
+                            type="text"
+                            value={component.percentage}
+                            onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
+                            className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
+                            placeholder="0"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
@@ -966,23 +976,33 @@ export default function FuelManagerPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
-                {gas2Components.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{component.name}</div>
-                    <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={component.percentage}
-                        onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
-                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
-                        placeholder="0"
-                      />
-                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-700 text-white">
+                      <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
+                      <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
+                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gas2Components.map((component, idx) => (
+                      <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="py-1 px-2 text-gray-700">{component.name}</td>
+                        <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
+                        <td className="py-1 px-2 text-right">
+                          <input
+                            type="text"
+                            value={component.percentage}
+                            onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
+                            className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
+                            placeholder="0"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
@@ -1110,23 +1130,33 @@ export default function FuelManagerPage() {
                         Gas composition (click to edit)
                       </summary>
                       <div className="mt-2 sm:mt-3">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 mb-3">
-                          {combustionGasComponents.map((component) => (
-                            <div key={component.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
-                              <div className="text-xs font-medium text-[#555] leading-tight">{component.name}</div>
-                              <div className="text-[10px] text-[#7f8c8d] mb-1">{component.symbol}</div>
-                              <div className="relative">
-                                <input
-                                  type="text"
-                                  value={component.percentage}
-                                  onChange={(e) => handleCombustionComponentChange(component.symbol, e.target.value)}
-                                  className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
-                                  placeholder="0"
-                                />
-                                <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
-                              </div>
-                            </div>
-                          ))}
+                        <div className="overflow-x-auto mb-3">
+                          <table className="w-full text-xs border-collapse">
+                            <thead>
+                              <tr className="bg-gray-700 text-white">
+                                <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
+                                <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
+                                <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {combustionGasComponents.map((component, idx) => (
+                                <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                  <td className="py-1 px-2 text-gray-700">{component.name}</td>
+                                  <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
+                                  <td className="py-1 px-2 text-right">
+                                    <input
+                                      type="text"
+                                      value={component.percentage}
+                                      onChange={(e) => handleCombustionComponentChange(component.symbol, e.target.value)}
+                                      className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#2B6BA0]"
+                                      placeholder="0"
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     </details>
@@ -1287,22 +1317,31 @@ export default function FuelManagerPage() {
 
             <div className="mb-4 sm:mb-6">
               <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">Elemental Analysis</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-4">
-                {oilElements.map((element) => (
-                  <div key={element.symbol} className="flex flex-col bg-gray-50 p-1.5 rounded">
-                    <div className="text-xs font-medium text-[#555] break-words leading-tight">{element.name}</div>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={element.percentage}
-                        onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                        className="w-full px-2 py-0.5 border border-gray-300 rounded text-xs text-right pr-5 text-gray-900"
-                        placeholder="0"
-                      />
-                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[#7f8c8d]">%</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-700 text-white">
+                      <th className="text-left py-1.5 px-2 font-medium">Element</th>
+                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {oilElements.map((element, idx) => (
+                      <tr key={element.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="py-1 px-2 text-gray-700">{element.name}</td>
+                        <td className="py-1 px-2 text-right">
+                          <input
+                            type="text"
+                            value={element.percentage}
+                            onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
+                            className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
+                            placeholder="0"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
