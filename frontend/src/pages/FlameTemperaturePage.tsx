@@ -632,10 +632,10 @@ export default function FlameTemperaturePage() {
               </div>
 
               <button
-                onClick={() => handleProAction(() => setShowResults(!showResults))}
+                onClick={() => setShowResults(!showResults)}
                 className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
               >
-                {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
+                {showResults ? 'Hide Results' : 'Toggle Results'}
               </button>
 
               {/* Export PDF Button */}
@@ -663,7 +663,7 @@ export default function FlameTemperaturePage() {
                 <div className="bg-white/10 p-6 rounded">
                   <div className="text-sm text-[#bdc3c7] mb-2">Actual Flame Temperature</div>
                   <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.actual.toFixed(0)} °C</div>
-                  <div className="text-sm text-[#7f8c8d] mt-2">With 10% heat loss</div>
+                  <div className="text-sm text-[#7f8c8d] mt-2">With dissociation correction</div>
                 </div>
               </div>
               <div className="mt-6 p-4 bg-white/5 rounded">
