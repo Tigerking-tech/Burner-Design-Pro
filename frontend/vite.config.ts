@@ -6,21 +6,5 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
-    hmr: {
-      clientPort: 443,
-      path: '/hmr',
-    },
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path,
-      },
-      '/health': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path,
-      },
-    },
   },
 })

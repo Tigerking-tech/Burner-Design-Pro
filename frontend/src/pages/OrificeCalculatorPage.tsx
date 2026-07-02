@@ -113,7 +113,7 @@ function RestrictingOrificeDiagram() {
       className="w-full h-auto"
     >
       <g id="Drosselblende">
-        <polygon fill="#2B6BA0" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 209.886,134.162 209.827,151.098 207.81,160.15 201.542,160.15 199.521,150.817 199.647,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 44.942,134.162 44.958,151.378 43.031,160.13 36.626,160.13 35.014,151.068 35.139,134.162 19.503,134.162"/>
+        <polygon fill="#EDD330" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 209.886,134.162 209.827,151.098 207.81,160.15 201.542,160.15 199.521,150.817 199.647,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 44.942,134.162 44.958,151.378 43.031,160.13 36.626,160.13 35.014,151.068 35.139,134.162 19.503,134.162"/>
         <text transform="matrix(1 0 0 1 52.0493 171.8242)" fill="#101111" fontFamily="ArialMT" fontSize="20">5xDN</text>
         <polygon fill="#101111" points="130.242,168.033 136.242,168.033 136.242,137.162 200.673,137.162 200.673,131.162 130.242,131.162"/>
         <polygon fill="#101111" points="200.427,160.363 202.392,159.988 200.659,150.91 200.676,131.162 198.676,131.162 198.676,151.098"/>
@@ -217,7 +217,7 @@ function MeasuringOrificeDiagram() {
       className="w-full h-auto"
     >
       <g id="Messblende">
-        <polygon fill="#2B6BA0" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 157.646,134.162 157.586,151.098 155.57,160.15 149.302,160.15 147.281,150.817 147.407,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 97.182,134.162 97.198,151.378 95.271,160.13 88.867,160.13 87.254,151.068 87.379,134.162 19.503,134.162"/>
+        <polygon fill="#EDD330" points="19.503,39.814 111.173,39.814 111.173,6 133.162,6 133.162,39.814 225.177,39.814 225.177,134.162 157.646,134.162 157.586,151.098 155.57,160.15 149.302,160.15 147.281,150.817 147.407,134.162 133.417,134.162 133.166,168.033 111.423,168.033 111.423,134.162 97.182,134.162 97.198,151.378 95.271,160.13 88.867,160.13 87.254,151.068 87.379,134.162 19.503,134.162"/>
         <polygon fill="#101111" points="130.242,168.033 136.242,168.033 136.242,137.162 148.433,137.162 148.433,131.162 130.242,131.162"/>
         <polygon fill="#101111" points="148.187,160.363 150.152,159.988 148.418,150.91 148.436,131.162 146.436,131.162 146.436,151.098"/>
         <polygon fill="#101111" points="87.996,160.363 86.262,151.285 86.245,131.162 88.245,131.162 88.245,151.098 89.96,159.988"/>
@@ -679,7 +679,7 @@ export default function OrificeCalculatorPage() {
       const chartX = MARGIN_LEFT + 5
       const chartY = y + 5
       const chartW = CONTENT_WIDTH - 10
-      const chartH = 110
+      const chartH = 100
 
       // Chart background
       setFillColor(doc, { r: 252, g: 252, b: 252 })
@@ -688,10 +688,10 @@ export default function OrificeCalculatorPage() {
       doc.rect(chartX, chartY, chartW, chartH, 'FD')
 
       // Chart margins inside
-      const padLeft = 22
+      const padLeft = 20
       const padBottom = 18
-      const padTop = 28
-      const padRight = 10
+      const padTop = 8
+      const padRight = 8
       const plotX = chartX + padLeft
       const plotY = chartY + padTop
       const plotW = chartW - padLeft - padRight
@@ -770,52 +770,15 @@ export default function OrificeCalculatorPage() {
       setFillColor(doc, COLORS.danger)
       doc.circle(selX, selY, 1.5, 'F')
 
-      // Legend - drawn on top with white background to avoid overlap
+      // Legend
       doc.setFontSize(7)
+      setTextColor(doc, { r: 43, g: 107, b: 160 })
       doc.setFont('helvetica', 'normal')
-      
-      // Legend items
-      const legendItems = [
-        { text: 'Q (m³/h)', color: { r: 43, g: 107, b: 160 } },
-        { text: `dp = ${results.pressureDrop} mbar`, color: COLORS.danger },
-        { text: `Q = ${selQ.toFixed(2)} m³/h`, color: COLORS.success }
-      ]
-      
-      // Calculate legend width
-      let maxLegendWidth = 0
-      legendItems.forEach(item => {
-        const w = doc.getTextWidth(item.text) + 12
-        if (w > maxLegendWidth) maxLegendWidth = w
-      })
-      
-      const legendX = plotX + 2
-      const legendY = chartY + 3
-      const legendW = maxLegendWidth + 4
-      const legendH = legendItems.length * 6 + 3
-      
-      // White background for legend
-      setFillColor(doc, { r: 255, g: 255, b: 255 })
-      setDrawColor(doc, COLORS.border)
-      doc.setLineWidth(0.1)
-      doc.roundedRect(legendX, legendY, legendW, legendH, 1, 1, 'FD')
-      
-      // Draw legend items with line samples
-      legendItems.forEach((item, i) => {
-        const ly = legendY + 4 + i * 6
-        setDrawColor(doc, item.color)
-        doc.setLineWidth(0.5)
-        if (i === 0) {
-          // Solid line for curve
-          doc.line(legendX + 2, ly, legendX + 8, ly)
-        } else {
-          // Dashed line for reference lines
-          doc.setLineDashPattern([1.5, 1], 0)
-          doc.line(legendX + 2, ly, legendX + 8, ly)
-          doc.setLineDashPattern([], 0)
-        }
-        setTextColor(doc, item.color)
-        doc.text(item.text, legendX + 11, ly + 1)
-      })
+      doc.text('Q (m3/h)', plotX + plotW - 30, plotY + 4)
+      setTextColor(doc, COLORS.danger)
+      doc.text(`dp = ${results.pressureDrop} mbar`, plotX + plotW - 30, plotY + 9)
+      setTextColor(doc, COLORS.success)
+      doc.text(`Q = ${selQ.toFixed(2)} m3/h`, plotX + plotW - 30, plotY + 14)
 
       y = chartY + chartH + 10
     }
