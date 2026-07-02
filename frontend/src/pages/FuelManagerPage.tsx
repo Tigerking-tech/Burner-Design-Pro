@@ -1105,15 +1105,16 @@ export default function FuelManagerPage() {
                       </select>
                     </div>
 
-                    <details className="mb-3 sm:mb-4">
+                    <details className="mb-3 sm:mb-4" open>
                       <summary className="cursor-pointer text-sm font-medium text-[#2B6BA0] mb-2 hover:underline">
-                        Show gas composition details
+                        Gas composition (click to edit)
                       </summary>
                       <div className="mt-2 sm:mt-3">
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 sm:mb-4">
-                          {combustionGasComponents.filter(c => parseFloat(c.percentage) > 0).map((component) => (
+                          {combustionGasComponents.map((component) => (
                             <div key={component.symbol} className="flex flex-col bg-gray-50 p-2 rounded">
-                              <div className="text-xs font-medium text-[#555]">{component.symbol}</div>
+                              <div className="text-xs font-medium text-[#555]">{component.name}</div>
+                              <div className="text-xs text-[#7f8c8d] mb-1">{component.symbol}</div>
                               <div className="flex items-center gap-1">
                                 <input
                                   type="text"
