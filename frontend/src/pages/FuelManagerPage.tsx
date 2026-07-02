@@ -86,7 +86,7 @@ const gasPresets: GasPreset[] = [
     composition: { 'H₂': '55.0', 'CO': '6.0', 'CH₄': '25.0', 'C₂H₆': '2.0', 'N₂': '10.0', 'CO₂': '2.0' }
   },
   {
-    name: 'Coke Oven',
+    name: 'Coke Oven Gas',
     composition: { 'H₂': '57.9', 'CO': '4.5', 'CH₄': '30.3', 'C₄H₁₀': '3.3', 'N₂': '2.2', 'CO₂': '1.8' }
   },
   {
@@ -94,7 +94,7 @@ const gasPresets: GasPreset[] = [
     composition: { 'H₂': '3.0', 'CO': '25.0', 'N₂': '52.0', 'CO₂': '20.0' }
   },
   {
-    name: 'Blast Furnace',
+    name: 'Blast Furnace Gas',
     composition: { 'H₂': '1.65', 'CO': '25.1', 'N₂': '57.5', 'CO₂': '15.4', 'O₂': '0.35' }
   },
   {
