@@ -150,11 +150,47 @@ const fuelData: Record<string, { hf: number; c: number; h: number; o: number; n:
   'CO₂': { hf: -393.52, c: 1, h: 0, o: 2, n: 0 },
 }
 
-const productData: Record<string, { hf: number; cp: number }> = {
-  'CO₂': { hf: -393.52, cp: 0.055 },
-  'H₂O': { hf: -241.83, cp: 0.045 },
-  'N₂': { hf: 0, cp: 0.035 },
-  'O₂': { hf: 0, cp: 0.038 },
+// NASA Glenn 2002 polynomial coefficients for temperature-dependent Cp
+// High-temperature range: 1000K - 3500K
+const nasaCoeffsHigh: Record<string, number[]> = {
+  'CO₂': [4.63619, 0.00274812, -9.93049e-7, 1.58458e-10, -8.42449e-15],
+  'H₂O': [3.03399, 0.00217692, -1.64073e-7, -9.71587e-11, 1.76497e-14],
+  'N₂':  [2.87123, 0.00148648, -5.92099e-7, 8.29009e-11, -4.09898e-15],
+  'O₂':  [3.63975, -0.00042928, 1.03953e-6, -9.49984e-11, 2.78729e-15],
+}
+// Low-temperature range: 200K - 1000K
+const nasaCoeffsLow: Record<string, number[]> = {
+  'CO₂': [2.27572, 0.00974842, -5.94380e-6, 1.67697e-9, -1.25463e-13],
+  'H₂O': [3.38684, 0.00347499, -6.35479e-6, 6.96858e-9, -2.50659e-12],
+  'N₂':  [3.53101, -0.00012303, -5.02999e-7, 2.43531e-9, -1.40881e-12],
+  'O₂':  [3.37846, -0.00299672, 9.84730e-6, -9.68130e-9, 3.24373e-12],
+}
+const GAS_R = 8.314 // J/(mol·K)
+
+// Integrate Cp/R from T1 to T2 using NASA polynomial coefficients
+function cpIntegral(species: string, T1: number, T2: number): number {
+  function polyIntegral(coeffs: number[], t1: number, t2: number): number {
+    let s = 0
+    for (let i = 0; i < coeffs.length; i++) {
+      s += coeffs[i] / (i + 1) * (Math.pow(t2, i + 1) - Math.pow(t1, i + 1))
+    }
+    return s
+  }
+  // Handle cross-range integration (straddling 1000K)
+  if (T1 < 1000 && T2 > 1000) {
+    return GAS_R * (polyIntegral(nasaCoeffsLow[species], T1, 1000) + polyIntegral(nasaCoeffsHigh[species], 1000, T2))
+  } else if (T2 <= 1000) {
+    return GAS_R * polyIntegral(nasaCoeffsLow[species], T1, T2)
+  } else {
+    return GAS_R * polyIntegral(nasaCoeffsHigh[species], T1, T2)
+  }
+}
+
+const productHf: Record<string, number> = {
+  'CO₂': -393.52,
+  'H₂O': -241.83,
+  'N₂': 0,
+  'O₂': 0,
 }
 
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
@@ -253,19 +289,14 @@ export default function FlameTemperaturePage() {
     const molesO2 = actualO2 - stoichO2
     const molesN2 = n2FromAir
 
-    const totalHfProducts = 
-      molesCO2 * productData['CO₂'].hf +
-      molesH2O * productData['H₂O'].hf +
-      molesO2 * productData['O₂'].hf +
-      molesN2 * productData['N₂'].hf
+    const totalHfProducts =
+      molesCO2 * productHf['CO₂'] +
+      molesH2O * productHf['H₂O'] +
+      molesO2 * productHf['O₂'] +
+      molesN2 * productHf['N₂']
 
-    const heatReleased = totalHfReactants - totalHfProducts
-
-    const totalCpProducts = 
-      molesCO2 * productData['CO₂'].cp +
-      molesH2O * productData['H₂O'].cp +
-      molesO2 * productData['O₂'].cp +
-      molesN2 * productData['N₂'].cp
+    // Heat released in kJ/mol fuel → convert to J
+    const heatReleased = (totalHfReactants - totalHfProducts) * 1000
 
     const initialTemp = Math.max(
       parseFloat(fuelTemperature) || 25,
@@ -273,32 +304,36 @@ export default function FlameTemperaturePage() {
     )
     const initialTempK = initialTemp + 273.15
 
-    let theoreticalTempK
-    if (totalCpProducts > 0) {
-      theoreticalTempK = initialTempK + heatReleased / totalCpProducts
-    } else {
-      theoreticalTempK = initialTempK + 1800
+    // Binary search for theoretical flame temperature (no dissociation)
+    // using NASA Glenn polynomial Cp integration
+    let lo = initialTempK, hi = 6000
+    for (let i = 0; i < 100; i++) {
+      const mid = (lo + hi) / 2
+      const sensibleHeat =
+        molesCO2 * cpIntegral('CO₂', initialTempK, mid) +
+        molesH2O * cpIntegral('H₂O', initialTempK, mid) +
+        molesN2 * cpIntegral('N₂', initialTempK, mid) +
+        molesO2 * cpIntegral('O₂', initialTempK, mid)
+      if (Math.abs(heatReleased - sensibleHeat) < 1) break
+      if (heatReleased > sensibleHeat) lo = mid
+      else hi = mid
     }
+    const theoreticalTempK = (lo + hi) / 2
 
-    let theoreticalTempC = theoreticalTempK - 273.15
-    
-    let maxTempC
-    if (oxidizerType === 'oxygen') {
-      maxTempC = 2900
-    } else {
-      maxTempC = 2400
-    }
-    
-    if (theoreticalTempC > maxTempC) {
-      if (oxidizerType === 'oxygen') {
-        theoreticalTempC = 2900
+    // Dissociation correction (CO₂/H₂O dissociate at high temps, absorbing heat)
+    let actualTempK = theoreticalTempK
+    if (theoreticalTempK > 2000) {
+      if (theoreticalTempK < 3500) {
+        // Linear correction: 37% of excess above 2000K
+        actualTempK = theoreticalTempK - 0.37 * (theoreticalTempK - 2000)
       } else {
-        const excess = theoreticalTempC - maxTempC
-        theoreticalTempC = maxTempC + 200 * Math.log(1 + excess / 100)
+        // Logarithmic correction for extreme temperatures (oxygen combustion)
+        actualTempK = 2945 + 30 * Math.log(1 + (theoreticalTempK - 3500) / 50)
       }
     }
-    
-    const actualTempC = theoreticalTempC * 0.9
+
+    const theoreticalTempC = theoreticalTempK - 273.15
+    const actualTempC = actualTempK - 273.15
 
     return {
       theoretical: Math.max(0, theoreticalTempC),
