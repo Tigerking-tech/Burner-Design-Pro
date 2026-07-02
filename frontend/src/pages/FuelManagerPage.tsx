@@ -837,10 +837,7 @@ export default function FuelManagerPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
               <div className="bg-white rounded-lg px-3 py-4 border border-gray-300 shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-                  <h2 className="text-lg font-bold text-[#2c3e50] flex items-center">
-                    <span className="w-6 h-6 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-xs mr-2">1</span>
-                    Gas 1
-                  </h2>
+                  <h2 className="text-lg font-bold text-[#2c3e50]">Gas 1</h2>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-[#7f8c8d] hidden sm:inline">Proportion</span>
                     <input
@@ -944,10 +941,7 @@ export default function FuelManagerPage() {
 
               <div className="bg-white rounded-lg px-3 py-4 border border-gray-300 shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-                  <h2 className="text-lg font-bold text-[#2c3e50] flex items-center">
-                    <span className="w-6 h-6 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-xs mr-2">2</span>
-                    Gas 2
-                  </h2>
+                  <h2 className="text-lg font-bold text-[#2c3e50]">Gas 2</h2>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-[#7f8c8d] hidden sm:inline">Proportion</span>
                     <input
