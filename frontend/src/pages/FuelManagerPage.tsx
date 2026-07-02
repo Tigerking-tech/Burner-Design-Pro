@@ -872,7 +872,7 @@ export default function FuelManagerPage() {
               <div className="overflow-x-auto mb-4">
                 <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="bg-gray-700 text-white">
+                    <tr className="bg-[#2c3e50] text-white">
                       <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
                       <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
                       <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
@@ -979,7 +979,7 @@ export default function FuelManagerPage() {
               <div className="overflow-x-auto mb-4">
                 <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="bg-gray-700 text-white">
+                    <tr className="bg-[#2c3e50] text-white">
                       <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
                       <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
                       <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
@@ -1133,7 +1133,7 @@ export default function FuelManagerPage() {
                         <div className="overflow-x-auto mb-3">
                           <table className="w-full text-xs border-collapse">
                             <thead>
-                              <tr className="bg-gray-700 text-white">
+                              <tr className="bg-[#2c3e50] text-white">
                                 <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
                                 <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
                                 <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
@@ -1320,7 +1320,7 @@ export default function FuelManagerPage() {
               <div className="overflow-x-auto mb-4">
                 <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="bg-gray-700 text-white">
+                    <tr className="bg-[#2c3e50] text-white">
                       <th className="text-left py-1.5 px-2 font-medium">Element</th>
                       <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
                     </tr>
