@@ -632,10 +632,10 @@ export default function FlameTemperaturePage() {
               </div>
 
               <button
-                onClick={() => setShowResults(!showResults)}
+                onClick={() => handleProAction(() => setShowResults(!showResults))}
                 className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
               >
-                {showResults ? 'Hide Results' : 'Toggle Results'}
+                {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
               </button>
 
               {/* Export PDF Button */}
@@ -690,6 +690,31 @@ export default function FlameTemperaturePage() {
           </div>
           <p className="text-sm text-[#7f8c8d] dark:text-gray-500">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
         </footer>
+
+        {showSubscriptionModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+              <h3 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-4">Pro Feature</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                This feature is available for Pro users. Upgrade your account to unlock advanced calculations and PDF export features.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => window.location.href = '/subscription'}
+                  className="flex-1 bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Upgrade Now
+                </button>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className="px-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </ProFeaturePreview>
   )
