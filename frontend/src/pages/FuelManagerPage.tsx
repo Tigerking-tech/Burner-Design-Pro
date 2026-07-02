@@ -834,256 +834,258 @@ export default function FuelManagerPage() {
 
             {gasMode === 'mixture' ? (
               <>
-            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] flex items-center">
-                  <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
-                  Gas 1
-                </h2>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="text-sm text-[#7f8c8d] hidden sm:inline">Percentage proportion for gas mixture</span>
-                  <input
-                    type="text"
-                    value={gas1MixturePercent}
-                    onChange={(e) => handleGasMixturePercentChange(e.target.value)}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center text-gray-900"
-                  />
-                  <span className="text-sm text-[#7f8c8d]">%</span>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Gas type</label>
-                <select
-                  value={selectedGas1Preset}
-                  onChange={(e) => {
-                    setSelectedGas1Preset(e.target.value)
-                    if (e.target.value) applyGasPreset(e.target.value, 1)
-                  }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
-                >
-                  <option value="">Select gas type...</option>
-                  {gasPresets.map(preset => (
-                    <option key={preset.name} value={preset.name}>{preset.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="overflow-x-auto mb-4">
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-[#2c3e50] text-white">
-                      <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
-                      <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
-                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {gas1Components.map((component, idx) => (
-                      <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="py-1 px-2 text-gray-700">{component.name}</td>
-                        <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
-                        <td className="py-1 px-2 text-right">
-                          <input
-                            type="text"
-                            value={component.percentage}
-                            onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
-                            className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
-                            placeholder="0"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
-                <span className="text-sm font-medium text-[#555]">Total Percentage:</span>
-                <span className={`text-lg font-bold ${Math.abs(getTotalPercentage(gas1Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {getTotalPercentage(gas1Components).toFixed(2)}%
-                </span>
-              </div>
-
-              <button
-                onClick={() => setShowGas1Results(!showGas1Results)}
-                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
-              >
-                {showGas1Results ? 'Hide' : 'Calculate'} Gas 1 Key Data
-              </button>
-
-              {showGas1Results && calculateGasKeyData(gas1Components) && (
-                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas 1 Key Data</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Density</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.density.toFixed(3)} kg/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hs.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hi.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.ws.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.wi.toFixed(2)} kWh/m³</div>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              <div className="bg-white rounded-lg px-3 py-4 border border-gray-300 shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                  <h2 className="text-lg font-bold text-[#2c3e50] flex items-center">
+                    <span className="w-6 h-6 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-xs mr-2">1</span>
+                    Gas 1
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#7f8c8d] hidden sm:inline">Proportion</span>
+                    <input
+                      type="text"
+                      value={gas1MixturePercent}
+                      onChange={(e) => handleGasMixturePercentChange(e.target.value)}
+                      className="w-16 px-2 py-1.5 border border-gray-300 rounded text-center text-sm text-gray-900"
+                    />
+                    <span className="text-xs text-[#7f8c8d]">%</span>
                   </div>
                 </div>
-              )}
-            </div>
 
-            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] flex items-center">
-                  <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">2</span>
-                  Gas 2
-                </h2>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="text-sm text-[#7f8c8d] hidden sm:inline">Percentage proportion for gas mixture</span>
-                  <input
-                    type="text"
-                    value={(100 - (parseFloat(gas1MixturePercent) || 0)).toString()}
-                    readOnly
-                    className="w-20 px-3 py-2 border border-gray-300 rounded text-center bg-gray-100 text-gray-900"
-                  />
-                  <span className="text-sm text-[#7f8c8d]">%</span>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] mb-2">Gas type</label>
-                <select
-                  value={selectedGas2Preset}
-                  onChange={(e) => {
-                    setSelectedGas2Preset(e.target.value)
-                    if (e.target.value) applyGasPreset(e.target.value, 2)
-                  }}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
-                >
-                  <option value="">Select gas type...</option>
-                  {gasPresets.map(preset => (
-                    <option key={preset.name} value={preset.name}>{preset.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="overflow-x-auto mb-4">
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-[#2c3e50] text-white">
-                      <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
-                      <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
-                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {gas2Components.map((component, idx) => (
-                      <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="py-1 px-2 text-gray-700">{component.name}</td>
-                        <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
-                        <td className="py-1 px-2 text-right">
-                          <input
-                            type="text"
-                            value={component.percentage}
-                            onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
-                            className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
-                            placeholder="0"
-                          />
-                        </td>
-                      </tr>
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-[#555] mb-1">Gas type</label>
+                  <select
+                    value={selectedGas1Preset}
+                    onChange={(e) => {
+                      setSelectedGas1Preset(e.target.value)
+                      if (e.target.value) applyGasPreset(e.target.value, 1)
+                    }}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                  >
+                    <option value="">Select gas type...</option>
+                    {gasPresets.map(preset => (
+                      <option key={preset.name} value={preset.name}>{preset.name}</option>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </select>
+                </div>
 
-              <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 rounded">
-                <span className="text-sm font-medium text-[#555]">Total Percentage:</span>
-                <span className={`text-lg font-bold ${Math.abs(getTotalPercentage(gas2Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                  {getTotalPercentage(gas2Components).toFixed(2)}%
-                </span>
-              </div>
+                <div className="overflow-x-auto mb-3">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-[#2c3e50] text-white">
+                        <th className="text-left py-1 px-1.5 font-medium">Single Gas</th>
+                        <th className="text-left py-1 px-1.5 font-medium hidden sm:table-cell">Symbol</th>
+                        <th className="text-right py-1 px-1.5 font-medium w-16">Vol.-%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gas1Components.map((component, idx) => (
+                        <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="py-0.5 px-1.5 text-gray-700 text-xs">{component.name}</td>
+                          <td className="py-0.5 px-1.5 text-gray-500 text-xs hidden sm:table-cell">{component.symbol}</td>
+                          <td className="py-0.5 px-1.5 text-right">
+                            <input
+                              type="text"
+                              value={component.percentage}
+                              onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
+                              className="w-14 px-1 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
+                              placeholder="0"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-              <button
-                onClick={() => setShowGas2Results(!showGas2Results)}
-                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
-              >
-                {showGas2Results ? 'Hide' : 'Calculate'} Gas 2 Key Data
-              </button>
+                <div className="flex items-center justify-between mb-3 p-2 bg-gray-100 rounded">
+                  <span className="text-xs font-medium text-[#555]">Total:</span>
+                  <span className={`text-sm font-bold ${Math.abs(getTotalPercentage(gas1Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                    {getTotalPercentage(gas1Components).toFixed(2)}%
+                  </span>
+                </div>
 
-              {showGas2Results && calculateGasKeyData(gas2Components) && (
-                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas 2 Key Data</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Density</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.density.toFixed(3)} kg/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hs.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hi.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.ws.toFixed(2)} kWh/m³</div>
-                    </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.wi.toFixed(2)} kWh/m³</div>
+                <button
+                  onClick={() => setShowGas1Results(!showGas1Results)}
+                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm"
+                >
+                  {showGas1Results ? 'Hide' : 'Calculate'} Gas 1 Key Data
+                </button>
+
+                {showGas1Results && calculateGasKeyData(gas1Components) && (
+                  <div className="mt-3 p-3 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                    <h3 className="text-sm font-bold text-white mb-2">Gas 1 Key Data</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Density</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.density.toFixed(3)} kg/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Higher Heating Value (Hs)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hs.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Lower Heating Value (Hi)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.hi.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.ws.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas1Components)!.wi.toFixed(2)} kWh/m³</div>
+                      </div>
                     </div>
                   </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-lg px-3 py-4 border border-gray-300 shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                  <h2 className="text-lg font-bold text-[#2c3e50] flex items-center">
+                    <span className="w-6 h-6 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-xs mr-2">2</span>
+                    Gas 2
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#7f8c8d] hidden sm:inline">Proportion</span>
+                    <input
+                      type="text"
+                      value={(100 - (parseFloat(gas1MixturePercent) || 0)).toString()}
+                      readOnly
+                      className="w-16 px-2 py-1.5 border border-gray-300 rounded text-center text-sm bg-gray-100 text-gray-900"
+                    />
+                    <span className="text-xs text-[#7f8c8d]">%</span>
+                  </div>
                 </div>
-              )}
+
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-[#555] mb-1">Gas type</label>
+                  <select
+                    value={selectedGas2Preset}
+                    onChange={(e) => {
+                      setSelectedGas2Preset(e.target.value)
+                      if (e.target.value) applyGasPreset(e.target.value, 2)
+                    }}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                  >
+                    <option value="">Select gas type...</option>
+                    {gasPresets.map(preset => (
+                      <option key={preset.name} value={preset.name}>{preset.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="overflow-x-auto mb-3">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-[#2c3e50] text-white">
+                        <th className="text-left py-1 px-1.5 font-medium">Single Gas</th>
+                        <th className="text-left py-1 px-1.5 font-medium hidden sm:table-cell">Symbol</th>
+                        <th className="text-right py-1 px-1.5 font-medium w-16">Vol.-%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gas2Components.map((component, idx) => (
+                        <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="py-0.5 px-1.5 text-gray-700 text-xs">{component.name}</td>
+                          <td className="py-0.5 px-1.5 text-gray-500 text-xs hidden sm:table-cell">{component.symbol}</td>
+                          <td className="py-0.5 px-1.5 text-right">
+                            <input
+                              type="text"
+                              value={component.percentage}
+                              onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
+                              className="w-14 px-1 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
+                              placeholder="0"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex items-center justify-between mb-3 p-2 bg-gray-100 rounded">
+                  <span className="text-xs font-medium text-[#555]">Total:</span>
+                  <span className={`text-sm font-bold ${Math.abs(getTotalPercentage(gas2Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
+                    {getTotalPercentage(gas2Components).toFixed(2)}%
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => setShowGas2Results(!showGas2Results)}
+                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm"
+                >
+                  {showGas2Results ? 'Hide' : 'Calculate'} Gas 2 Key Data
+                </button>
+
+                {showGas2Results && calculateGasKeyData(gas2Components) && (
+                  <div className="mt-3 p-3 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                    <h3 className="text-sm font-bold text-white mb-2">Gas 2 Key Data</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Density</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.density.toFixed(3)} kg/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Higher Heating Value (Hs)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hs.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Lower Heating Value (Hi)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.hi.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.ws.toFixed(2)} kWh/m³</div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded">
+                        <div className="text-xs text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
+                        <div className="text-sm font-bold text-[#f39c12]">{calculateGasKeyData(gas2Components)!.wi.toFixed(2)} kWh/m³</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-gray-300 shadow-lg mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] mb-4 sm:mb-6 flex items-center">
-                <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">3</span>
+            <div className="bg-white rounded-lg px-3 py-4 border border-gray-300 shadow mb-6">
+              <h2 className="text-lg font-bold text-[#2c3e50] mb-3 flex items-center">
+                <span className="w-6 h-6 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-xs mr-2">3</span>
                 Gas Mixture
               </h2>
 
               <button
                 onClick={() => setShowMixtureResults(!showMixtureResults)}
-                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
+                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm"
               >
                 {showMixtureResults ? 'Hide' : 'Calculate'} Mixture Key Data
               </button>
 
               {showMixtureResults && calculateMixture() && (
-                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Gas Mixture Key Data</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Density</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.density.toFixed(3)} kg/m³</div>
+                <div className="mt-3 p-3 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-sm font-bold text-white mb-2">Gas Mixture Key Data</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="bg-white/10 p-2 rounded">
+                      <div className="text-xs text-[#bdc3c7]">Density</div>
+                      <div className="text-sm font-bold text-[#f39c12]">{calculateMixture()!.density.toFixed(3)} kg/m³</div>
                     </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Higher Heating Value (Hs)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.hs.toFixed(2)} kWh/m³</div>
+                    <div className="bg-white/10 p-2 rounded">
+                      <div className="text-xs text-[#bdc3c7]">Higher Heating Value (Hs)</div>
+                      <div className="text-sm font-bold text-[#f39c12]">{calculateMixture()!.hs.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Lower Heating Value (Hi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.hi.toFixed(2)} kWh/m³</div>
+                    <div className="bg-white/10 p-2 rounded">
+                      <div className="text-xs text-[#bdc3c7]">Lower Heating Value (Hi)</div>
+                      <div className="text-sm font-bold text-[#f39c12]">{calculateMixture()!.hi.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.ws.toFixed(2)} kWh/m³</div>
+                    <div className="bg-white/10 p-2 rounded">
+                      <div className="text-xs text-[#bdc3c7]">Superior Wobbe Index (Ws)</div>
+                      <div className="text-sm font-bold text-[#f39c12]">{calculateMixture()!.ws.toFixed(2)} kWh/m³</div>
                     </div>
-                    <div className="bg-white/10 p-3 sm:p-4 rounded">
-                      <div className="text-sm text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
-                      <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{calculateMixture()!.wi.toFixed(2)} kWh/m³</div>
+                    <div className="bg-white/10 p-2 rounded">
+                      <div className="text-xs text-[#bdc3c7]">Inferior Wobbe Index (Wi)</div>
+                      <div className="text-sm font-bold text-[#f39c12]">{calculateMixture()!.wi.toFixed(2)} kWh/m³</div>
                     </div>
                   </div>
               </div>
