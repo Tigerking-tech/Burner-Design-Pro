@@ -582,7 +582,7 @@ export default function FlameTemperaturePage() {
                 </div>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Excess Oxygen</label>
                 <div className="flex items-center gap-3">
                   <input
@@ -596,52 +596,54 @@ export default function FlameTemperaturePage() {
                 </div>
               </div>
 
+              {showResults && results ? (
+                <div className="mb-4 p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-base font-bold text-white mb-3">Flame Temperature Results</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-white/10 p-3 rounded">
+                      <div className="text-xs text-[#bdc3c7] mb-1">Theoretical</div>
+                      <div className="text-xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)}°C</div>
+                      <div className="text-[10px] text-[#7f8c8d] mt-1">Adiabatic</div>
+                    </div>
+                    <div className="bg-white/10 p-3 rounded">
+                      <div className="text-xs text-[#bdc3c7] mb-1">Actual</div>
+                      <div className="text-xl font-bold text-[#f39c12]">{results.actual.toFixed(0)}°C</div>
+                      <div className="text-[10px] text-[#7f8c8d] mt-1">With dissociation</div>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-white/10">
+                    <div className="text-xs text-[#bdc3c7] font-medium mb-2">Combustion Products</div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-[#bdc3c7]">
+                      <div>CO₂: {results.molesCO2.toFixed(2)} mol</div>
+                      <div>H₂O: {results.molesH2O.toFixed(2)} mol</div>
+                      <div>N₂: {results.molesN2.toFixed(2)} mol</div>
+                      <div>O₂: {results.molesO2.toFixed(2)} mol</div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <button
                 onClick={() => handleProAction(() => setShowResults(!showResults))}
-                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
+                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2.5 rounded font-semibold transition-colors text-sm"
               >
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
               </button>
 
               {/* Export PDF Button */}
-              <div className="mt-4">
-                <button
-                  onClick={exportToPDF}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <Download size={20} />
-                  Export PDF Report
-                </button>
-              </div>
+              {showResults && results && (
+                <div className="mt-3">
+                  <button
+                    onClick={exportToPDF}
+                    className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Download size={18} />
+                    Export PDF Report
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-
-          {showResults && results && (
-            <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-white mb-6">Flame Temperature Results</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/10 p-6 rounded">
-                  <div className="text-sm text-[#bdc3c7] mb-2">Theoretical Flame Temperature</div>
-                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)} °C</div>
-                  <div className="text-sm text-[#7f8c8d] mt-2">Adiabatic flame temperature</div>
-                </div>
-                <div className="bg-white/10 p-6 rounded">
-                  <div className="text-sm text-[#bdc3c7] mb-2">Actual Flame Temperature</div>
-                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.actual.toFixed(0)} °C</div>
-                  <div className="text-sm text-[#7f8c8d] mt-2">With 10% heat loss</div>
-                </div>
-              </div>
-              <div className="mt-6 p-4 bg-white/5 rounded">
-                <h4 className="text-white font-medium mb-3">Combustion Products (per mole fuel)</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#bdc3c7]">
-                  <div>CO₂: {results.molesCO2.toFixed(2)} mol</div>
-                  <div>H₂O: {results.molesH2O.toFixed(2)} mol</div>
-                  <div>N₂: {results.molesN2.toFixed(2)} mol</div>
-                  <div>Excess O₂: {results.molesO2.toFixed(2)} mol</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <footer className="bg-[#2c3e50] dark:bg-gray-900 text-[#bdc3c7] text-center py-12 px-6 mt-20">
