@@ -1170,12 +1170,6 @@ export default function FuelManagerPage() {
                       </span>
                     </div>
 
-                    <button
-                      onClick={() => setShowCombustionResults(!showCombustionResults)}
-                      className="w-full bg-[#2B6BA0] hover:bg-[#1e4e7a] text-white py-2.5 sm:py-3 rounded font-semibold transition-colors text-sm sm:text-base"
-                    >
-                      {showCombustionResults ? 'Hide' : 'Calculate'} Combustion Values
-                    </button>
                   </div>
 
                   <div className="bg-white rounded-lg px-3 py-4 sm:px-4 sm:py-5 md:px-5 md:py-6 border border-gray-300 shadow-lg">
@@ -1184,7 +1178,7 @@ export default function FuelManagerPage() {
                       Calculation Results
                     </h2>
 
-                    {showCombustionResults && calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1) && (
+                    {calculateCombustion(combustionGasComponents, parseFloat(burnerCapacity) || 0, parseFloat(lambda) || 1) ? (
                       <>
                         <div className="mb-4 sm:mb-5">
                           <h3 className="text-base sm:text-lg font-semibold text-[#2c3e50] mb-2 sm:mb-3">Key Data</h3>
@@ -1278,11 +1272,9 @@ export default function FuelManagerPage() {
                           </div>
                         </div>
                       </>
-                    )}
-
-                    {!showCombustionResults && (
+                    ) : (
                       <div className="text-center py-12 text-gray-500">
-                        <p>Click "Calculate Combustion Values" to see results</p>
+                        <p>Please select a gas type or enter gas composition</p>
                       </div>
                     )}
                   </div>
