@@ -861,7 +861,7 @@ export default function FuelManagerPage() {
                       setSelectedGas1Preset(e.target.value)
                       if (e.target.value) applyGasPreset(e.target.value, 1)
                     }}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                   >
                     <option value="">Select gas type...</option>
                     {gasPresets.map(preset => (
@@ -968,7 +968,7 @@ export default function FuelManagerPage() {
                       setSelectedGas2Preset(e.target.value)
                       if (e.target.value) applyGasPreset(e.target.value, 2)
                     }}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                   >
                     <option value="">Select gas type...</option>
                     {gasPresets.map(preset => (
@@ -1118,7 +1118,7 @@ export default function FuelManagerPage() {
                         onChange={(e) => {
                           applyCombustionGasPreset(e.target.value)
                         }}
-                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]/20 focus:border-[#2B6BA0] text-gray-900 text-sm"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]/20 focus:border-[#2B6BA0] text-gray-900 text-sm"
                       >
                         <option value="">Select gas type...</option>
                         {gasPresets.map(preset => (
