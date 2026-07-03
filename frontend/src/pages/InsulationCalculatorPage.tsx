@@ -107,7 +107,8 @@ function InsulationCalculatorPage() {
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
-  const isProUser = authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free'
+  const isLoggedIn = authAPI.isAuthenticated()
+  const isProUser = isLoggedIn && authAPI.getSubscriptionTier() !== 'free'
 
   const handleProAction = (action: () => void) => {
     if (!isProUser) {
@@ -115,6 +116,16 @@ function InsulationCalculatorPage() {
     } else {
       action()
     }
+  }
+
+  const handleLoginClick = () => {
+    setShowSubscriptionModal(false)
+    window.location.href = '/login'
+  }
+
+  const handleUpgradeClick = () => {
+    setShowSubscriptionModal(false)
+    window.location.href = '/subscription'
   }
 
   const getEmittance = () => {
@@ -812,6 +823,85 @@ function InsulationCalculatorPage() {
           </div>
         </div>
       </div>
+
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Cylinder className="w-8 h-8 text-amber-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
+              </h2>
+              <p className="text-gray-600">
+                {isLoggedIn
+                  ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
+                  : 'Please log in to use the insulation calculator and access all features.'}
+              </p>
+            </div>
+
+            {!isLoggedIn && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Free account benefits:</h3>
+                <ul className="space-y-1.5 text-sm text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Full access to basic calculators
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Calculation history
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Free forever - no credit card needed
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {isLoggedIn && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Pro Features:</h3>
+                <ul className="space-y-1.5 text-sm text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Insulation Calculator
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    All Pro calculators
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    PDF report export
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Priority support
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSubscriptionModal(false)}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
+                className="flex-1 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+              >
+                {isLoggedIn ? 'Upgrade Now' : 'Log In'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ProFeaturePreview>
   )
 }
