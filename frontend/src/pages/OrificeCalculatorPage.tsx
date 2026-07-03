@@ -309,7 +309,8 @@ export default function OrificeCalculatorPage() {
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
   const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
 
-  const isProUser = import.meta.env.DEV || (authAPI.isAuthenticated() && authAPI.getSubscriptionTier() !== 'free')
+  const isLoggedIn = authAPI.isAuthenticated()
+  const isProUser = import.meta.env.DEV || (isLoggedIn && authAPI.getSubscriptionTier() !== 'free')
 
   useEffect(() => {
     const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
@@ -324,6 +325,16 @@ export default function OrificeCalculatorPage() {
     } else {
       action()
     }
+  }
+
+  const handleLoginClick = () => {
+    setShowSubscriptionModal(false)
+    window.location.href = '/login'
+  }
+
+  const handleUpgradeClick = () => {
+    setShowSubscriptionModal(false)
+    window.location.href = '/subscription'
   }
 
   const getDensity = () => {
@@ -1354,24 +1365,78 @@ export default function OrificeCalculatorPage() {
       </div>
 
       {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-2xl font-bold text-[#2c3e50] mb-4">Pro Feature</h3>
-            <p className="text-gray-600 mb-6">
-              This feature is available for Pro users. Upgrade your account to unlock advanced calculations and PDF export features.
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => window.location.href = '/subscription'}
-                className="flex-1 bg-[#2B6BA0] hover:bg-[#1e4d73] text-white py-3 rounded-lg font-semibold transition-all"
-              >
-                Upgrade Now
-              </button>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Gauge className="w-8 h-8 text-amber-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
+              </h2>
+              <p className="text-gray-600">
+                {isLoggedIn
+                  ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
+                  : 'Please log in to use the orifice calculator and access all features.'}
+              </p>
+            </div>
+
+            {!isLoggedIn && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Free account benefits:</h3>
+                <ul className="space-y-1.5 text-sm text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Full access to basic calculators
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Calculation history
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Free forever - no credit card needed
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {isLoggedIn && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Pro Features:</h3>
+                <ul className="space-y-1.5 text-sm text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Orifice Plate Calculator
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    All Pro calculators
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    PDF report export
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-green-500 font-bold">✓</span>
+                    Priority support
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowSubscriptionModal(false)}
-                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-all"
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
               >
                 Cancel
+              </button>
+              <button
+                onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
+                className="flex-1 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+              >
+                {isLoggedIn ? 'Upgrade Now' : 'Log In'}
               </button>
             </div>
           </div>
