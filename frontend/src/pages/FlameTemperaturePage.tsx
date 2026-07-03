@@ -150,47 +150,11 @@ const fuelData: Record<string, { hf: number; c: number; h: number; o: number; n:
   'CO₂': { hf: -393.52, c: 1, h: 0, o: 2, n: 0 },
 }
 
-// NASA Glenn 2002 polynomial coefficients for temperature-dependent Cp
-// High-temperature range: 1000K - 3500K
-const nasaCoeffsHigh: Record<string, number[]> = {
-  'CO₂': [4.63619, 0.00274812, -9.93049e-7, 1.58458e-10, -8.42449e-15],
-  'H₂O': [3.03399, 0.00217692, -1.64073e-7, -9.71587e-11, 1.76497e-14],
-  'N₂':  [2.87123, 0.00148648, -5.92099e-7, 8.29009e-11, -4.09898e-15],
-  'O₂':  [3.63975, -0.00042928, 1.03953e-6, -9.49984e-11, 2.78729e-15],
-}
-// Low-temperature range: 200K - 1000K
-const nasaCoeffsLow: Record<string, number[]> = {
-  'CO₂': [2.27572, 0.00974842, -5.94380e-6, 1.67697e-9, -1.25463e-13],
-  'H₂O': [3.38684, 0.00347499, -6.35479e-6, 6.96858e-9, -2.50659e-12],
-  'N₂':  [3.53101, -0.00012303, -5.02999e-7, 2.43531e-9, -1.40881e-12],
-  'O₂':  [3.37846, -0.00299672, 9.84730e-6, -9.68130e-9, 3.24373e-12],
-}
-const GAS_R = 8.314 // J/(mol·K)
-
-// Integrate Cp/R from T1 to T2 using NASA polynomial coefficients
-function cpIntegral(species: string, T1: number, T2: number): number {
-  function polyIntegral(coeffs: number[], t1: number, t2: number): number {
-    let s = 0
-    for (let i = 0; i < coeffs.length; i++) {
-      s += coeffs[i] / (i + 1) * (Math.pow(t2, i + 1) - Math.pow(t1, i + 1))
-    }
-    return s
-  }
-  // Handle cross-range integration (straddling 1000K)
-  if (T1 < 1000 && T2 > 1000) {
-    return GAS_R * (polyIntegral(nasaCoeffsLow[species], T1, 1000) + polyIntegral(nasaCoeffsHigh[species], 1000, T2))
-  } else if (T2 <= 1000) {
-    return GAS_R * polyIntegral(nasaCoeffsLow[species], T1, T2)
-  } else {
-    return GAS_R * polyIntegral(nasaCoeffsHigh[species], T1, T2)
-  }
-}
-
-const productHf: Record<string, number> = {
-  'CO₂': -393.52,
-  'H₂O': -241.83,
-  'N₂': 0,
-  'O₂': 0,
+const productData: Record<string, { hf: number; cp: number }> = {
+  'CO₂': { hf: -393.52, cp: 0.055 },
+  'H₂O': { hf: -241.83, cp: 0.045 },
+  'N₂': { hf: 0, cp: 0.035 },
+  'O₂': { hf: 0, cp: 0.038 },
 }
 
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
@@ -289,14 +253,19 @@ export default function FlameTemperaturePage() {
     const molesO2 = actualO2 - stoichO2
     const molesN2 = n2FromAir
 
-    const totalHfProducts =
-      molesCO2 * productHf['CO₂'] +
-      molesH2O * productHf['H₂O'] +
-      molesO2 * productHf['O₂'] +
-      molesN2 * productHf['N₂']
+    const totalHfProducts = 
+      molesCO2 * productData['CO₂'].hf +
+      molesH2O * productData['H₂O'].hf +
+      molesO2 * productData['O₂'].hf +
+      molesN2 * productData['N₂'].hf
 
-    // Heat released in kJ/mol fuel → convert to J
-    const heatReleased = (totalHfReactants - totalHfProducts) * 1000
+    const heatReleased = totalHfReactants - totalHfProducts
+
+    const totalCpProducts = 
+      molesCO2 * productData['CO₂'].cp +
+      molesH2O * productData['H₂O'].cp +
+      molesO2 * productData['O₂'].cp +
+      molesN2 * productData['N₂'].cp
 
     const initialTemp = Math.max(
       parseFloat(fuelTemperature) || 25,
@@ -304,36 +273,32 @@ export default function FlameTemperaturePage() {
     )
     const initialTempK = initialTemp + 273.15
 
-    // Binary search for theoretical flame temperature (no dissociation)
-    // using NASA Glenn polynomial Cp integration
-    let lo = initialTempK, hi = 6000
-    for (let i = 0; i < 100; i++) {
-      const mid = (lo + hi) / 2
-      const sensibleHeat =
-        molesCO2 * cpIntegral('CO₂', initialTempK, mid) +
-        molesH2O * cpIntegral('H₂O', initialTempK, mid) +
-        molesN2 * cpIntegral('N₂', initialTempK, mid) +
-        molesO2 * cpIntegral('O₂', initialTempK, mid)
-      if (Math.abs(heatReleased - sensibleHeat) < 1) break
-      if (heatReleased > sensibleHeat) lo = mid
-      else hi = mid
+    let theoreticalTempK
+    if (totalCpProducts > 0) {
+      theoreticalTempK = initialTempK + heatReleased / totalCpProducts
+    } else {
+      theoreticalTempK = initialTempK + 1800
     }
-    const theoreticalTempK = (lo + hi) / 2
 
-    // Dissociation correction (CO₂/H₂O dissociate at high temps, absorbing heat)
-    let actualTempK = theoreticalTempK
-    if (theoreticalTempK > 2000) {
-      if (theoreticalTempK < 3500) {
-        // Linear correction: 37% of excess above 2000K
-        actualTempK = theoreticalTempK - 0.37 * (theoreticalTempK - 2000)
+    let theoreticalTempC = theoreticalTempK - 273.15
+    
+    let maxTempC
+    if (oxidizerType === 'oxygen') {
+      maxTempC = 2900
+    } else {
+      maxTempC = 2400
+    }
+    
+    if (theoreticalTempC > maxTempC) {
+      if (oxidizerType === 'oxygen') {
+        theoreticalTempC = 2900
       } else {
-        // Logarithmic correction for extreme temperatures (oxygen combustion)
-        actualTempK = 2945 + 30 * Math.log(1 + (theoreticalTempK - 3500) / 50)
+        const excess = theoreticalTempC - maxTempC
+        theoreticalTempC = maxTempC + 200 * Math.log(1 + excess / 100)
       }
     }
-
-    const theoreticalTempC = theoreticalTempK - 273.15
-    const actualTempC = actualTempK - 273.15
+    
+    const actualTempC = theoreticalTempC * 0.9
 
     return {
       theoretical: Math.max(0, theoreticalTempC),
@@ -617,7 +582,7 @@ export default function FlameTemperaturePage() {
                 </div>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Excess Oxygen</label>
                 <div className="flex items-center gap-3">
                   <input
@@ -631,52 +596,54 @@ export default function FlameTemperaturePage() {
                 </div>
               </div>
 
+              {showResults && results ? (
+                <div className="mb-4 p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                  <h3 className="text-base font-bold text-white mb-3">Flame Temperature Results</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-white/10 p-3 rounded">
+                      <div className="text-xs text-[#bdc3c7] mb-1">Theoretical</div>
+                      <div className="text-xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)}°C</div>
+                      <div className="text-[10px] text-[#7f8c8d] mt-1">Adiabatic</div>
+                    </div>
+                    <div className="bg-white/10 p-3 rounded">
+                      <div className="text-xs text-[#bdc3c7] mb-1">Actual</div>
+                      <div className="text-xl font-bold text-[#f39c12]">{results.actual.toFixed(0)}°C</div>
+                      <div className="text-[10px] text-[#7f8c8d] mt-1">With dissociation</div>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-white/10">
+                    <div className="text-xs text-[#bdc3c7] font-medium mb-2">Combustion Products</div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-[#bdc3c7]">
+                      <div>CO₂: {results.molesCO2.toFixed(2)} mol</div>
+                      <div>H₂O: {results.molesH2O.toFixed(2)} mol</div>
+                      <div>N₂: {results.molesN2.toFixed(2)} mol</div>
+                      <div>O₂: {results.molesO2.toFixed(2)} mol</div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <button
                 onClick={() => handleProAction(() => setShowResults(!showResults))}
-                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded font-semibold transition-colors"
+                className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2.5 rounded font-semibold transition-colors text-sm"
               >
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
               </button>
 
               {/* Export PDF Button */}
-              <div className="mt-4">
-                <button
-                  onClick={exportToPDF}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <Download size={20} />
-                  Export PDF Report
-                </button>
-              </div>
+              {showResults && results && (
+                <div className="mt-3">
+                  <button
+                    onClick={exportToPDF}
+                    className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Download size={18} />
+                    Export PDF Report
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-
-          {showResults && results && (
-            <div className="mt-6 p-6 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-white mb-6">Flame Temperature Results</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/10 p-6 rounded">
-                  <div className="text-sm text-[#bdc3c7] mb-2">Theoretical Flame Temperature</div>
-                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)} °C</div>
-                  <div className="text-sm text-[#7f8c8d] mt-2">Adiabatic flame temperature</div>
-                </div>
-                <div className="bg-white/10 p-6 rounded">
-                  <div className="text-sm text-[#bdc3c7] mb-2">Actual Flame Temperature</div>
-                  <div className="text-lg md:text-2xl font-bold text-[#f39c12]">{results.actual.toFixed(0)} °C</div>
-                  <div className="text-sm text-[#7f8c8d] mt-2">With dissociation correction</div>
-                </div>
-              </div>
-              <div className="mt-6 p-4 bg-white/5 rounded">
-                <h4 className="text-white font-medium mb-3">Combustion Products (per mole fuel)</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#bdc3c7]">
-                  <div>CO₂: {results.molesCO2.toFixed(2)} mol</div>
-                  <div>H₂O: {results.molesH2O.toFixed(2)} mol</div>
-                  <div>N₂: {results.molesN2.toFixed(2)} mol</div>
-                  <div>Excess O₂: {results.molesO2.toFixed(2)} mol</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <footer className="bg-[#2c3e50] dark:bg-gray-900 text-[#bdc3c7] text-center py-12 px-6 mt-20">
@@ -690,31 +657,6 @@ export default function FlameTemperaturePage() {
           </div>
           <p className="text-sm text-[#7f8c8d] dark:text-gray-500">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
         </footer>
-
-        {showSubscriptionModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-              <h3 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-4">Pro Feature</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                This feature is available for Pro users. Upgrade your account to unlock advanced calculations and PDF export features.
-              </p>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => window.location.href = '/subscription'}
-                  className="flex-1 bg-[#f39c12] hover:bg-[#e67e22] text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Upgrade Now
-                </button>
-                <button
-                  onClick={() => setShowSubscriptionModal(false)}
-                  className="px-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </ProFeaturePreview>
   )

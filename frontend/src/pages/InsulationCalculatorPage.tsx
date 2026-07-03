@@ -315,7 +315,7 @@ function InsulationCalculatorPage() {
       case 'outdoor_strong': windSpeedMetric = 10; break
     }
     
-    const hcVal = 10 + 4 * Math.sqrt(windSpeedMetric)
+    const hcVal = 4 + 7 * Math.sqrt(windSpeedMetric)
     const epsilon = getEmittance()
     const sigma = 5.67e-8
     const Ts = targetSurfaceTemp + 273.15
