@@ -294,18 +294,6 @@ export interface Order {
   updated_at: string
 }
 
-export interface WithdrawalRequest {
-  id: string
-  admin_id: string
-  admin_email: string
-  amount: number
-  status: string
-  payment_method: string
-  notes?: string
-  created_at: string
-  updated_at: string
-}
-
 export interface RevenueStats {
   total_revenue: number
   total_orders: number
@@ -540,27 +528,6 @@ export const adminAPI = {
     })
   },
 
-  async getWithdrawals(): Promise<WithdrawalRequest[]> {
-    return request('/admin/withdrawals')
-  },
-
-  async createWithdrawal(amount: number, paymentMethod: string, notes?: string): Promise<WithdrawalRequest> {
-    return request('/admin/withdrawals', {
-      method: 'POST',
-      body: JSON.stringify({ amount, payment_method: paymentMethod, notes }),
-    })
-  },
-
-  async updateWithdrawalStatus(withdrawalId: string, status: string): Promise<WithdrawalRequest> {
-    return request(`/admin/withdrawals/${withdrawalId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status }),
-    })
-  },
-  
-  async updateWithdrawal(withdrawalId: string, status: string): Promise<WithdrawalRequest> {
-    return this.updateWithdrawalStatus(withdrawalId, status)
-  },
 }
 
 export { ApiError }

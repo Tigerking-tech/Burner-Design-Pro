@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { authAPI, adminAPI, User, Order, WithdrawalRequest } from "../services/api"
+import { authAPI, adminAPI, User, Order } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
 
-type AdminTab = "users" | "orders" | "revenue" | "withdrawals"
+type AdminTab = "users" | "orders" | "revenue"
 
 export default function AdminPage() {
   const navigate = useNavigate()
@@ -13,7 +13,6 @@ export default function AdminPage() {
   const [error, setError] = useState("")
   const [users, setUsers] = useState<User[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([])
   const [revenue, setRevenue] = useState<any>(null)
   const [processing, setProcessing] = useState(false)
   
@@ -35,15 +34,13 @@ export default function AdminPage() {
 
   const loadData = async () => {
     try {
-      const [userList, orderList, withdrawalList, revenueData] = await Promise.all([
+      const [userList, orderList, revenueData] = await Promise.all([
         adminAPI.getAllUsers(),
         adminAPI.getAllOrders(),
-        adminAPI.getWithdrawals(),
         adminAPI.getRevenue()
       ])
       setUsers(userList)
       setOrders(orderList)
-      setWithdrawals(withdrawalList)
       setRevenue(revenueData)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data")
@@ -61,15 +58,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleUpdateWithdrawal = async (withdrawalId: string, status: string) => {
-    try {
-      await adminAPI.updateWithdrawal(withdrawalId, status)
-      await loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update withdrawal")
-    }
-  }
-  
   const handleChangeUserPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedUserId) return
@@ -132,8 +120,7 @@ export default function AdminPage() {
           {[
             { id: "users" as AdminTab, label: "Users" },
             { id: "orders" as AdminTab, label: "Orders" },
-            { id: "revenue" as AdminTab, label: "Revenue" },
-            { id: "withdrawals" as AdminTab, label: "Withdrawals" }
+            { id: "revenue" as AdminTab, label: "Revenue" }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -464,79 +451,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {activeTab === "withdrawals" && (
-            <div>
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Withdrawal Management</h2>
-              {/* Desktop: Table */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm text-[#555]">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Date</th>
-                      <th className="px-4 py-2 text-left">Admin</th>
-                      <th className="px-4 py-2 text-left">Amount</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {withdrawals.map((withdrawal) => (
-                      <tr key={withdrawal.id} className="border-t border-gray-100">
-                        <td className="px-4 py-2">{new Date(withdrawal.created_at).toLocaleDateString()}</td>
-                        <td className="px-4 py-2">{withdrawal.admin_email}</td>
-                        <td className="px-4 py-2">${(withdrawal.amount / 100).toFixed(2)}</td>
-                        <td className="px-4 py-2 capitalize">{withdrawal.status}</td>
-                        <td className="px-4 py-2">
-                          <select
-                            className="px-2 py-1 border border-gray-300 rounded text-sm"
-                            value={withdrawal.status}
-                            onChange={(e) => handleUpdateWithdrawal(withdrawal.id, e.target.value)}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
-                            <option value="failed">Failed</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile: Cards */}
-              <div className="md:hidden space-y-4">
-                {withdrawals.map((withdrawal) => (
-                  <div key={withdrawal.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="text-sm text-gray-400">
-                        {new Date(withdrawal.created_at).toLocaleDateString()}
-                      </div>
-                      <div className="text-lg font-semibold text-[#f39c12]">
-                        ${(withdrawal.amount / 100).toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="font-medium text-[#2c3e50] break-all mb-3">
-                      {withdrawal.admin_email}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-[#555] capitalize">{withdrawal.status}</span>
-                      <select
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                        value={withdrawal.status}
-                        onChange={(e) => handleUpdateWithdrawal(withdrawal.id, e.target.value)}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                      </select>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
