@@ -25,25 +25,28 @@ const SubscriptionSuccessPage: React.FC = () => {
         return
       }
 
-      // Poll for payment confirmation (webhook may take a few seconds)
       let attempts = 0
       const maxAttempts = 10
 
       const poll = async () => {
         attempts++
         try {
+          let proActivated = false
+
           if (orderId) {
             const result = await subscriptionAPI.confirmPayment(orderId)
             if (result.success) {
-              setStatus('success')
-              setMessage('Your Pro subscription is now active!')
-              return
+              proActivated = true
             }
           }
 
-          // Also try refreshing subscription info
           const sub = await subscriptionAPI.getSubscription()
           if (sub.tier === 'pro') {
+            proActivated = true
+          }
+
+          if (proActivated) {
+            await authAPI.getCurrentUser()
             setStatus('success')
             setMessage('Your Pro subscription is now active!')
             return
@@ -52,7 +55,7 @@ const SubscriptionSuccessPage: React.FC = () => {
           if (attempts < maxAttempts) {
             setTimeout(poll, 2000)
           } else {
-            // Timeout - but payment likely succeeded, just webhook delay
+            await authAPI.getCurrentUser()
             setStatus('success')
             setMessage('Payment received! Your subscription is being activated. If Pro features are not available yet, please refresh in a moment.')
           }
@@ -60,15 +63,18 @@ const SubscriptionSuccessPage: React.FC = () => {
           if (attempts < maxAttempts) {
             setTimeout(poll, 2000)
           } else {
+            await authAPI.getCurrentUser()
             setStatus('success')
             setMessage('Payment received! Your subscription is being activated. If Pro features are not available yet, please refresh in a moment.')
           }
         }
       }
 
-      // Start polling after a short delay to give webhook time to process
       setTimeout(poll, 1500)
     } catch (err) {
+      try {
+        await authAPI.getCurrentUser()
+      } catch {}
       setStatus('success')
       setMessage('Payment received! Your subscription is being activated.')
     }

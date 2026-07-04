@@ -158,37 +158,37 @@ export default function AccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e] flex items-center justify-center">
+        <div className="text-[#2c3e50] dark:text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e]">
       {/* Header */}
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-semibold text-white mb-8">My Account</h1>
+        <h1 className="text-3xl font-semibold text-[#2c3e50] dark:text-white mb-8">My Account</h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded text-red-300">
+          <div className="mb-6 p-4 bg-red-100 dark:bg-red-500/20 border border-red-300 dark:border-red-500 rounded text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded text-green-300">
+          <div className="mb-6 p-4 bg-green-100 dark:bg-green-500/20 border border-green-300 dark:border-green-500 rounded text-green-700 dark:text-green-300">
             {success}
           </div>
         )}
 
         <div className="grid gap-8">
           {/* User Info */}
-          <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
-            <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Profile</h2>
-            <div className="space-y-2 text-[#555]">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Profile</h2>
+            <div className="space-y-2 text-[#555] dark:text-gray-300">
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
               {subscription?.expires_at && (
@@ -198,8 +198,8 @@ export default function AccountPage() {
           </div>
 
           {/* Change Password */}
-          <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
-            <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Change Password</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Change Password</h2>
             <form onSubmit={handleChangePassword} className="space-y-4">
               <PasswordInput
                 label="Current Password"
@@ -238,8 +238,8 @@ export default function AccountPage() {
           </div>
 
           {/* Subscription Management */}
-          <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
-            <h2 className="text-xl font-semibold text-[#2c3e50] mb-6">Subscription</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-6">Subscription</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {pricingTiers.map((tier) => (
@@ -248,23 +248,23 @@ export default function AccountPage() {
                   className={`p-4 rounded-lg border ${
                     subscription?.tier === tier.id
                       ? "border-[#f39c12] bg-[#f39c12]/5"
-                      : "border-gray-200"
+                      : "border-gray-200 dark:border-gray-700"
                   }`}
                 >
-                  <h3 className="text-lg font-semibold text-[#2c3e50]">{tier.name}</h3>
-                  <p className="text-lg md:text-2xl font-bold text-[#2c3e50] my-2">
+                  <h3 className="text-lg font-semibold text-[#2c3e50] dark:text-white">{tier.name}</h3>
+                  <p className="text-lg md:text-2xl font-bold text-[#2c3e50] dark:text-white my-2">
                     {tier.price_display}
-                    <span className="text-sm font-normal text-[#7f8c8d]">{tier.period}</span>
+                    <span className="text-sm font-normal text-[#7f8c8d] dark:text-gray-400">{tier.period}</span>
                   </p>
-                  <ul className="text-sm text-[#555] mb-4 space-y-1">
+                  <ul className="text-sm text-[#555] dark:text-gray-300 mb-4 space-y-1">
                     {tier.features.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
-                        <span className="text-green-600">✓</span> {feature}
+                        <span className="text-green-600 dark:text-green-400">✓</span> {feature}
                       </li>
                     ))}
                   </ul>
                   {subscription?.tier === tier.id ? (
-                    <div className="text-center text-[#7f8c8d] text-sm py-2">
+                    <div className="text-center text-[#7f8c8d] dark:text-gray-400 text-sm py-2">
                       Current Plan
                     </div>
                   ) : (
@@ -273,7 +273,7 @@ export default function AccountPage() {
                       disabled={processingPayment || tier.id === "free"}
                       className={`w-full py-2 rounded-md font-semibold text-sm transition-colors ${
                         tier.id === "free"
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          ? "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
                           : "bg-[#f39c12] hover:bg-[#e67e22] text-white disabled:opacity-50"
                       }`}
                     >
@@ -287,7 +287,7 @@ export default function AccountPage() {
             {subscription && subscription.tier !== "free" && (
               <button
                 onClick={handleCancelSubscription}
-                className="text-red-600 hover:text-red-700 text-sm underline"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
               >
                 Cancel Subscription
               </button>
@@ -296,11 +296,11 @@ export default function AccountPage() {
 
           {/* Order History */}
           {orders.length > 0 && (
-            <div className="bg-white rounded-lg p-6 shadow-xl border border-gray-300">
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Order History</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Order History</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm text-[#555]">
-                  <thead className="bg-gray-50">
+                <table className="w-full text-sm text-[#555] dark:text-gray-300">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
                       <th className="px-4 py-2 text-left">Date</th>
                       <th className="px-4 py-2 text-left">Plan</th>
@@ -310,7 +310,7 @@ export default function AccountPage() {
                   </thead>
                   <tbody>
                     {orders.map((order) => (
-                      <tr key={order.id} className="border-t border-gray-100">
+                      <tr key={order.id} className="border-t border-gray-100 dark:border-gray-700">
                         <td className="px-4 py-2">{new Date(order.created_at).toLocaleDateString()}</td>
                         <td className="px-4 py-2 capitalize">{order.tier}</td>
                         <td className="px-4 py-2">${(order.amount / 100).toFixed(2)}</td>
