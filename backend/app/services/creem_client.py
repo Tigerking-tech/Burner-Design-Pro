@@ -144,6 +144,16 @@ class CreemClient:
         return self._make_request("GET", "/v1/subscriptions", 
                                  {"subscription_id": subscription_id})
     
+    def search_subscriptions(self, customer_id: str = None, status: str = None,
+                            page_number: int = 1, page_size: int = 10) -> Dict[str, Any]:
+        """Search subscriptions, optionally filtered by customer_id or status"""
+        params = {"page_number": page_number, "page_size": page_size}
+        if customer_id:
+            params["customer_id"] = customer_id
+        if status:
+            params["status"] = status
+        return self._make_request("GET", "/v1/subscriptions/search", params)
+    
     def cancel_subscription(self, subscription_id: str) -> Dict[str, Any]:
         """Cancel subscription"""
         return self._make_request("POST", f"/v1/subscriptions/{subscription_id}/cancel", {})

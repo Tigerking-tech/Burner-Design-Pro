@@ -378,74 +378,148 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
     """
     Manually refresh subscription status from Creem.
     Useful when webhook didn't fire but payment was successful.
+    Also saves creem_subscription_id if missing.
     """
     try:
         creem = get_creem_client()
+        updated = False
+        active_sub = None
         
-        if getattr(current_user, "creem_customer_id", None):
-            customer_data = creem.get_customer(customer_id=current_user.creem_customer_id)
-            
-            subscriptions = customer_data.get("subscriptions", [])
-            if isinstance(subscriptions, dict):
-                subscriptions = list(subscriptions.values())
-            
-            active_sub = None
-            for sub in subscriptions:
-                if isinstance(sub, dict):
+        customer_id = getattr(current_user, "creem_customer_id", None)
+        subscription_id = getattr(current_user, "creem_subscription_id", None)
+        
+        print(f"[refresh_subscription] user={current_user.email}, tier={current_user.subscription_tier}, "
+              f"customer_id={customer_id}, subscription_id={subscription_id}")
+        
+        if subscription_id:
+            try:
+                sub_data = creem.get_subscription(subscription_id)
+                print(f"[refresh_subscription] get_subscription result keys: {list(sub_data.keys()) if sub_data else 'None'}")
+                # Unwrap if nested in data field
+                if sub_data and "data" in sub_data and isinstance(sub_data["data"], dict):
+                    sub_data = sub_data["data"]
+                if sub_data and (sub_data.get("status") or sub_data.get("id") or sub_data.get("subscription_id")):
+                    active_sub = sub_data
+            except Exception as e:
+                print(f"[refresh_subscription] get_subscription failed: {e}")
+        
+        if not active_sub and customer_id:
+            try:
+                subs_result = creem.search_subscriptions(customer_id=customer_id)
+                print(f"[refresh_subscription] search_subscriptions result keys: {list(subs_result.keys())}")
+                items = subs_result.get("items") or subs_result.get("data") or subs_result.get("subscriptions") or []
+                print(f"[refresh_subscription] found {len(items)} subscriptions")
+                for sub in items:
                     sub_status = sub.get("status", "").lower()
-                    if sub_status in ("active", "trialing"):
+                    sub_id = sub.get("id") or sub.get("subscription_id")
+                    print(f"[refresh_subscription]   sub id={sub_id}, status={sub_status}")
+                    if sub_status in ("active", "trialing", "scheduled_cancel"):
                         active_sub = sub
                         break
+            except Exception as e:
+                print(f"[refresh_subscription] search_subscriptions failed: {e}")
+        
+        if active_sub:
+            sub_id = active_sub.get("id") or active_sub.get("subscription_id")
+            sub_status = active_sub.get("status", "").lower()
+            is_active = sub_status in ("active", "trialing", "scheduled_cancel")
             
-            if active_sub:
+            period_end = (active_sub.get("current_period_end_date") 
+                         or active_sub.get("current_period_end")
+                         or active_sub.get("end_date")
+                         or active_sub.get("expires_at"))
+            expires_at = None
+            if period_end:
+                try:
+                    if isinstance(period_end, str):
+                        expires_at = datetime.fromisoformat(period_end.replace("Z", "+00:00"))
+                    elif isinstance(period_end, (int, float)):
+                        expires_at = datetime.utcfromtimestamp(period_end / 1000 if period_end > 1e12 else period_end)
+                except Exception:
+                    pass
+            
+            if not expires_at:
+                expires_at = datetime.utcnow() + timedelta(days=365)
+            
+            if is_active:
                 update_user_subscription(
                     user_id=current_user.id,
                     tier="pro",
-                    expires_at=datetime.utcnow() + timedelta(days=365),
+                    expires_at=expires_at,
                     is_active=True,
                 )
-                
-                subscription_id = active_sub.get("id")
-                if subscription_id:
-                    update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
-                
-                pending_orders = list_orders()
-                for o in pending_orders:
-                    if o["user_id"] == current_user.id and o["status"] == "pending":
-                        update_order_status(o["id"], "succeeded")
-                
+                updated = True
+            
+            if sub_id and (not subscription_id or subscription_id != str(sub_id)):
+                update_user_creem(current_user.id, creem_subscription_id=str(sub_id))
+                updated = True
+            
+            customer_id_from_sub = active_sub.get("customer_id")
+            if customer_id_from_sub and not getattr(current_user, "creem_customer_id", None):
+                update_user_creem(current_user.id, creem_customer_id=str(customer_id_from_sub))
+                updated = True
+            
+            pending_orders = list_orders()
+            for o in pending_orders:
+                if o["user_id"] == current_user.id and o["status"] == "pending":
+                    update_order_status(o["id"], "succeeded")
+                    updated = True
+            
+            if updated:
                 return {
                     "success": True,
                     "message": "Subscription refreshed successfully",
                     "tier": "pro",
                 }
+            else:
+                return {
+                    "success": True,
+                    "message": "Subscription status is up to date",
+                    "tier": current_user.subscription_tier,
+                }
         
-        pending_orders = list_orders()
-        for o in pending_orders:
-            if o["user_id"] == current_user.id and o["status"] == "pending":
-                checkout_id = o.get("creem_checkout_id")
-                if checkout_id:
-                    try:
-                        checkout_data = creem.get_checkout(checkout_id)
-                        status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
-                        if status and status.lower() in ("succeeded", "completed", "paid"):
-                            update_order_status(o["id"], "succeeded")
-                            update_user_subscription(
-                                user_id=current_user.id,
-                                tier="pro",
-                                expires_at=datetime.utcnow() + timedelta(days=365),
-                                is_active=True,
-                            )
-                            subscription_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
-                            if subscription_id:
-                                update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
-                            return {
-                                "success": True,
-                                "message": "Payment confirmed from checkout",
-                                "tier": "pro",
-                            }
-                    except Exception:
-                        continue
+        all_orders = list_orders()
+        user_orders = [o for o in all_orders if o["user_id"] == current_user.id]
+        
+        for order in user_orders:
+            checkout_id = order.get("creem_checkout_id")
+            if not checkout_id:
+                continue
+            try:
+                checkout_data = creem.get_checkout(checkout_id)
+                status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
+                if status and status.lower() in ("succeeded", "completed", "paid"):
+                    if order["status"] != "succeeded":
+                        update_order_status(order["id"], "succeeded")
+                        updated = True
+                    
+                    sub_info = checkout_data.get("subscription") or checkout_data.get("data", {}).get("subscription")
+                    if isinstance(sub_info, dict):
+                        sub_id = sub_info.get("id")
+                    else:
+                        sub_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
+                    
+                    if sub_id and subscription_id != str(sub_id):
+                        update_user_creem(current_user.id, creem_subscription_id=str(sub_id))
+                        updated = True
+                    
+                    if current_user.subscription_tier != "pro":
+                        update_user_subscription(
+                            user_id=current_user.id,
+                            tier="pro",
+                            expires_at=datetime.utcnow() + timedelta(days=365),
+                            is_active=True,
+                        )
+                        updated = True
+                    
+                    if updated:
+                        return {
+                            "success": True,
+                            "message": "Payment confirmed from checkout",
+                            "tier": "pro",
+                        }
+            except Exception:
+                continue
         
         if current_user.subscription_tier == "pro":
             return {
