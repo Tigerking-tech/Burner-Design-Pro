@@ -727,26 +727,42 @@ async def cleanup_duplicate_orders(admin_user: User = Depends(get_admin_user)):
 async def get_revenue(admin_user: User = Depends(get_admin_user)):
     orders = list_orders()
     succeeded_orders = [o for o in orders if o["status"] == "succeeded"]
-    total_revenue = sum(o["amount"] for o in succeeded_orders)
+    local_revenue = sum(o["amount"] for o in succeeded_orders)
 
     creem_revenue_cents = 0
+    creem_transaction_count = 0
+    creem_subscriptions = []
     try:
         creem = get_creem_client()
         txn_resp = creem.list_transactions()
-        for txn in (txn_resp.get("data") or txn_resp.get("transactions") or []):
+        txn_items = txn_resp.get("data") or txn_resp.get("transactions") or txn_resp.get("items") or []
+        for txn in txn_items:
             amount = txn.get("amount") or txn.get("total") or 0
             creem_revenue_cents += int(float(amount or 0))
+            creem_transaction_count += 1
+        
+        sub_resp = creem.search_subscriptions(page_size=100)
+        sub_items = sub_resp.get("data") or sub_resp.get("items") or sub_resp.get("subscriptions") or []
+        for sub in sub_items:
+            creem_subscriptions.append({
+                "subscription_id": sub.get("id") or sub.get("subscription_id"),
+                "customer_id": sub.get("customer_id"),
+                "status": sub.get("status"),
+                "current_period_end": sub.get("current_period_end") or sub.get("current_period_end_date"),
+            })
     except Exception as e:
-        print(f"[admin/revenue] Error listing Creem transactions: {e}")
+        print(f"[admin/revenue] Error listing Creem data: {e}")
 
     return {
         "success": True,
-        "total_revenue_cents": total_revenue,
-        "total_revenue_display": f"${total_revenue / 100:.2f}",
-        "total_orders": len(orders),
-        "succeeded_orders": len(succeeded_orders),
+        "total_revenue_cents": creem_revenue_cents if creem_revenue_cents > 0 else local_revenue,
+        "total_revenue_display": f"${creem_revenue_cents / 100:.2f}" if creem_revenue_cents > 0 else f"${local_revenue / 100:.2f}",
+        "total_orders": len(succeeded_orders),
+        "successful_orders": len(succeeded_orders),
         "creem_revenue_cents": creem_revenue_cents,
         "creem_revenue_display": f"${creem_revenue_cents / 100:.2f}",
+        "creem_transaction_count": creem_transaction_count,
+        "active_subscriptions": len([s for s in creem_subscriptions if s.get("status") in ("active", "trialing")]),
     }
 
 

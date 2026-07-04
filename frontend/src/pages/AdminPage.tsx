@@ -16,10 +16,6 @@ export default function AdminPage() {
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([])
   const [revenue, setRevenue] = useState<any>(null)
   const [processing, setProcessing] = useState(false)
-
-  // Withdrawal form state
-  const [withdrawAmount, setWithdrawAmount] = useState("")
-  const [withdrawNotes, setWithdrawNotes] = useState("")
   
   // Password change form state
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
@@ -62,24 +58,6 @@ export default function AdminPage() {
       await loadData()
     } catch (err) {
       setError("User updated")
-    }
-  }
-
-  const handleCreateWithdrawal = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const amount = parseInt(withdrawAmount)
-    if (isNaN(amount) || amount <= 0) return
-    setProcessing(true)
-    try {
-      await adminAPI.createWithdrawal(amount * 100, "stripe_transfer", withdrawNotes)
-      await loadData()
-      setWithdrawAmount("")
-      setWithdrawNotes("")
-      setError("Withdrawal request created")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create withdrawal")
-    } finally {
-      setProcessing(false)
     }
   }
 
@@ -458,18 +436,19 @@ export default function AdminPage() {
             <div>
               <h2 className="text-xl font-semibold text-[#2c3e50] mb-6">Revenue Overview</h2>
               {revenue && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
                     <div className="text-3xl font-bold text-[#f39c12]">{revenue.total_revenue_display}</div>
                     <div className="text-sm text-[#7f8c8d]">Total Revenue</div>
+                    <div className="text-xs text-gray-400 mt-1">From Creem</div>
                   </div>
                   <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-[#2c3e50]">{revenue.total_orders}</div>
-                    <div className="text-sm text-[#7f8c8d]">Total Orders</div>
+                    <div className="text-3xl font-bold text-[#2c3e50]">{revenue.creem_transaction_count || revenue.total_orders}</div>
+                    <div className="text-sm text-[#7f8c8d]">Transactions</div>
                   </div>
                   <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-green-600">{revenue.succeeded_orders}</div>
-                    <div className="text-sm text-[#7f8c8d]">Successful Orders</div>
+                    <div className="text-3xl font-bold text-green-600">{revenue.active_subscriptions || revenue.successful_orders || 0}</div>
+                    <div className="text-sm text-[#7f8c8d]">Active Subscriptions</div>
                   </div>
                   <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
                     <div className="text-3xl font-bold text-[#555]">{users.length}</div>
@@ -477,42 +456,9 @@ export default function AdminPage() {
                   </div>
                 </div>
               )}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-[#2c3e50] mb-4">Request Withdrawal</h3>
-                <form onSubmit={handleCreateWithdrawal} className="flex flex-col md:flex-row gap-4 md:items-end max-w-lg">
-                  <div className="flex-1">
-                    <label className="block text-sm text-[#555] mb-1">Amount (USD)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={withdrawAmount}
-                      onChange={(e) => setWithdrawAmount(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900"
-                      placeholder="Enter amount"
-                      disabled={processing}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm text-[#555] mb-1">Notes</label>
-                    <input
-                      type="text"
-                      value={withdrawNotes}
-                      onChange={(e) => setWithdrawNotes(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900"
-                      placeholder="Optional notes"
-                      disabled={processing}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={processing}
-                    className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-2 rounded font-medium disabled:opacity-50 md:w-auto w-full"
-                  >
-                    {processing ? "Processing..." : "Request Withdrawal"}
-                  </button>
-                </form>
-                <p className="text-xs text-[#7f8c8d] mt-2">
-                  Available: {revenue?.total_revenue_display}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-700">
+                  <strong>Note:</strong> Revenue data is pulled from Creem. To request withdrawal, please log in to your Creem dashboard directly.
                 </p>
               </div>
             </div>
