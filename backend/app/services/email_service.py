@@ -59,6 +59,51 @@ async def send_verification_email(to_email: str, code: str) -> bool:
         return False
 
 
+async def send_cancel_subscription_email(to_email: str, expires_date: str) -> bool:
+    """Send subscription cancellation confirmation email via Resend."""
+    if not RESEND_API_KEY:
+        print(f"[email] WARNING: RESEND_API_KEY not set. Cancel confirmation for {to_email}")
+        return True
+
+    subject = "Your subscription has been cancelled - Burner Design Pro"
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+        <h2 style="color: #2c3e50;">Subscription Cancelled</h2>
+        <p>We're sorry to see you go. Your subscription auto-renewal has been cancelled successfully.</p>
+        <p style="margin: 20px 0;">Your Pro access will remain active until: <strong>{expires_date}</strong></p>
+        <p>You can reactivate your subscription anytime by visiting your account page.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #95a5a6; font-size: 12px;">Burner Design Pro - Professional tools for burner engineers</p>
+    </div>
+    """
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                RESEND_API_URL,
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": f"Burner Design Pro <{RESEND_FROM_EMAIL}>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_body,
+                },
+                timeout=30.0,
+            )
+            if response.status_code == 200:
+                print(f"[email] Cancel subscription email sent to {to_email}")
+                return True
+            else:
+                print(f"[email] Failed to send cancel email: {response.status_code} {response.text}")
+                return False
+    except Exception as e:
+        print(f"[email] Error sending cancel email: {e}")
+        return False
+
+
 def generate_verification_code() -> str:
     """Generate a 6-digit numeric verification code."""
     import random

@@ -21,6 +21,7 @@ from app.services.database import (
     save_withdrawal, get_withdrawal, list_withdrawals,
     update_user_creem,
 )
+from app.services.email_service import send_cancel_subscription_email
 
 router = APIRouter(prefix="/api", tags=["Subscription", "Payment", "Admin"])
 
@@ -228,6 +229,7 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
     expires_display = expires_at.strftime("%Y-%m-%d") if expires_at else "end of current billing period"
 
     if creem_success:
+        await send_cancel_subscription_email(current_user.email, expires_display)
         return {
             "success": True,
             "message": f"Auto-renewal cancelled successfully. Your Pro access will remain active until {expires_display}. No further charges will occur.",

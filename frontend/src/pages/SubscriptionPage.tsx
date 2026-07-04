@@ -30,9 +30,12 @@ interface Subscription {
   tier: string
   tier_name?: string
   expires_at?: string | null
+  current_period_end?: string | null
+  creem_status?: string
   is_active: boolean
   features?: string[]
   billing_portal_url?: string
+  auto_renewal_active?: boolean
 }
 
 const SubscriptionPage: React.FC = () => {
@@ -157,10 +160,15 @@ const SubscriptionPage: React.FC = () => {
                   Current Plan: {subscription.tier_name || subscription.tier}
                 </h3>
                 <p className="text-gray-400">
-                  {subscription.expires_at && (
-                    <>Expires: {new Date(subscription.expires_at).toLocaleDateString()}</>
+                  {subscription.current_period_end && (
+                    <>Pro Access Until: {new Date(subscription.current_period_end).toLocaleDateString()}</>
                   )}
                 </p>
+                {subscription.creem_status === 'scheduled_cancel' && (
+                  <p className="text-amber-400 mt-2">
+                    Auto-renewal cancelled. Your subscription will expire at the end of the billing period.
+                  </p>
+                )}
               </div>
               <div className="flex gap-3">
                 {subscription.billing_portal_url && (
@@ -171,12 +179,24 @@ const SubscriptionPage: React.FC = () => {
                     Manage Billing
                   </button>
                 )}
-                <button
-                  onClick={handleCancelSubscription}
-                  className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Cancel Auto-Renewal
-                </button>
+                {subscription.creem_status === 'scheduled_cancel' ? (
+                  <button
+                    onClick={() => handleSubscribe('pro')}
+                    disabled={processing !== null}
+                    className={`px-5 py-2 text-white rounded-lg transition-colors ${
+                      processing === 'pro' ? 'opacity-50 cursor-not-allowed' : ''
+                    } bg-amber-500 hover:bg-amber-600`}
+                  >
+                    Reactivate Subscription
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCancelSubscription}
+                    className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Cancel Auto-Renewal
+                  </button>
+                )}
               </div>
             </div>
           </div>
