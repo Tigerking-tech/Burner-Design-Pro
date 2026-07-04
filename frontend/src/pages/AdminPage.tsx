@@ -150,7 +150,7 @@ export default function AdminPage() {
       )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4">
           {[
             { id: "users" as AdminTab, label: "Users" },
             { id: "orders" as AdminTab, label: "Orders" },
@@ -160,7 +160,7 @@ export default function AdminPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "bg-[#f39c12] text-white"
                   : "bg-white/10 text-[#bdc3c7] hover:bg-white/20"
@@ -242,7 +242,8 @@ export default function AdminPage() {
                 </div>
               )}
               
-              <div className="overflow-x-auto">
+              {/* Desktop: Table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-[#555]">
                   <thead className="bg-gray-50">
                     <tr>
@@ -305,13 +306,71 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile: Cards */}
+              <div className="md:hidden space-y-4">
+                {users.map((user) => (
+                  <div key={user.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="font-medium text-[#2c3e50] mb-3 break-all">{user.email}</div>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-[#555] mb-3">
+                      <div>
+                        <span className="text-gray-400">Plan:</span>{" "}
+                        <span className="capitalize">{user.subscription_tier}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Status:</span>{" "}
+                        <span className={user.is_active ? "text-green-600" : "text-red-600"}>
+                          {user.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Expires:</span>{" "}
+                        {user.subscription_expires_at
+                          ? new Date(user.subscription_expires_at).toLocaleDateString()
+                          : "-"}
+                      </div>
+                    </div>
+                    {(user.creem_customer_id || user.creem_subscription_id) && (
+                      <div className="text-xs text-gray-400 font-mono mb-3 space-y-1">
+                        {user.creem_customer_id && (
+                          <div>Cust: {user.creem_customer_id.substring(0, 12)}...</div>
+                        )}
+                        {user.creem_subscription_id && (
+                          <div>Sub: {user.creem_subscription_id.substring(0, 12)}...</div>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-2">
+                      <select
+                        className="px-3 py-2 border border-gray-300 rounded text-sm w-full"
+                        value={user.subscription_tier}
+                        onChange={(e) => handleUpdateUserSubscription(user.id, e.target.value)}
+                      >
+                        <option value="free">Free</option>
+                        <option value="pro">Pro</option>
+                      </select>
+                      <button
+                        onClick={() => {
+                          setSelectedUserId(user.id)
+                          setNewUserPassword("")
+                          setConfirmNewPassword("")
+                        }}
+                        className="px-3 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors w-full"
+                      >
+                        Change Password
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {activeTab === "orders" && (
             <div>
               <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Order Management</h2>
-              <div className="overflow-x-auto">
+              {/* Desktop: Table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-[#555]">
                   <thead className="bg-gray-50">
                     <tr>
@@ -343,6 +402,38 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile: Cards */}
+              <div className="md:hidden space-y-4">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-sm text-gray-400">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </div>
+                      <div
+                        className={`text-sm font-medium capitalize ${
+                          order.status === "succeeded" ? "text-green-600" : "text-orange-600"
+                        }`}
+                      >
+                        {order.status}
+                      </div>
+                    </div>
+                    <div className="font-medium text-[#2c3e50] break-all mb-2">
+                      {order.user_email}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-[#555]">
+                        <span className="text-gray-400">Plan:</span>{" "}
+                        <span className="capitalize">{order.tier}</span>
+                      </div>
+                      <div className="text-lg font-semibold text-[#f39c12]">
+                        ${(order.amount / 100).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -371,7 +462,7 @@ export default function AdminPage() {
               )}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="text-lg font-medium text-[#2c3e50] mb-4">Request Withdrawal</h3>
-                <form onSubmit={handleCreateWithdrawal} className="flex gap-4 items-end max-w-lg">
+                <form onSubmit={handleCreateWithdrawal} className="flex flex-col md:flex-row gap-4 md:items-end max-w-lg">
                   <div className="flex-1">
                     <label className="block text-sm text-[#555] mb-1">Amount (USD)</label>
                     <input
@@ -398,7 +489,7 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-2 rounded font-medium disabled:opacity-50"
+                    className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-2 rounded font-medium disabled:opacity-50 md:w-auto w-full"
                   >
                     {processing ? "Processing..." : "Request Withdrawal"}
                   </button>
@@ -413,7 +504,8 @@ export default function AdminPage() {
           {activeTab === "withdrawals" && (
             <div>
               <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Withdrawal Management</h2>
-              <div className="overflow-x-auto">
+              {/* Desktop: Table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-[#555]">
                   <thead className="bg-gray-50">
                     <tr>
@@ -447,6 +539,38 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile: Cards */}
+              <div className="md:hidden space-y-4">
+                {withdrawals.map((withdrawal) => (
+                  <div key={withdrawal.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-sm text-gray-400">
+                        {new Date(withdrawal.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="text-lg font-semibold text-[#f39c12]">
+                        ${(withdrawal.amount / 100).toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="font-medium text-[#2c3e50] break-all mb-3">
+                      {withdrawal.admin_email}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-[#555] capitalize">{withdrawal.status}</span>
+                      <select
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                        value={withdrawal.status}
+                        onChange={(e) => handleUpdateWithdrawal(withdrawal.id, e.target.value)}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                      </select>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
