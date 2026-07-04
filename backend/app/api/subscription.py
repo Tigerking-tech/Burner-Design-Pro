@@ -19,6 +19,7 @@ from app.services.database import (
     get_user_by_id, update_user_subscription,
     save_order, get_order, list_orders, update_order_status,
     save_withdrawal, get_withdrawal, list_withdrawals,
+    update_user_creem,
 )
 
 router = APIRouter(prefix="/api", tags=["Subscription", "Payment", "Admin"])
@@ -136,9 +137,25 @@ async def create_checkout(
     try:
         creem = get_creem_client()
 
+        customer_id = getattr(current_user, "creem_customer_id", None)
+        
+        if not customer_id:
+            try:
+                customer_data = creem.create_customer(
+                    email=current_user.email,
+                    name=getattr(current_user, "full_name", "") or ""
+                )
+                customer_id = customer_data.get("customer_id") or customer_data.get("id")
+                if customer_id:
+                    update_user_creem(current_user.id, creem_customer_id=str(customer_id))
+            except Exception as e:
+                print(f"[payment] Error creating customer: {e}")
+
         checkout_data = creem.create_checkout(
             product_id=product_id,
+            customer_id=customer_id,
             success_url=success_url,
+            cancel_url=cancel_url,
             metadata={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
