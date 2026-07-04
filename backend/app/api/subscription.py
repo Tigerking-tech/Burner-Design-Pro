@@ -45,8 +45,12 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
     """Get current user's subscription information"""
     
     # Auto-downgrade if subscription has expired
+    # For users with creem_subscription_id, give a 30-day grace period 
+    # to account for auto-renewal timing
     if current_user.subscription_tier != "free" and current_user.subscription_expires_at:
-        if current_user.subscription_expires_at < datetime.utcnow():
+        grace_days = 30 if getattr(current_user, "creem_subscription_id", None) else 0
+        cutoff = datetime.utcnow() - timedelta(days=grace_days)
+        if current_user.subscription_expires_at < cutoff:
             update_user_subscription(
                 user_id=current_user.id,
                 tier="free",
@@ -56,7 +60,7 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             updated_user_dict = get_user_by_id(current_user.id)
             if updated_user_dict:
                 current_user = _dict_to_user(updated_user_dict)
-            print(f"[subscription] Auto-downgraded expired user {current_user.email} to free")
+            print(f"[subscription] Auto-downgraded expired user {current_user.email} to free (grace_days={grace_days})")
     
     pending_orders = [o for o in list_orders() if o["user_id"] == current_user.id and o["status"] == "pending"]
     if pending_orders:
@@ -73,7 +77,7 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
                             update_user_subscription(
                                 user_id=current_user.id,
                                 tier="pro",
-                                expires_at=datetime.utcnow() + timedelta(days=365),
+                                expires_at=datetime.utcnow() + timedelta(days=395),
                                 is_active=True,
                             )
                             subscription_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
@@ -89,6 +93,27 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             print(f"[subscription] Auto-check pending orders failed: {e}")
     
     tier = SUBSCRIPTION_TIERS.get(current_user.subscription_tier, SUBSCRIPTION_TIERS["free"])
+    
+    # Fetch current_period_end from Creem if subscription is active, for display purposes
+    current_period_end = None
+    creem_status = None
+    if getattr(current_user, "creem_subscription_id", None) and current_user.subscription_tier != "free":
+        try:
+            creem = get_creem_client()
+            sub_data = creem.get_subscription(current_user.creem_subscription_id)
+            if sub_data and "data" in sub_data and isinstance(sub_data["data"], dict):
+                sub_data = sub_data["data"]
+            creem_status = sub_data.get("status")
+            period_end = (sub_data.get("current_period_end_date") 
+                         or sub_data.get("current_period_end")
+                         or sub_data.get("end_date"))
+            if period_end:
+                if isinstance(period_end, str):
+                    current_period_end = datetime.fromisoformat(period_end.replace("Z", "+00:00"))
+                elif isinstance(period_end, (int, float)):
+                    current_period_end = datetime.utcfromtimestamp(period_end / 1000 if period_end > 1e12 else period_end)
+        except Exception as e:
+            print(f"[subscription] Error fetching current_period_end: {e}")
 
     result = {
         "success": True,
@@ -96,6 +121,8 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             "tier": current_user.subscription_tier,
             "tier_name": tier.name,
             "expires_at": current_user.subscription_expires_at,
+            "current_period_end": current_period_end,
+            "creem_status": creem_status,
             "is_active": current_user.is_active,
             "features": tier.features,
             "max_calculations": tier.max_calculations,
@@ -444,18 +471,28 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
                          or active_sub.get("current_period_end")
                          or active_sub.get("end_date")
                          or active_sub.get("expires_at"))
-            expires_at = None
+            period_end_dt = None
             if period_end:
                 try:
                     if isinstance(period_end, str):
-                        expires_at = datetime.fromisoformat(period_end.replace("Z", "+00:00"))
+                        period_end_dt = datetime.fromisoformat(period_end.replace("Z", "+00:00"))
                     elif isinstance(period_end, (int, float)):
-                        expires_at = datetime.utcfromtimestamp(period_end / 1000 if period_end > 1e12 else period_end)
+                        period_end_dt = datetime.utcfromtimestamp(period_end / 1000 if period_end > 1e12 else period_end)
                 except Exception:
                     pass
             
-            if not expires_at:
-                expires_at = datetime.utcnow() + timedelta(days=365)
+            # Calculate expires_at based on subscription status:
+            # - active/trialing (auto-renewing): current_period_end + 30 days grace period
+            # - scheduled_cancel (cancelled but still valid): current_period_end exactly
+            if sub_status in ("active", "trialing"):
+                if period_end_dt:
+                    expires_at = period_end_dt + timedelta(days=30)
+                else:
+                    expires_at = datetime.utcnow() + timedelta(days=395)  # ~13 months
+            elif sub_status == "scheduled_cancel":
+                expires_at = period_end_dt if period_end_dt else datetime.utcnow() + timedelta(days=30)
+            else:
+                expires_at = period_end_dt if period_end_dt else datetime.utcnow() + timedelta(days=365)
             
             if is_active:
                 update_user_subscription(

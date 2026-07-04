@@ -244,12 +244,37 @@ export default function AccountPage() {
             <div className="space-y-2 text-[#555] dark:text-gray-300">
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
-              {subscription?.expires_at && (
+              {subscription?.tier && subscription.tier !== "free" && subscription.creem_status && 
+                (subscription.creem_status.toLowerCase() === "active" || 
+                 subscription.creem_status.toLowerCase() === "trialing") && (
+                <p>
+                  <strong>Next Billing Date:</strong>{" "}
+                  {subscription.current_period_end
+                    ? new Date(subscription.current_period_end).toLocaleDateString()
+                    : subscription.expires_at
+                      ? new Date(subscription.expires_at).toLocaleDateString()
+                      : "-"}
+                </p>
+              )}
+              {subscription?.tier && subscription.tier !== "free" && subscription.creem_status && 
+                subscription.creem_status.toLowerCase() === "scheduled_cancel" && (
+                <p>
+                  <strong>Pro Access Until:</strong>{" "}
+                  {subscription.current_period_end
+                    ? new Date(subscription.current_period_end).toLocaleDateString()
+                    : subscription.expires_at
+                      ? new Date(subscription.expires_at).toLocaleDateString()
+                      : "-"}
+                </p>
+              )}
+              {subscription?.tier && subscription.tier !== "free" && !subscription.creem_status && subscription.expires_at && (
                 <p><strong>Pro Access Until:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
               )}
-              {subscription?.tier && subscription.tier !== "free" && subscription?.expires_at && (
+              {subscription?.tier && subscription.tier !== "free" && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Pro features will remain active until the expiration date above.
+                  {subscription.creem_status?.toLowerCase() === "scheduled_cancel"
+                    ? "Your subscription has been cancelled. Pro features will remain active until the date above."
+                    : "Your subscription renews automatically. Pro features will remain active as long as your subscription is active."}
                 </p>
               )}
             </div>

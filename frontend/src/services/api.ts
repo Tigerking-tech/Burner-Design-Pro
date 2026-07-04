@@ -263,7 +263,14 @@ export interface Subscription {
   tier: string
   tier_name?: string
   expires_at?: string
+  current_period_end?: string
+  creem_status?: string
   is_active: boolean
+  features?: string[]
+  max_calculations?: number
+  has_pdf_export?: boolean
+  has_pro_calculators?: boolean
+  billing_portal_url?: string
 }
 
 export interface PaymentIntent {
