@@ -271,6 +271,7 @@ export interface Subscription {
   has_pdf_export?: boolean
   has_pro_calculators?: boolean
   billing_portal_url?: string
+  auto_renewal_active?: boolean
 }
 
 export interface PaymentIntent {

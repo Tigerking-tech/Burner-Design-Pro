@@ -388,15 +388,47 @@ export default function AccountPage() {
 
             {subscription && subscription.tier !== "free" && (
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  Cancelling will stop auto-renewal. Your Pro access remains active until the expiration date.
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    subscription.auto_renewal_active === false
+                      ? "bg-green-100 text-green-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}>
+                    {subscription.auto_renewal_active === false ? "Auto-Renewal: OFF" : "Auto-Renewal: ON"}
+                  </span>
+                  {subscription.creem_status && (
+                    <span className="text-xs text-gray-500">
+                      ({subscription.creem_status.replace("_", " ").toUpperCase()})
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                  {subscription.auto_renewal_active === false
+                    ? "Your subscription will not renew. Pro access remains active until the expiration date."
+                    : "Cancelling will stop auto-renewal. Your Pro access remains active until the expiration date."}
                 </p>
-                <button
-                  onClick={handleCancelSubscription}
-                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
-                >
-                  Cancel Auto-Renewal
-                </button>
+                
+                <div className="flex flex-wrap gap-2">
+                  {subscription.auto_renewal_active !== false && (
+                    <button
+                      onClick={handleCancelSubscription}
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
+                    >
+                      Cancel Auto-Renewal
+                    </button>
+                  )}
+                  {subscription.billing_portal_url && (
+                    <a
+                      href={subscription.billing_portal_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm underline"
+                    >
+                      Manage in Creem Portal
+                    </a>
+                  )}
+                </div>
               </div>
             )}
           </div>

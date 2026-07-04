@@ -154,6 +154,8 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
     
     Note: This cancels auto-renewal on Creem side. The user keeps Pro access
     until the current billing period ends (subscription_expires_at).
+    
+    After calling Creem API, we verify the cancellation by checking subscription status.
     """
     if current_user.subscription_tier == "free":
         return {"success": True, "message": "Already on free plan"}
@@ -161,15 +163,15 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
     creem_success = False
     creem_error = None
     cancelled_sub_id = None
+    verified_status = None
 
     try:
         creem = get_creem_client()
 
-        # First, try to search for active subscriptions by customer_id
-        # This is more reliable than using stored subscription_id which might be stale
         customer_id = getattr(current_user, "creem_customer_id", None)
         stored_sub_id = getattr(current_user, "creem_subscription_id", None)
 
+        # Step 1: Find and cancel active subscription
         if customer_id:
             try:
                 subs_result = creem.search_subscriptions(customer_id=customer_id, page_size=100)
@@ -181,26 +183,40 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
                         try:
                             creem.cancel_subscription(sub_id)
                             cancelled_sub_id = sub_id
-                            creem_success = True
-                            print(f"[subscription] Cancelled subscription {sub_id} for customer {customer_id}")
+                            print(f"[subscription] Called cancel for subscription {sub_id}")
                             break
                         except Exception as e:
                             print(f"[subscription] Failed to cancel sub {sub_id}: {e}")
             except Exception as e:
                 print(f"[subscription] Error searching subscriptions for customer {customer_id}: {e}")
 
-        # If customer_id search failed, try stored subscription_id
-        if not creem_success and stored_sub_id:
+        # Try stored subscription_id if customer_id search didn't find anything
+        if not cancelled_sub_id and stored_sub_id:
             try:
                 creem.cancel_subscription(stored_sub_id)
                 cancelled_sub_id = stored_sub_id
-                creem_success = True
-                print(f"[subscription] Cancelled stored subscription {stored_sub_id}")
+                print(f"[subscription] Called cancel for stored subscription {stored_sub_id}")
             except Exception as e:
                 print(f"[subscription] Error canceling stored subscription {stored_sub_id}: {e}")
                 creem_error = str(e)
 
-        # Update stored subscription_id if we cancelled a different one
+        # Step 2: Verify cancellation by checking subscription status
+        if cancelled_sub_id:
+            try:
+                verify_data = creem.get_subscription(cancelled_sub_id)
+                if verify_data and "data" in verify_data and isinstance(verify_data["data"], dict):
+                    verify_data = verify_data["data"]
+                verified_status = str(verify_data.get("status") or "").lower()
+                print(f"[subscription] Verified status after cancel: {verified_status}")
+                if verified_status in ("scheduled_cancel", "canceled"):
+                    creem_success = True
+                    print(f"[subscription] Cancellation VERIFIED on Creem: {verified_status}")
+                else:
+                    print(f"[subscription] Cancellation NOT verified - status is: {verified_status}")
+            except Exception as e:
+                print(f"[subscription] Error verifying cancellation: {e}")
+
+        # Update stored subscription_id
         if cancelled_sub_id and stored_sub_id != cancelled_sub_id:
             update_user_creem(current_user.id, creem_subscription_id=str(cancelled_sub_id))
 
@@ -214,16 +230,20 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
     if creem_success:
         return {
             "success": True,
-            "message": f"Subscription cancelled successfully. Your Pro access will remain active until {expires_display}.",
+            "message": f"Auto-renewal cancelled successfully. Your Pro access will remain active until {expires_display}. No further charges will occur.",
             "subscription": "pro",
             "expires_at": expires_at,
+            "creem_status": verified_status,
+            "auto_renewal_active": False,
         }
     else:
         return {
             "success": True,
-            "message": f"Auto-renewal cancelled locally. Your Pro access will remain active until {expires_display}. Please verify cancellation in Creem dashboard if needed.",
+            "message": f"Auto-renewal cancelled locally. Your Pro access will remain active until {expires_display}. Please verify in your Creem billing portal.",
             "subscription": "pro",
             "expires_at": expires_at,
+            "creem_status": verified_status,
+            "auto_renewal_active": True,
             "creem_error": creem_error,
         }
 
