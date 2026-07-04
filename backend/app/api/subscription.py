@@ -690,14 +690,22 @@ async def delete_order_admin(order_id: str, admin_user: User = Depends(get_admin
 
 
 @router.post("/admin/cleanup-duplicate-orders")
-async def cleanup_duplicate_orders(admin_user: User = Depends(get_admin_user)):
+async def cleanup_duplicate_orders(
+    user_id: Optional[str] = None,
+    admin_user: User = Depends(get_admin_user),
+):
     """
     Clean up duplicate succeeded orders.
     For each user, keeps only one succeeded order per day, removing the rest.
+
+    If `user_id` is provided, only that user's orders are cleaned.
     """
     all_orders = list_orders()
     succeeded_orders = [o for o in all_orders if o["status"] == "succeeded"]
-    
+
+    if user_id:
+        succeeded_orders = [o for o in succeeded_orders if o["user_id"] == user_id]
+
     # Group by user_id and date
     groups = {}
     for order in succeeded_orders:
@@ -705,9 +713,9 @@ async def cleanup_duplicate_orders(admin_user: User = Depends(get_admin_user)):
         if key not in groups:
             groups[key] = []
         groups[key].append(order)
-    
+
     deleted_count = 0
-    for (user_id, date), orders_in_group in groups.items():
+    for (order_user_id, date), orders_in_group in groups.items():
         if len(orders_in_group) > 1:
             # Keep the most recent one (first by created_at desc)
             orders_in_group.sort(key=lambda o: o["created_at"], reverse=True)
@@ -715,11 +723,13 @@ async def cleanup_duplicate_orders(admin_user: User = Depends(get_admin_user)):
             for order in to_delete:
                 delete_order(order["id"])
                 deleted_count += 1
-    
+
+    scope = f"user {user_id}" if user_id else "all users"
     return {
         "success": True,
-        "message": f"Cleaned up {deleted_count} duplicate succeeded orders",
+        "message": f"Cleaned up {deleted_count} duplicate succeeded orders for {scope}",
         "deleted_count": deleted_count,
+        "user_id": user_id,
     }
 
 
@@ -732,37 +742,99 @@ async def get_revenue(admin_user: User = Depends(get_admin_user)):
     creem_revenue_cents = 0
     creem_transaction_count = 0
     creem_subscriptions = []
+    use_creem = False
     try:
         creem = get_creem_client()
-        txn_resp = creem.list_transactions()
-        txn_items = txn_resp.get("data") or txn_resp.get("transactions") or txn_resp.get("items") or []
-        for txn in txn_items:
-            amount = txn.get("amount") or txn.get("total") or 0
-            creem_revenue_cents += int(float(amount or 0))
-            creem_transaction_count += 1
-        
-        sub_resp = creem.search_subscriptions(page_size=100)
-        sub_items = sub_resp.get("data") or sub_resp.get("items") or sub_resp.get("subscriptions") or []
-        for sub in sub_items:
-            creem_subscriptions.append({
-                "subscription_id": sub.get("id") or sub.get("subscription_id"),
-                "customer_id": sub.get("customer_id"),
-                "status": sub.get("status"),
-                "current_period_end": sub.get("current_period_end") or sub.get("current_period_end_date"),
-            })
+
+        # Fetch all pages of paid transactions from Creem.
+        # Only successful (paid) transactions count as revenue.
+        txn_page = 1
+        seen_txn_ids = set()
+        while True:
+            txn_resp = creem.list_transactions(page_number=txn_page, page_size=100)
+            txn_items = txn_resp.get("data") or txn_resp.get("transactions") or txn_resp.get("items") or []
+            for txn in txn_items:
+                txn_id = txn.get("id")
+                if txn_id in seen_txn_ids:
+                    continue
+                seen_txn_ids.add(txn_id)
+
+                txn_status = str(txn.get("status") or "").lower()
+                if txn_status != "paid":
+                    continue
+
+                # Use amount_paid when available; otherwise fall back to amount.
+                amount = txn.get("amount_paid")
+                if amount is None:
+                    amount = txn.get("amount") or txn.get("total") or 0
+                amount_cents = int(float(amount or 0))
+
+                # Subtract refunded amount for net revenue.
+                refunded = int(float(txn.get("refunded_amount") or 0))
+                net_amount = max(0, amount_cents - refunded)
+
+                creem_revenue_cents += net_amount
+                creem_transaction_count += 1
+
+            pagination = txn_resp.get("pagination") or {}
+            total_pages = pagination.get("total_pages") or 1
+            if txn_page >= total_pages or not txn_items:
+                break
+            txn_page += 1
+
+        # Fetch all pages of subscriptions from Creem.
+        sub_page = 1
+        seen_sub_ids = set()
+        while True:
+            sub_resp = creem.search_subscriptions(page_size=100, page_number=sub_page)
+            sub_items = sub_resp.get("data") or sub_resp.get("items") or sub_resp.get("subscriptions") or []
+            for sub in sub_items:
+                sub_id = sub.get("id") or sub.get("subscription_id")
+                if not sub_id or sub_id in seen_sub_ids:
+                    continue
+                seen_sub_ids.add(sub_id)
+
+                sub_status = str(sub.get("status") or "").lower()
+                creem_subscriptions.append({
+                    "subscription_id": sub_id,
+                    "customer_id": sub.get("customer_id"),
+                    "status": sub_status,
+                    "current_period_end": sub.get("current_period_end") or sub.get("current_period_end_date"),
+                })
+
+            pagination = sub_resp.get("pagination") or {}
+            total_pages = pagination.get("total_pages") or 1
+            if sub_page >= total_pages or not sub_items:
+                break
+            sub_page += 1
+
+        use_creem = True
+        print(f"[admin/revenue] Creem data: {creem_transaction_count} paid transactions, "
+              f"{creem_revenue_cents} cents revenue, {len(creem_subscriptions)} subscriptions")
     except Exception as e:
         print(f"[admin/revenue] Error listing Creem data: {e}")
 
+    # Active subscriptions: currently paying or scheduled to cancel at period end.
+    active_subscription_count = len([
+        s for s in creem_subscriptions
+        if s.get("status") in ("active", "trialing", "scheduled_cancel")
+    ])
+
+    # Prefer Creem numbers when available; otherwise fall back to local orders.
+    total_revenue_cents = creem_revenue_cents if use_creem else local_revenue
+    transaction_count = creem_transaction_count if use_creem else len(succeeded_orders)
+
     return {
         "success": True,
-        "total_revenue_cents": creem_revenue_cents if creem_revenue_cents > 0 else local_revenue,
-        "total_revenue_display": f"${creem_revenue_cents / 100:.2f}" if creem_revenue_cents > 0 else f"${local_revenue / 100:.2f}",
-        "total_orders": len(succeeded_orders),
-        "successful_orders": len(succeeded_orders),
+        "total_revenue_cents": total_revenue_cents,
+        "total_revenue_display": f"${total_revenue_cents / 100:.2f}",
+        "total_orders": transaction_count,
+        "successful_orders": transaction_count,
         "creem_revenue_cents": creem_revenue_cents,
         "creem_revenue_display": f"${creem_revenue_cents / 100:.2f}",
         "creem_transaction_count": creem_transaction_count,
-        "active_subscriptions": len([s for s in creem_subscriptions if s.get("status") in ("active", "trialing")]),
+        "active_subscriptions": active_subscription_count if use_creem else len(succeeded_orders),
+        "source": "creem" if use_creem else "local",
     }
 
 

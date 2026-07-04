@@ -176,12 +176,17 @@ class CreemClient:
     
     # ============== Transactions ==============
     
-    def list_transactions(self, limit: int = 50, 
-                         starting_after: str = None) -> Dict[str, Any]:
-        """List transactions"""
-        data = {"limit": limit}
-        if starting_after:
-            data["starting_after"] = starting_after
+    def list_transactions(self, page_number: int = 1, page_size: int = 50,
+                          customer_id: str = None, order_id: str = None,
+                          product_id: str = None) -> Dict[str, Any]:
+        """Search transactions with pagination and optional filters."""
+        data = {"page_number": page_number, "page_size": page_size}
+        if customer_id:
+            data["customer_id"] = customer_id
+        if order_id:
+            data["order_id"] = order_id
+        if product_id:
+            data["product_id"] = product_id
         return self._make_request("GET", "/v1/transactions/search", data)
     
     # ============== Webhook Verification ==============

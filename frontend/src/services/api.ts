@@ -533,8 +533,9 @@ export const adminAPI = {
     })
   },
 
-  async cleanupDuplicateOrders(): Promise<{ success: boolean; message: string; deleted_count: number }> {
-    return request('/admin/cleanup-duplicate-orders', {
+  async cleanupDuplicateOrders(userId?: string): Promise<{ success: boolean; message: string; deleted_count: number; user_id?: string }> {
+    const query = userId ? `?user_id=${encodeURIComponent(userId)}` : ''
+    return request(`/admin/cleanup-duplicate-orders${query}`, {
       method: 'POST',
     })
   },
