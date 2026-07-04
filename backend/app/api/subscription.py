@@ -403,6 +403,22 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
             except Exception as e:
                 print(f"[refresh_subscription] get_subscription failed: {e}")
         
+        if not customer_id:
+            try:
+                customer_data = creem.get_customer(email=current_user.email)
+                print(f"[refresh_subscription] get_customer by email result keys: {list(customer_data.keys())}")
+                # Unwrap if nested in data field
+                if customer_data and "data" in customer_data and isinstance(customer_data["data"], dict):
+                    customer_data = customer_data["data"]
+                cust_id = customer_data.get("customer_id") or customer_data.get("id")
+                if cust_id:
+                    customer_id = str(cust_id)
+                    update_user_creem(current_user.id, creem_customer_id=customer_id)
+                    updated = True
+                    print(f"[refresh_subscription] found customer_id by email: {customer_id}")
+            except Exception as e:
+                print(f"[refresh_subscription] get_customer by email failed: {e}")
+        
         if not active_sub and customer_id:
             try:
                 subs_result = creem.search_subscriptions(customer_id=customer_id)
