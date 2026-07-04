@@ -380,7 +380,8 @@ export default function AccountPage() {
           {orders.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Order History</h2>
-              <div className="overflow-x-auto">
+              {/* Desktop: Table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-[#555] dark:text-gray-300">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
@@ -401,6 +402,29 @@ export default function AccountPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              {/* Mobile: Cards */}
+              <div className="md:hidden space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </span>
+                      <span className="text-lg font-semibold text-[#f39c12]">
+                        ${(order.amount / 100).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="capitalize text-sm text-[#555] dark:text-gray-300">{order.tier}</span>
+                      <span className={`text-sm font-medium capitalize ${
+                        order.status === "succeeded" ? "text-green-600" : "text-orange-600"
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

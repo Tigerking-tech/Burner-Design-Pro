@@ -102,7 +102,7 @@ const SubscriptionPage: React.FC = () => {
   }
 
   const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription?')) {
+    if (!confirm('Are you sure you want to cancel auto-renewal? Your Pro access will remain active until the end of your current billing period.')) {
       return
     }
 
@@ -175,7 +175,7 @@ const SubscriptionPage: React.FC = () => {
                   onClick={handleCancelSubscription}
                   className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
-                  Cancel Subscription
+                  Cancel Auto-Renewal
                 </button>
               </div>
             </div>
@@ -294,10 +294,11 @@ const SubscriptionPage: React.FC = () => {
         </div>
 
         {/* Features Comparison */}
-        <div className="mt-12 bg-gray-800 rounded-xl p-8">
+        <div className="mt-12 bg-gray-800 rounded-xl p-6 md:p-8">
           <h2 className="text-2xl font-bold text-white mb-6">Features Comparison</h2>
           
-          <div className="overflow-x-auto">
+          {/* Desktop: Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-gray-400 border-b border-gray-700">
@@ -329,6 +330,30 @@ const SubscriptionPage: React.FC = () => {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile: Cards */}
+          <div className="md:hidden space-y-3">
+            {[
+              { feature: 'Basic Calculators', free: '✓', pro: '✓' },
+              { feature: 'Calculation Limit', free: 'Limited', pro: 'Unlimited' },
+              { feature: 'PDF Export', free: '✗', pro: '✓' },
+              { feature: 'Advanced Calculators', free: '✗', pro: '✓' },
+            ].map((row, i) => (
+              <div key={i} className="bg-gray-700/50 rounded-lg p-3">
+                <div className="text-white font-medium mb-2">{row.feature}</div>
+                <div className="flex gap-4 text-sm">
+                  <div className="flex-1">
+                    <span className="text-gray-400">Free: </span>
+                    <span className={`${row.free === '✓' ? 'text-green-400' : row.free === '✗' ? 'text-red-400' : 'text-gray-300'}`}>{row.free}</span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-gray-400">Pro: </span>
+                    <span className={`${row.pro === '✓' ? 'text-green-400' : row.pro === '✗' ? 'text-red-400' : 'text-amber-400 font-medium'}`}>{row.pro}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
