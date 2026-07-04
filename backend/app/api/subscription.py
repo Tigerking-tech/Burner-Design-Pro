@@ -405,6 +405,10 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
                     is_active=True,
                 )
                 
+                subscription_id = active_sub.get("id")
+                if subscription_id:
+                    update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
+                
                 pending_orders = list_orders()
                 for o in pending_orders:
                     if o["user_id"] == current_user.id and o["status"] == "pending":
