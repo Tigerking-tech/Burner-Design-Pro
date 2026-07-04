@@ -512,11 +512,25 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
                 update_user_creem(current_user.id, creem_customer_id=str(customer_id_from_sub))
                 updated = True
             
-            pending_orders = list_orders()
-            for o in pending_orders:
-                if o["user_id"] == current_user.id and o["status"] == "pending":
-                    update_order_status(o["id"], "succeeded")
-                    updated = True
+            # Only mark the most recent pending order as succeeded if its checkout is confirmed.
+            # In subscription mode there should only be one initial checkout order per user.
+            pending_orders = [
+                o for o in list_orders()
+                if o["user_id"] == current_user.id and o["status"] == "pending"
+            ]
+            if pending_orders:
+                # Sort by created_at descending and check only the latest pending order
+                most_recent = sorted(pending_orders, key=lambda o: o.get("created_at", ""), reverse=True)[0]
+                checkout_id = most_recent.get("creem_checkout_id")
+                if checkout_id:
+                    try:
+                        checkout_data = creem.get_checkout(checkout_id)
+                        checkout_status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
+                        if checkout_status and checkout_status.lower() in ("succeeded", "completed", "paid"):
+                            update_order_status(most_recent["id"], "succeeded")
+                            updated = True
+                    except Exception as e:
+                        print(f"[refresh_subscription] Error confirming pending order checkout: {e}")
             
             if updated:
                 return {
