@@ -16,6 +16,7 @@ import AccountPage from './pages/AccountPage'
 import AdminPage from './pages/AdminPage'
 import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
 import SubscriptionPage from './pages/SubscriptionPage'
+import SubscriptionSuccessPage from './pages/SubscriptionSuccessPage'
 import TermsOfServicePage from './pages/TermsOfServicePage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import { wakeUpService } from './services/wakeUpService'
@@ -76,6 +77,7 @@ function AppRoutes() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/subscription" element={<SubscriptionPage />} />
+        <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />
         <Route path="/fuel-manager" element={<FuelManagerPage />} />
         <Route path="/flame-temperature" element={<FlameTemperaturePage />} />
         <Route path="/orifice-calculator" element={<OrificeCalculatorPage />} />
