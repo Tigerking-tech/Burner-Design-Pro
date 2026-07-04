@@ -467,6 +467,10 @@ export const subscriptionAPI = {
     return request('/subscription/cancel', { method: 'POST' })
   },
 
+  async refreshSubscription(): Promise<{ success: boolean; message: string; tier?: string }> {
+    return request('/subscription/refresh', { method: 'POST' })
+  },
+
   async getProducts(): Promise<{ success: boolean; products: Product[] }> {
     return request('/products')
   },

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, ApiError } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
+import { RefreshCw } from "lucide-react"
 
 function isAuthError(err: any): boolean {
   if (err instanceof ApiError && err.status === 401) return true
@@ -26,6 +27,7 @@ export default function AccountPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [processingPayment, setProcessingPayment] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
+  const [refreshingSubscription, setRefreshingSubscription] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   
@@ -156,6 +158,37 @@ export default function AccountPage() {
     }
   }
 
+  const handleRefreshSubscription = async () => {
+    setRefreshingSubscription(true)
+    setError("")
+    setSuccess("")
+    
+    try {
+      const refreshResult = await subscriptionAPI.refreshSubscription()
+      
+      if (refreshResult.success) {
+        await loadData()
+        const currentUser = await authAPI.getCurrentUser()
+        setUser(currentUser)
+        setSuccess(refreshResult.message)
+      } else {
+        setError(refreshResult.message)
+      }
+    } catch (err: any) {
+      if (isAuthError(err)) {
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to refresh subscription status")
+      }
+    } finally {
+      setRefreshingSubscription(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e] flex items-center justify-center">
@@ -194,6 +227,25 @@ export default function AccountPage() {
               {subscription?.expires_at && (
                 <p><strong>Expires:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
               )}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={handleRefreshSubscription}
+                disabled={refreshingSubscription}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+              >
+                {refreshingSubscription ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh Subscription
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

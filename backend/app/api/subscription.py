@@ -131,7 +131,9 @@ async def create_checkout(
 
     tier = SUBSCRIPTION_TIERS[order_data.tier]
     app_url = os.getenv("APP_URL", "http://localhost:3000").rstrip("/")
-    success_url = f"{app_url}/subscription/success"
+    
+    order_id = str(uuid.uuid4())
+    success_url = f"{app_url}/subscription/success?order_id={order_id}"
     cancel_url = f"{app_url}/subscription"
 
     try:
@@ -168,8 +170,6 @@ async def create_checkout(
         if not checkout_url:
             raise Exception("Creem did not return a checkout URL")
 
-        # Persist the order in database so we can match it when the webhook fires
-        order_id = str(uuid.uuid4())
         save_order(
             order_id=order_id,
             user_id=current_user.id,
@@ -207,7 +207,8 @@ async def confirm_payment(
     """
     Called by the frontend after the user is redirected back from
     the Creem checkout. Activates the user's subscription if
-    the associated order has been marked "succeeded" by the webhook.
+    the associated order has been marked "succeeded" by the webhook
+    OR if Creem confirms the payment was successful.
     """
     order_dict = get_order(order_id)
     if not order_dict:
@@ -225,6 +226,30 @@ async def confirm_payment(
         }
 
     if order_dict["status"] == "pending":
+        checkout_id = order_dict.get("creem_checkout_id")
+        if checkout_id:
+            try:
+                creem = get_creem_client()
+                checkout_data = creem.get_checkout(checkout_id)
+                checkout_status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
+                
+                if checkout_status and checkout_status.lower() in ("succeeded", "completed", "paid"):
+                    update_order_status(order_id, "succeeded")
+                    update_user_subscription(
+                        user_id=current_user.id,
+                        tier="pro",
+                        expires_at=datetime.utcnow() + timedelta(days=365),
+                        is_active=True,
+                    )
+                    
+                    return {
+                        "success": True,
+                        "message": "Payment confirmed successfully",
+                        "subscription": "pro",
+                    }
+            except Exception as e:
+                print(f"[payment] Error checking Creem checkout status: {e}")
+
         return {
             "success": False,
             "message": "Payment is still being processed. Please refresh shortly.",
@@ -253,6 +278,87 @@ async def get_orders(current_user: User = Depends(get_current_active_user)):
         if o["user_id"] == current_user.id
     ]
     return user_orders
+
+
+@router.post("/subscription/refresh")
+async def refresh_subscription(current_user: User = Depends(get_current_active_user)):
+    """
+    Manually refresh subscription status from Creem.
+    Useful when webhook didn't fire but payment was successful.
+    """
+    try:
+        creem = get_creem_client()
+        
+        if getattr(current_user, "creem_customer_id", None):
+            customer_data = creem.get_customer(customer_id=current_user.creem_customer_id)
+            
+            subscriptions = customer_data.get("subscriptions", [])
+            if isinstance(subscriptions, dict):
+                subscriptions = list(subscriptions.values())
+            
+            active_sub = None
+            for sub in subscriptions:
+                if isinstance(sub, dict):
+                    sub_status = sub.get("status", "").lower()
+                    if sub_status in ("active", "trialing"):
+                        active_sub = sub
+                        break
+            
+            if active_sub:
+                update_user_subscription(
+                    user_id=current_user.id,
+                    tier="pro",
+                    expires_at=datetime.utcnow() + timedelta(days=365),
+                    is_active=True,
+                )
+                
+                pending_orders = list_orders()
+                for o in pending_orders:
+                    if o["user_id"] == current_user.id and o["status"] == "pending":
+                        update_order_status(o["id"], "succeeded")
+                
+                return {
+                    "success": True,
+                    "message": "Subscription refreshed successfully",
+                    "tier": "pro",
+                }
+        
+        pending_orders = list_orders()
+        for o in pending_orders:
+            if o["user_id"] == current_user.id and o["status"] == "pending":
+                checkout_id = o.get("creem_checkout_id")
+                if checkout_id:
+                    try:
+                        checkout_data = creem.get_checkout(checkout_id)
+                        status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
+                        if status and status.lower() in ("succeeded", "completed", "paid"):
+                            update_order_status(o["id"], "succeeded")
+                            update_user_subscription(
+                                user_id=current_user.id,
+                                tier="pro",
+                                expires_at=datetime.utcnow() + timedelta(days=365),
+                                is_active=True,
+                            )
+                            return {
+                                "success": True,
+                                "message": "Payment confirmed from checkout",
+                                "tier": "pro",
+                            }
+                    except Exception:
+                        continue
+        
+        return {
+            "success": False,
+            "message": "No active subscription found in Creem",
+            "tier": current_user.subscription_tier,
+        }
+    
+    except Exception as e:
+        print(f"[subscription] Error refreshing subscription: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to refresh subscription: {e}",
+        )
 
 
 # ----------------------------------------------------------------------
