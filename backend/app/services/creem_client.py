@@ -154,9 +154,16 @@ class CreemClient:
             params["status"] = status
         return self._make_request("GET", "/v1/subscriptions/search", params)
     
-    def cancel_subscription(self, subscription_id: str) -> Dict[str, Any]:
-        """Cancel subscription"""
-        return self._make_request("POST", f"/v1/subscriptions/{subscription_id}/cancel", {})
+    def cancel_subscription(self, subscription_id: str, mode: str = "scheduled") -> Dict[str, Any]:
+        """Cancel subscription.
+        
+        mode: 'scheduled' (default) for end-of-period cancellation, 
+              'immediate' for immediate cancellation.
+        """
+        return self._make_request("POST", f"/v1/subscriptions/{subscription_id}/cancel", {
+            "mode": mode,
+            "onExecute": "cancel"
+        })
     
     def pause_subscription(self, subscription_id: str) -> Dict[str, Any]:
         """Pause subscription"""
