@@ -44,6 +44,20 @@ def _dict_to_withdrawal(w_dict):
 async def get_subscription(current_user: User = Depends(get_current_active_user)):
     """Get current user's subscription information"""
     
+    # Auto-downgrade if subscription has expired
+    if current_user.subscription_tier != "free" and current_user.subscription_expires_at:
+        if current_user.subscription_expires_at < datetime.utcnow():
+            update_user_subscription(
+                user_id=current_user.id,
+                tier="free",
+                expires_at=None,
+                is_active=True,
+            )
+            updated_user_dict = get_user_by_id(current_user.id)
+            if updated_user_dict:
+                current_user = _dict_to_user(updated_user_dict)
+            print(f"[subscription] Auto-downgraded expired user {current_user.email} to free")
+    
     pending_orders = [o for o in list_orders() if o["user_id"] == current_user.id and o["status"] == "pending"]
     if pending_orders:
         try:
@@ -109,7 +123,11 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
 
 @router.post("/subscription/cancel")
 async def cancel_subscription(current_user: User = Depends(get_current_active_user)):
-    """Cancel current subscription (via Creem if applicable)"""
+    """Cancel current subscription (via Creem if applicable).
+    
+    Note: This cancels auto-renewal on Creem side. The user keeps Pro access
+    until the current billing period ends (subscription_expires_at).
+    """
     if current_user.subscription_tier == "free":
         return {"success": True, "message": "Already on free plan"}
 
@@ -145,24 +163,29 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
                 subscription_id = active_sub.get("id") or active_sub.get("subscription_id")
                 if subscription_id:
                     creem.cancel_subscription(subscription_id)
+                    update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
         except Exception as e:
             print(f"[subscription] Error finding/canceling Creem subscription: {e}")
             creem_error = str(e)
 
-    # Downgrade user to free tier in database regardless of Creem result
-    update_user_subscription(current_user.id, tier="free", expires_at=None, is_active=True)
+    # Keep user as Pro until subscription_expires_at.
+    # The auto-downgrade happens when get_subscription detects expiration.
+    expires_at = current_user.subscription_expires_at
+    expires_display = expires_at.strftime("%Y-%m-%d") if expires_at else "end of current billing period"
 
     if creem_error:
         return {
             "success": True,
-            "message": "Subscription cancelled locally, but Creem cancellation may need manual confirmation.",
-            "subscription": "free",
+            "message": f"Auto-renewal cancelled. Your Pro access will remain active until {expires_display}. Creem cancellation may need manual confirmation.",
+            "subscription": "pro",
+            "expires_at": expires_at,
         }
 
     return {
         "success": True,
-        "message": "Subscription cancelled successfully",
-        "subscription": "free",
+        "message": f"Subscription cancelled successfully. Your Pro access will remain active until {expires_display}.",
+        "subscription": "pro",
+        "expires_at": expires_at,
     }
 
 

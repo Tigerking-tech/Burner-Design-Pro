@@ -149,7 +149,7 @@ export default function AccountPage() {
   }
 
   const handleCancelSubscription = async () => {
-    if (!confirm("Are you sure you want to cancel your subscription?")) return
+    if (!confirm("Are you sure you want to cancel auto-renewal? Your Pro access will remain active until the end of your current billing period.")) return
     setError("")
     setSuccess("")
 
@@ -245,7 +245,12 @@ export default function AccountPage() {
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
               {subscription?.expires_at && (
-                <p><strong>Expires:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
+                <p><strong>Pro Access Until:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
+              )}
+              {subscription?.tier && subscription.tier !== "free" && subscription?.expires_at && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Pro features will remain active until the expiration date above.
+                </p>
               )}
             </div>
             <div className="mt-4 flex gap-2">
@@ -357,12 +362,17 @@ export default function AccountPage() {
             </div>
 
             {subscription && subscription.tier !== "free" && (
-              <button
-                onClick={handleCancelSubscription}
-                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
-              >
-                Cancel Subscription
-              </button>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  Cancelling will stop auto-renewal. Your Pro access remains active until the expiration date.
+                </p>
+                <button
+                  onClick={handleCancelSubscription}
+                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
+                >
+                  Cancel Auto-Renewal
+                </button>
+              </div>
             )}
           </div>
 
