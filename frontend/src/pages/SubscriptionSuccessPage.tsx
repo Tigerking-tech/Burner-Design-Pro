@@ -63,7 +63,7 @@ const SubscriptionSuccessPage: React.FC = () => {
       }
 
       let attempts = 0
-      const maxAttempts = 10
+      const maxAttempts = 20
 
       const poll = async () => {
         attempts++
@@ -77,14 +77,18 @@ const SubscriptionSuccessPage: React.FC = () => {
             }
           }
 
-          const refreshResult = await subscriptionAPI.refreshSubscription()
-          if (refreshResult.success && refreshResult.tier === 'pro') {
-            proActivated = true
+          if (!proActivated) {
+            const refreshResult = await subscriptionAPI.refreshSubscription()
+            if (refreshResult.success && refreshResult.tier === 'pro') {
+              proActivated = true
+            }
           }
 
-          const sub = await subscriptionAPI.getSubscription()
-          if (sub.tier === 'pro') {
-            proActivated = true
+          if (!proActivated) {
+            const sub = await subscriptionAPI.getSubscription()
+            if (sub.tier === 'pro') {
+              proActivated = true
+            }
           }
 
           if (proActivated) {

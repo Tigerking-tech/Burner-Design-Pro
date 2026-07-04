@@ -69,6 +69,49 @@ export default function AccountPage() {
     }
   }
 
+  const handleRefreshSubscription = async () => {
+    setRefreshingSubscription(true)
+    setError("")
+    setSuccess("")
+    
+    try {
+      const refreshResult = await subscriptionAPI.refreshSubscription()
+      
+      if (refreshResult.success) {
+        await loadData()
+        const currentUser = await authAPI.getCurrentUser()
+        setUser(currentUser)
+        setSuccess(refreshResult.message)
+      } else {
+        setError(refreshResult.message)
+      }
+    } catch (err: any) {
+      if (isAuthError(err)) {
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to refresh subscription status")
+      }
+    } finally {
+      setRefreshingSubscription(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isLoading || refreshingSubscription) return
+    
+    const hasPendingOrder = orders.some(o => o.status === 'pending')
+    if (hasPendingOrder) {
+      const timer = setTimeout(() => {
+        handleRefreshSubscription()
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [orders, isLoading])
+
   const handleSubscribe = async (tierId: string) => {
     if (tierId === "free") return
     setProcessingPayment(true)
@@ -155,37 +198,6 @@ export default function AccountPage() {
       setError(err instanceof Error ? err.message : "Password change failed")
     } finally {
       setChangingPassword(false)
-    }
-  }
-
-  const handleRefreshSubscription = async () => {
-    setRefreshingSubscription(true)
-    setError("")
-    setSuccess("")
-    
-    try {
-      const refreshResult = await subscriptionAPI.refreshSubscription()
-      
-      if (refreshResult.success) {
-        await loadData()
-        const currentUser = await authAPI.getCurrentUser()
-        setUser(currentUser)
-        setSuccess(refreshResult.message)
-      } else {
-        setError(refreshResult.message)
-      }
-    } catch (err: any) {
-      if (isAuthError(err)) {
-        authAPI.logout()
-        setError('Your session has expired. Please log in again.')
-        setTimeout(() => {
-          navigate('/login')
-        }, 2000)
-      } else {
-        setError(err instanceof Error ? err.message : "Failed to refresh subscription status")
-      }
-    } finally {
-      setRefreshingSubscription(false)
     }
   }
 

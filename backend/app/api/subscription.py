@@ -43,6 +43,34 @@ def _dict_to_withdrawal(w_dict):
 @router.get("/subscription")
 async def get_subscription(current_user: User = Depends(get_current_active_user)):
     """Get current user's subscription information"""
+    
+    pending_orders = [o for o in list_orders() if o["user_id"] == current_user.id and o["status"] == "pending"]
+    if pending_orders:
+        try:
+            creem = get_creem_client()
+            for order in pending_orders:
+                checkout_id = order.get("creem_checkout_id")
+                if checkout_id:
+                    try:
+                        checkout_data = creem.get_checkout(checkout_id)
+                        status = checkout_data.get("status") or checkout_data.get("data", {}).get("status")
+                        if status and status.lower() in ("succeeded", "completed", "paid"):
+                            update_order_status(order["id"], "succeeded")
+                            update_user_subscription(
+                                user_id=current_user.id,
+                                tier="pro",
+                                expires_at=datetime.utcnow() + timedelta(days=365),
+                                is_active=True,
+                            )
+                            updated_user_dict = get_user_by_id(current_user.id)
+                            if updated_user_dict:
+                                current_user = _dict_to_user(updated_user_dict)
+                            break
+                    except Exception:
+                        continue
+        except Exception as e:
+            print(f"[subscription] Auto-check pending orders failed: {e}")
+    
     tier = SUBSCRIPTION_TIERS.get(current_user.subscription_tier, SUBSCRIPTION_TIERS["free"])
 
     result = {
