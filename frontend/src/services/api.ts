@@ -234,6 +234,8 @@ export interface User {
   is_admin: boolean
   subscription_tier: 'free' | 'pro'
   subscription_expires_at?: string
+  creem_customer_id?: string
+  creem_subscription_id?: string
   created_at: string
   updated_at: string
 }

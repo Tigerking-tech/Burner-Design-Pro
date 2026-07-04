@@ -250,6 +250,8 @@ export default function AdminPage() {
                       <th className="px-4 py-2 text-left">Plan</th>
                       <th className="px-4 py-2 text-left">Status</th>
                       <th className="px-4 py-2 text-left">Expires At</th>
+                      <th className="px-4 py-2 text-left">Creem Customer</th>
+                      <th className="px-4 py-2 text-left">Creem Sub</th>
                       <th className="px-4 py-2 text-left">Actions</th>
                     </tr>
                   </thead>
@@ -266,6 +268,16 @@ export default function AdminPage() {
                       <td className="px-4 py-2">
                         {user.subscription_expires_at
                           ? new Date(user.subscription_expires_at).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-500 font-mono">
+                        {user.creem_customer_id
+                          ? user.creem_customer_id.substring(0, 12) + "..."
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-500 font-mono">
+                        {user.creem_subscription_id
+                          ? user.creem_subscription_id.substring(0, 12) + "..."
                           : "-"}
                       </td>
                       <td className="px-4 py-2 flex flex-col sm:flex-row gap-2">
