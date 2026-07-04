@@ -17,7 +17,7 @@ from app.api.auth import get_current_active_user, get_admin_user
 from app.services.creem_client import get_creem_client
 from app.services.database import (
     get_user_by_id, update_user_subscription,
-    save_order, get_order, list_orders, update_order_status,
+    save_order, get_order, list_orders, update_order_status, delete_order,
     save_withdrawal, get_withdrawal, list_withdrawals,
     update_user_creem,
 )
@@ -679,6 +679,48 @@ async def update_user_subscription_admin(
 async def get_all_orders(admin_user: User = Depends(get_admin_user)):
     orders = list_orders()
     return [_dict_to_order(o) for o in orders]
+
+
+@router.delete("/admin/orders/{order_id}")
+async def delete_order_admin(order_id: str, admin_user: User = Depends(get_admin_user)):
+    if not get_order(order_id):
+        raise HTTPException(status_code=404, detail="Order not found")
+    delete_order(order_id)
+    return {"success": True, "message": "Order deleted"}
+
+
+@router.post("/admin/cleanup-duplicate-orders")
+async def cleanup_duplicate_orders(admin_user: User = Depends(get_admin_user)):
+    """
+    Clean up duplicate succeeded orders.
+    For each user, keeps only one succeeded order per day, removing the rest.
+    """
+    all_orders = list_orders()
+    succeeded_orders = [o for o in all_orders if o["status"] == "succeeded"]
+    
+    # Group by user_id and date
+    groups = {}
+    for order in succeeded_orders:
+        key = (order["user_id"], order["created_at"].date())
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(order)
+    
+    deleted_count = 0
+    for (user_id, date), orders_in_group in groups.items():
+        if len(orders_in_group) > 1:
+            # Keep the most recent one (first by created_at desc)
+            orders_in_group.sort(key=lambda o: o["created_at"], reverse=True)
+            to_delete = orders_in_group[1:]
+            for order in to_delete:
+                delete_order(order["id"])
+                deleted_count += 1
+    
+    return {
+        "success": True,
+        "message": f"Cleaned up {deleted_count} duplicate succeeded orders",
+        "deleted_count": deleted_count,
+    }
 
 
 @router.get("/admin/revenue")

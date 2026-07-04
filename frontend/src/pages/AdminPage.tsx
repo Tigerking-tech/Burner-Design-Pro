@@ -368,7 +368,24 @@ export default function AdminPage() {
 
           {activeTab === "orders" && (
             <div>
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">Order Management</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-[#2c3e50]">Order Management</h2>
+                <button
+                  onClick={async () => {
+                    if (!confirm("Are you sure you want to clean up duplicate succeeded orders? This will keep only one succeeded order per user per day.")) return
+                    try {
+                      const result = await adminAPI.cleanupDuplicateOrders()
+                      setError(result.message)
+                      await loadData()
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : "Failed to cleanup")
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium transition-colors"
+                >
+                  Cleanup Duplicates
+                </button>
+              </div>
               {/* Desktop: Table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-[#555]">

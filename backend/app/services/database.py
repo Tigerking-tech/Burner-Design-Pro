@@ -458,6 +458,17 @@ def update_order_status(order_id: str, status: str,
         conn.close()
 
 
+def delete_order(order_id: str) -> None:
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
 # ========= Withdrawal Operations =========
 
 def save_withdrawal(withdrawal_id: str, admin_id: str, admin_email: str, amount: int,

@@ -527,6 +527,18 @@ export const adminAPI = {
     return request('/admin/orders')
   },
 
+  async deleteOrder(orderId: string): Promise<{ success: boolean; message: string }> {
+    return request(`/admin/orders/${orderId}`, {
+      method: 'DELETE',
+    })
+  },
+
+  async cleanupDuplicateOrders(): Promise<{ success: boolean; message: string; deleted_count: number }> {
+    return request('/admin/cleanup-duplicate-orders', {
+      method: 'POST',
+    })
+  },
+
   async getWithdrawals(): Promise<WithdrawalRequest[]> {
     return request('/admin/withdrawals')
   },
