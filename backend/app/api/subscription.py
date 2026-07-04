@@ -155,7 +155,6 @@ async def create_checkout(
             product_id=product_id,
             customer_id=customer_id,
             success_url=success_url,
-            cancel_url=cancel_url,
             metadata={
                 "user_id": current_user.id,
                 "tier": order_data.tier,
