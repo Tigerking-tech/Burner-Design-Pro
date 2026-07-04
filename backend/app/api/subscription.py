@@ -375,6 +375,13 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
                     except Exception:
                         continue
         
+        if current_user.subscription_tier == "pro":
+            return {
+                "success": True,
+                "message": "Subscription is already active",
+                "tier": "pro",
+            }
+        
         return {
             "success": False,
             "message": "No active subscription found in Creem",

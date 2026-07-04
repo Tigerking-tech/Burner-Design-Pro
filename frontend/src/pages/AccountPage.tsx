@@ -83,7 +83,15 @@ export default function AccountPage() {
         setUser(currentUser)
         setSuccess(refreshResult.message)
       } else {
-        setError(refreshResult.message)
+        const currentSub = await subscriptionAPI.getSubscription()
+        if (currentSub.tier === 'pro') {
+          await loadData()
+          const currentUser = await authAPI.getCurrentUser()
+          setUser(currentUser)
+          setSuccess('Subscription is active (Pro)')
+        } else {
+          setError(refreshResult.message)
+        }
       }
     } catch (err: any) {
       if (isAuthError(err)) {
