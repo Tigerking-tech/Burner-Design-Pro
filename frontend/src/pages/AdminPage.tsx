@@ -249,6 +249,7 @@ export default function AdminPage() {
                       <th className="px-4 py-2 text-left">Email</th>
                       <th className="px-4 py-2 text-left">Plan</th>
                       <th className="px-4 py-2 text-left">Status</th>
+                      <th className="px-4 py-2 text-left">Expires At</th>
                       <th className="px-4 py-2 text-left">Actions</th>
                     </tr>
                   </thead>
@@ -261,6 +262,11 @@ export default function AdminPage() {
                         <span className={user.is_active ? "text-green-600" : "text-red-600"}>
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        {user.subscription_expires_at
+                          ? new Date(user.subscription_expires_at).toLocaleDateString()
+                          : "-"}
                       </td>
                       <td className="px-4 py-2 flex flex-col sm:flex-row gap-2">
                         <select
