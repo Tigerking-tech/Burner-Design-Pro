@@ -62,6 +62,9 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
                                 expires_at=datetime.utcnow() + timedelta(days=365),
                                 is_active=True,
                             )
+                            subscription_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
+                            if subscription_id:
+                                update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
                             updated_user_dict = get_user_by_id(current_user.id)
                             if updated_user_dict:
                                 current_user = _dict_to_user(updated_user_dict)
@@ -110,6 +113,8 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
     if current_user.subscription_tier == "free":
         return {"success": True, "message": "Already on free plan"}
 
+    creem_error = None
+
     # Cancel on Creem side if there's an active subscription id
     if getattr(current_user, "creem_subscription_id", None):
         try:
@@ -117,9 +122,42 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
             creem.cancel_subscription(current_user.creem_subscription_id)
         except Exception as e:
             print(f"[subscription] Error canceling Creem subscription: {e}")
+            creem_error = str(e)
+    
+    # If no subscription id stored, try to find active subscription from Creem customer
+    if not getattr(current_user, "creem_subscription_id", None) and getattr(current_user, "creem_customer_id", None):
+        try:
+            creem = get_creem_client()
+            customer_data = creem.get_customer(customer_id=current_user.creem_customer_id)
+            subscriptions = customer_data.get("subscriptions", [])
+            if isinstance(subscriptions, dict):
+                subscriptions = list(subscriptions.values())
+            
+            active_sub = None
+            for sub in subscriptions:
+                if isinstance(sub, dict):
+                    sub_status = sub.get("status", "").lower()
+                    if sub_status in ("active", "trialing"):
+                        active_sub = sub
+                        break
+            
+            if active_sub:
+                subscription_id = active_sub.get("id") or active_sub.get("subscription_id")
+                if subscription_id:
+                    creem.cancel_subscription(subscription_id)
+        except Exception as e:
+            print(f"[subscription] Error finding/canceling Creem subscription: {e}")
+            creem_error = str(e)
 
-    # Downgrade user to free tier in database
+    # Downgrade user to free tier in database regardless of Creem result
     update_user_subscription(current_user.id, tier="free", expires_at=None, is_active=True)
+
+    if creem_error:
+        return {
+            "success": True,
+            "message": "Subscription cancelled locally, but Creem cancellation may need manual confirmation.",
+            "subscription": "free",
+        }
 
     return {
         "success": True,
@@ -270,6 +308,10 @@ async def confirm_payment(
                         is_active=True,
                     )
                     
+                    subscription_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
+                    if subscription_id:
+                        update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
+                    
                     return {
                         "success": True,
                         "message": "Payment confirmed successfully",
@@ -367,6 +409,9 @@ async def refresh_subscription(current_user: User = Depends(get_current_active_u
                                 expires_at=datetime.utcnow() + timedelta(days=365),
                                 is_active=True,
                             )
+                            subscription_id = checkout_data.get("subscription_id") or checkout_data.get("data", {}).get("subscription_id")
+                            if subscription_id:
+                                update_user_creem(current_user.id, creem_subscription_id=str(subscription_id))
                             return {
                                 "success": True,
                                 "message": "Payment confirmed from checkout",
