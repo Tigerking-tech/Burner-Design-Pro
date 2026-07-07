@@ -106,7 +106,7 @@ class CreemClient:
         data = {"customer_id": customer_id}
         if return_url:
             data["return_url"] = return_url
-        return self._make_request("POST", "/v1/customer-portal", data)
+        return self._make_request("POST", "/v1/customers/billing", data)
     
     # ============== Checkouts ==============
     
