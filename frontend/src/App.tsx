@@ -26,6 +26,7 @@ import FAQPage from './pages/FAQPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
 import ChangelogPage from './pages/ChangelogPage'
+import NotFoundPage from './pages/NotFoundPage'
 import { wakeUpService } from './services/wakeUpService'
 import { ToastProvider, useToast } from './components/Toast'
 import { tokenManager } from './services/tokenManager'
@@ -107,6 +108,7 @@ function AppRoutes() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   )

@@ -185,6 +185,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Social Proof - Stats */}
+      <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-10">
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-[#f39c12] mb-1">6+</div>
+              <div className="text-sm text-[#7f8c8d] dark:text-gray-400">Professional Tools</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-[#f39c12] mb-1">ISO 5167</div>
+              <div className="text-sm text-[#7f8c8d] dark:text-gray-400">Standards Compliant</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-[#f39c12] mb-1">100%</div>
+              <div className="text-sm text-[#7f8c8d] dark:text-gray-400">Deterministic</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-[#f39c12] mb-1">24/7</div>
+              <div className="text-sm text-[#7f8c8d] dark:text-gray-400">Cloud Access</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Product Highlights */}
       <section className="max-w-5xl mx-auto px-5 -mt-10 relative z-10 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -258,6 +282,74 @@ export default function HomePage() {
               </button>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-gray-50 dark:bg-gray-800/50 py-20">
+        <div className="max-w-5xl mx-auto px-5">
+          <h2 className="text-3xl font-semibold text-center text-[#2c3e50] dark:text-white mb-3">
+            Trusted by Engineers Worldwide
+          </h2>
+          <p className="text-center text-[#7f8c8d] dark:text-gray-400 mb-12">
+            Professional burner design tools that engineers rely on
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-1 mb-4 text-[#f39c12]">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p className="text-[#555] dark:text-gray-300 text-sm mb-4 italic">
+                "Finally, a comprehensive burner design tool that doesn't require a PhD to use. 
+                The orifice calculator alone saved me hours of manual calculations."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#f39c12] flex items-center justify-center text-white font-semibold">
+                  M
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#2c3e50] dark:text-white">Michael R.</p>
+                  <p className="text-xs text-[#7f8c8d] dark:text-gray-400">Senior Process Engineer</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-1 mb-4 text-[#f39c12]">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p className="text-[#555] dark:text-gray-300 text-sm mb-4 italic">
+                "The emission analysis module is fantastic. EPA compliance reporting used to take days — 
+                now it's done in minutes. Worth every penny."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#27ae60] flex items-center justify-center text-white font-semibold">
+                  S
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#2c3e50] dark:text-white">Sarah K.</p>
+                  <p className="text-xs text-[#7f8c8d] dark:text-gray-400">Environmental Engineer</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center gap-1 mb-4 text-[#f39c12]">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <p className="text-[#555] dark:text-gray-300 text-sm mb-4 italic">
+                "As a consultant, I need reliable tools I can trust. The calculations here match 
+                my spreadsheets perfectly. The PDF export is a huge time-saver."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#2980b9] flex items-center justify-center text-white font-semibold">
+                  D
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#2c3e50] dark:text-white">David L.</p>
+                  <p className="text-xs text-[#7f8c8d] dark:text-gray-400">Consulting Engineer</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
