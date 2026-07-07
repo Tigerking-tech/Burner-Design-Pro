@@ -137,17 +137,46 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
         },
     }
 
-    if getattr(current_user, "creem_customer_id", None):
+    # Generate billing portal URL if user has Creem subscription
+    customer_id = getattr(current_user, "creem_customer_id", None)
+    subscription_id = getattr(current_user, "creem_subscription_id", None)
+    
+    if subscription_id and current_user.subscription_tier != "free":
         try:
             creem = get_creem_client()
             app_url = os.getenv("APP_URL", "http://localhost:3000").rstrip("/")
-            portal_resp = creem.create_customer_portal(
-                customer_id=current_user.creem_customer_id,
-                return_url=f"{app_url}/subscription"
-            )
-            portal_url = portal_resp.get("portal_url") or portal_resp.get("url")
-            if portal_url:
-                result["subscription"]["billing_portal_url"] = portal_url
+            
+            # If we don't have customer_id but have subscription_id, fetch it from subscription
+            if not customer_id:
+                try:
+                    sub_data = creem.get_subscription(subscription_id)
+                    if sub_data and "data" in sub_data and isinstance(sub_data["data"], dict):
+                        sub_data = sub_data["data"]
+                    customer_id = sub_data.get("customer_id") or sub_data.get("customer", {}).get("id")
+                    if customer_id:
+                        update_user_creem(current_user.id, creem_customer_id=str(customer_id))
+                        print(f"[subscription] Updated creem_customer_id for user {current_user.email}")
+                except Exception as e:
+                    print(f"[subscription] Error fetching customer_id from subscription: {e}")
+            
+            # Create billing portal
+            if customer_id:
+                portal_resp = creem.create_customer_portal(
+                    customer_id=str(customer_id),
+                    return_url=f"{app_url}/subscription"
+                )
+                # Try various field names that Creem might return
+                portal_url = (
+                    portal_resp.get("portal_url") 
+                    or portal_resp.get("url") 
+                    or portal_resp.get("data", {}).get("portal_url")
+                    or portal_resp.get("data", {}).get("url")
+                )
+                if portal_url:
+                    result["subscription"]["billing_portal_url"] = portal_url
+                    print(f"[subscription] Billing portal URL generated for {current_user.email}")
+                else:
+                    print(f"[subscription] No portal URL found in response: {portal_resp.keys() if isinstance(portal_resp, dict) else portal_resp}")
         except Exception as e:
             print(f"[subscription] Error getting billing portal: {e}")
 

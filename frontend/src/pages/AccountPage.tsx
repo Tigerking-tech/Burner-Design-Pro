@@ -128,6 +128,39 @@ export default function AccountPage() {
     }
   }, [orders, isLoading])
 
+  const handleManageBilling = async () => {
+    if (subscription?.billing_portal_url) {
+      window.open(subscription.billing_portal_url, '_blank', 'noopener,noreferrer')
+      return
+    }
+    
+    setRefreshingSubscription(true)
+    setError("")
+    try {
+      const currentSub = await subscriptionAPI.getSubscription()
+      if (currentSub.billing_portal_url) {
+        window.open(currentSub.billing_portal_url, '_blank', 'noopener,noreferrer')
+      } else {
+        setError("Unable to open billing portal. Please try refreshing the page.")
+      }
+      await loadData()
+      const currentUser = await authAPI.getCurrentUser()
+      setUser(currentUser)
+    } catch (err: any) {
+      if (isAuthError(err)) {
+        authAPI.logout()
+        setError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to open billing portal")
+      }
+    } finally {
+      setRefreshingSubscription(false)
+    }
+  }
+
   const handleSubscribe = async (tierId: string) => {
     if (tierId === "free") return
     setProcessingPayment(true)
@@ -346,29 +379,16 @@ export default function AccountPage() {
                 )}
               </button>
               {subscription?.tier && subscription.tier !== "free" && (
-                subscription.billing_portal_url ? (
-                  <a
-                    href={subscription.billing_portal_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Manage Billing
-                  </a>
-                ) : (
-                  <button
-                    onClick={handleRefreshSubscription}
-                    className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Manage Billing
-                  </button>
-                )
+                <button
+                  onClick={handleManageBilling}
+                  disabled={refreshingSubscription}
+                  className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  Manage Billing
+                </button>
               )}
               {(!subscription?.tier || subscription.tier === "free") && (
                 <Link

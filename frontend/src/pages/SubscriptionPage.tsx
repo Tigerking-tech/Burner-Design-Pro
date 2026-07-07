@@ -121,9 +121,32 @@ const SubscriptionPage: React.FC = () => {
     }
   }
 
-  const handleManageBilling = () => {
+  const handleManageBilling = async () => {
     if (subscription?.billing_portal_url) {
       window.open(subscription.billing_portal_url, '_blank', 'noopener,noreferrer')
+      return
+    }
+    
+    setRefreshing(true)
+    setError(null)
+    try {
+      const currentSub = await subscriptionAPI.getSubscription()
+      if (currentSub.billing_portal_url) {
+        setSubscription(currentSub)
+        window.open(currentSub.billing_portal_url, '_blank', 'noopener,noreferrer')
+      } else {
+        setError("Unable to open billing portal. Please try refreshing.")
+      }
+    } catch (err: any) {
+      console.error('Failed to open billing portal:', err)
+      if (isAuthError(err)) {
+        authAPI.logout()
+        navigate('/login')
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to open billing portal')
+      }
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -209,15 +232,14 @@ const SubscriptionPage: React.FC = () => {
                   <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                   {refreshing ? 'Refreshing...' : 'Refresh'}
                 </button>
-                {subscription.billing_portal_url && (
-                  <button
-                    onClick={handleManageBilling}
-                    className="px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-md"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Manage Billing
-                  </button>
-                )}
+                <button
+                  onClick={handleManageBilling}
+                  disabled={refreshing}
+                  className="px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Manage Billing
+                </button>
               </div>
             </div>
           </div>
@@ -325,23 +347,23 @@ const SubscriptionPage: React.FC = () => {
             </ul>
 
             {isLoggedIn && isPro ? (
-              subscription.billing_portal_url ? (
-                <button
-                  onClick={handleManageBilling}
-                  className="w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Manage Billing
-                </button>
-              ) : (
-                <button
-                  onClick={handleRefreshSubscription}
-                  className="w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md"
-                >
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                  Refresh Subscription
-                </button>
-              )
+              <button
+                onClick={handleManageBilling}
+                disabled={refreshing}
+                className="w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+              >
+                {refreshing ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <ExternalLink className="w-4 h-4" />
+                    Manage Billing
+                  </>
+                )}
+              </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('pro')}
