@@ -321,7 +321,9 @@ export default function AccountPage() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {subscription.creem_status?.toLowerCase() === "scheduled_cancel"
                     ? "Your subscription has been cancelled. Pro features will remain active until the date above."
-                    : "Your subscription renews automatically. Pro features will remain active as long as your subscription is active."}
+                    : subscription.auto_renewal_active === false
+                      ? "Your subscription has been cancelled. Pro features will remain active until the date above."
+                      : "Your subscription renews automatically. Pro features will remain active as long as your subscription is active."}
                 </p>
               )}
             </div>
@@ -528,9 +530,20 @@ export default function AccountPage() {
                   )}
                 </div>
                 
+                {subscription.auto_renewal_active === false && (
+                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium mb-2">
+                    <strong>Pro Access Until:</strong>{' '}
+                    {subscription.current_period_end
+                      ? new Date(subscription.current_period_end).toLocaleDateString()
+                      : subscription.expires_at
+                        ? new Date(subscription.expires_at).toLocaleDateString()
+                        : "-"}
+                  </p>
+                )}
+                
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                   {subscription.auto_renewal_active === false
-                    ? "Your subscription will not renew. Pro access remains active until the expiration date."
+                    ? "Your subscription will not renew. Pro access remains active until the expiration date above."
                     : "Cancelling will stop auto-renewal. Your Pro access remains active until the expiration date."}
                 </p>
                 
@@ -541,6 +554,19 @@ export default function AccountPage() {
                       className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
                     >
                       Cancel Auto-Renewal
+                    </button>
+                  )}
+                  {subscription.auto_renewal_active === false && (
+                    <button
+                      onClick={() => handleSubscribe('pro')}
+                      disabled={processingPayment}
+                      className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors ${
+                        processingPayment
+                          ? "opacity-50 cursor-not-allowed"
+                          : "bg-[#f39c12] hover:bg-[#e67e22] text-white"
+                      }`}
+                    >
+                      {processingPayment ? "Processing..." : "Resubscribe"}
                     </button>
                   )}
                   {subscription.billing_portal_url && (

@@ -116,6 +116,10 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
         except Exception as e:
             print(f"[subscription] Error fetching current_period_end: {e}")
 
+    auto_renewal_active = True
+    if creem_status and creem_status.lower() in ("scheduled_cancel", "canceled", "cancelled"):
+        auto_renewal_active = False
+
     result = {
         "success": True,
         "subscription": {
@@ -129,6 +133,7 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             "max_calculations": tier.max_calculations,
             "has_pdf_export": tier.has_pdf_export,
             "has_pro_calculators": tier.has_pro_calculators,
+            "auto_renewal_active": auto_renewal_active,
         },
     }
 
