@@ -324,40 +324,31 @@ export default function AccountPage() {
             <div className="space-y-2 text-[#555] dark:text-gray-300">
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
-              {subscription?.tier && subscription.tier !== "free" && subscription.creem_status && 
-                (subscription.creem_status.toLowerCase() === "active" || 
-                 subscription.creem_status.toLowerCase() === "trialing") && (
-                <p>
-                  <strong>Next Billing Date:</strong>{" "}
-                  {subscription.current_period_end
-                    ? new Date(subscription.current_period_end).toLocaleDateString()
-                    : subscription.expires_at
-                      ? new Date(subscription.expires_at).toLocaleDateString()
-                      : "-"}
-                </p>
-              )}
-              {subscription?.tier && subscription.tier !== "free" && subscription.creem_status && 
-                subscription.creem_status.toLowerCase() === "scheduled_cancel" && (
-                <p>
-                  <strong>Pro Access Until:</strong>{" "}
-                  {subscription.current_period_end
-                    ? new Date(subscription.current_period_end).toLocaleDateString()
-                    : subscription.expires_at
-                      ? new Date(subscription.expires_at).toLocaleDateString()
-                      : "-"}
-                </p>
-              )}
-              {subscription?.tier && subscription.tier !== "free" && !subscription.creem_status && subscription.expires_at && (
-                <p><strong>Pro Access Until:</strong> {new Date(subscription.expires_at).toLocaleDateString()}</p>
-              )}
               {subscription?.tier && subscription.tier !== "free" && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {subscription.creem_status?.toLowerCase() === "scheduled_cancel"
-                    ? "Your subscription has been cancelled. Pro features will remain active until the date above."
-                    : subscription.auto_renewal_active === false
+                <>
+                  <p>
+                    <strong>
+                      {subscription.auto_renewal_active === false || 
+                       subscription.creem_status?.toLowerCase() === "scheduled_cancel"
+                        ? "Pro Access Until:"
+                        : "Next Billing Date:"}
+                    </strong>{" "}
+                    {subscription.current_period_end
+                      ? new Date(subscription.current_period_end).toLocaleDateString()
+                      : subscription.expires_at
+                        ? new Date(subscription.expires_at).toLocaleDateString()
+                        : "-"}
+                  </p>
+                  {subscription.creem_status && (
+                    <p><strong>Status:</strong> {subscription.creem_status.replace("_", " ").toUpperCase()}</p>
+                  )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {subscription.auto_renewal_active === false || 
+                     subscription.creem_status?.toLowerCase() === "scheduled_cancel"
                       ? "Your subscription has been cancelled. Pro features will remain active until the date above."
                       : "Your subscription renews automatically. Pro features will remain active as long as your subscription is active."}
-                </p>
+                  </p>
+                </>
               )}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -622,16 +613,16 @@ export default function AccountPage() {
                       {processingPayment ? "Processing..." : "Resubscribe"}
                     </button>
                   )}
-                  {subscription.billing_portal_url && (
-                    <a
-                      href={subscription.billing_portal_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm underline"
-                    >
-                      Manage in Creem Portal
-                    </a>
-                  )}
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={refreshingSubscription}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Manage Billing
+                  </button>
                 </div>
               </div>
             )}

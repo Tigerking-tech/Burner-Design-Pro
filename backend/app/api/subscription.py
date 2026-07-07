@@ -159,24 +159,46 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
                 except Exception as e:
                     print(f"[subscription] Error fetching customer_id from subscription: {e}")
             
-            # Create billing portal
+            # Create billing portal - try multiple endpoints
             if customer_id:
-                portal_resp = creem.create_customer_portal(
-                    customer_id=str(customer_id),
-                    return_url=f"{app_url}/subscription"
-                )
-                # Try various field names that Creem might return
-                portal_url = (
-                    portal_resp.get("portal_url") 
-                    or portal_resp.get("url") 
-                    or portal_resp.get("data", {}).get("portal_url")
-                    or portal_resp.get("data", {}).get("url")
-                )
+                portal_url = None
+                portal_endpoints = [
+                    "/v1/customer-portal",
+                    "/v1/portal",
+                    "/v1/billing-portal",
+                    "/v1/customer_portal",
+                    "/customer-portal",
+                    "/portal",
+                ]
+                
+                for endpoint in portal_endpoints:
+                    try:
+                        print(f"[subscription] Trying portal endpoint: {endpoint}")
+                        portal_resp = creem.client.post(endpoint, json={
+                            "customer_id": str(customer_id),
+                            "return_url": f"{app_url}/subscription"
+                        })
+                        portal_resp.raise_for_status()
+                        portal_data = portal_resp.json()
+                        
+                        portal_url = (
+                            portal_data.get("portal_url") 
+                            or portal_data.get("url") 
+                            or portal_data.get("data", {}).get("portal_url")
+                            or portal_data.get("data", {}).get("url")
+                        )
+                        if portal_url:
+                            print(f"[subscription] Found portal URL via {endpoint}: {portal_url[:50]}...")
+                            break
+                    except Exception as e:
+                        print(f"[subscription] Endpoint {endpoint} failed: {str(e)[:100]}")
+                        continue
+                
                 if portal_url:
                     result["subscription"]["billing_portal_url"] = portal_url
                     print(f"[subscription] Billing portal URL generated for {current_user.email}")
                 else:
-                    print(f"[subscription] No portal URL found in response: {portal_resp.keys() if isinstance(portal_resp, dict) else portal_resp}")
+                    print(f"[subscription] No portal URL found after trying all endpoints")
         except Exception as e:
             print(f"[subscription] Error getting billing portal: {e}")
 
