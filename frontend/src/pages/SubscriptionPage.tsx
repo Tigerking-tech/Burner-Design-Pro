@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { subscriptionAPI, authAPI, ApiError } from '../services/api'
 import { Navbar } from '../components/Navbar'
+import { useSEO } from '../hooks/useSEO'
+import { Crown, Check, X, ArrowRight, RefreshCw, ExternalLink } from 'lucide-react'
 
 function isAuthError(err: any): boolean {
   if (err instanceof ApiError && err.status === 401) return true
@@ -39,12 +41,18 @@ interface Subscription {
 }
 
 const SubscriptionPage: React.FC = () => {
+  useSEO({
+    title: 'Pricing & Subscription',
+    description: 'Choose the perfect plan for your burner design needs. Start free, upgrade to Pro for unlimited calculations, PDF export, and advanced tools.',
+  })
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const isLoggedIn = authAPI.isAuthenticated()
 
   useEffect(() => {
     fetchData()
@@ -52,149 +60,162 @@ const SubscriptionPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [productsRes, subscriptionRes] = await Promise.all([
-        subscriptionAPI.getProducts(),
-        subscriptionAPI.getSubscription(),
-      ])
-      
+      const productsRes = await subscriptionAPI.getProducts()
       if (productsRes.success) {
         setProducts(productsRes.products)
       }
-      
-      setSubscription(subscriptionRes)
-    } catch (error: any) {
-      console.error('Failed to fetch data:', error)
-      if (isAuthError(error)) {
+
+      if (isLoggedIn) {
+        try {
+          const subRes = await subscriptionAPI.getSubscription()
+          setSubscription(subRes)
+        } catch (subErr: any) {
+          if (!isAuthError(subErr)) {
+            console.error('Failed to fetch subscription:', subErr)
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch data:', err)
+      if (isAuthError(err)) {
         authAPI.logout()
-        setError('Your session has expired. Please log in again.')
-        setTimeout(() => {
-          navigate('/login')
-        }, 2000)
-      } else {
-        setError('Failed to load subscription data')
       }
     } finally {
       setLoading(false)
     }
   }
 
+  const handleRefreshSubscription = async () => {
+    setRefreshing(true)
+    setError(null)
+    try {
+      const subRes = await subscriptionAPI.getSubscription()
+      setSubscription(subRes)
+    } catch (err: any) {
+      console.error('Failed to refresh subscription:', err)
+      setError('Failed to refresh subscription status')
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   const handleSubscribe = async (tier: string) => {
+    if (!isLoggedIn) {
+      navigate('/signup')
+      return
+    }
     setProcessing(tier)
     setError(null)
     try {
       const response = await subscriptionAPI.createCheckout(tier)
-      
       if (response.success && response.checkout_url) {
-        // Redirect to Creem hosted checkout
         window.location.href = response.checkout_url
       } else {
         setError('Failed to create checkout. Please try again.')
       }
-    } catch (error) {
-      console.error('Failed to create checkout:', error)
-      setError(error instanceof Error ? error.message : 'Failed to create checkout')
+    } catch (err: any) {
+      console.error('Failed to create checkout:', err)
+      setError(err instanceof Error ? err.message : 'Failed to create checkout')
     } finally {
       setProcessing(null)
     }
   }
 
-  const handleManageSubscription = () => {
+  const handleManageBilling = () => {
     if (subscription?.billing_portal_url) {
-      window.location.href = subscription.billing_portal_url
-    }
-  }
-
-  const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel auto-renewal? Your Pro access will remain active until the end of your current billing period.')) {
-      return
-    }
-
-    try {
-      const response = await subscriptionAPI.cancelSubscription()
-      if (response.success) {
-        alert('Subscription cancelled successfully')
-        fetchData()
-      }
-    } catch (error) {
-      console.error('Failed to cancel subscription:', error)
-      setError('Failed to cancel subscription')
+      window.open(subscription.billing_portal_url, '_blank', 'noopener,noreferrer')
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <Navbar />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-gray-500">Loading...</div>
+        </div>
       </div>
     )
   }
 
+  const isPro = subscription?.tier && subscription.tier !== 'free'
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-5xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Choose Your Plan
+          <h1 className="text-4xl font-semibold text-[#2c3e50] dark:text-white mb-4">
+            Simple, Transparent Pricing
           </h1>
-          <p className="text-gray-400">
-            Unlock all features with a premium subscription
+          <p className="text-lg text-[#7f8c8d] dark:text-gray-400 max-w-2xl mx-auto">
+            Start free and upgrade when you need more. No hidden fees, cancel anytime.
           </p>
         </div>
 
         {error && (
-          <div className="max-w-lg mx-auto mb-6 bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg">
+          <div className="max-w-lg mx-auto mb-6 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-center">
             {error}
           </div>
         )}
 
-        {/* Current Subscription Status */}
-        {subscription && subscription.tier !== 'free' && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <div>
-                <h3 className="text-xl font-semibold text-white">
-                  Current Plan: {subscription.tier_name || subscription.tier}
-                </h3>
-                <p className="text-gray-400">
-                  {subscription.current_period_end && (
-                    <>Pro Access Until: {new Date(subscription.current_period_end).toLocaleDateString()}</>
-                  )}
-                </p>
-                {subscription.creem_status === 'scheduled_cancel' && (
-                  <p className="text-amber-400 mt-2">
-                    Auto-renewal cancelled. Your subscription will expire at the end of the billing period.
+        {/* Current Plan Banner (for logged-in Pro users) */}
+        {isLoggedIn && isPro && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 mb-10 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#f39c12] to-[#e67e22] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-[#2c3e50] dark:text-white">
+                    {subscription.tier_name || 'Pro'} Plan
+                  </h3>
+                  <p className="text-sm text-[#7f8c8d] dark:text-gray-400">
+                    {subscription.auto_renewal_active === false
+                      ? "Your subscription has been cancelled. You'll lose access to Pro features on "
+                      : 'Your subscription renews automatically. Next billing date: '}
+                    <span className="font-medium text-[#2c3e50] dark:text-white">
+                      {subscription.current_period_end
+                        ? new Date(subscription.current_period_end).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        : subscription.expires_at
+                          ? new Date(subscription.expires_at).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : 'N/A'}
+                    </span>
                   </p>
-                )}
+                  {subscription.creem_status && (
+                    <p className="text-xs text-[#95a5a6] dark:text-gray-500 mt-1">
+                      Status: {subscription.creem_status.replace('_', ' ').toUpperCase()}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={handleRefreshSubscription}
+                  disabled={refreshing}
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-[#2c3e50] dark:text-gray-200 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                </button>
                 {subscription.billing_portal_url && (
                   <button
-                    onClick={handleManageSubscription}
-                    className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={handleManageBilling}
+                    className="px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-md"
                   >
+                    <ExternalLink className="w-4 h-4" />
                     Manage Billing
-                  </button>
-                )}
-                {subscription.creem_status === 'scheduled_cancel' ? (
-                  <button
-                    onClick={() => handleSubscribe('pro')}
-                    disabled={processing !== null}
-                    className={`px-5 py-2 text-white rounded-lg transition-colors ${
-                      processing === 'pro' ? 'opacity-50 cursor-not-allowed' : ''
-                    } bg-amber-500 hover:bg-amber-600`}
-                  >
-                    Reactivate Subscription
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleCancelSubscription}
-                    className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Cancel Auto-Renewal
                   </button>
                 )}
               </div>
@@ -203,213 +224,209 @@ const SubscriptionPage: React.FC = () => {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {/* Free Tier */}
-          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
-            <div className="text-4xl font-bold text-white mb-6">$0</div>
-            <p className="text-gray-400 mb-6">Perfect for trying out</p>
-            
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-center text-gray-300">
-                <span className="text-green-500 mr-2">✓</span>
-                20 calculations per month
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+            <h3 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Free</h3>
+            <div className="text-4xl font-bold text-[#2c3e50] dark:text-white mb-1">
+              $0<span className="text-lg font-normal text-[#7f8c8d] dark:text-gray-400">/month</span>
+            </div>
+            <p className="text-[#7f8c8d] dark:text-gray-400 text-sm mb-6">Perfect for trying out</p>
+
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>20 calculations per month</span>
               </li>
-              <li className="flex items-center text-gray-300">
-                <span className="text-green-500 mr-2">✓</span>
-                Basic calculators
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Basic calculators</span>
               </li>
-              <li className="flex items-center text-gray-300">
-                <span className="text-green-500 mr-2">✓</span>
-                Preview professional tools
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Fuel manager</span>
               </li>
-              <li className="flex items-center text-gray-500">
-                <span className="text-red-500 mr-2">✗</span>
-                PDF export
+              <li className="flex items-start gap-2 text-sm text-[#95a5a6] dark:text-gray-500">
+                <X className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>PDF export</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#95a5a6] dark:text-gray-500">
+                <X className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Advanced calculators</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#95a5a6] dark:text-gray-500">
+                <X className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Compliance reports</span>
               </li>
             </ul>
 
-            {subscription?.tier === 'free' ? (
+            {isLoggedIn && subscription?.tier === 'free' ? (
               <button
                 disabled
-                className="w-full py-3 bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+                className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-lg font-medium cursor-not-allowed"
               >
                 Current Plan
               </button>
-            ) : (
-              <button
-                onClick={() => navigate('/')}
-                className="w-full py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            ) : isLoggedIn && isPro ? (
+              <Link
+                to="/account"
+                className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-[#2c3e50] dark:text-gray-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center block"
               >
-                Continue Free
-              </button>
+                Manage Plan
+              </Link>
+            ) : (
+              <Link
+                to="/signup"
+                className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-[#2c3e50] dark:text-gray-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center block"
+              >
+                Get Started Free
+              </Link>
             )}
           </div>
 
-          {/* Paid Tiers */}
-          {products.map((product) => (
-            <div
-              key={product.tier}
-              className={`bg-gray-800 rounded-xl p-8 border ${
-                product.tier === 'pro' ? 'border-2 border-amber-500' : 'border-gray-700'
-              } ${product.tier === 'pro' ? 'relative' : ''}`}
-            >
-              {product.tier === 'pro' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-amber-500 text-white px-4 py-1 rounded-full text-xs font-semibold">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-              
-              <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
-              <div className="text-4xl font-bold text-white mb-2">
-                {product.price_display}
-              </div>
-              
-              <ul className="space-y-3 mb-6">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-300">
-                    <span className="text-green-500 mr-2">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+          {/* Pro Tier */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border-2 border-[#f39c12] shadow-md relative">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-[#f39c12] text-white px-4 py-1 rounded-full text-xs font-semibold">
+                Most Popular
+              </span>
+            </div>
+            <h3 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Pro</h3>
+            <div className="text-4xl font-bold text-[#2c3e50] dark:text-white mb-1">
+              $19<span className="text-lg font-normal text-[#7f8c8d] dark:text-gray-400">/month</span>
+            </div>
+            <p className="text-[#7f8c8d] dark:text-gray-400 text-sm mb-6">For professional engineers</p>
 
-              {!product.is_configured && (
-                <p className="text-yellow-500 text-sm mb-4">
-                  Product not configured yet
-                </p>
-              )}
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Unlimited calculations</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>All basic + advanced tools</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>PDF report export</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>EPA & EU compliance reports</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Full fuel manager access</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-[#555] dark:text-gray-300">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Priority support</span>
+              </li>
+            </ul>
 
-              {subscription?.tier === product.tier ? (
+            {isLoggedIn && isPro ? (
+              subscription.billing_portal_url ? (
                 <button
-                  disabled
-                  className="w-full py-3 bg-amber-500 text-white rounded-lg cursor-not-allowed"
+                  onClick={handleManageBilling}
+                  className="w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md"
                 >
-                  Current Plan
-                </button>
-              ) : product.is_configured ? (
-                <button
-                  onClick={() => handleSubscribe(product.tier)}
-                  disabled={processing !== null}
-                  className={`w-full py-3 text-white rounded-lg transition-colors ${
-                    product.tier === 'pro'
-                      ? 'bg-amber-500 hover:bg-amber-600'
-                      : 'bg-green-600 hover:bg-green-700'
-                  } ${processing === product.tier ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {processing === product.tier ? 'Processing...' : 'Subscribe'}
+                  <ExternalLink className="w-4 h-4" />
+                  Manage Billing
                 </button>
               ) : (
                 <button
-                  disabled
-                  className="w-full py-3 bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+                  onClick={handleRefreshSubscription}
+                  className="w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md"
                 >
-                  Coming Soon
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  Refresh Subscription
                 </button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Features Comparison */}
-        <div className="mt-12 bg-gray-800 rounded-xl p-6 md:p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Features Comparison</h2>
-          
-          {/* Desktop: Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-700">
-                  <th className="pb-3">Feature</th>
-                  <th className="pb-3">Free</th>
-                  <th className="pb-3">Pro</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-300">
-                <tr className="border-b border-gray-700">
-                  <td className="py-3">Basic Calculators</td>
-                  <td className="py-3">✓</td>
-                  <td className="py-3">✓</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-3">Calculation Limit</td>
-                  <td className="py-3">Limited</td>
-                  <td className="py-3">Unlimited</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-3">PDF Export</td>
-                  <td className="py-3">✗</td>
-                  <td className="py-3">✓</td>
-                </tr>
-                <tr>
-                  <td className="py-3">Advanced Calculators</td>
-                  <td className="py-3">✗</td>
-                  <td className="py-3">✓</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile: Cards */}
-          <div className="md:hidden space-y-3">
-            {[
-              { feature: 'Basic Calculators', free: '✓', pro: '✓' },
-              { feature: 'Calculation Limit', free: 'Limited', pro: 'Unlimited' },
-              { feature: 'PDF Export', free: '✗', pro: '✓' },
-              { feature: 'Advanced Calculators', free: '✗', pro: '✓' },
-            ].map((row, i) => (
-              <div key={i} className="bg-gray-700/50 rounded-lg p-3">
-                <div className="text-white font-medium mb-2">{row.feature}</div>
-                <div className="flex gap-4 text-sm">
-                  <div className="flex-1">
-                    <span className="text-gray-400">Free: </span>
-                    <span className={`${row.free === '✓' ? 'text-green-400' : row.free === '✗' ? 'text-red-400' : 'text-gray-300'}`}>{row.free}</span>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-gray-400">Pro: </span>
-                    <span className={`${row.pro === '✓' ? 'text-green-400' : row.pro === '✗' ? 'text-red-400' : 'text-amber-400 font-medium'}`}>{row.pro}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              )
+            ) : (
+              <button
+                onClick={() => handleSubscribe('pro')}
+                disabled={processing !== null}
+                className={`w-full py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md ${
+                  processing === 'pro' ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {processing === 'pro' ? 'Processing...' : (
+                  <>
+                    Upgrade to Pro
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
-          
-          <div className="space-y-4">
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-2">
+        <div className="mt-20">
+          <h2 className="text-2xl font-semibold text-center text-[#2c3e50] dark:text-white mb-10">
+            Frequently Asked Questions
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-2">
                 Can I cancel anytime?
               </h3>
-              <p className="text-gray-400">
-                Yes, you can cancel your subscription anytime. Your access will continue until the end of the billing period.
+              <p className="text-sm text-[#7f8c8d] dark:text-gray-400">
+                Yes, you can cancel your subscription anytime from the billing portal. 
+                Your access will continue until the end of your current billing period.
               </p>
             </div>
-
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-2">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-2">
                 What payment methods do you accept?
               </h3>
-              <p className="text-gray-400">
-                We accept all major credit cards (Visa, Mastercard, American Express) and PayPal through our secure payment provider.
+              <p className="text-sm text-[#7f8c8d] dark:text-gray-400">
+                We accept all major credit cards (Visa, Mastercard, American Express) 
+                through our secure payment provider, Creem.
               </p>
             </div>
-
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-2">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-2">
                 Is my payment information secure?
               </h3>
-              <p className="text-gray-400">
-                Yes, all payments are processed securely through Creem. We never store your payment details on our servers.
+              <p className="text-sm text-[#7f8c8d] dark:text-gray-400">
+                Yes, all payments are processed securely through Creem. 
+                We never store your payment details on our servers.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-2">
+                Do you offer refunds?
+              </h3>
+              <p className="text-sm text-[#7f8c8d] dark:text-gray-400">
+                We offer a 14-day money-back guarantee. If you're not satisfied with Pro, 
+                contact us within 14 days for a full refund.
               </p>
             </div>
           </div>
         </div>
+
+        {/* CTA for free users */}
+        {isLoggedIn && subscription?.tier === 'free' && (
+          <div className="mt-16 bg-gradient-to-r from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8 md:p-12 text-center">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
+              Ready to unlock Pro features?
+            </h2>
+            <p className="text-[#bdc3c7] dark:text-gray-300 mb-8 max-w-xl mx-auto">
+              Upgrade to Pro today and get unlimited calculations, PDF export, 
+              and advanced engineering tools.
+            </p>
+            <button
+              onClick={() => handleSubscribe('pro')}
+              disabled={processing !== null}
+              className={`px-8 py-3 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg font-semibold transition-colors shadow-lg ${
+                processing === 'pro' ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {processing === 'pro' ? 'Processing...' : 'Upgrade to Pro'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
