@@ -70,3 +70,4 @@ htmlcov/
 # Node
 npm-debug.log
 yarn-error.log
+*.tsbuildinfo
