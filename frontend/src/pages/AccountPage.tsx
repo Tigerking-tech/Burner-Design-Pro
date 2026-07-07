@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, ApiError } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
@@ -345,18 +345,38 @@ export default function AccountPage() {
                   </>
                 )}
               </button>
-              {subscription?.billing_portal_url && (
-                <a
-                  href={subscription.billing_portal_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+              {subscription?.tier && subscription.tier !== "free" && (
+                subscription.billing_portal_url ? (
+                  <a
+                    href={subscription.billing_portal_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Manage Billing
+                  </a>
+                ) : (
+                  <Link
+                    to="/subscription"
+                    className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Manage Subscription
+                  </Link>
+                )
+              )}
+              {(!subscription?.tier || subscription.tier === "free") && (
+                <Link
+                  to="/subscription"
+                  className="px-3 py-1.5 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                  Manage Billing
-                </a>
+                  Upgrade to Pro
+                </Link>
               )}
             </div>
           </div>
