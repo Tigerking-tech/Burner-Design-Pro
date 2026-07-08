@@ -163,8 +163,7 @@ async def get_subscription(current_user: User = Depends(get_current_active_user)
             if customer_id:
                 try:
                     portal_resp = creem.create_customer_portal(
-                        customer_id=str(customer_id),
-                        return_url=f"{app_url}/subscription"
+                        customer_id=str(customer_id)
                     )
                     # Creem API returns {"customer_portal_link": "<string>"}
                     portal_url = (

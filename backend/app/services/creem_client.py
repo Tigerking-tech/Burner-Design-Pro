@@ -100,13 +100,11 @@ class CreemClient:
             data["metadata"] = metadata
         return self._make_request("POST", "/v1/customers", data)
     
-    def create_customer_portal(self, customer_id: str, 
-                              return_url: str = "") -> Dict[str, Any]:
+    def create_customer_portal(self, customer_id: str) -> Dict[str, Any]:
         """Create customer portal link for managing subscription"""
-        data = {"customer_id": customer_id}
-        if return_url:
-            data["return_url"] = return_url
-        return self._make_request("POST", "/v1/customers/billing", data)
+        return self._make_request("POST", "/v1/customers/billing", {
+            "customer_id": customer_id
+        })
     
     # ============== Checkouts ==============
     
