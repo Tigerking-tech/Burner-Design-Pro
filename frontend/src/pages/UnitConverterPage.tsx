@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 const UNITS = {
   "Pressure": {
@@ -294,10 +295,10 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
-  const [category, setCategory] = useState<string>("Pressure");
-  const [value, setValue] = useState<string>("1");
-  const [fromUnit, setFromUnit] = useState<string>("kPa");
-  const [toUnit, setToUnit] = useState<string>("bar");
+  const [category, setCategory] = usePersistentState<string>("unitconverter_category", "Pressure");
+  const [value, setValue] = usePersistentState<string>("unitconverter_value", "1");
+  const [fromUnit, setFromUnit] = usePersistentState<string>("unitconverter_fromUnit", "kPa");
+  const [toUnit, setToUnit] = usePersistentState<string>("unitconverter_toUnit", "bar");
   const [allResults, setAllResults] = useState<Record<string, number>>({});
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { Navbar } from '../components/Navbar'
@@ -163,6 +164,19 @@ const gasPresets: GasPreset[] = [
   },
 ]
 
+const defaultOilElements: OilElement[] = (() => {
+  const preset = oilPresets[0]
+  return [
+    { name: 'C', symbol: 'C', percentage: preset.C.toString() },
+    { name: 'H', symbol: 'H', percentage: preset.H.toString() },
+    { name: 'S', symbol: 'S', percentage: preset.S.toString() },
+    { name: 'O', symbol: 'O', percentage: preset.O.toString() },
+    { name: 'N', symbol: 'N', percentage: preset.N.toString() },
+    { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
+    { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
+  ]
+})()
+
 const AIR_DENSITY = 1.293
 const O2_IN_AIR = 0.2095
 const N2_IN_AIR = 0.7808
@@ -272,43 +286,26 @@ const oilPresets = [
 ]
 
 export default function FuelManagerPage() {
-  const [activeTab, setActiveTab] = useState<'gas' | 'oil'>('gas')
-  const [gas1Components, setGas1Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
-  const [gas2Components, setGas2Components] = useState<GasComponent[]>(defaultGasComponents.map(c => ({ ...c })))
-  const [selectedGas1Preset, setSelectedGas1Preset] = useState('')
-  const [selectedGas2Preset, setSelectedGas2Preset] = useState('')
-  const [gas1MixturePercent, setGas1MixturePercent] = useState('50')
-  const [showGas1Results, setShowGas1Results] = useState(false)
-  const [showGas2Results, setShowGas2Results] = useState(false)
-  const [showMixtureResults, setShowMixtureResults] = useState(false)
-  
-  const [selectedOil, setSelectedOil] = useState(0)
-  const [oilElements, setOilElements] = useState<OilElement[]>(() => {
-    const preset = oilPresets[0]
-    return [
-      { name: 'C', symbol: 'C', percentage: preset.C.toString() },
-      { name: 'H', symbol: 'H', percentage: preset.H.toString() },
-      { name: 'S', symbol: 'S', percentage: preset.S.toString() },
-      { name: 'O', symbol: 'O', percentage: preset.O.toString() },
-      { name: 'N', symbol: 'N', percentage: preset.N.toString() },
-      { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
-      { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
-    ]
-  })
-  const [showOilResults, setShowOilResults] = useState(false)
+  const [activeTab, setActiveTab] = usePersistentState<'gas' | 'oil'>('fuelmanager_activeTab', 'gas')
+  const [gas1Components, setGas1Components] = usePersistentState<GasComponent[]>('fuelmanager_gas1Components', defaultGasComponents.map(c => ({ ...c })))
+  const [gas2Components, setGas2Components] = usePersistentState<GasComponent[]>('fuelmanager_gas2Components', defaultGasComponents.map(c => ({ ...c })))
+  const [selectedGas1Preset, setSelectedGas1Preset] = usePersistentState('fuelmanager_selectedGas1Preset', '')
+  const [selectedGas2Preset, setSelectedGas2Preset] = usePersistentState('fuelmanager_selectedGas2Preset', '')
+  const [gas1MixturePercent, setGas1MixturePercent] = usePersistentState('fuelmanager_gas1MixturePercent', '50')
+  const [showGas1Results, setShowGas1Results] = usePersistentState('fuelmanager_showGas1Results', false)
+  const [showGas2Results, setShowGas2Results] = usePersistentState('fuelmanager_showGas2Results', false)
+  const [showMixtureResults, setShowMixtureResults] = usePersistentState('fuelmanager_showMixtureResults', false)
 
-  const [gasMode, setGasMode] = useState<'mixture' | 'combustion'>('mixture')
-  const [burnerCapacity, setBurnerCapacity] = useState('100')
-  const [lambda, setLambda] = useState('1.1')
-  const [selectedCombustionGasPreset, setSelectedCombustionGasPreset] = useState('Nordsee-Erdgas H')
-  const [combustionGasComponents, setCombustionGasComponents] = useState<GasComponent[]>(() => {
-    const preset = gasPresets.find(p => p.name === 'Nordsee-Erdgas H')
-    return defaultGasComponents.map(c => ({
-      ...c,
-      percentage: preset?.composition[c.symbol] || '0'
-    }))
-  })
-  const [showCombustionResults, setShowCombustionResults] = useState(false)
+  const [selectedOil, setSelectedOil] = usePersistentState('fuelmanager_selectedOil', 0)
+  const [oilElements, setOilElements] = usePersistentState<OilElement[]>('fuelmanager_oilElements', defaultOilElements)
+  const [showOilResults, setShowOilResults] = usePersistentState('fuelmanager_showOilResults', false)
+
+  const [gasMode, setGasMode] = usePersistentState<'mixture' | 'combustion'>('fuelmanager_gasMode', 'mixture')
+  const [burnerCapacity, setBurnerCapacity] = usePersistentState('fuelmanager_burnerCapacity', '100')
+  const [lambda, setLambda] = usePersistentState('fuelmanager_lambda', '1.1')
+  const [selectedCombustionGasPreset, setSelectedCombustionGasPreset] = usePersistentState('fuelmanager_selectedCombustionGasPreset', '')
+  const [combustionGasComponents, setCombustionGasComponents] = usePersistentState<GasComponent[]>('fuelmanager_combustionGasComponents', defaultGasComponents.map(c => ({ ...c })))
+  const [showCombustionResults, setShowCombustionResults] = usePersistentState('fuelmanager_showCombustionResults', false)
 
   const applyGasPreset = (presetName: string, gasNum: 1 | 2) => {
     const preset = gasPresets.find(p => p.name === presetName)

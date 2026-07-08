@@ -5,6 +5,7 @@ import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
+import { usePersistentState } from '../hooks/usePersistentState'
 import {
   createPDF,
   addCoverPage,
@@ -38,6 +39,7 @@ interface CalculationResult {
   velocity: number
   massFlowRate: number
   pressureDrop: number
+  permanentPressureLoss: number
 }
 
 interface CurvePoint {
@@ -287,27 +289,27 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
-  const [calculationMode, setCalculationMode] = useState<'restricting' | 'measuring'>('restricting')
-  const [featureMode, setFeatureMode] = useState<'basic' | 'advanced'>('basic')
-  const [selectedGasType, setSelectedGasType] = useState(gasTypes[0])
-  const [customDensity, setCustomDensity] = useState('0.78')
-  const [selectedPipeDN, setSelectedPipeDN] = useState(pipeSizes[3].dn)
-  const [internalDiameter, setInternalDiameter] = useState(pipeSizes[3].internalDiameter.toString())
-  const [maxFlowRate, setMaxFlowRate] = useState('')
-  const [pressureDrop, setPressureDrop] = useState('')
-  const [orificeDiameterInput, setOrificeDiameterInput] = useState('')
-  const [outputMode, setOutputMode] = useState<'orifice' | 'pressure' | 'flowrate'>('orifice')
+  const [calculationMode, setCalculationMode] = usePersistentState<'restricting' | 'measuring'>('orifice_calculationMode', 'restricting')
+  const [featureMode, setFeatureMode] = usePersistentState<'basic' | 'advanced'>('orifice_featureMode', 'basic')
+  const [selectedGasType, setSelectedGasType] = usePersistentState('orifice_selectedGasType', gasTypes[0])
+  const [customDensity, setCustomDensity] = usePersistentState('orifice_customDensity', '0.78')
+
+  const [internalDiameter, setInternalDiameter] = usePersistentState('orifice_internalDiameter', pipeSizes[3].internalDiameter.toString())
+  const [maxFlowRate, setMaxFlowRate] = usePersistentState('orifice_maxFlowRate', '')
+  const [pressureDrop, setPressureDrop] = usePersistentState('orifice_pressureDrop', '')
+  const [orificeDiameterInput, setOrificeDiameterInput] = usePersistentState('orifice_orificeDiameterInput', '')
+  const [outputMode, setOutputMode] = usePersistentState<'orifice' | 'pressure' | 'flowrate'>('orifice_outputMode', 'orifice')
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [curveData, setCurveData] = useState<CurvePoint[]>([])
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
-  const [operatingPressure, setOperatingPressure] = useState('1.013')
-  const [operatingTemperature, setOperatingTemperature] = useState('20')
-  const [compressibilityZ, setCompressibilityZ] = useState('1.0')
-  const [isentropicExponentK, setIsentropicExponentK] = useState('1.4')
-  const [pressureType, setPressureType] = useState<'gauge' | 'absolute'>('absolute')
-  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('bar')
-  const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C')
+
+  const [operatingPressure, setOperatingPressure] = usePersistentState('orifice_operatingPressure', '1.013')
+  const [operatingTemperature, setOperatingTemperature] = usePersistentState('orifice_operatingTemperature', '20')
+  const [compressibilityZ, setCompressibilityZ] = usePersistentState('orifice_compressibilityZ', '1.0')
+  const [isentropicExponentK, setIsentropicExponentK] = usePersistentState('orifice_isentropicExponentK', '1.4')
+  const [pressureType, setPressureType] = usePersistentState<'gauge' | 'absolute'>('orifice_pressureType', 'absolute')
+  const [pressureUnit, setPressureUnit] = usePersistentState<PressureUnit>('orifice_pressureUnit', 'bar')
+  const [temperatureUnit, setTemperatureUnit] = usePersistentState<TemperatureUnit>('orifice_temperatureUnit', 'C')
 
   const isLoggedIn = authAPI.isAuthenticated()
   const isProUser = import.meta.env.DEV || (isLoggedIn && authAPI.getSubscriptionTier() !== 'free')
@@ -378,20 +380,23 @@ export default function OrificeCalculatorPage() {
     return 1 / Math.sqrt(1 - beta4)
   }
 
-  const calculateDischargeCoefficient = (beta: number, ReD: number): number => {
-    // Reader-Harris/Gallagher equation (ISO 5167-2:2022 §5.3.2.1)
-    // for corner taps (closest to Krom Schröder restricting/measuring orifice)
-    // Cd = 0.5961 + 0.0261*beta^2 - 0.216*beta^8
-    //      + 0.000521*(1e6*beta/ReD)^0.7
-    //      + [0.0188 + 0.0063*(19000*beta/ReD)^0.8] * beta^4/(1-beta^4)
+  const calculateDischargeCoefficient = (beta: number, ReD: number, D_mm: number): number => {
+    // Reader-Harris/Gallagher equation (ISO 5167-2:2003 §5.3.2.1)
+    // for corner taps (L1=L2'=0)
+    // C = 0.5961 + 0.0261*beta^2 - 0.216*beta^8
+    //     + 0.000521*(10^6*beta/ReD)^0.7
+    //     + (0.0188 + 0.0063*A) * beta^3.5 * (10^6/ReD)^0.3
+    //     + 0.011*(0.75-beta)*(2.8-D/25.4)   [only for D >= 71.12 mm]
+    // where A = (19000*beta/ReD)^0.8
     if (ReD <= 0) return 0.5961
     const beta2 = Math.pow(beta, 2)
-    const beta4 = Math.pow(beta, 4)
     const beta8 = Math.pow(beta, 8)
     const termA = 0.5961 + 0.0261 * beta2 - 0.216 * beta8
     const termB = 0.000521 * Math.pow((1e6 * beta) / ReD, 0.7)
-    const termC = (0.0188 + 0.0063 * Math.pow((19000 * beta) / ReD, 0.8)) * beta4 / (1 - beta4)
-    return termA + termB + termC
+    const A = Math.pow((19000 * beta) / ReD, 0.8)
+    const termC = (0.0188 + 0.0063 * A) * Math.pow(beta, 3.5) * Math.pow(1e6 / ReD, 0.3)
+    const termD = D_mm >= 71.12 ? 0.011 * (0.75 - beta) * (2.8 - D_mm / 25.4) : 0
+    return termA + termB + termC + termD
   }
 
   const calculateOrifice = () => {
@@ -447,7 +452,7 @@ export default function OrificeCalculatorPage() {
         const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
         // Estimate Re for Cd calculation
         const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
-        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const Cd = calculateDischargeCoefficient(beta, Re_est, D)
         const A_orifice = qm / (Cd * E * epsilon * Math.sqrt(2 * rho * deltaP_Pa))
         const d_new = Math.sqrt(A_orifice * 4 / Math.PI) * 1000 // mm
         if (Math.abs(d_new - d_est) < 0.001) { d_est = d_new; break }
@@ -459,7 +464,7 @@ export default function OrificeCalculatorPage() {
       const beta_final = d_est / D
       finalEpsilon = calculateExpansibilityFactor(beta_final, deltaP_Pa, P1, k)
       const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
-      finalCd = calculateDischargeCoefficient(beta_final, Re_final)
+      finalCd = calculateDischargeCoefficient(beta_final, Re_final, D)
 
     } else if (outputMode === 'pressure') {
       Q = parseFloat(maxFlowRate)
@@ -488,7 +493,7 @@ export default function OrificeCalculatorPage() {
         const deltaP_Pa = deltaP_est * 100
         const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
         const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
-        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const Cd = calculateDischargeCoefficient(beta, Re_est, D)
         // deltaP = (qm / (Cd * E * epsilon * A))^2 / (2 * rho)
         const deltaP_Pa_new = Math.pow(qm / (Cd * E * epsilon * A_orifice), 2) / (2 * rho)
         const deltaP_mbar_new = deltaP_Pa_new / 100
@@ -499,7 +504,7 @@ export default function OrificeCalculatorPage() {
       finalPressureDrop = deltaP_est
       finalEpsilon = calculateExpansibilityFactor(beta, deltaP_est * 100, P1, k)
       const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
-      finalCd = calculateDischargeCoefficient(beta, Re_final)
+      finalCd = calculateDischargeCoefficient(beta, Re_final, D)
 
     } else {
       const d = parseFloat(orificeDiameterInput)
@@ -528,7 +533,7 @@ export default function OrificeCalculatorPage() {
       let qm_est = 0.6 * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa) // initial guess
       for (let iter = 0; iter < 30; iter++) {
         const Re_est = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
-        const Cd = calculateDischargeCoefficient(beta, Re_est)
+        const Cd = calculateDischargeCoefficient(beta, Re_est, D)
         const qm_new = Cd * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa)
         if (Math.abs(qm_new - qm_est) < 1e-8) { qm_est = qm_new; break }
         qm_est = qm_new
@@ -536,12 +541,14 @@ export default function OrificeCalculatorPage() {
 
       Q = (qm_est / rho) * 3600
       const Re_final = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
-      finalCd = calculateDischargeCoefficient(beta, Re_final)
+      finalCd = calculateDischargeCoefficient(beta, Re_final, D)
     }
 
     const beta = finalOrificeDiameter / D
     const qm = (Q / 3600) * rho
     const Re = (4 * qm) / (Math.PI * (D / 1000) * mu)
+
+    const permanentPressureLoss = finalPressureDrop * (1 - Math.pow(beta, 1.9))
 
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
@@ -550,7 +557,8 @@ export default function OrificeCalculatorPage() {
       reynoldsNum: Math.round(Re),
       velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D / 1000, 2)),
       massFlowRate: qm,
-      pressureDrop: Math.round(finalPressureDrop * 100) / 100
+      pressureDrop: Math.round(finalPressureDrop * 100) / 100,
+      permanentPressureLoss: Math.round(permanentPressureLoss * 100) / 100
     }
 
     generateCurveData(finalOrificeDiameter, D, rho, Q, finalPressureDrop, beta, finalCd, P1, k)
@@ -576,7 +584,7 @@ export default function OrificeCalculatorPage() {
       // Use iterative Cd based on estimated Re
       const qm_est = Cd * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
       const Re_est = (4 * qm_est) / (Math.PI * (D_mm / 1000) * mu)
-      const Cd_calc = calculateDischargeCoefficient(beta, Re_est)
+      const Cd_calc = calculateDischargeCoefficient(beta, Re_est, D_mm)
       
       // Recalculate with proper Cd
       const qm_calc = Cd_calc * E * epsilon * A_orifice * Math.sqrt(2 * rho * currentDeltaP_Pa)
@@ -659,6 +667,13 @@ export default function OrificeCalculatorPage() {
       label: 'Mass Flow Rate', value: (results.massFlowRate / getDensity() * 3600).toFixed(2), unit: 'm3/h',
       x: MARGIN_LEFT + (cardW + 6) * 2, y, width: cardW,
     })
+    y += 40
+
+    y = checkPageBreak(doc, y, 40, docTitle, 'Input Parameters & Results')
+    drawResultCard(doc, {
+      label: 'Permanent Pressure Loss', value: String(results.permanentPressureLoss), unit: 'mbar',
+      x: MARGIN_LEFT, y, width: cardW,
+    })
     y += 45
 
     // Two-column tables: Fluid properties + Intermediate values
@@ -678,6 +693,7 @@ export default function OrificeCalculatorPage() {
         ['Discharge Cd', String(results.dischargeCoef)],
         ['Isentropic k', isentropicExponentK],
         ['Pipe Area', `${(Math.PI / 4 * Math.pow(parseFloat(internalDiameter) / 1000, 2) * 1e6).toFixed(2)} mm2`],
+        ['Permanent Press. Loss', `${results.permanentPressureLoss} mbar`],
       ],
     }, y)
 
@@ -1244,6 +1260,9 @@ export default function OrificeCalculatorPage() {
                       <div><span className="font-medium">Cd:</span> {results.dischargeCoef}</div>
                       <div><span className="font-medium">Re:</span> {results.reynoldsNum.toLocaleString()}</div>
                       <div><span className="font-medium">Velocity:</span> {results.velocity.toFixed(2)} m/s</div>
+                    </div>
+                    <div className="mt-2 text-xs">
+                      <div><span className="font-medium">Permanent Pressure Loss:</span> {results.permanentPressureLoss} mbar</div>
                     </div>
                   </div>
                 )}

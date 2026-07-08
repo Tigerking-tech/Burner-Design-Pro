@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
+import { usePersistentState } from '../hooks/usePersistentState'
 
 interface GasComponent {
   name: string
@@ -160,18 +161,19 @@ const productData: Record<string, { hf: number; cp: number }> = {
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
 export default function FlameTemperaturePage() {
-  const [gasComponents, setGasComponents] = useState<GasComponent[]>(
+  const [gasComponents, setGasComponents] = usePersistentState<GasComponent[]>(
+    'flametemp_gasComponents',
     defaultGasComponents.map(c => ({ ...c }))
   )
-  const [selectedPreset, setSelectedPreset] = useState('')
-  
-  const [fuelTemperature, setFuelTemperature] = useState('25')
-  const [oxidizerType, setOxidizerType] = useState<OxidizerType>('air')
-  const [airRatio, setAirRatio] = useState('100')
-  const [oxygenRatio, setOxygenRatio] = useState('0')
-  const [oxidizerTemperature, setOxidizerTemperature] = useState('25')
-  const [excessOxygen, setExcessOxygen] = useState('10')
-  
+  const [selectedPreset, setSelectedPreset] = usePersistentState('flametemp_selectedPreset', '')
+
+  const [fuelTemperature, setFuelTemperature] = usePersistentState('flametemp_fuelTemperature', '25')
+  const [oxidizerType, setOxidizerType] = usePersistentState<OxidizerType>('flametemp_oxidizerType', 'air')
+  const [airRatio, setAirRatio] = usePersistentState('flametemp_airRatio', '100')
+  const [oxygenRatio, setOxygenRatio] = usePersistentState('flametemp_oxygenRatio', '0')
+  const [oxidizerTemperature, setOxidizerTemperature] = usePersistentState('flametemp_oxidizerTemperature', '25')
+  const [excessOxygen, setExcessOxygen] = usePersistentState('flametemp_excessOxygen', '10')
+
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
   
@@ -293,20 +295,10 @@ export default function FlameTemperaturePage() {
 
     let theoreticalTempC = theoreticalTempK - 273.15
     
-    let maxTempC
-    if (oxidizerType === 'oxygen') {
-      maxTempC = 2900
-    } else {
-      maxTempC = 2400
-    }
-    
+    const maxTempC = oxidizerType === 'oxygen' ? 3500 : 2900
+
     if (theoreticalTempC > maxTempC) {
-      if (oxidizerType === 'oxygen') {
-        theoreticalTempC = 2900
-      } else {
-        const excess = theoreticalTempC - maxTempC
-        theoreticalTempC = maxTempC + 200 * Math.log(1 + excess / 100)
-      }
+      theoreticalTempC = maxTempC
     }
     
     const actualTempC = theoreticalTempC * 0.9
