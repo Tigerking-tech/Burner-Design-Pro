@@ -76,7 +76,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Erdgas L (Low Calorific)',
-    composition: { 'CH₄': '81.4', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.3', 'CO₂': '0.89', 'O₂': '0.01' }
+    composition: { 'CH₄': '81.4', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.2', 'CO₂': '0.89', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas H (High Calorific)',
@@ -136,11 +136,11 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Erdgas Birmingham',
-    composition: { 'CH₄': '93.34', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.14', 'CO₂': '1.06' }
+    composition: { 'CH₄': '93.34', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.11', 'CO₂': '1.06' }
   },
   {
     name: 'Erdgas East Ohio',
-    composition: { 'CH₄': '94.25', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'H₂': '0.01', 'N₂': '0.3', 'CO₂': '0.68', 'O₂': '0.1' }
+    composition: { 'CH₄': '94.25', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'H₂': '0.01', 'N₂': '0.25', 'CO₂': '0.68', 'O₂': '0.1' }
   },
   {
     name: 'Erdgas Pittsburgh',
@@ -148,7 +148,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Erdgas UGI',
-    composition: { 'CH₄': '95.68', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.41', 'CO₂': '0.92', 'O₂': '0.1' }
+    composition: { 'CH₄': '95.68', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.28', 'CO₂': '0.92', 'O₂': '0.1' }
   },
   {
     name: 'Generatorgas, Koppers-Totzek',
@@ -160,7 +160,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'UGI-Gas',
-    composition: { 'CH₄': '95.84', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.1' }
+    composition: { 'CH₄': '95.84', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.0' }
   },
 ]
 
@@ -527,6 +527,11 @@ export default function FuelManagerPage() {
   }
 
   const applyCombustionGasPreset = (presetName: string) => {
+    if (presetName === '__enter__') {
+      setCombustionGasComponents(defaultGasComponents.map(c => ({ ...c, percentage: '0' })))
+      setSelectedCombustionGasPreset('__enter__')
+      return
+    }
     const preset = gasPresets.find(p => p.name === presetName)
     if (!preset) return
 
@@ -853,11 +858,16 @@ export default function FuelManagerPage() {
                     value={selectedGas1Preset}
                     onChange={(e) => {
                       setSelectedGas1Preset(e.target.value)
-                      if (e.target.value) applyGasPreset(e.target.value, 1)
+                      if (e.target.value === '__enter__') {
+                        setGas1Components(defaultGasComponents.map(c => ({ ...c, percentage: '0' })))
+                      } else if (e.target.value) {
+                        applyGasPreset(e.target.value, 1)
+                      }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                   >
                     <option value="">Select gas type...</option>
+                    <option value="__enter__">Enter %-by-vol.</option>
                     {gasPresets.map(preset => (
                       <option key={preset.name} value={preset.name}>{preset.name}</option>
                     ))}
@@ -957,11 +967,16 @@ export default function FuelManagerPage() {
                     value={selectedGas2Preset}
                     onChange={(e) => {
                       setSelectedGas2Preset(e.target.value)
-                      if (e.target.value) applyGasPreset(e.target.value, 2)
+                      if (e.target.value === '__enter__') {
+                        setGas2Components(defaultGasComponents.map(c => ({ ...c, percentage: '0' })))
+                      } else if (e.target.value) {
+                        applyGasPreset(e.target.value, 2)
+                      }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
                   >
                     <option value="">Select gas type...</option>
+                    <option value="__enter__">Enter %-by-vol.</option>
                     {gasPresets.map(preset => (
                       <option key={preset.name} value={preset.name}>{preset.name}</option>
                     ))}
@@ -1112,6 +1127,7 @@ export default function FuelManagerPage() {
                         className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]/20 focus:border-[#2B6BA0] text-gray-900 text-sm"
                       >
                         <option value="">Select gas type...</option>
+                        <option value="__enter__">Enter %-by-vol.</option>
                         {gasPresets.map(preset => (
                           <option key={preset.name} value={preset.name}>{preset.name}</option>
                         ))}

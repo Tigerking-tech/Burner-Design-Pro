@@ -293,6 +293,7 @@ export default function OrificeCalculatorPage() {
   const [featureMode, setFeatureMode] = usePersistentState<'basic' | 'advanced'>('orifice_featureMode', 'basic')
   const [selectedGasType, setSelectedGasType] = usePersistentState('orifice_selectedGasType', gasTypes[0])
   const [customDensity, setCustomDensity] = usePersistentState('orifice_customDensity', '0.78')
+  const [selectedPipeDN, setSelectedPipeDN] = usePersistentState('orifice_selectedPipeDN', pipeSizes[3].dn)
 
   const [internalDiameter, setInternalDiameter] = usePersistentState('orifice_internalDiameter', pipeSizes[3].internalDiameter.toString())
   const [maxFlowRate, setMaxFlowRate] = usePersistentState('orifice_maxFlowRate', '')
