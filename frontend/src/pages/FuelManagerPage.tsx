@@ -164,19 +164,6 @@ const gasPresets: GasPreset[] = [
   },
 ]
 
-const defaultOilElements: OilElement[] = (() => {
-  const preset = oilPresets[0]
-  return [
-    { name: 'C', symbol: 'C', percentage: preset.C.toString() },
-    { name: 'H', symbol: 'H', percentage: preset.H.toString() },
-    { name: 'S', symbol: 'S', percentage: preset.S.toString() },
-    { name: 'O', symbol: 'O', percentage: preset.O.toString() },
-    { name: 'N', symbol: 'N', percentage: preset.N.toString() },
-    { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
-    { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
-  ]
-})()
-
 const AIR_DENSITY = 1.293
 const O2_IN_AIR = 0.2095
 const N2_IN_AIR = 0.7808
@@ -284,6 +271,19 @@ const oilPresets = [
     density: 0.92, viscosity: 100.0, flashPoint: 95, pourPoint: 38 
   },
 ]
+
+const defaultOilElements: OilElement[] = (() => {
+  const preset = oilPresets[0]
+  return [
+    { name: 'C', symbol: 'C', percentage: preset.C.toString() },
+    { name: 'H', symbol: 'H', percentage: preset.H.toString() },
+    { name: 'S', symbol: 'S', percentage: preset.S.toString() },
+    { name: 'O', symbol: 'O', percentage: preset.O.toString() },
+    { name: 'N', symbol: 'N', percentage: preset.N.toString() },
+    { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
+    { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
+  ]
+})()
 
 export default function FuelManagerPage() {
   const [activeTab, setActiveTab] = usePersistentState<'gas' | 'oil'>('fuelmanager_activeTab', 'gas')
