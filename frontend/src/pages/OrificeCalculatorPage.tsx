@@ -303,6 +303,7 @@ export default function OrificeCalculatorPage() {
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [curveData, setCurveData] = useState<CurvePoint[]>([])
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   const [operatingPressure, setOperatingPressure] = usePersistentState('orifice_operatingPressure', '1.013')
   const [operatingTemperature, setOperatingTemperature] = usePersistentState('orifice_operatingTemperature', '20')
