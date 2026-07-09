@@ -428,43 +428,48 @@ export default function OrificeCalculatorPage() {
 
     if (outputMode === 'orifice') {
       Q = parseFloat(maxFlowRate)
-      const deltaP = parseFloat(pressureDrop)
+      const pressureLossInput = parseFloat(pressureDrop)
 
       if (!Q || Q <= 0 || Q > 10000) {
         alert('Please enter valid flow rate (max 10000 m³/h)')
         return
       }
-      if (!deltaP || deltaP <= 0 || deltaP > 100) {
+      if (!pressureLossInput || pressureLossInput <= 0 || pressureLossInput > 100) {
         alert(`Please enter valid ${calculationMode === 'restricting' ? 'pressure loss' : 'differential pressure'} (max 100 mbar)`)
         return
       }
 
-      const deltaP_Pa = deltaP * 100 // mbar → Pa
       const qm = (Q / 3600) * rho   // kg/s
 
-      // ISO 5167 iterative calculation: solve for d
-      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
-      // where E = 1/sqrt(1 - beta^4), beta = d/D
-      // Cd = Reader-Harris/Gallagher f(beta, Re)
-      // epsilon = 1 - (0.41 + 0.35*beta^4) * deltaP/(k*P1)
-      let d_est = Math.sqrt(qm / (0.6 * 0.98 * Math.sqrt(2 * rho * deltaP_Pa)) * 4 / Math.PI) * 1000 // initial guess in mm
-      for (let iter = 0; iter < 30; iter++) {
-        const beta = d_est / D
-        const E = calculateVelocityApproachFactor(beta)
-        const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
-        // Estimate Re for Cd calculation
-        const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
-        const Cd = calculateDischargeCoefficient(beta, Re_est, D)
-        const A_orifice = qm / (Cd * E * epsilon * Math.sqrt(2 * rho * deltaP_Pa))
-        const d_new = Math.sqrt(A_orifice * 4 / Math.PI) * 1000 // mm
-        if (Math.abs(d_new - d_est) < 0.001) { d_est = d_new; break }
-        d_est = d_new
+      let d_est = Math.sqrt(qm / (0.6 * 0.98 * Math.sqrt(2 * rho * pressureLossInput * 100)) * 4 / Math.PI) * 1000
+      let deltaP_diff = pressureLossInput
+      for (let outerIter = 0; outerIter < 30; outerIter++) {
+        const beta_est = d_est / D
+        const plFactor = calculationMode === 'restricting' ? (1 - Math.pow(beta_est, 1.9)) : 1
+        deltaP_diff = pressureLossInput / plFactor
+        const deltaP_Pa = deltaP_diff * 100
+
+        let d_inner = d_est
+        for (let innerIter = 0; innerIter < 20; innerIter++) {
+          const beta = d_inner / D
+          const E = calculateVelocityApproachFactor(beta)
+          const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
+          const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
+          const Cd = calculateDischargeCoefficient(beta, Re_est, D)
+          const A_orifice = qm / (Cd * E * epsilon * Math.sqrt(2 * rho * deltaP_Pa))
+          const d_new = Math.sqrt(A_orifice * 4 / Math.PI) * 1000
+          if (Math.abs(d_new - d_inner) < 0.0001) { d_inner = d_new; break }
+          d_inner = d_new
+        }
+
+        if (Math.abs(d_inner - d_est) < 0.001) { d_est = d_inner; break }
+        d_est = d_inner
       }
 
       finalOrificeDiameter = d_est
-      finalPressureDrop = deltaP
+      finalPressureDrop = deltaP_diff
       const beta_final = d_est / D
-      finalEpsilon = calculateExpansibilityFactor(beta_final, deltaP_Pa, P1, k)
+      finalEpsilon = calculateExpansibilityFactor(beta_final, deltaP_diff * 100, P1, k)
       const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
       finalCd = calculateDischargeCoefficient(beta_final, Re_final, D)
 
@@ -487,22 +492,20 @@ export default function OrificeCalculatorPage() {
       const E = calculateVelocityApproachFactor(beta)
       const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
 
-      // ISO 5167 iterative: solve for deltaP
-      // qm = Cd * E * epsilon * A * sqrt(2 * rho * deltaP)
-      // epsilon depends on deltaP, Cd depends on Re which depends on deltaP
-      let deltaP_est = 10 // initial guess in mbar
+      // ISO 5167 iterative: solve for deltaP (differential pressure)
+      let deltaP_est = 10
       for (let iter = 0; iter < 30; iter++) {
         const deltaP_Pa = deltaP_est * 100
         const epsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
         const Re_est = (4 * qm) / (Math.PI * (D / 1000) * mu)
         const Cd = calculateDischargeCoefficient(beta, Re_est, D)
-        // deltaP = (qm / (Cd * E * epsilon * A))^2 / (2 * rho)
         const deltaP_Pa_new = Math.pow(qm / (Cd * E * epsilon * A_orifice), 2) / (2 * rho)
         const deltaP_mbar_new = deltaP_Pa_new / 100
         if (Math.abs(deltaP_mbar_new - deltaP_est) < 0.001) { deltaP_est = deltaP_mbar_new; break }
         deltaP_est = deltaP_mbar_new
       }
 
+      // finalPressureDrop always stores differential pressure (for internal calculations)
       finalPressureDrop = deltaP_est
       finalEpsilon = calculateExpansibilityFactor(beta, deltaP_est * 100, P1, k)
       const Re_final = (4 * (Q / 3600) * rho) / (Math.PI * (D / 1000) * mu)
@@ -510,29 +513,32 @@ export default function OrificeCalculatorPage() {
 
     } else {
       const d = parseFloat(orificeDiameterInput)
-      const deltaP = parseFloat(pressureDrop)
+      const pressureLossInput = parseFloat(pressureDrop)
 
       if (!d || d <= 0 || d > 325) {
         alert('Please enter valid orifice diameter (max 325 mm)')
         return
       }
-      if (!deltaP || deltaP <= 0 || deltaP > 100) {
+      if (!pressureLossInput || pressureLossInput <= 0 || pressureLossInput > 100) {
         alert('Please enter valid pressure loss (max 100 mbar)')
         return
       }
 
       finalOrificeDiameter = d
-      finalPressureDrop = deltaP
       const beta = d / D
       const E = calculateVelocityApproachFactor(beta)
-      const deltaP_Pa = deltaP * 100
+
+      // For restricting orifice: input pressure loss = permanent pressure loss
+      // Convert to differential pressure: deltaP = pressureLoss / (1 - beta^1.9)
+      const plFactor = calculationMode === 'restricting' ? (1 - Math.pow(beta, 1.9)) : 1
+      const deltaP_diff = pressureLossInput / plFactor
+      finalPressureDrop = deltaP_diff
+      const deltaP_Pa = deltaP_diff * 100
       finalEpsilon = calculateExpansibilityFactor(beta, deltaP_Pa, P1, k)
 
       // ISO 5167 iterative: solve for Q (via qm)
-      // qm = Cd * E * epsilon * (pi/4) * d^2 * sqrt(2 * rho * deltaP)
-      // Cd depends on Re which depends on qm → iterate
       const A_orifice = (Math.PI / 4) * Math.pow(d / 1000, 2)
-      let qm_est = 0.6 * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa) // initial guess
+      let qm_est = 0.6 * E * finalEpsilon * A_orifice * Math.sqrt(2 * rho * deltaP_Pa)
       for (let iter = 0; iter < 30; iter++) {
         const Re_est = (4 * qm_est) / (Math.PI * (D / 1000) * mu)
         const Cd = calculateDischargeCoefficient(beta, Re_est, D)
@@ -552,6 +558,12 @@ export default function OrificeCalculatorPage() {
 
     const permanentPressureLoss = finalPressureDrop * (1 - Math.pow(beta, 1.9))
 
+    // For restricting orifice: display pressure loss (permanent pressure loss)
+    // For measuring orifice: display differential pressure
+    const displayedPressureDrop = calculationMode === 'restricting'
+      ? permanentPressureLoss
+      : finalPressureDrop
+
     const finalResults: CalculationResult = {
       orificeDiameter: Math.round(finalOrificeDiameter * 10) / 10,
       betaRatio: Math.round(beta * 10000) / 10000,
@@ -559,7 +571,7 @@ export default function OrificeCalculatorPage() {
       reynoldsNum: Math.round(Re),
       velocity: (Q / 3600) / ((Math.PI / 4) * Math.pow(D / 1000, 2)),
       massFlowRate: qm,
-      pressureDrop: Math.round(finalPressureDrop * 100) / 100,
+      pressureDrop: Math.round(displayedPressureDrop * 100) / 100,
       permanentPressureLoss: Math.round(permanentPressureLoss * 100) / 100
     }
 
