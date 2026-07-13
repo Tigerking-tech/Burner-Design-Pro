@@ -231,8 +231,12 @@ function entropy(species: string, T: number): number {
   return R * S_R
 }
 
-function chemPotential(species: string, T: number): number {
-  return enthalpy(species, T) - T * entropy(species, T)
+function chemPotential(species: string, T: number, P: number = 1): number {
+  const p0 = 1
+  const mu0 = enthalpy(species, T) - T * entropy(species, T)
+  const comp = atomicComp[species]
+  const nAtoms = comp.c + comp.h + comp.o + comp.n
+  return mu0 + R * T * Math.log(P / p0) * nAtoms
 }
 
 function solveLinear(A: number[][], b: number[]): number[] | null {
@@ -266,7 +270,7 @@ interface ElementVector {
   n: number
 }
 
-function equilibriumComposition(b: ElementVector, T: number): Record<string, number> {
+function equilibriumComposition(b: ElementVector, T: number, P: number = 1): Record<string, number> {
   const elementNames: (keyof ElementVector)[] = ['c', 'h', 'o', 'n']
   const activeElements: (keyof ElementVector)[] = []
   const elementIndex: Partial<Record<keyof ElementVector, number>> = {}
@@ -294,7 +298,7 @@ function equilibriumComposition(b: ElementVector, T: number): Record<string, num
   function computePi(lambda: number[]): number[] {
     return activeSpecies.map(sp => {
       const comp = atomicComp[sp]
-      const mu = chemPotential(sp, T)
+      const mu = chemPotential(sp, T, P)
       let arg = -mu / RT
       for (const el of activeElements) arg += comp[el] * lambda[elementIndex[el]!] / RT
       return Math.exp(Math.max(-700, Math.min(700, arg)))
@@ -302,13 +306,13 @@ function equilibriumComposition(b: ElementVector, T: number): Record<string, num
   }
 
   let lambda = new Array(ne).fill(0)
-  if (elementIndex['o'] !== undefined) lambda[elementIndex['o']] = chemPotential('O₂', T) / 2
-  if (elementIndex['n'] !== undefined) lambda[elementIndex['n']] = chemPotential('N₂', T) / 2
+  if (elementIndex['o'] !== undefined) lambda[elementIndex['o']] = chemPotential('O₂', T, P) / 2
+  if (elementIndex['n'] !== undefined) lambda[elementIndex['n']] = chemPotential('N₂', T, P) / 2
   if (elementIndex['c'] !== undefined && elementIndex['o'] !== undefined) {
-    lambda[elementIndex['c']] = chemPotential('CO₂', T) - 2 * lambda[elementIndex['o']]
+    lambda[elementIndex['c']] = chemPotential('CO₂', T, P) - 2 * lambda[elementIndex['o']]
   }
   if (elementIndex['h'] !== undefined && elementIndex['o'] !== undefined) {
-    lambda[elementIndex['h']] = (chemPotential('H₂O', T) - lambda[elementIndex['o']]) / 2
+    lambda[elementIndex['h']] = (chemPotential('H₂O', T, P) - lambda[elementIndex['o']]) / 2
   }
 
   const refEl = activeElements[ne - 1]
@@ -391,8 +395,8 @@ function equilibriumComposition(b: ElementVector, T: number): Record<string, num
   return result
 }
 
-function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0): number {
-  const eq = equilibriumComposition(b, T)
+function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0, P: number = 1): number {
+  const eq = equilibriumComposition(b, T, P)
   let sum = 0
   for (const sp of equilibriumSpecies) sum += (eq[sp] || 0) * enthalpy(sp, T)
   sum += arMoles * enthalpy('Ar', T)
@@ -411,9 +415,8 @@ export default function FlameTemperaturePage() {
   const [airRatio, setAirRatio] = usePersistentState('flametemp_airRatio', '100')
   const [oxygenRatio, setOxygenRatio] = usePersistentState('flametemp_oxygenRatio', '0')
   const [oxidizerTemperature, setOxidizerTemperature] = usePersistentState('flametemp_oxidizerTemperature', '25')
-  const [excessOxygen, setExcessOxygen] = usePersistentState('flametemp_excessOxygen', '10')
+  const [excessAirRatio, setExcessAirRatio] = usePersistentState('flametemp_excessAirRatio', '1.2')
   const [pressure, setPressure] = usePersistentState('flametemp_pressure', '1')
-  const [heatLoss, setHeatLoss] = usePersistentState('flametemp_heatLoss', '0')
 
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
@@ -459,8 +462,8 @@ export default function FlameTemperaturePage() {
     const stoichO2 = totalC + totalH / 4 - totalO / 2
     if (stoichO2 <= 0) return null
 
-    const excessAirRatio = 1 + parseFloat(excessOxygen) / 100
-    const actualO2 = stoichO2 * excessAirRatio
+    const lambda = parseFloat(excessAirRatio) || 1.0
+    const actualO2 = stoichO2 * lambda
 
     let o2InOxidizer: number, n2InOxidizer: number, arInOxidizer: number
     if (oxidizerType === 'air') {
@@ -506,8 +509,7 @@ export default function FlameTemperaturePage() {
     const Tox = (parseFloat(oxidizerTemperature) || 25) + 273.15
     Hreact += actualO2 * enthalpy('O₂', Tox) + n2FromOxidizer * enthalpy('N₂', Tox) + arMoles * enthalpy('Ar', Tox)
 
-    const heatLossFraction = parseFloat(heatLoss) / 100
-    Hreact *= (1 - heatLossFraction)
+    const P = parseFloat(pressure) || 1.0
 
     const frozenEnthalpy = (T: number) => {
       const nCO2 = totalC
@@ -525,12 +527,12 @@ export default function FlameTemperaturePage() {
     let Tlow = 300, Thigh = Tmax
     for (let i = 0; i < 200; i++) {
       const Tmid = (Tlow + Thigh) / 2
-      const Hmid = productEnthalpy(b, Tmid, arMoles)
+      const Hmid = productEnthalpy(b, Tmid, arMoles, P)
       if (Hmid > Hreact) Thigh = Tmid
       else Tlow = Tmid
       if (Thigh - Tlow < 0.1) break
     }
-    const TeqK = (Tlow + Thigh) / 2
+    const T_equilibrium_K = (Tlow + Thigh) / 2
 
     Tlow = 300; Thigh = Tmax
     for (let i = 0; i < 200; i++) {
@@ -540,24 +542,24 @@ export default function FlameTemperaturePage() {
       else Tlow = Tmid
       if (Thigh - Tlow < 0.1) break
     }
-    const TfrozenK = (Tlow + Thigh) / 2
+    const T_frozen_K = (Tlow + Thigh) / 2
 
-    const composition = equilibriumComposition(b, TeqK)
+    const composition = equilibriumComposition(b, T_equilibrium_K, P)
     const totalMoles = Object.values(composition).reduce((s, v) => s + v, 0) + arMoles
     
-    const compositionPercent: Record<string, number> = {}
+    const products_mole_pct: Record<string, number> = {}
     for (const [sp, moles] of Object.entries(composition)) {
-      compositionPercent[sp] = (moles / totalMoles) * 100
+      products_mole_pct[sp] = (moles / totalMoles) * 100
     }
     if (arMoles > 0) {
-      compositionPercent['Ar'] = (arMoles / totalMoles) * 100
+      products_mole_pct['Ar'] = (arMoles / totalMoles) * 100
     }
 
     const deltaG = (T: number) => {
       let sum = 0
       for (const sp of equilibriumSpecies) {
         const n = composition[sp] || 0
-        if (n > 0) sum += n * chemPotential(sp, T)
+        if (n > 0) sum += n * chemPotential(sp, T, P)
       }
       return sum
     }
@@ -567,8 +569,8 @@ export default function FlameTemperaturePage() {
       for (const sp of equilibriumSpecies) {
         const n = composition[sp] || 0
         if (n > 0) {
-          const a = getCoeffs(sp, TeqK)
-          if (a) sum += n * R * (a[0] + a[1] * TeqK + a[2] * TeqK * TeqK + a[3] * TeqK * TeqK * TeqK + a[4] * TeqK * TeqK * TeqK * TeqK)
+          const a = getCoeffs(sp, T_equilibrium_K)
+          if (a) sum += n * R * (a[0] + a[1] * T_equilibrium_K + a[2] * T_equilibrium_K * T_equilibrium_K + a[3] * T_equilibrium_K * T_equilibrium_K * T_equilibrium_K + a[4] * T_equilibrium_K * T_equilibrium_K * T_equilibrium_K * T_equilibrium_K)
         }
       }
       return sum / totalMoles
@@ -577,15 +579,18 @@ export default function FlameTemperaturePage() {
     const gamma = cpMix() / (cpMix() - R)
 
     return {
-      theoretical: Math.max(0, TfrozenK - 273.15),
-      actual: Math.max(0, TeqK - 273.15),
+      T_frozen_K: T_frozen_K,
+      T_frozen_C: Math.max(0, T_frozen_K - 273.15),
+      T_equilibrium_K: T_equilibrium_K,
+      T_equilibrium_C: Math.max(0, T_equilibrium_K - 273.15),
+      products_mole_pct: products_mole_pct,
       stoichO2,
-      composition: compositionPercent,
       totalMoles,
-      deltaG: deltaG(TeqK),
+      deltaG: deltaG(T_equilibrium_K),
       cpMix: cpMix(),
       gamma,
-      pressure: parseFloat(pressure) || 1
+      pressure_bar: P,
+      excessAirRatio: lambda
     }
   }
 
@@ -603,8 +608,8 @@ export default function FlameTemperaturePage() {
     doc.setFontSize(10)
     doc.setFont(undefined, 'normal')
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text(`Pressure: ${results.pressure} bar`, 20, 36)
-    doc.text(`Heat Loss: ${heatLoss}%`, 120, 36)
+    doc.text(`Pressure: ${results.pressure_bar} bar`, 20, 36)
+    doc.text(`Excess Air Ratio: ${results.excessAirRatio.toFixed(2)}`, 120, 36)
     
     doc.setFontSize(12)
     doc.setFont(undefined, 'bold')
@@ -628,7 +633,7 @@ export default function FlameTemperaturePage() {
     yPos += 6
     doc.text(`Oxidizer Temperature: ${oxidizerTemperature} °C`, 20, yPos)
     yPos += 6
-    doc.text(`Excess Oxygen: ${excessOxygen}%`, 20, yPos)
+    doc.text(`Excess Air Ratio: ${excessAirRatio}`, 20, yPos)
     
     yPos += 10
     doc.setFontSize(12)
@@ -637,8 +642,8 @@ export default function FlameTemperaturePage() {
     
     doc.setFontSize(10)
     doc.setFont(undefined, 'normal')
-    doc.text(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} °C`, 120, 56)
-    doc.text(`Actual Flame Temperature: ${results.actual.toFixed(0)} °C`, 120, 62)
+    doc.text(`Frozen Flame Temperature: ${results.T_frozen_C.toFixed(0)} °C (${results.T_frozen_K.toFixed(1)} K)`, 120, 56)
+    doc.text(`Equilibrium Flame Temperature: ${results.T_equilibrium_C.toFixed(0)} °C (${results.T_equilibrium_K.toFixed(1)} K)`, 120, 62)
     doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
     doc.text(`Total Moles: ${results.totalMoles.toFixed(3)} mol`, 120, 74)
     
@@ -649,7 +654,7 @@ export default function FlameTemperaturePage() {
     
     doc.setFontSize(10)
     doc.setFont(undefined, 'normal')
-    for (const [sp, pct] of Object.entries(results.composition)) {
+    for (const [sp, pct] of Object.entries(results.products_mole_pct)) {
       if (pct > 0.01) {
         yPos += 6
         doc.text(`${sp}: ${pct.toFixed(4)}%`, 20, yPos)
@@ -674,7 +679,7 @@ export default function FlameTemperaturePage() {
     doc.save('flame-temperature-report.pdf')
   }
 
-  const sortedSpecies = Object.entries(results?.composition || {})
+  const sortedSpecies = Object.entries(results?.products_mole_pct || {})
     .sort((a, b) => b[1] - a[1])
 
   return (
@@ -851,31 +856,19 @@ export default function FlameTemperaturePage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Heat Loss</label>
+                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">
+                    {oxidizerType === 'air' ? 'Excess Air Ratio (λ)' : oxidizerType === 'oxygen' ? 'Excess Oxygen Ratio (λ)' : 'Excess Oxidizer Ratio (λ)'}
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
-                      value={heatLoss}
-                      onChange={(e) => setHeatLoss(e.target.value)}
+                      value={excessAirRatio}
+                      onChange={(e) => setExcessAirRatio(e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
-                      placeholder="0"
+                      placeholder="1.0"
                     />
-                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">%</span>
+                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">λ</span>
                   </div>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Excess Oxygen</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={excessOxygen}
-                    onChange={(e) => setExcessOxygen(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
-                    placeholder="0"
-                  />
-                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">%</span>
                 </div>
               </div>
 
@@ -886,17 +879,17 @@ export default function FlameTemperaturePage() {
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div className="bg-white/10 p-3 rounded">
                         <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
-                          <Flame size={12} /> Theoretical
+                          <Flame size={12} /> Frozen
                         </div>
-                        <div className="text-xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)}°C</div>
-                        <div className="text-[10px] text-[#7f8c8d] mt-1">Adiabatic</div>
+                        <div className="text-xl font-bold text-[#f39c12]">{results.T_frozen_C.toFixed(0)}°C</div>
+                        <div className="text-[10px] text-[#7f8c8d] mt-1">{results.T_frozen_K.toFixed(1)} K</div>
                       </div>
                       <div className="bg-white/10 p-3 rounded">
                         <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
-                          <Zap size={12} /> Actual
+                          <Zap size={12} /> Equilibrium
                         </div>
-                        <div className="text-xl font-bold text-[#f39c12]">{results.actual.toFixed(0)}°C</div>
-                        <div className="text-[10px] text-[#7f8c8d] mt-1">With dissociation</div>
+                        <div className="text-xl font-bold text-[#f39c12]">{results.T_equilibrium_C.toFixed(0)}°C</div>
+                        <div className="text-[10px] text-[#7f8c8d] mt-1">{results.T_equilibrium_K.toFixed(1)} K</div>
                       </div>
                     </div>
                   </div>
