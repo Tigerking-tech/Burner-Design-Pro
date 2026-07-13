@@ -3,6 +3,7 @@ import { usePersistentState } from '../hooks/usePersistentState'
 import { AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { Navbar } from '../components/Navbar'
+import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
 import {
   addCoverPage,
   drawPageHeader,
@@ -36,30 +37,6 @@ interface GasPreset {
   name: string
   composition: Record<string, string>
 }
-
-const defaultGasComponents: GasComponent[] = [
-  { name: 'Hydrogen', symbol: 'H₂', percentage: '0' },
-  { name: 'Carbon Monoxide', symbol: 'CO', percentage: '0' },
-  { name: 'Ammonia', symbol: 'NH₃', percentage: '0' },
-  { name: 'Hydrogen sulphide', symbol: 'H₂S', percentage: '0' },
-  { name: 'Methane', symbol: 'CH₄', percentage: '0' },
-  { name: 'Ethane', symbol: 'C₂H₆', percentage: '0' },
-  { name: 'Propane', symbol: 'C₃H₈', percentage: '0' },
-  { name: 'Butane', symbol: 'C₄H₁₀', percentage: '0' },
-  { name: 'Pentane', symbol: 'C₅H₁₂', percentage: '0' },
-  { name: 'Hexane', symbol: 'C₆H₁₄', percentage: '0' },
-  { name: 'Heptane', symbol: 'C₇H₁₆', percentage: '0' },
-  { name: 'Benzene', symbol: 'C₆H₆', percentage: '0' },
-  { name: 'Ethene', symbol: 'C₂H₄', percentage: '0' },
-  { name: 'Propene', symbol: 'C₃H₆', percentage: '0' },
-  { name: 'Butene', symbol: 'C₄H₈', percentage: '0' },
-  { name: 'Ethine', symbol: 'C₂H₂', percentage: '0' },
-  { name: 'Nitrogen', symbol: 'N₂', percentage: '0' },
-  { name: 'Carbon Dioxide', symbol: 'CO₂', percentage: '0' },
-  { name: 'Oxygen', symbol: 'O₂', percentage: '0' },
-  { name: 'Steam', symbol: 'H₂O', percentage: '0' },
-  { name: 'Air', symbol: 'Air', percentage: '0' },
-]
 
 const gasPresets: GasPreset[] = [
   {
@@ -852,67 +829,19 @@ export default function FuelManagerPage() {
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="block text-xs font-medium text-[#555] mb-1">Gas type</label>
-                  <select
-                    value={selectedGas1Preset}
-                    onChange={(e) => {
-                      setSelectedGas1Preset(e.target.value)
-                      if (e.target.value === '__enter__') {
-                        setGas1Components(defaultGasComponents.map(c => ({ ...c, percentage: '0' })))
-                      } else if (e.target.value) {
-                        applyGasPreset(e.target.value, 1)
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
-                  >
-                    <option value="">Select gas type...</option>
-                    <option value="__enter__">Enter %-by-vol.</option>
-                    {gasPresets.map(preset => (
-                      <option key={preset.name} value={preset.name}>{preset.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="overflow-x-auto mb-3">
-                  <table className="w-full text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-[#2c3e50] text-white">
-                        <th className="text-left py-1 px-1.5 font-medium">Single Gas</th>
-                        <th className="text-left py-1 px-1.5 font-medium hidden sm:table-cell">Symbol</th>
-                        <th className="text-right py-1 px-1.5 font-medium w-16">Vol.-%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gas1Components.map((component, idx) => (
-                        <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="py-0.5 px-1.5 text-gray-700 text-xs">{component.name}</td>
-                          <td className="py-0.5 px-1.5 text-gray-500 text-xs hidden sm:table-cell">{component.symbol}</td>
-                          <td className="py-0.5 px-1.5 text-right">
-                            <input
-                              type="text"
-                              value={component.percentage}
-                              onChange={(e) => handleComponentChange(1, component.symbol, e.target.value)}
-                              className="w-14 px-1 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
-                              placeholder="0"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex items-center justify-between mb-3 p-2 bg-gray-100 rounded">
-                  <span className="text-xs font-medium text-[#555]">Total:</span>
-                  <span className={`text-sm font-bold ${Math.abs(getTotalPercentage(gas1Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                    {getTotalPercentage(gas1Components).toFixed(2)}%
-                  </span>
-                </div>
+                <GasComposition
+                  components={gas1Components}
+                  setComponents={(c) => { setGas1Components(c); setSelectedGas1Preset(''); }}
+                  presets={gasPresets}
+                  selectedPreset={selectedGas1Preset}
+                  setSelectedPreset={(p) => { setSelectedGas1Preset(p); if (p) applyGasPreset(p, 1); }}
+                  title=""
+                  presetLabel="Gas type"
+                />
 
                 <button
                   onClick={() => setShowGas1Results(!showGas1Results)}
-                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm"
+                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm mt-4"
                 >
                   {showGas1Results ? 'Hide' : 'Calculate'} Gas 1 Key Data
                 </button>
@@ -961,67 +890,19 @@ export default function FuelManagerPage() {
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="block text-xs font-medium text-[#555] mb-1">Gas type</label>
-                  <select
-                    value={selectedGas2Preset}
-                    onChange={(e) => {
-                      setSelectedGas2Preset(e.target.value)
-                      if (e.target.value === '__enter__') {
-                        setGas2Components(defaultGasComponents.map(c => ({ ...c, percentage: '0' })))
-                      } else if (e.target.value) {
-                        applyGasPreset(e.target.value, 2)
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900"
-                  >
-                    <option value="">Select gas type...</option>
-                    <option value="__enter__">Enter %-by-vol.</option>
-                    {gasPresets.map(preset => (
-                      <option key={preset.name} value={preset.name}>{preset.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="overflow-x-auto mb-3">
-                  <table className="w-full text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-[#2c3e50] text-white">
-                        <th className="text-left py-1 px-1.5 font-medium">Single Gas</th>
-                        <th className="text-left py-1 px-1.5 font-medium hidden sm:table-cell">Symbol</th>
-                        <th className="text-right py-1 px-1.5 font-medium w-16">Vol.-%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gas2Components.map((component, idx) => (
-                        <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="py-0.5 px-1.5 text-gray-700 text-xs">{component.name}</td>
-                          <td className="py-0.5 px-1.5 text-gray-500 text-xs hidden sm:table-cell">{component.symbol}</td>
-                          <td className="py-0.5 px-1.5 text-right">
-                            <input
-                              type="text"
-                              value={component.percentage}
-                              onChange={(e) => handleComponentChange(2, component.symbol, e.target.value)}
-                              className="w-14 px-1 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#f39c12]"
-                              placeholder="0"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex items-center justify-between mb-3 p-2 bg-gray-100 rounded">
-                  <span className="text-xs font-medium text-[#555]">Total:</span>
-                  <span className={`text-sm font-bold ${Math.abs(getTotalPercentage(gas2Components) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                    {getTotalPercentage(gas2Components).toFixed(2)}%
-                  </span>
-                </div>
+                <GasComposition
+                  components={gas2Components}
+                  setComponents={(c) => { setGas2Components(c); setSelectedGas2Preset(''); }}
+                  presets={gasPresets}
+                  selectedPreset={selectedGas2Preset}
+                  setSelectedPreset={(p) => { setSelectedGas2Preset(p); if (p) applyGasPreset(p, 2); }}
+                  title=""
+                  presetLabel="Gas type"
+                />
 
                 <button
                   onClick={() => setShowGas2Results(!showGas2Results)}
-                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm"
+                  className="w-full bg-[#f39c12] hover:bg-[#e67e22] text-white py-2 rounded font-semibold transition-colors text-sm mt-4"
                 >
                   {showGas2Results ? 'Hide' : 'Calculate'} Gas 2 Key Data
                 </button>
@@ -1117,65 +998,15 @@ export default function FuelManagerPage() {
                       Fuel Gas Input
                     </h2>
 
-                    <div className="mb-4 sm:mb-5">
-                      <label className="block text-sm font-medium text-[#555] mb-2">Gas type</label>
-                      <select
-                        value={selectedCombustionGasPreset}
-                        onChange={(e) => {
-                          applyCombustionGasPreset(e.target.value)
-                        }}
-                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B6BA0]/20 focus:border-[#2B6BA0] text-gray-900 text-sm"
-                      >
-                        <option value="">Select gas type...</option>
-                        <option value="__enter__">Enter %-by-vol.</option>
-                        {gasPresets.map(preset => (
-                          <option key={preset.name} value={preset.name}>{preset.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <details className="mb-3 sm:mb-4" open>
-                      <summary className="cursor-pointer text-sm font-medium text-[#2B6BA0] mb-2 hover:underline">
-                        Gas composition (click to edit)
-                      </summary>
-                      <div className="mt-2 sm:mt-3">
-                        <div className="overflow-x-auto mb-3">
-                          <table className="w-full text-xs border-collapse">
-                            <thead>
-                              <tr className="bg-[#2c3e50] text-white">
-                                <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
-                                <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
-                                <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {combustionGasComponents.map((component, idx) => (
-                                <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                  <td className="py-1 px-2 text-gray-700">{component.name}</td>
-                                  <td className="py-1 px-2 text-gray-500 hidden sm:table-cell">{component.symbol}</td>
-                                  <td className="py-1 px-2 text-right">
-                                    <input
-                                      type="text"
-                                      value={component.percentage}
-                                      onChange={(e) => handleCombustionComponentChange(component.symbol, e.target.value)}
-                                      className="w-16 px-1.5 py-0.5 border border-gray-300 rounded text-xs text-right text-gray-900 focus:outline-none focus:border-[#2B6BA0]"
-                                      placeholder="0"
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </details>
-
-                    <div className="flex items-center justify-between mb-4 p-3 sm:p-4 bg-gray-100 rounded">
-                      <span className="text-sm font-medium text-[#555]">Total Percentage:</span>
-                      <span className={`text-lg font-bold ${Math.abs(getTotalPercentage(combustionGasComponents) - 100) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                        {getTotalPercentage(combustionGasComponents).toFixed(2)}%
-                      </span>
-                    </div>
+                    <GasComposition
+                      components={combustionGasComponents}
+                      setComponents={(c) => { setCombustionGasComponents(c); setSelectedCombustionGasPreset(''); }}
+                      presets={gasPresets}
+                      selectedPreset={selectedCombustionGasPreset}
+                      setSelectedPreset={(p) => { applyCombustionGasPreset(p); }}
+                      title=""
+                      presetLabel="Gas type"
+                    />
 
                   </div>
 

@@ -1,41 +1,13 @@
 import { useState } from 'react'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
+import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
 import { authAPI } from '../services/api'
-import { Thermometer, AlertTriangle, Download } from 'lucide-react'
+import { Thermometer, AlertTriangle, Download, Zap, Flame } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { usePersistentState } from '../hooks/usePersistentState'
 
-interface GasComponent {
-  name: string
-  symbol: string
-  percentage: string
-}
-
-const defaultGasComponents: GasComponent[] = [
-  { name: 'Hydrogen', symbol: 'H₂', percentage: '0' },
-  { name: 'Carbon Monoxide', symbol: 'CO', percentage: '0' },
-  { name: 'Ammonia', symbol: 'NH₃', percentage: '0' },
-  { name: 'Hydrogen sulphide', symbol: 'H₂S', percentage: '0' },
-  { name: 'Methane', symbol: 'CH₄', percentage: '0' },
-  { name: 'Ethane', symbol: 'C₂H₆', percentage: '0' },
-  { name: 'Propane', symbol: 'C₃H₈', percentage: '0' },
-  { name: 'Butane', symbol: 'C₄H₁₀', percentage: '0' },
-  { name: 'Pentane', symbol: 'C₅H₁₂', percentage: '0' },
-  { name: 'Hexane', symbol: 'C₆H₁₄', percentage: '0' },
-  { name: 'Heptane', symbol: 'C₇H₁₆', percentage: '0' },
-  { name: 'Benzene', symbol: 'C₆H₆', percentage: '0' },
-  { name: 'Ethene', symbol: 'C₂H₄', percentage: '0' },
-  { name: 'Propene', symbol: 'C₃H₆', percentage: '0' },
-  { name: 'Butene', symbol: 'C₄H₈', percentage: '0' },
-  { name: 'Ethine', symbol: 'C₂H₂', percentage: '0' },
-  { name: 'Nitrogen', symbol: 'N₂', percentage: '0' },
-  { name: 'Carbon Dioxide', symbol: 'CO₂', percentage: '0' },
-  { name: 'Oxygen', symbol: 'O₂', percentage: '0' },
-  { name: 'Steam', symbol: 'H₂O', percentage: '0' },
-]
-
-const gasPresets: Array<{ name: string; composition: Record<string, string> }> = [
+const gasPresets: GasPreset[] = [
   {
     name: 'North sea natural gas H',
     composition: { 'CH₄': '92.0', 'C₂H₆': '3.5', 'C₃H₈': '1.5', 'C₄H₁₀': '0.5', 'N₂': '1.5', 'CO₂': '1.0' }
@@ -137,7 +109,6 @@ interface NasaCoeffs {
   high: { a: number[] }
 }
 
-// NASA 7-coefficient polynomials (1 bar standard state)
 const nasaCoeffs: Record<string, NasaCoeffs> = {
   'CO₂': {
     low: { a: [2.35677352E+00, 8.98459677E-03, -7.12356269E-06, 2.45919022E-09, -1.43699548E-13, -4.83719697E+04, 9.90105222E+00] },
@@ -197,7 +168,6 @@ const nasaCoeffs: Record<string, NasaCoeffs> = {
   }
 }
 
-// Standard enthalpy of formation (kJ/mol, 298 K)
 const enthalpyOfFormation: Record<string, number> = {
   'H₂': 0, 'CO': -110.5, 'NH₃': -45.9, 'H₂S': -20.6,
   'CH₄': -74.87, 'C₂H₆': -84.7, 'C₃H₈': -103.85, 'C₄H₁₀': -126.15,
@@ -206,7 +176,6 @@ const enthalpyOfFormation: Record<string, number> = {
   'N₂': 0, 'CO₂': -393.52, 'O₂': 0, 'H₂O': -241.83
 }
 
-// Atomic composition (C, H, O, N)
 const atomicComp: Record<string, { c: number; h: number; o: number; n: number }> = {
   'H₂': { c: 0, h: 2, o: 0, n: 0 }, 'CO': { c: 1, h: 0, o: 1, n: 0 },
   'NH₃': { c: 0, h: 3, o: 0, n: 1 }, 'H₂S': { c: 0, h: 2, o: 0, n: 0 },
@@ -232,7 +201,6 @@ function getCoeffs(species: string, T: number): number[] | null {
   return T < 1000 ? data.low.a : data.high.a
 }
 
-// Absolute enthalpy H(T) in kJ/mol (includes formation enthalpy)
 function enthalpy(species: string, T: number): number {
   const a = getCoeffs(species, T)
   if (!a) {
@@ -247,7 +215,6 @@ function enthalpy(species: string, T: number): number {
   return R * T * H_RT
 }
 
-// Absolute entropy S(T) in kJ/mol/K
 function entropy(species: string, T: number): number {
   const a = getCoeffs(species, T)
   if (!a) return 0.2
@@ -255,12 +222,10 @@ function entropy(species: string, T: number): number {
   return R * S_R
 }
 
-// Chemical potential μ^0(T) = h - T*s (kJ/mol)
 function chemPotential(species: string, T: number): number {
   return enthalpy(species, T) - T * entropy(species, T)
 }
 
-// Solve linear system Ax = b using Gaussian elimination with partial pivoting
 function solveLinear(A: number[][], b: number[]): number[] | null {
   const n = b.length
   const M = A.map((row, i) => [...row, b[i]])
@@ -292,9 +257,6 @@ interface ElementVector {
   n: number
 }
 
-// Element potential method for chemical equilibrium with total pressure constraint.
-// Uses element ratio balance equations to improve numerical stability and avoid
-// dependence on the arbitrary total mole scale.
 function equilibriumComposition(b: ElementVector, T: number): Record<string, number> {
   const elementNames: (keyof ElementVector)[] = ['c', 'h', 'o', 'n']
   const activeElements: (keyof ElementVector)[] = []
@@ -357,7 +319,7 @@ function equilibriumComposition(b: ElementVector, T: number): Record<string, num
     for (let j = 0; j < ne - 1; j++) {
       Rvec[j] = b[activeElements[j]] * sumEl[ne - 1] - bRef * sumEl[j]
     }
-    Rvec[ne - 1] = sumPi - 1.0 // P = 1 bar, NASA p0 = 1 bar
+    Rvec[ne - 1] = sumPi - 1.0
 
     const err = Math.sqrt(Rvec.reduce((s, v) => s + v * v, 0))
     if (err < 1e-10) {
@@ -440,6 +402,8 @@ export default function FlameTemperaturePage() {
   const [oxygenRatio, setOxygenRatio] = usePersistentState('flametemp_oxygenRatio', '0')
   const [oxidizerTemperature, setOxidizerTemperature] = usePersistentState('flametemp_oxidizerTemperature', '25')
   const [excessOxygen, setExcessOxygen] = usePersistentState('flametemp_excessOxygen', '10')
+  const [pressure, setPressure] = usePersistentState('flametemp_pressure', '1')
+  const [heatLoss, setHeatLoss] = usePersistentState('flametemp_heatLoss', '0')
 
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
@@ -463,27 +427,6 @@ export default function FlameTemperaturePage() {
   const handleUpgradeClick = () => {
     setShowSubscriptionModal(false)
     window.location.href = '/subscription'
-  }
-
-  const applyPreset = (presetName: string) => {
-    const preset = gasPresets.find(p => p.name === presetName)
-    if (!preset) return
-
-    const newComponents = defaultGasComponents.map(c => ({
-      ...c,
-      percentage: preset.composition[c.symbol] || '0'
-    }))
-    setGasComponents(newComponents)
-  }
-
-  const handleComponentChange = (symbol: string, value: string) => {
-    if (value !== '' && (isNaN(parseFloat(value)) || parseFloat(value) < 0)) return
-    
-    const newComponents = gasComponents.map(c =>
-      c.symbol === symbol ? { ...c, percentage: value } : c
-    )
-    setGasComponents(newComponents)
-    setSelectedPreset('')
   }
 
   const getTotalPercentage = () => {
@@ -549,6 +492,9 @@ export default function FlameTemperaturePage() {
     const Tox = (parseFloat(oxidizerTemperature) || 25) + 273.15
     Hreact += actualO2 * enthalpy('O₂', Tox) + n2FromOxidizer * enthalpy('N₂', Tox)
 
+    const heatLossFraction = parseFloat(heatLoss) / 100
+    Hreact *= (1 - heatLossFraction)
+
     const frozenEnthalpy = (T: number) => {
       const nCO2 = totalC
       const nH2O = totalH / 2
@@ -560,7 +506,6 @@ export default function FlameTemperaturePage() {
            + nN2 * enthalpy('N₂', T)
     }
 
-    // Solve for equilibrium (actual / dissociated) flame temperature
     const Tmax = oxidizerType === 'oxygen' ? 7000 : 4000
     let Tlow = 300, Thigh = Tmax
     for (let i = 0; i < 200; i++) {
@@ -572,7 +517,6 @@ export default function FlameTemperaturePage() {
     }
     const TeqK = (Tlow + Thigh) / 2
 
-    // Solve for frozen (theoretical) flame temperature
     Tlow = 300; Thigh = Tmax
     for (let i = 0; i < 200; i++) {
       const Tmid = (Tlow + Thigh) / 2
@@ -584,12 +528,46 @@ export default function FlameTemperaturePage() {
     const TfrozenK = (Tlow + Thigh) / 2
 
     const composition = equilibriumComposition(b, TeqK)
+    const totalMoles = Object.values(composition).reduce((s, v) => s + v, 0)
+    
+    const compositionPercent: Record<string, number> = {}
+    for (const [sp, moles] of Object.entries(composition)) {
+      compositionPercent[sp] = (moles / totalMoles) * 100
+    }
+
+    const deltaG = (T: number) => {
+      let sum = 0
+      for (const sp of equilibriumSpecies) {
+        const n = composition[sp] || 0
+        if (n > 0) sum += n * chemPotential(sp, T)
+      }
+      return sum
+    }
+
+    const cpMix = () => {
+      let sum = 0
+      for (const sp of equilibriumSpecies) {
+        const n = composition[sp] || 0
+        if (n > 0) {
+          const a = getCoeffs(sp, TeqK)
+          if (a) sum += n * R * (a[0] + a[1] * TeqK + a[2] * TeqK * TeqK + a[3] * TeqK * TeqK * TeqK + a[4] * TeqK * TeqK * TeqK * TeqK)
+        }
+      }
+      return sum / totalMoles
+    }
+
+    const gamma = cpMix() / (cpMix() - R)
 
     return {
       theoretical: Math.max(0, TfrozenK - 273.15),
       actual: Math.max(0, TeqK - 273.15),
       stoichO2,
-      composition
+      composition: compositionPercent,
+      totalMoles,
+      deltaG: deltaG(TeqK),
+      cpMix: cpMix(),
+      gamma,
+      pressure: parseFloat(pressure) || 1
     }
   }
 
@@ -607,7 +585,8 @@ export default function FlameTemperaturePage() {
     doc.setFontSize(10)
     doc.setFont(undefined, 'normal')
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text('Standard: Thermodynamic heat balance calculation', 20, 36)
+    doc.text(`Pressure: ${results.pressure} bar`, 20, 36)
+    doc.text(`Heat Loss: ${heatLoss}%`, 120, 36)
     
     doc.setFontSize(12)
     doc.setFont(undefined, 'bold')
@@ -643,31 +622,32 @@ export default function FlameTemperaturePage() {
     doc.text(`Theoretical Flame Temperature: ${results.theoretical.toFixed(0)} °C`, 120, 56)
     doc.text(`Actual Flame Temperature: ${results.actual.toFixed(0)} °C`, 120, 62)
     doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
+    doc.text(`Total Moles: ${results.totalMoles.toFixed(3)} mol`, 120, 74)
     
     yPos = 78
     doc.setFontSize(12)
     doc.setFont(undefined, 'bold')
-    doc.text('Combustion Products (per mole fuel):', 20, yPos)
+    doc.text('Combustion Products (mole %):', 20, yPos)
     
     doc.setFontSize(10)
     doc.setFont(undefined, 'normal')
-    doc.text(`CO₂: ${(results.composition['CO₂'] || 0).toFixed(4)} mol`, 20, yPos + 8)
-    doc.text(`H₂O: ${(results.composition['H₂O'] || 0).toFixed(4)} mol`, 20, yPos + 14)
-    doc.text(`N₂: ${(results.composition['N₂'] || 0).toFixed(4)} mol`, 20, yPos + 20)
-    doc.text(`Excess O₂: ${(results.composition['O₂'] || 0).toFixed(4)} mol`, 20, yPos + 26)
-    
-    yPos += 34
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'bold')
-    doc.text('Equilibrium Species (mole fraction > 0.001):', 20, yPos)
-    doc.setFont(undefined, 'normal')
-    const totalMoles = Object.values(results.composition).reduce((s, v) => s + v, 0)
-    for (const [sp, moles] of Object.entries(results.composition)) {
-      if (moles / totalMoles > 0.001) {
+    for (const [sp, pct] of Object.entries(results.composition)) {
+      if (pct > 0.01) {
         yPos += 6
-        doc.text(`${sp}: ${moles.toFixed(4)} mol`, 20, yPos)
+        doc.text(`${sp}: ${pct.toFixed(4)}%`, 20, yPos)
       }
     }
+    
+    yPos += 10
+    doc.setFontSize(12)
+    doc.setFont(undefined, 'bold')
+    doc.text('Thermodynamic Properties:', 20, yPos)
+    
+    doc.setFontSize(10)
+    doc.setFont(undefined, 'normal')
+    doc.text(`ΔG (Gibbs Free Energy): ${results.deltaG.toFixed(2)} kJ`, 20, yPos + 8)
+    doc.text(`Cp (Mixture): ${results.cpMix.toFixed(4)} kJ/mol/K`, 20, yPos + 14)
+    doc.text(`γ (Isentropic Index): ${results.gamma.toFixed(4)}`, 20, yPos + 20)
     
     doc.setFontSize(8)
     doc.setTextColor(128, 128, 128)
@@ -675,6 +655,9 @@ export default function FlameTemperaturePage() {
     
     doc.save('flame-temperature-report.pdf')
   }
+
+  const sortedSpecies = Object.entries(results?.composition || {})
+    .sort((a, b) => b[1] - a[1])
 
   return (
     <ProFeaturePreview
@@ -691,13 +674,12 @@ export default function FlameTemperaturePage() {
               Flame Temperature Calculator
             </h1>
             <p className="text-lg text-[#bdc3c7] max-w-2xl mx-auto">
-              Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations.
+              Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations with chemical equilibrium.
             </p>
           </div>
         </section>
 
         <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          {/* Inline Disclaimer */}
           <div className="bg-yellow-50 dark:bg-gray-800 border-l-4 border-yellow-400 dark:border-yellow-600 rounded-lg p-4 flex items-start gap-3 mb-6">
             <AlertTriangle className="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" size={20} />
             <div className="text-sm">
@@ -710,57 +692,15 @@ export default function FlameTemperaturePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
-              <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
-                <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
-                Fuel Gas Composition
-              </h2>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Gas type</label>
-                <select
-                  value={selectedPreset}
-                  onChange={(e) => {
-                    setSelectedPreset(e.target.value)
-                    if (e.target.value) applyPreset(e.target.value)
-                  }}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
-                >
-                  <option value="">Select gas type...</option>
-                  {gasPresets.map((preset, i) => (
-                    <option key={i} value={preset.name}>{preset.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 mb-6">
-                {gasComponents.map((component) => (
-                  <div key={component.symbol} className="flex flex-col bg-gray-50 dark:bg-gray-700/50 p-2 sm:p-3 rounded touch-manipulation h-full">
-                    <div className="mb-2">
-                      <div className="text-xs font-medium text-[#555] dark:text-gray-300 break-words leading-tight line-clamp-2 min-h-[32px] sm:min-h-[36px]">{component.name}</div>
-                      <div className="text-xs text-[#7f8c8d] dark:text-gray-400 mt-1">{component.symbol}</div>
-                    </div>
-                    <div className="flex items-center gap-1 mt-auto">
-                      <input
-                        type="text"
-                        value={component.percentage}
-                        onChange={(e) => handleComponentChange(component.symbol, e.target.value)}
-                        className="flex-1 w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded text-sm sm:text-xs text-center text-gray-900 dark:text-white min-h-[32px]"
-                        placeholder="0"
-                      />
-                      <span className="text-xs text-[#7f8c8d] dark:text-gray-400 flex-shrink-0 w-4 text-center">%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between mb-4 p-4 bg-gray-100 dark:bg-gray-700/50 rounded">
-                <span className="text-sm font-medium text-[#555] dark:text-gray-300">Total Percentage:</span>
-                <span className={`text-lg font-bold ${Math.abs(getTotalPercentage() - 100) < 0.01 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {getTotalPercentage().toFixed(2)}%
-                </span>
-              </div>
-            </div>
+            <GasComposition
+              components={gasComponents}
+              setComponents={setGasComponents}
+              presets={gasPresets}
+              selectedPreset={selectedPreset}
+              setSelectedPreset={setSelectedPreset}
+              title="Fuel Gas Composition"
+              presetLabel="Gas type"
+            />
 
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
               <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
@@ -768,26 +708,41 @@ export default function FlameTemperaturePage() {
                 Operating Conditions
               </h2>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Fuel Temperature</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={fuelTemperature}
-                    onChange={(e) => setFuelTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
-                    placeholder="0"
-                  />
-                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Fuel Temperature</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={fuelTemperature}
+                      onChange={(e) => setFuelTemperature(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Pressure</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={pressure}
+                      onChange={(e) => setPressure(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+                      placeholder="1"
+                    />
+                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">bar</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Oxidizer Type</label>
-                <div className="flex gap-3 mb-4">
+                <div className="flex gap-2 mb-3">
                   <button
                     onClick={() => setOxidizerType('air')}
-                    className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
+                    className={`flex-1 py-2 px-3 rounded font-semibold transition-colors text-sm ${
                       oxidizerType === 'air'
                         ? 'bg-[#f39c12] text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -797,7 +752,7 @@ export default function FlameTemperaturePage() {
                   </button>
                   <button
                     onClick={() => setOxidizerType('oxygen')}
-                    className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
+                    className={`flex-1 py-2 px-3 rounded font-semibold transition-colors text-sm ${
                       oxidizerType === 'oxygen'
                         ? 'bg-[#f39c12] text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -807,7 +762,7 @@ export default function FlameTemperaturePage() {
                   </button>
                   <button
                     onClick={() => setOxidizerType('mixed')}
-                    className={`flex-1 py-2.5 px-4 rounded font-semibold transition-colors ${
+                    className={`flex-1 py-2 px-3 rounded font-semibold transition-colors text-sm ${
                       oxidizerType === 'mixed'
                         ? 'bg-[#f39c12] text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-[#555] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -818,9 +773,9 @@ export default function FlameTemperaturePage() {
                 </div>
 
                 {oxidizerType === 'mixed' && (
-                  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded">
-                    <div className="text-sm text-[#555] dark:text-gray-300 font-medium mb-2">Oxygen-Enriched Air Mixture</div>
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded">
+                    <div className="text-sm text-[#555] dark:text-gray-300 font-medium">Oxygen-Enriched Air Mixture</div>
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs text-[#555] dark:text-gray-400 mb-1">Air %</label>
                         <input
@@ -834,7 +789,7 @@ export default function FlameTemperaturePage() {
                               setOxygenRatio((100 - num).toString())
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white"
+                          className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white text-sm"
                           placeholder="0"
                         />
                       </div>
@@ -851,40 +806,55 @@ export default function FlameTemperaturePage() {
                               setAirRatio((100 - num).toString())
                             }
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white"
+                          className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-600 rounded text-center dark:text-white text-sm"
                           placeholder="0"
                         />
                       </div>
                     </div>
-                    <div className="text-xs text-[#7f8c8d] dark:text-gray-400 mt-2">
+                    <div className="text-xs text-[#7f8c8d] dark:text-gray-400">
                       Total: {((parseFloat(airRatio) || 0) + (parseFloat(oxygenRatio) || 0)).toFixed(0)}% {Math.abs(((parseFloat(airRatio) || 0) + (parseFloat(oxygenRatio) || 0)) - 100) < 0.01 ? '✓' : '(must equal 100%)'}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Oxidizer Temperature</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={oxidizerTemperature}
-                    onChange={(e) => setOxidizerTemperature(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
-                    placeholder="0"
-                  />
-                  <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Oxidizer Temperature</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={oxidizerTemperature}
+                      onChange={(e) => setOxidizerTemperature(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">°C</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Heat Loss</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={heatLoss}
+                      onChange={(e) => setHeatLoss(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+                      placeholder="0"
+                    />
+                    <span className="text-sm text-[#7f8c8d] dark:text-gray-400">%</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">Excess Oxygen</label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={excessOxygen}
                     onChange={(e) => setExcessOxygen(e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
                     placeholder="0"
                   />
                   <span className="text-sm text-[#7f8c8d] dark:text-gray-400">%</span>
@@ -892,27 +862,58 @@ export default function FlameTemperaturePage() {
               </div>
 
               {showResults && results ? (
-                <div className="mb-4 p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                  <h3 className="text-base font-bold text-white mb-3">Flame Temperature Results</h3>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="bg-white/10 p-3 rounded">
-                      <div className="text-xs text-[#bdc3c7] mb-1">Theoretical</div>
-                      <div className="text-xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)}°C</div>
-                      <div className="text-[10px] text-[#7f8c8d] mt-1">Adiabatic</div>
-                    </div>
-                    <div className="bg-white/10 p-3 rounded">
-                      <div className="text-xs text-[#bdc3c7] mb-1">Actual</div>
-                      <div className="text-xl font-bold text-[#f39c12]">{results.actual.toFixed(0)}°C</div>
-                      <div className="text-[10px] text-[#7f8c8d] mt-1">With dissociation</div>
+                <div className="mb-4 space-y-4">
+                  <div className="p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
+                    <h3 className="text-base font-bold text-white mb-3">Flame Temperature Results</h3>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="bg-white/10 p-3 rounded">
+                        <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
+                          <Flame size={12} /> Theoretical
+                        </div>
+                        <div className="text-xl font-bold text-[#f39c12]">{results.theoretical.toFixed(0)}°C</div>
+                        <div className="text-[10px] text-[#7f8c8d] mt-1">Adiabatic</div>
+                      </div>
+                      <div className="bg-white/10 p-3 rounded">
+                        <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
+                          <Zap size={12} /> Actual
+                        </div>
+                        <div className="text-xl font-bold text-[#f39c12]">{results.actual.toFixed(0)}°C</div>
+                        <div className="text-[10px] text-[#7f8c8d] mt-1">With dissociation</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="pt-3 border-t border-white/10">
-                    <div className="text-xs text-[#bdc3c7] font-medium mb-2">Combustion Products</div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-[#bdc3c7]">
-                      <div>CO₂: {(results.composition['CO₂'] || 0).toFixed(2)} mol</div>
-                      <div>H₂O: {(results.composition['H₂O'] || 0).toFixed(2)} mol</div>
-                      <div>N₂: {(results.composition['N₂'] || 0).toFixed(2)} mol</div>
-                      <div>O₂: {(results.composition['O₂'] || 0).toFixed(2)} mol</div>
+
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <h3 className="text-sm font-bold text-[#2c3e50] dark:text-white mb-2">Combustion Products (mole %)</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs">
+                      {sortedSpecies.map(([sp, pct]) => (
+                        <div key={sp} className="flex justify-between">
+                          <span className="text-[#555] dark:text-gray-300">{sp}:</span>
+                          <span className="text-[#2c3e50] dark:text-white font-medium">{pct.toFixed(3)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <h3 className="text-sm font-bold text-[#2c3e50] dark:text-white mb-2">Thermodynamic Properties</h3>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-[#555] dark:text-gray-300">Total Moles:</span>
+                        <span className="text-[#2c3e50] dark:text-white font-medium">{results.totalMoles.toFixed(3)} mol</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#555] dark:text-gray-300">ΔG (kJ):</span>
+                        <span className="text-[#2c3e50] dark:text-white font-medium">{results.deltaG.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#555] dark:text-gray-300">Cp (kJ/mol/K):</span>
+                        <span className="text-[#2c3e50] dark:text-white font-medium">{results.cpMix.toFixed(4)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#555] dark:text-gray-300">γ (Isentropic):</span>
+                        <span className="text-[#2c3e50] dark:text-white font-medium">{results.gamma.toFixed(4)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -925,7 +926,6 @@ export default function FlameTemperaturePage() {
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
               </button>
 
-              {/* Export PDF Button */}
               {showResults && results && (
                 <div className="mt-3">
                   <button
