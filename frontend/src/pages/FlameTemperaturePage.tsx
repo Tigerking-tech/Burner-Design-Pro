@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
@@ -592,7 +592,16 @@ export default function FlameTemperaturePage() {
     }
   }
 
-  const results = calculateFlameTemperature()
+  const results = useMemo(() => calculateFlameTemperature(), [
+    gasComponents,
+    fuelTemperature,
+    oxidizerType,
+    airRatio,
+    oxygenRatio,
+    oxidizerTemperature,
+    excessAirRatio,
+    pressure
+  ])
 
   const exportToPDF = () => {
     if (!results) return
@@ -873,7 +882,10 @@ export default function FlameTemperaturePage() {
               {showResults && results ? (
                 <div className="mb-4 space-y-4">
                   <div className="p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                    <h3 className="text-base font-bold text-white mb-3">Flame Temperature Results</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-white">Flame Temperature Results</h3>
+                      <span className="text-xs text-[#bdc3c7]">{results.pressure_bar.toFixed(1)} bar</span>
+                    </div>
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div className="bg-white/10 p-3 rounded">
                         <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
