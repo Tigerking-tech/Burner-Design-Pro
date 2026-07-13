@@ -231,12 +231,10 @@ function entropy(species: string, T: number): number {
   return R * S_R
 }
 
-function chemPotential(species: string, T: number, P: number = 1): number {
-  const p0 = 1
+function chemPotential(species: string, T: number, P_bar: number = 1): number {
+  const P0_bar = 1
   const mu0 = enthalpy(species, T) - T * entropy(species, T)
-  const comp = atomicComp[species]
-  const nAtoms = comp.c + comp.h + comp.o + comp.n
-  return mu0 + R * T * Math.log(P / p0) * nAtoms
+  return mu0 + R * T * Math.log(P_bar / P0_bar)
 }
 
 function solveLinear(A: number[][], b: number[]): number[] | null {
