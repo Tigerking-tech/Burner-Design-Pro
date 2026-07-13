@@ -150,6 +150,14 @@ const nasaCoeffs: Record<string, NasaCoeffs> = {
     low: { a: [4.21859896E+00, -4.63988124E-03, 1.10443049E-05, -9.34055507E-09, 2.77256731E-12, 9.83572000E+03, 2.28061000E+00] },
     high: { a: [3.26060534E+00, 1.19110431E-03, -4.29170487E-07, 6.94588191E-11, -3.89803100E-15, 9.92143120E+03, 6.57240900E+00] }
   },
+  'NO₂': {
+    low: { a: [4.30252312E+00, -2.04403820E-03, 7.32207260E-06, -7.55600410E-09, 2.61114820E-12, -1.39808000E+03, 4.87864000E+00] },
+    high: { a: [2.97296528E+00, 2.94267370E-03, -1.15680611E-06, 2.13218434E-10, -1.45451497E-14, -1.39808000E+03, 1.11188160E+01] }
+  },
+  'Ar': {
+    low: { a: [2.50000000E+00, 0.00000000E+00, 0.00000000E+00, 0.00000000E+00, 0.00000000E+00, -7.45375000E+02, 4.36600000E+00] },
+    high: { a: [2.50000000E+00, 0.00000000E+00, 0.00000000E+00, 0.00000000E+00, 0.00000000E+00, -7.45375000E+02, 4.36600000E+00] }
+  },
   'CH₄': {
     low: { a: [5.14987613E+00, -1.36709788E-02, 4.91800599E-05, -4.84743026E-08, 1.66693956E-11, -1.02466476E+04, -4.64130376E+00] },
     high: { a: [7.48514950E-02, 1.33909467E-02, -5.73285809E-06, 1.22292535E-09, -1.01815230E-13, -9.46834459E+03, 1.84373180E+01] }
@@ -188,10 +196,11 @@ const atomicComp: Record<string, { c: number; h: number; o: number; n: number }>
   'N₂': { c: 0, h: 0, o: 0, n: 2 }, 'CO₂': { c: 1, h: 0, o: 2, n: 0 },
   'O₂': { c: 0, h: 0, o: 2, n: 0 }, 'H₂O': { c: 0, h: 2, o: 1, n: 0 },
   'OH': { c: 0, h: 1, o: 1, n: 0 }, 'O': { c: 0, h: 0, o: 1, n: 0 },
-  'H': { c: 0, h: 1, o: 0, n: 0 }, 'NO': { c: 0, h: 0, o: 1, n: 1 }
+  'H': { c: 0, h: 1, o: 0, n: 0 }, 'NO': { c: 0, h: 0, o: 1, n: 1 },
+  'NO₂': { c: 0, h: 0, o: 2, n: 1 }, 'Ar': { c: 0, h: 0, o: 0, n: 0 }
 }
 
-const equilibriumSpecies = ['CO₂', 'H₂O', 'CO', 'H₂', 'O₂', 'N₂', 'OH', 'O', 'H', 'NO']
+const equilibriumSpecies = ['CO₂', 'H₂O', 'CO', 'H₂', 'O₂', 'N₂', 'OH', 'O', 'H', 'NO', 'NO₂']
 
 type OxidizerType = 'air' | 'oxygen' | 'mixed'
 
@@ -382,10 +391,11 @@ function equilibriumComposition(b: ElementVector, T: number): Record<string, num
   return result
 }
 
-function productEnthalpy(b: ElementVector, T: number): number {
+function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0): number {
   const eq = equilibriumComposition(b, T)
   let sum = 0
   for (const sp of equilibriumSpecies) sum += (eq[sp] || 0) * enthalpy(sp, T)
+  sum += arMoles * enthalpy('Ar', T)
   return sum
 }
 
@@ -456,20 +466,24 @@ export default function FlameTemperaturePage() {
     const excessAirRatio = 1 + parseFloat(excessOxygen) / 100
     const actualO2 = stoichO2 * excessAirRatio
 
-    let o2InOxidizer: number, n2InOxidizer: number
+    let o2InOxidizer: number, n2InOxidizer: number, arInOxidizer: number
     if (oxidizerType === 'air') {
-      o2InOxidizer = 0.21
-      n2InOxidizer = 0.79
+      o2InOxidizer = 0.2095
+      n2InOxidizer = 0.7809
+      arInOxidizer = 0.0096
     } else if (oxidizerType === 'oxygen') {
       o2InOxidizer = 1.0
       n2InOxidizer = 0.0
+      arInOxidizer = 0.0
     } else {
-      o2InOxidizer = (parseFloat(airRatio) * 0.21 + parseFloat(oxygenRatio)) / 100
-      n2InOxidizer = parseFloat(airRatio) * 0.79 / 100
+      o2InOxidizer = (parseFloat(airRatio) * 0.2095 + parseFloat(oxygenRatio)) / 100
+      n2InOxidizer = parseFloat(airRatio) * 0.7809 / 100
+      arInOxidizer = parseFloat(airRatio) * 0.0096 / 100
     }
 
     const oxidizerMoles = actualO2 / o2InOxidizer
     const n2FromOxidizer = oxidizerMoles * n2InOxidizer
+    const arFromOxidizer = oxidizerMoles * arInOxidizer
 
     const b: ElementVector = {
       c: totalC,
@@ -477,6 +491,10 @@ export default function FlameTemperaturePage() {
       o: totalO + actualO2 * 2,
       n: totalN + n2FromOxidizer * 2
     }
+
+    // Ar is inert and doesn't participate in element balance,
+    // but we track it separately for enthalpy and product composition
+    const arMoles = arFromOxidizer
 
     const Tfuel = parseFloat(fuelTemperature) || 25
     const TfuelK = Tfuel + 273.15
@@ -490,7 +508,7 @@ export default function FlameTemperaturePage() {
     })
 
     const Tox = (parseFloat(oxidizerTemperature) || 25) + 273.15
-    Hreact += actualO2 * enthalpy('O₂', Tox) + n2FromOxidizer * enthalpy('N₂', Tox)
+    Hreact += actualO2 * enthalpy('O₂', Tox) + n2FromOxidizer * enthalpy('N₂', Tox) + arMoles * enthalpy('Ar', Tox)
 
     const heatLossFraction = parseFloat(heatLoss) / 100
     Hreact *= (1 - heatLossFraction)
@@ -504,13 +522,14 @@ export default function FlameTemperaturePage() {
            + nH2O * enthalpy('H₂O', T)
            + nO2 * enthalpy('O₂', T)
            + nN2 * enthalpy('N₂', T)
+           + arMoles * enthalpy('Ar', T)
     }
 
     const Tmax = oxidizerType === 'oxygen' ? 7000 : 4000
     let Tlow = 300, Thigh = Tmax
     for (let i = 0; i < 200; i++) {
       const Tmid = (Tlow + Thigh) / 2
-      const Hmid = productEnthalpy(b, Tmid)
+      const Hmid = productEnthalpy(b, Tmid, arMoles)
       if (Hmid > Hreact) Thigh = Tmid
       else Tlow = Tmid
       if (Thigh - Tlow < 0.1) break
@@ -528,11 +547,14 @@ export default function FlameTemperaturePage() {
     const TfrozenK = (Tlow + Thigh) / 2
 
     const composition = equilibriumComposition(b, TeqK)
-    const totalMoles = Object.values(composition).reduce((s, v) => s + v, 0)
+    const totalMoles = Object.values(composition).reduce((s, v) => s + v, 0) + arMoles
     
     const compositionPercent: Record<string, number> = {}
     for (const [sp, moles] of Object.entries(composition)) {
       compositionPercent[sp] = (moles / totalMoles) * 100
+    }
+    if (arMoles > 0) {
+      compositionPercent['Ar'] = (arMoles / totalMoles) * 100
     }
 
     const deltaG = (T: number) => {
