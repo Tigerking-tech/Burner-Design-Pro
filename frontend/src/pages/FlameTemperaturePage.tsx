@@ -495,7 +495,6 @@ export default function FlameTemperaturePage() {
     if (Math.abs(totalPercentage - 100) > 0.01) return null
 
     let totalC = 0, totalH = 0, totalO = 0, totalN = 0
-    let HfFuel = 0
 
     gasComponents.forEach(component => {
       const moleFraction = parseFloat(component.percentage) / 100
@@ -505,7 +504,6 @@ export default function FlameTemperaturePage() {
         totalH += moleFraction * comp.h
         totalO += moleFraction * comp.o
         totalN += moleFraction * comp.n
-        HfFuel += moleFraction * (enthalpyOfFormation[component.symbol] || 0)
       }
     })
 
@@ -530,7 +528,6 @@ export default function FlameTemperaturePage() {
     const oxidizerMoles = actualO2 / o2InOxidizer
     const n2FromOxidizer = oxidizerMoles * n2InOxidizer
 
-    // Total elemental atoms per mole of fuel (including oxidizer)
     const b: ElementVector = {
       c: totalC,
       h: totalH,
@@ -538,24 +535,20 @@ export default function FlameTemperaturePage() {
       n: totalN + n2FromOxidizer * 2
     }
 
-    // Reactant sensible + formation enthalpy (kJ per mole of fuel)
-    let HfuelSensible = 0
     const Tfuel = parseFloat(fuelTemperature) || 25
     const TfuelK = Tfuel + 273.15
+
+    let Hreact = 0
     gasComponents.forEach(component => {
       const moleFraction = parseFloat(component.percentage) / 100
       if (moleFraction > 0) {
-        HfuelSensible += moleFraction * (enthalpy(component.symbol, TfuelK) - enthalpy(component.symbol, 298.15))
+        Hreact += moleFraction * enthalpy(component.symbol, TfuelK)
       }
     })
 
     const Tox = (parseFloat(oxidizerTemperature) || 25) + 273.15
-    const Hoxidizer = actualO2 * (enthalpy('O₂', Tox) - enthalpy('O₂', 298.15))
-                    + n2FromOxidizer * (enthalpy('N₂', Tox) - enthalpy('N₂', 298.15))
+    Hreact += actualO2 * enthalpy('O₂', Tox) + n2FromOxidizer * enthalpy('N₂', Tox)
 
-    const Hreact = HfFuel + HfuelSensible + Hoxidizer
-
-    // Frozen product enthalpy (complete combustion, no dissociation)
     const frozenEnthalpy = (T: number) => {
       const nCO2 = totalC
       const nH2O = totalH / 2
