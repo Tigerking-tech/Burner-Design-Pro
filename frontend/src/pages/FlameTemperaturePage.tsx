@@ -6,6 +6,18 @@ import { authAPI } from '../services/api'
 import { Thermometer, AlertTriangle, Download, Zap, Flame } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { usePersistentState } from '../hooks/usePersistentState'
+import {
+  addCoverPage,
+  drawPageHeader,
+  drawSectionTitle,
+  drawSubSectionTitle,
+  drawInfoTable,
+  drawResultCard,
+  drawPageFooter,
+  checkPageBreak,
+  MARGIN_LEFT,
+  CONTENT_WIDTH,
+} from '../utils/pdfUtils'
 
 const gasPresets: GasPreset[] = [
   {
@@ -666,83 +678,103 @@ export default function FlameTemperaturePage() {
   const exportToPDF = () => {
     if (!results) return
 
-    const doc = new jsPDF()
-    
-    doc.setFontSize(18)
-    doc.setFont(undefined, 'bold')
-    doc.text('Flame Temperature Calculation Report', 20, 20)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30)
-    doc.text(`Pressure: ${results.pressure_bar} bar`, 20, 36)
-    doc.text(`Excess Air Ratio: ${results.excessAirRatio.toFixed(2)}`, 120, 36)
-    
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Input Parameters:', 20, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    let yPos = 56
-    gasComponents.forEach(c => {
-      const pct = parseFloat(c.percentage) || 0
-      if (pct > 0) {
-        doc.text(`${c.name} (${c.symbol}): ${pct.toFixed(2)}%`, 20, yPos)
-        yPos += 6
-      }
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+
+    addCoverPage(doc, {
+      title: 'Flame Temperature Calculation Report',
+      subtitle: 'Theoretical flame temperature calculation with chemical equilibrium analysis',
+      reportType: 'Thermodynamic Analysis',
     })
+
+    let y = drawPageHeader(doc, 'Flame Temperature Calculation', 'Calculation Results')
+
+    y = drawSectionTitle(doc, 'Input Parameters', y, selectedPreset || 'Custom fuel composition')
     
-    yPos += 4
-    doc.text(`Fuel Temperature: ${fuelTemperature} °C`, 20, yPos)
-    yPos += 6
-    doc.text(`Oxidizer Type: ${oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'}`, 20, yPos)
-    yPos += 6
-    doc.text(`Oxidizer Temperature: ${oxidizerTemperature} °C`, 20, yPos)
-    yPos += 6
-    doc.text(`Excess Air Ratio: ${excessAirRatio}`, 20, yPos)
+    const fuelRows: [string, string][] = gasComponents
+      .filter(c => parseFloat(c.percentage) > 0)
+      .map(c => [c.name + ' (' + c.symbol + ')', parseFloat(c.percentage).toFixed(2) + '%'])
     
-    yPos += 10
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Calculation Results:', 120, 48)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`Frozen Flame Temperature: ${results.T_frozen_C.toFixed(0)} °C (${results.T_frozen_K.toFixed(1)} K)`, 120, 56)
-    doc.text(`Equilibrium Flame Temperature: ${results.T_equilibrium_C.toFixed(0)} °C (${results.T_equilibrium_K.toFixed(1)} K)`, 120, 62)
-    doc.text(`Stoichiometric O₂: ${results.stoichO2.toFixed(4)} mol/mol`, 120, 68)
-    doc.text(`Total Moles: ${results.totalMoles.toFixed(3)} mol`, 120, 74)
-    
-    yPos = 78
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Combustion Products (mole %):', 20, yPos)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    for (const [sp, pct] of Object.entries(results.products_mole_pct)) {
-      if (pct > 0.01) {
-        yPos += 6
-        doc.text(`${sp}: ${pct.toFixed(4)}%`, 20, yPos)
-      }
+    if (fuelRows.length > 0) {
+      y = drawInfoTable(doc, fuelRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4, {
+        title: 'Fuel Composition',
+      })
     }
-    
-    yPos += 10
-    doc.setFontSize(12)
-    doc.setFont(undefined, 'bold')
-    doc.text('Thermodynamic Properties:', 20, yPos)
-    
-    doc.setFontSize(10)
-    doc.setFont(undefined, 'normal')
-    doc.text(`ΔG (Gibbs Free Energy): ${results.deltaG.toFixed(2)} kJ`, 20, yPos + 8)
-    doc.text(`Cp (Mixture): ${results.cpMix.toFixed(4)} kJ/mol/K`, 20, yPos + 14)
-    doc.text(`γ (Isentropic Index): ${results.gamma.toFixed(4)}`, 20, yPos + 20)
-    
-    doc.setFontSize(8)
-    doc.setTextColor(128, 128, 128)
-    doc.text('Note: Results are for reference only. Consult qualified combustion engineers.', 20, 280)
-    
+
+    const paramRows: [string, string][] = [
+      ['Fuel Temperature', fuelTemperature + ' degC'],
+      ['Oxidizer Type', oxidizerType === 'air' ? 'Air' : oxidizerType === 'oxygen' ? 'Pure Oxygen' : 'Mixed'],
+      ['Oxidizer Temperature', oxidizerTemperature + ' degC'],
+      ['Excess Air Ratio', results.excessAirRatio.toFixed(2)],
+      ['Pressure', results.pressure_bar.toFixed(2) + ' bar'],
+    ]
+    y = drawInfoTable(doc, paramRows, MARGIN_LEFT + CONTENT_WIDTH / 2 + 4, y, CONTENT_WIDTH / 2 - 4, {
+      title: 'Process Parameters',
+    })
+
+    y = checkPageBreak(doc, y, 100, 'Flame Temperature Calculation', 'Key Results')
+    y = drawSectionTitle(doc, 'Key Calculation Results', y)
+
+    const cardWidth = (CONTENT_WIDTH - 8) / 3
+    drawResultCard(doc, {
+      label: 'Frozen Temperature',
+      value: results.T_frozen_C.toFixed(0) + ' degC',
+      x: MARGIN_LEFT,
+      y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Equilibrium Temperature',
+      value: results.T_equilibrium_C.toFixed(0) + ' degC',
+      x: MARGIN_LEFT + cardWidth + 4,
+      y,
+      width: cardWidth,
+      highlight: true,
+    })
+    drawResultCard(doc, {
+      label: 'Temperature Difference',
+      value: (results.T_frozen_C - results.T_equilibrium_C).toFixed(0) + ' degC',
+      x: MARGIN_LEFT + (cardWidth + 4) * 2,
+      y,
+      width: cardWidth,
+      status: 'info',
+    })
+    y += 37
+
+    const secondaryRows: [string, string][] = [
+      ['Stoichiometric O2', results.stoichO2.toFixed(4) + ' mol/mol'],
+      ['Total Moles', results.totalMoles.toFixed(3) + ' mol'],
+    ]
+    y = drawInfoTable(doc, secondaryRows, MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4, {
+      title: 'Combustion Data',
+    })
+
+    y = checkPageBreak(doc, y, 120, 'Flame Temperature Calculation', 'Combustion Products')
+    y = drawSectionTitle(doc, 'Combustion Products', y, 'Molar composition at equilibrium')
+
+    const productRows: [string, string][] = Object.entries(results.products_mole_pct)
+      .filter(([, pct]) => pct > 0.01)
+      .map(([sp, pct]) => [sp, pct.toFixed(3) + '%'])
+
+    y = drawInfoTable(doc, productRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Mole Percentages',
+      rowHeight: 7,
+    })
+
+    y = checkPageBreak(doc, y, 60, 'Flame Temperature Calculation', 'Thermodynamic Properties')
+    y = drawSectionTitle(doc, 'Thermodynamic Properties', y)
+
+    const thermoRows: [string, string][] = [
+      ['Delta G (Gibbs Free Energy)', results.deltaG.toFixed(2) + ' kJ'],
+      ['Cp (Mixture Heat Capacity)', results.cpMix.toFixed(4) + ' kJ/mol/K'],
+      ['Gamma (Isentropic Index)', results.gamma.toFixed(4)],
+    ]
+    y = drawInfoTable(doc, thermoRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Equilibrium Thermodynamics',
+    })
+
+    drawPageFooter(doc, 'Flame temperature calculations based on chemical equilibrium at specified conditions')
+
     doc.save('flame-temperature-report.pdf')
   }
 
