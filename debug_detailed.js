@@ -1,53 +1,51 @@
-// 计算丁烷产物与 Cantera 对比
-// 完全使用项目当前的最新 NASA 系数
+// 详细调试：检查每个步骤的中间值
 
 const R = 0.008314;
 
 const nasaCoeffs = {
   'CO₂': { Tmid: 1000,
-    low: { a: [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13, -48371.9697, 9.90105222] },
-    high: { a: [4.63659493, 0.00274131991, -9.95828531e-07, 1.60373011e-10, -9.16103468e-15, -49024.9341, -1.93534855] }},
+    low: { a: [2.35677352E+0, 8.98459677E-3, -7.12356269E-6, 2.45919022E-9, -1.43699548E-13, -4.83719697E+4, 9.90105222E+0] },
+    high: { a: [3.85746029E+0, 4.41437026E-3, -2.21481404E-6, 5.23490188E-10, -4.72084164E-14, -4.87591660E+4, 2.27163806E+0] }},
   'H₂O': { Tmid: 1000,
-    low: { a: [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12, -30293.7267, -0.849032208] },
-    high: { a: [2.67703787, 0.00297318329, -7.7376969e-07, 9.44336689e-11, -4.26900959e-15, -29885.8938, 6.88255571] }},
+    low: { a: [4.19864056E+0, -2.03643410E-3, 6.52040211E-6, -5.48797062E-9, 1.77197817E-12, -3.02937267E+4, -8.49032208E-1] },
+    high: { a: [3.03399249E+0, 2.17691804E-3, -1.64072518E-7, -9.70419870E-11, 1.68200992E-14, -3.00042971E+4, 4.96677010E+0] }},
   'N₂': { Tmid: 1000,
-    low: { a: [3.53100528, -0.000123660987, -5.02999437e-07, 2.43530612e-09, -1.40881235e-12, -1046.97628, 2.96747468] },
-    high: { a: [2.95257626, 0.00139690057, -4.92631691e-07, 7.86010367e-11, -4.60755321e-15, -923.948645, 5.87189252] }},
+    low: { a: [3.29867700E+0, 1.40824040E-3, -3.96322200E-6, 5.64151500E-9, -2.44485400E-12, -1.02089990E+3, 3.95037200E+0] },
+    high: { a: [2.92664000E+0, 1.48797680E-3, -5.68476000E-7, 1.00970380E-10, -6.75335100E-15, -9.22797700E+2, 5.98052800E+0] }},
   'O₂': { Tmid: 1000,
-    low: { a: [3.78245636, -0.00299673415, 9.847302e-06, -9.68129508e-09, 3.24372836e-12, -1063.94356, 3.65767573] },
-    high: { a: [3.66096083, 0.000656365523, -1.41149485e-07, 2.05797658e-11, -1.29913248e-15, -1215.97725, 3.41536184] }},
+    low: { a: [3.78245636E+0, -2.99673416E-3, 9.84730201E-6, -9.68129509E-9, 3.24372837E-12, -1.06394356E+3, 3.65767573E+0] },
+    high: { a: [3.28253784E+0, 1.48308754E-3, -7.57966669E-7, 2.09470555E-10, -2.16717794E-14, -1.08845772E+3, 5.45323129E+0] }},
   'CO': { Tmid: 1000,
-    low: { a: [3.57953347, -0.00061035368, 1.01681433e-06, 9.07005884e-10, -9.04424499e-13, -14344.086, 3.50840928] },
-    high: { a: [3.04848583, 0.00135172818, -4.85794075e-07, 7.88536486e-11, -4.69807489e-15, -14266.1171, 6.0170979] }},
+    low: { a: [3.57953347E+0, -6.10353680E-4, 1.01681433E-6, 9.07005884E-10, -9.04424499E-13, -1.43440860E+4, 3.50840928E+0] },
+    high: { a: [2.71518561E+0, 2.06252743E-3, -9.98825771E-7, 2.30053008E-10, -2.03647716E-14, -1.41518724E+4, 7.81868772E+0] }},
   'H₂': { Tmid: 1000,
-    low: { a: [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12, -917.935173, 0.683010238] },
-    high: { a: [2.93286579, 0.000826607967, -1.46402335e-07, 1.54100359e-11, -6.88804432e-16, -813.065597, -1.02432887] }},
+    low: { a: [2.34433112E+0, 7.98052075E-3, -1.94781510E-5, 2.01572094E-8, -7.37611761E-12, -9.17935173E+2, 6.83010238E-1] },
+    high: { a: [3.33727920E+0, -4.94024731E-5, 4.99456778E-7, -1.79566394E-10, 2.00255376E-14, -9.50158922E+2, -3.20502331E+0] }},
   'OH': { Tmid: 1000,
-    low: { a: [3.99201543, -0.00240131752, 4.61793841e-06, -3.88113333e-09, 1.3641147e-12, 3615.08056, -0.103925458] },
-    high: { a: [2.83864607, 0.00110725586, -2.93914978e-07, 4.20524247e-11, -2.42169092e-15, 3943.95852, 5.84452662] }},
+    low: { a: [3.99201543E+0, -2.40131752E-3, 4.61793841E-6, -3.88113333E-9, 1.36411470E-12, 3.61508056E+3, -1.03925458E-1] },
+    high: { a: [3.09288767E+0, 5.48429716E-4, 1.26505228E-7, -8.79461556E-11, 1.17412376E-14, 3.85865700E+3, 4.47669610E+0] }},
   'O': { Tmid: 1000,
-    low: { a: [3.1682671, -0.00327931884, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12, 29122.2592, 2.05193346] },
-    high: { a: [2.54363697, -2.73162486e-05, -4.1902952e-09, 4.95481845e-12, -4.79553694e-16, 29226.012, 4.92229457] }},
+    low: { a: [3.16826710E+0, -3.27931884E-3, 6.64306396E-6, -6.12806624E-9, 2.11265971E-12, 2.91222592E+4, 2.05193346E+0] },
+    high: { a: [2.56942078E+0, -8.59741137E-5, 4.19484589E-8, -1.00177799E-11, 1.22833691E-15, 2.92175791E+4, 4.78433864E+0] }},
   'H': { Tmid: 1000,
-    low: { a: [2.5, 0.0, 0.0, 0.0, 0.0, 25473.6599, -0.446682853] },
-    high: { a: [2.50000286, -5.65334214e-09, 3.63251723e-12, -9.1994972e-16, 7.95260746e-20, 25473.6589, -0.446698494] }},
+    low: { a: [2.50000000E+0, 7.05332819E-13, -1.99591964E-15, 2.30081632E-18, -9.27732332E-22, 2.54736599E+4, -4.46682853E-1] },
+    high: { a: [2.50000001E+0, -2.30842973E-11, 1.61561948E-14, -4.73515235E-18, 4.98197357E-22, 2.54736599E+4, -4.46682914E-1] }},
   'NO': { Tmid: 1000,
     low: { a: [4.21847630E+0, -4.63897600E-3, 1.10410220E-5, -9.33613540E-9, 2.80357700E-12, 9.84462300E+3, 2.28084640E+0] },
     high: { a: [3.26060560E+0, 1.19110430E-3, -4.29170480E-7, 6.94576690E-11, -4.03360990E-15, 9.92097460E+3, 6.36930270E+0] }},
   'C₃H₈': { Tmid: 1000,
-    low: { a: [4.2110262, 0.00171599803, 7.06183472e-05, -9.19594116e-08, 3.64421372e-11, -14381.2106, 5.60930491] },
-    high: { a: [6.66789363, 0.0206120214, -7.36553027e-06, 1.18440761e-09, -7.0695321e-14, -16274.8521, -13.1859503] }},
+    low: { a: [9.33553810E-1, 2.64245790E-2, 6.10597270E-6, -2.19774990E-8, 9.51492530E-12, -1.39585200E+4, 1.92016910E+1] },
+    high: { a: [7.53413680E+0, 1.88722390E-2, -6.27184910E-6, 9.14756490E-10, -4.78380690E-14, -1.64675160E+4, -1.78923490E+1] }},
   'C₄H₁₀': { Tmid: 1000,
-    low: { a: [6.14746806, 0.000155947389, 9.67913517e-05, -1.2548391e-07, 4.97816555e-11, -17599.4402, -1.09409879] },
-    high: { a: [9.44535834, 0.0257858073, -9.23619122e-06, 1.48632755e-09, -8.87897158e-14, -20138.2165, -26.3470076] }},
-  'Ar': { Tmid: 1000,
-    low: { a: [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491] },
-    high: { a: [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491] }},
+    low: { a: [6.14746806E+0, 1.55947389E-4, 9.67913517E-5, -1.25483910E-7, 4.97816555E-11, -1.75994402E+4, -1.09409879E+0] },
+    high: { a: [9.44535834E+0, 2.57858073E-2, -9.23619122E-6, 1.48632755E-9, -8.87897158E-14, -2.01382165E+4, -2.63470076E+1] }},
+  'Ar': { Tmid: 6000,
+    low: { a: [2.50000000E+0, 0, 0, 0, 0, -7.45375000E+2, 4.37967491E+0] },
+    high: { a: [2.50000000E+0, 0, 0, 0, 0, -7.45375000E+2, 4.37967491E+0] }},
 };
 
 const atomicComp = {
   'H₂': { c: 0, h: 2, o: 0, n: 0 }, 'CO': { c: 1, h: 0, o: 1, n: 0 },
-  'CH₄': { c: 1, h: 4, o: 0, n: 0 },
   'C₃H₈': { c: 3, h: 8, o: 0, n: 0 }, 'C₄H₁₀': { c: 4, h: 10, o: 0, n: 0 },
   'N₂': { c: 0, h: 0, o: 0, n: 2 }, 'CO₂': { c: 1, h: 0, o: 2, n: 0 },
   'O₂': { c: 0, h: 0, o: 2, n: 0 }, 'H₂O': { c: 0, h: 2, o: 1, n: 0 },
@@ -214,89 +212,63 @@ function equilibriumComposition(b, T, P = 1) {
   return result;
 }
 
-function calcFlame(fuel, fuelT_C, oxT_C, lambda, P_bar) {
-  const { c, h } = fuel;
-  const stoichO2 = c + h / 4;
-  const actualO2 = stoichO2 * lambda;
-  const n2 = actualO2 * (0.7809 / 0.2095);
-  const ar = actualO2 * (0.0096 / 0.2095);
+// 调试：计算丙烷燃烧的 Hreact 和产物焓
+const fuel = { c: 3, h: 8, symbol: 'C₃H₈' };
+const Tfuel = 298.15;
+const Tox = 298.15;
+const lambda = 1.0;
+const P_bar = 1;
 
-  const b = { c, h, o: actualO2 * 2, n: n2 * 2 };
-  const Tfuel = fuelT_C + 273.15;
-  const Tox = oxT_C + 273.15;
+const stoichO2 = fuel.c + fuel.h / 4;
+const actualO2 = stoichO2 * lambda;
+const n2 = actualO2 * (0.7809 / 0.2095);
+const ar = actualO2 * (0.0096 / 0.2095);
 
-  let Hreact = enthalpy(fuel.symbol, Tfuel) + actualO2 * enthalpy('O₂', Tox) + n2 * enthalpy('N₂', Tox) + ar * enthalpy('Ar', Tox);
+console.log('=' .repeat(70));
+console.log('详细调试 - 丙烷燃烧 (25°C, 1bar, λ=1.0)');
+console.log('=' .repeat(70));
+console.log(`化学计量 O2: ${stoichO2}`);
+console.log(`实际 O2: ${actualO2}`);
+console.log(`N2: ${n2}`);
+console.log(`Ar: ${ar}`);
 
-  const frozenEnthalpy = (T) => {
-    const nCO2 = c, nH2O = h / 2, nO2 = actualO2 - stoichO2, nN2 = n2;
-    return nCO2 * enthalpy('CO₂', T) + nH2O * enthalpy('H₂O', T) + nO2 * enthalpy('O₂', T) + nN2 * enthalpy('N₂', T) + ar * enthalpy('Ar', T);
-  };
+const b = { c: fuel.c, h: fuel.h, o: actualO2 * 2, n: n2 * 2 };
+console.log(`元素守恒: c=${b.c}, h=${b.h}, o=${b.o}, n=${b.n}`);
 
-  const productEnthalpy = (T) => {
-    const eq = equilibriumComposition(b, T, P_bar);
-    let sum = 0;
-    for (const sp of equilibriumSpecies) sum += (eq[sp] || 0) * enthalpy(sp, T);
-    sum += ar * enthalpy('Ar', T);
-    return sum;
-  };
+const Hreact = enthalpy(fuel.symbol, Tfuel) + actualO2 * enthalpy('O₂', Tox) + n2 * enthalpy('N₂', Tox) + ar * enthalpy('Ar', Tox);
+console.log(`\n反应物焓 Hreact = ${Hreact.toFixed(2)} kJ/mol`);
 
-  let Tlow = 300, Thigh = 4000;
-  for (let i = 0; i < 200; i++) {
-    const Tmid = (Tlow + Thigh) / 2;
-    if (frozenEnthalpy(Tmid) > Hreact) Thigh = Tmid; else Tlow = Tmid;
-    if (Thigh - Tlow < 0.1) break;
-  }
-  const TfrozenK = (Tlow + Thigh) / 2;
+// 检查 298K 的焓值
+console.log('\n298K 焓值:');
+console.log(`  C3H8: ${enthalpy('C₃H₈', 298.15).toFixed(2)}`);
+console.log(`  O2: ${enthalpy('O₂', 298.15).toFixed(2)}`);
+console.log(`  N2: ${enthalpy('N₂', 298.15).toFixed(2)}`);
+console.log(`  Ar: ${enthalpy('Ar', 298.15).toFixed(2)}`);
 
-  Tlow = 300; Thigh = 4000;
-  for (let i = 0; i < 200; i++) {
-    const Tmid = (Tlow + Thigh) / 2;
-    if (productEnthalpy(Tmid) > Hreact) Thigh = Tmid; else Tlow = Tmid;
-    if (Thigh - Tlow < 0.1) break;
-  }
-  const TeqK = (Tlow + Thigh) / 2;
+// 检查 2000K 的焓值
+console.log('\n2000K 焓值:');
+console.log(`  CO2: ${enthalpy('CO₂', 2000).toFixed(2)}`);
+console.log(`  H2O: ${enthalpy('H₂O', 2000).toFixed(2)}`);
+console.log(`  O2: ${enthalpy('O₂', 2000).toFixed(2)}`);
+console.log(`  N2: ${enthalpy('N₂', 2000).toFixed(2)}`);
 
-  const composition = equilibriumComposition(b, TeqK, P_bar);
-  const totalMoles = Object.values(composition).reduce((s, v) => s + v, 0) + ar;
-  const compositionPercent = {};
-  for (const [sp, moles] of Object.entries(composition)) compositionPercent[sp] = (moles / totalMoles) * 100;
-  if (ar > 0) compositionPercent['Ar'] = (ar / totalMoles) * 100;
+// 冻结产物焓 (2000K)
+const frozenH_2000 = 3 * enthalpy('CO₂', 2000) + 4 * enthalpy('H₂O', 2000) + n2 * enthalpy('N₂', 2000) + ar * enthalpy('Ar', 2000);
+console.log(`\n冻结产物焓 (2000K) = ${frozenH_2000.toFixed(2)} kJ/mol`);
+console.log(`Hreact = ${Hreact.toFixed(2)} kJ/mol`);
+console.log(`差值 = ${(frozenH_2000 - Hreact).toFixed(2)} kJ/mol`);
 
-  return { T_frozen: TfrozenK - 273.15, T_eq: TeqK - 273.15, composition: compositionPercent };
+// 检查平衡产物计算
+const eq = equilibriumComposition(b, 2000, 1);
+console.log('\n平衡产物 (2000K):');
+for (const [sp, moles] of Object.entries(eq)) {
+  console.log(`  ${sp}: ${moles.toFixed(4)} mol`);
 }
 
-const fuels = { C3H8: { c: 3, h: 8, symbol: 'C₃H₈' }, C4H10: { c: 4, h: 10, symbol: 'C₄H₁₀' } };
+const eqTotal = Object.values(eq).reduce((s, v) => s + v, 0) + ar;
+console.log(`总摩尔数 = ${eqTotal.toFixed(4)}`);
 
-console.log('='.repeat(80));
-console.log('Web App 计算 vs Cantera 参考值');
-console.log('='.repeat(80));
-
-// 25°C, 1bar, λ=1.0
-console.log('\n[1] 25°C, 1bar, λ=1.0:');
-for (const [name, fuel] of Object.entries(fuels)) {
-  const res = calcFlame(fuel, 25, 25, 1.0, 1);
-  console.log(`  ${name}: T_frozen = ${res.T_frozen.toFixed(2)}°C, T_eq = ${res.T_eq.toFixed(2)}°C`);
-  console.log(`  产物: CO2=${res.composition['CO₂']?.toFixed(3)}%, H2O=${res.composition['H₂O']?.toFixed(3)}%, N2=${res.composition['N₂']?.toFixed(3)}%`);
-}
-
-// Cantera (nasa_gas) 参考值
-const cantera = {
-  C3H8: { T_frozen: null, T_eq: 2002.43, products: { 'CO2': 10.281, 'H2O': 14.836, 'N2': 71.294, 'Ar': 0.914, 'O2': 0.687, 'CO': 1.236, 'H2': 0.323, 'OH': 0.347 } },
-  C4H10: { T_frozen: null, T_eq: 2005.89, products: { 'CO2': 10.564, 'H2O': 14.295, 'N2': 71.493, 'Ar': 0.917, 'O2': 0.704, 'CO': 1.281, 'H2': 0.313, 'OH': 0.347 } },
-};
-
-console.log('\n[2] 与 Cantera (nasa_gas) 对比:');
-for (const [name, fuel] of Object.entries(fuels)) {
-  const res = calcFlame(fuel, 25, 25, 1.0, 1);
-  const ref = cantera[name];
-  const dT = res.T_eq - ref.T_eq;
-  const pct = (dT / ref.T_eq * 100).toFixed(3);
-  console.log(`  ${name}: T_eq Web=${res.T_eq.toFixed(2)}°C  Cantera=${ref.T_eq}°C  Δ=${dT.toFixed(2)}°C (${pct}%)`);
-}
-
-console.log('\n[3] 丁烷 vs 丙烷 (差值):');
-const resC3 = calcFlame(fuels.C3H8, 25, 25, 1.0, 1);
-const resC4 = calcFlame(fuels.C4H10, 25, 25, 1.0, 1);
-console.log(`  Web App:    丙烷 ${resC3.T_eq.toFixed(2)}°C, 丁烷 ${resC4.T_eq.toFixed(2)}°C, 差 = ${(resC4.T_eq - resC3.T_eq).toFixed(2)}°C (丁烷 - 丙烷)`);
-console.log(`  Cantera:    丙烷 ${cantera.C3H8.T_eq}°C,  丁烷 ${cantera.C4H10.T_eq}°C, 差 = ${(cantera.C4H10.T_eq - cantera.C3H8.T_eq).toFixed(2)}°C`);
-console.log(`  Qwen截图:   丙烷 > 丁烷 (~5°C) - 实际错误！`);
+const eqH_2000 = Object.entries(eq).reduce((sum, [sp, moles]) => sum + moles * enthalpy(sp, 2000), 0) + ar * enthalpy('Ar', 2000);
+console.log(`平衡产物焓 (2000K) = ${eqH_2000.toFixed(2)} kJ/mol`);
+console.log(`Hreact = ${Hreact.toFixed(2)} kJ/mol`);
+console.log(`差值 = ${(eqH_2000 - Hreact).toFixed(2)} kJ/mol`);
