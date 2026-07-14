@@ -784,18 +784,18 @@ export default function FlameTemperaturePage() {
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <Navbar />
 
-        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-16 px-6 text-center">
+        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 sm:py-16 px-4 sm:px-6 text-center pt-20 sm:pt-24">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-semibold mb-4 leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-semibold mb-3 sm:mb-4 leading-tight">
               Flame Temperature Calculator
             </h1>
-            <p className="text-lg text-[#bdc3c7] max-w-2xl mx-auto">
+            <p className="text-sm sm:text-lg text-[#bdc3c7] max-w-2xl mx-auto">
               Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations with chemical equilibrium.
             </p>
           </div>
         </section>
 
-        <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 pt-[100px]">
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:py-12 sm:px-6 lg:px-8">
           <div className="bg-yellow-50 dark:bg-gray-800 border-l-4 border-yellow-400 dark:border-yellow-600 rounded-lg p-4 flex items-start gap-3 mb-6">
             <AlertTriangle className="text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" size={20} />
             <div className="text-sm">
@@ -818,9 +818,9 @@ export default function FlameTemperaturePage() {
               presetLabel="Gas type"
             />
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
-              <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
-                <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">2</span>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] dark:text-white mb-4 sm:mb-6 flex items-center">
+                <span className="w-7 h-7 sm:w-8 sm:h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-2 sm:mr-3 flex-shrink-0">2</span>
                 Operating Conditions
               </h2>
 
@@ -968,7 +968,7 @@ export default function FlameTemperaturePage() {
               {showResults && results ? (
                 <div className="mb-4 space-y-4">
                   <div className="p-4 bg-gradient-to-br from-[#2c3e50] to-[#34495e] rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-1">
                       <h3 className="text-base font-bold text-white">Flame Temperature Results</h3>
                       <span className="text-xs text-[#bdc3c7]">{results.pressure_bar.toFixed(1)} bar</span>
                     </div>
@@ -977,14 +977,14 @@ export default function FlameTemperaturePage() {
                         <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
                           <Flame size={12} /> Frozen
                         </div>
-                        <div className="text-xl font-bold text-[#f39c12]">{results.T_frozen_C.toFixed(0)}°C</div>
+                        <div className="text-lg sm:text-xl font-bold text-[#f39c12]">{results.T_frozen_C.toFixed(0)}°C</div>
                         <div className="text-[10px] text-[#7f8c8d] mt-1">{results.T_frozen_K.toFixed(1)} K</div>
                       </div>
                       <div className="bg-white/10 p-3 rounded">
                         <div className="flex items-center gap-1 text-xs text-[#bdc3c7] mb-1">
                           <Zap size={12} /> Equilibrium
                         </div>
-                        <div className="text-xl font-bold text-[#f39c12]">{results.T_equilibrium_C.toFixed(0)}°C</div>
+                        <div className="text-lg sm:text-xl font-bold text-[#f39c12]">{results.T_equilibrium_C.toFixed(0)}°C</div>
                         <div className="text-[10px] text-[#7f8c8d] mt-1">{results.T_equilibrium_K.toFixed(1)} K</div>
                       </div>
                     </div>
@@ -1004,7 +1004,7 @@ export default function FlameTemperaturePage() {
 
                   <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                     <h3 className="text-sm font-bold text-[#2c3e50] dark:text-white mb-2">Thermodynamic Properties</h3>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-[#555] dark:text-gray-300">Total Moles:</span>
                         <span className="text-[#2c3e50] dark:text-white font-medium">{results.totalMoles.toFixed(3)} mol</span>

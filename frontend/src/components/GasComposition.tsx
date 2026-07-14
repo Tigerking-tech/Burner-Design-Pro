@@ -94,9 +94,9 @@ export default function GasComposition({
   const isTotalValid = Math.abs(getTotalPercentage() - 100) < 0.01
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
-      <h2 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-6 flex items-center">
-        <span className="w-8 h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-3">1</span>
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
+      <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] dark:text-white mb-4 sm:mb-6 flex items-center">
+        <span className="w-7 h-7 sm:w-8 sm:h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-2 sm:mr-3 flex-shrink-0">1</span>
         {title}
       </h2>
 
