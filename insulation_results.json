@@ -1,0 +1,6733 @@
+[
+  {
+    "case_id": "BASE-00",
+    "group": "Baseline",
+    "varies": "—",
+    "inputs": {
+      "id": "BASE-00",
+      "group": "Baseline",
+      "varies": "—",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "materialType": "mineralwool",
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "environment": "indoor",
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "unitSystem": "metric",
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "A-01",
+    "group": "A_EquipmentType",
+    "varies": "equipmentType=pipe",
+    "inputs": {
+      "id": "A-01",
+      "group": "A_EquipmentType",
+      "varies": "equipmentType=pipe",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "A-02",
+    "group": "A_EquipmentType",
+    "varies": "equipmentType=flat (1×1m)",
+    "inputs": {
+      "id": "A-02",
+      "group": "A_EquipmentType",
+      "varies": "equipmentType=flat (1×1m)",
+      "equipmentType": "flat",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 11.609497070312498,
+      "standardThickness": 13,
+      "surfaceTemp": 50.04274194870585,
+      "heatFlux": 344.39823687764124,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 3016.9285550481372,
+      "dewPoint": null,
+      "hc": 5.474854836085535,
+      "hr": 5.98875382738657,
+      "h": 11.463608663472105
+    },
+    "reference": {
+      "thickness_mm": 11.627734375000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.01183408984184,
+      "heatFlux": 343.9643964524539,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 3013.1281129234962,
+      "dewPoint": null,
+      "hc": 5.47313350461871,
+      "hr": 5.987825376560636,
+      "h": 11.460958881179346
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 11.609497070312498,
+        "ref": 11.627734375000001,
+        "rel_err_%": -0.15684314845300928,
+        "abs_err": -0.018237304687502842,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04274194870585,
+        "ref": 50.01183408984184,
+        "rel_err_%": 0.06180109053486959,
+        "abs_err": 0.030907858864011928,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 344.39823687764124,
+        "ref": 343.9643964524539,
+        "rel_err_%": 0.12612945690362948,
+        "abs_err": 0.43384042518732713,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": 3016.9285550481372,
+        "ref": 3013.1281129234962,
+        "rel_err_%": 0.12612945690362978,
+        "abs_err": 3.8004421246409947,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.474854836085535,
+        "ref": 5.47313350461871,
+        "rel_err_%": 0.03145056603081042,
+        "abs_err": 0.001721331466824516,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98875382738657,
+        "ref": 5.987825376560636,
+        "rel_err_%": 0.015505642993003462,
+        "abs_err": 0.0009284508259339574,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.463608663472105,
+        "ref": 11.460958881179346,
+        "rel_err_%": 0.023120075032376418,
+        "abs_err": 0.0026497822927584735,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "B-01",
+    "group": "B_Mode",
+    "varies": "mode=surface",
+    "inputs": {
+      "id": "B-01",
+      "group": "B_Mode",
+      "varies": "mode=surface",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "B-02",
+    "group": "B_Mode",
+    "varies": "mode=heatloss (100 W/m²)",
+    "inputs": {
+      "id": "B-02",
+      "group": "B_Mode",
+      "varies": "mode=heatloss (100 W/m²)",
+      "equipmentType": "pipe",
+      "mode": "heatloss",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 33.54765625,
+      "standardThickness": 40,
+      "surfaceTemp": 31.51163063789072,
+      "heatFlux": 99.47918906600376,
+      "linearHeatLoss": 39.81397665730273,
+      "annualHeatLoss": 348.7704355179719,
+      "dewPoint": null,
+      "hc": 3.187833449861125,
+      "hr": 5.4537910250040085,
+      "h": 8.641624474865134
+    },
+    "reference": {
+      "thickness_mm": 33.504765625000005,
+      "standardThickness": 40,
+      "surfaceTemp": 31.52583772474108,
+      "heatFlux": 99.62399818082736,
+      "linearHeatLoss": 39.84508512038117,
+      "annualHeatLoss": 349.04294565453904,
+      "dewPoint": null,
+      "hc": 3.1893518753885317,
+      "hr": 5.454184547736435,
+      "h": 8.643536423124967
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 33.54765625,
+        "ref": 33.504765625000005,
+        "rel_err_%": 0.1280135055414174,
+        "abs_err": 0.042890624999998295,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 40,
+        "ref": 40,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 31.51163063789072,
+        "ref": 31.52583772474108,
+        "rel_err_%": -0.0450648987487897,
+        "abs_err": -0.014207086850362316,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 99.47918906600376,
+        "ref": 99.62399818082736,
+        "rel_err_%": -0.14535565472965553,
+        "abs_err": -0.1448091148236017,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 39.81397665730273,
+        "ref": 39.84508512038117,
+        "rel_err_%": -0.078073526469961,
+        "abs_err": -0.031108463078439286,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 348.7704355179719,
+        "ref": 349.04294565453904,
+        "rel_err_%": -0.0780735264699589,
+        "abs_err": -0.27251013656712075,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.187833449861125,
+        "ref": 3.1893518753885317,
+        "rel_err_%": -0.04760921926250536,
+        "abs_err": -0.0015184255274065528,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.4537910250040085,
+        "ref": 5.454184547736435,
+        "rel_err_%": -0.007215060821317769,
+        "abs_err": -0.00039352273242609925,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 8.641624474865134,
+        "ref": 8.643536423124967,
+        "rel_err_%": -0.022119976896468656,
+        "abs_err": -0.0019119482598330961,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "B-03",
+    "group": "B_Mode",
+    "varies": "mode=condensation (RH=60%)",
+    "inputs": {
+      "id": "B-03",
+      "group": "B_Mode",
+      "varies": "mode=condensation (RH=60%)",
+      "equipmentType": "pipe",
+      "mode": "condensation",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "relativeHumidity": 60,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 8192.0,
+      "standardThickness": 150,
+      "surfaceTemp": 20.01997906726716,
+      "heatFlux": 0.11274883316305505,
+      "linearHeatLoss": 5.824750400974639,
+      "annualHeatLoss": 51.02481351253784,
+      "dewPoint": 11.995453892411351,
+      "hc": 0.5,
+      "hr": 5.1433481931553064,
+      "h": 5.6433481931553064
+    },
+    "reference": {
+      "thickness_mm": 8192.0,
+      "standardThickness": 150,
+      "surfaceTemp": 20.01997906726716,
+      "heatFlux": 0.11274883316305505,
+      "linearHeatLoss": 5.824750400974639,
+      "annualHeatLoss": 51.02481351253784,
+      "dewPoint": 11.995453892411351,
+      "hc": 0.5,
+      "hr": 5.1433481931553064,
+      "h": 5.6433481931553064
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 8192.0,
+        "ref": 8192.0,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 150,
+        "ref": 150,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 20.01997906726716,
+        "ref": 20.01997906726716,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 0.11274883316305505,
+        "ref": 0.11274883316305505,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 5.824750400974639,
+        "ref": 5.824750400974639,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 51.02481351253784,
+        "ref": 51.02481351253784,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 11.995453892411351,
+        "ref": 11.995453892411351,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 0.5,
+        "ref": 0.5,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.1433481931553064,
+        "ref": 5.1433481931553064,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 5.6433481931553064,
+        "ref": 5.6433481931553064,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "C-01",
+    "group": "C_PipeSize",
+    "varies": "1/2\" OD=21.3mm",
+    "inputs": {
+      "id": "C-01",
+      "group": "C_PipeSize",
+      "varies": "1/2\" OD=21.3mm",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 21.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 8.671093749999999,
+      "standardThickness": 10,
+      "surfaceTemp": 50.09050118584712,
+      "heatFlux": 347.2585897815429,
+      "linearHeatLoss": 42.15650257741599,
+      "annualHeatLoss": 369.29096257816406,
+      "dewPoint": null,
+      "hc": 5.550221133375991,
+      "hr": 5.990250978962036,
+      "h": 11.540472112338026
+    },
+    "reference": {
+      "thickness_mm": 8.6920703125,
+      "standardThickness": 10,
+      "surfaceTemp": 50.03487935938354,
+      "heatFlux": 346.44397446997635,
+      "linearHeatLoss": 42.10327108515344,
+      "annualHeatLoss": 368.8246547059441,
+      "dewPoint": null,
+      "hc": 5.5461416571516375,
+      "hr": 5.988580035071168,
+      "h": 11.534721692222806
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 8.671093749999999,
+        "ref": 8.6920703125,
+        "rel_err_%": -0.24132987591960817,
+        "abs_err": -0.02097656250000135,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.09050118584712,
+        "ref": 50.03487935938354,
+        "rel_err_%": 0.1111661048766924,
+        "abs_err": 0.05562182646357883,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 347.2585897815429,
+        "ref": 346.44397446997635,
+        "rel_err_%": 0.23513623315655796,
+        "abs_err": 0.8146153115665697,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 42.15650257741599,
+        "ref": 42.10327108515344,
+        "rel_err_%": 0.12643077578199177,
+        "abs_err": 0.053231492262554525,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 369.29096257816406,
+        "ref": 368.8246547059441,
+        "rel_err_%": 0.1264307757819824,
+        "abs_err": 0.46630787221994296,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.550221133375991,
+        "ref": 5.5461416571516375,
+        "rel_err_%": 0.07355521147017273,
+        "abs_err": 0.004079476224353229,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.990250978962036,
+        "ref": 5.988580035071168,
+        "rel_err_%": 0.027902171818407658,
+        "abs_err": 0.0016709438908684149,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.540472112338026,
+        "ref": 11.534721692222806,
+        "rel_err_%": 0.04985313272965261,
+        "abs_err": 0.0057504201152198675,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "C-02",
+    "group": "C_PipeSize",
+    "varies": "2\" OD=60.3mm",
+    "inputs": {
+      "id": "C-02",
+      "group": "C_PipeSize",
+      "varies": "2\" OD=60.3mm",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "C-03",
+    "group": "C_PipeSize",
+    "varies": "4\" OD=114.3mm",
+    "inputs": {
+      "id": "C-03",
+      "group": "C_PipeSize",
+      "varies": "4\" OD=114.3mm",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 114.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 12.273437500000002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.935706914653935,
+      "heatFlux": 296.3552539174026,
+      "linearHeatLoss": 129.27025732560563,
+      "annualHeatLoss": 1132.4074541723053,
+      "dewPoint": null,
+      "hc": 3.9141150595588052,
+      "hr": 5.985609532290827,
+      "h": 9.899724591849631
+    },
+    "reference": {
+      "thickness_mm": 12.252343750000001,
+      "standardThickness": 13,
+      "surfaceTemp": 49.97276417433926,
+      "heatFlux": 296.79915587005166,
+      "linearHeatLoss": 129.42455094536174,
+      "annualHeatLoss": 1133.7590662813689,
+      "dewPoint": null,
+      "hc": 3.9155728862403927,
+      "hr": 5.986722215529095,
+      "h": 9.902295101769488
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 12.273437500000002,
+        "ref": 12.252343750000001,
+        "rel_err_%": 0.1721609385959348,
+        "abs_err": 0.021093750000000355,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.935706914653935,
+        "ref": 49.97276417433926,
+        "rel_err_%": -0.07415491277617813,
+        "abs_err": -0.03705725968532647,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 296.3552539174026,
+        "ref": 296.79915587005166,
+        "rel_err_%": -0.149563077882683,
+        "abs_err": -0.44390195264907106,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 129.27025732560563,
+        "ref": 129.42455094536174,
+        "rel_err_%": -0.11921510921158583,
+        "abs_err": -0.15429361975611755,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 1132.4074541723053,
+        "ref": 1133.7590662813689,
+        "rel_err_%": -0.11921510921158504,
+        "abs_err": -1.3516121090635806,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.9141150595588052,
+        "ref": 3.9155728862403927,
+        "rel_err_%": -0.03723150414873791,
+        "abs_err": -0.0014578266815874485,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.985609532290827,
+        "ref": 5.986722215529095,
+        "rel_err_%": -0.018585850457240455,
+        "abs_err": -0.0011126832382686302,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.899724591849631,
+        "ref": 9.902295101769488,
+        "rel_err_%": -0.025958728693075833,
+        "abs_err": -0.002570509919856079,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "C-04",
+    "group": "C_PipeSize",
+    "varies": "8\" OD=219.1mm",
+    "inputs": {
+      "id": "C-04",
+      "group": "C_PipeSize",
+      "varies": "8\" OD=219.1mm",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 219.1,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 13.39140625,
+      "standardThickness": 20,
+      "surfaceTemp": 50.092363203349706,
+      "heatFlux": 281.8579214421185,
+      "linearHeatLoss": 217.72499522549015,
+      "annualHeatLoss": 1907.2709581752936,
+      "dewPoint": null,
+      "hc": 3.3761079851679447,
+      "hr": 5.990318956360653,
+      "h": 9.366426941528598
+    },
+    "reference": {
+      "thickness_mm": 13.439101562500003,
+      "standardThickness": 20,
+      "surfaceTemp": 50.01717474690665,
+      "heatFlux": 281.0155209952042,
+      "linearHeatLoss": 217.15848581820148,
+      "annualHeatLoss": 1902.308335767445,
+      "dewPoint": null,
+      "hc": 3.3737640623026457,
+      "hr": 5.988060405343617,
+      "h": 9.361824467646263
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 13.39140625,
+        "ref": 13.439101562500003,
+        "rel_err_%": -0.35489956138951295,
+        "abs_err": -0.047695312500003695,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.092363203349706,
+        "ref": 50.01717474690665,
+        "rel_err_%": 0.15032527691442302,
+        "abs_err": 0.07518845644305827,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 281.8579214421185,
+        "ref": 281.0155209952042,
+        "rel_err_%": 0.29977007815473833,
+        "abs_err": 0.8424004469142687,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 217.72499522549015,
+        "ref": 217.15848581820148,
+        "rel_err_%": 0.26087371403157034,
+        "abs_err": 0.5665094072886632,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 1907.2709581752936,
+        "ref": 1902.308335767445,
+        "rel_err_%": 0.26087371403156484,
+        "abs_err": 4.962622407848585,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.3761079851679447,
+        "ref": 3.3737640623026457,
+        "rel_err_%": 0.06947500838868055,
+        "abs_err": 0.002343922865299053,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.990318956360653,
+        "ref": 5.988060405343617,
+        "rel_err_%": 0.03771757237152096,
+        "abs_err": 0.0022585510170358702,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.366426941528598,
+        "ref": 9.361824467646263,
+        "rel_err_%": 0.04916214674009613,
+        "abs_err": 0.004602473882334479,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "C-05",
+    "group": "C_PipeSize",
+    "varies": "16\" OD=406.4mm",
+    "inputs": {
+      "id": "C-05",
+      "group": "C_PipeSize",
+      "varies": "16\" OD=406.4mm",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 406.4,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 14.509375000000002,
+      "standardThickness": 20,
+      "surfaceTemp": 49.953395932840614,
+      "heatFlux": 266.51582394548734,
+      "linearHeatLoss": 364.5692199787968,
+      "annualHeatLoss": 3193.62636701426,
+      "dewPoint": null,
+      "hc": 2.9115332061172325,
+      "hr": 5.986149866047614,
+      "h": 8.897683072164847
+    },
+    "reference": {
+      "thickness_mm": 14.5009375,
+      "standardThickness": 20,
+      "surfaceTemp": 49.96550498119451,
+      "heatFlux": 266.64372996354155,
+      "linearHeatLoss": 364.7300477374608,
+      "annualHeatLoss": 3195.0352181801563,
+      "dewPoint": null,
+      "hc": 2.9118425154039995,
+      "hr": 5.986513448591251,
+      "h": 8.89835596399525
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 14.509375000000002,
+        "ref": 14.5009375,
+        "rel_err_%": 0.05818589315348049,
+        "abs_err": 0.008437500000002984,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.953395932840614,
+        "ref": 49.96550498119451,
+        "rel_err_%": -0.024234816316690343,
+        "abs_err": -0.012109048353899254,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 266.51582394548734,
+        "ref": 266.64372996354155,
+        "rel_err_%": -0.047968882700408284,
+        "abs_err": -0.12790601805420465,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 364.5692199787968,
+        "ref": 364.7300477374608,
+        "rel_err_%": -0.044095012095010294,
+        "abs_err": -0.16082775866397014,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 3193.62636701426,
+        "ref": 3195.0352181801563,
+        "rel_err_%": -0.04409501209501478,
+        "abs_err": -1.4088511658965217,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 2.9115332061172325,
+        "ref": 2.9118425154039995,
+        "rel_err_%": -0.010622459323630838,
+        "abs_err": -0.0003093092867669789,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.986149866047614,
+        "ref": 5.986513448591251,
+        "rel_err_%": -0.006073360508730036,
+        "abs_err": -0.0003635825436365536,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 8.897683072164847,
+        "ref": 8.89835596399525,
+        "rel_err_%": -0.007561979236678776,
+        "abs_err": -0.0006728918304030884,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "D-01",
+    "group": "D_FlatDimensions",
+    "varies": "1m×1m",
+    "inputs": {
+      "id": "D-01",
+      "group": "D_FlatDimensions",
+      "varies": "1m×1m",
+      "equipmentType": "flat",
+      "mode": "surface",
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "outerDiameter": 60.3,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 11.609497070312498,
+      "standardThickness": 13,
+      "surfaceTemp": 50.04274194870585,
+      "heatFlux": 344.39823687764124,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 3016.9285550481372,
+      "dewPoint": null,
+      "hc": 5.474854836085535,
+      "hr": 5.98875382738657,
+      "h": 11.463608663472105
+    },
+    "reference": {
+      "thickness_mm": 11.627734375000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.01183408984184,
+      "heatFlux": 343.9643964524539,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 3013.1281129234962,
+      "dewPoint": null,
+      "hc": 5.47313350461871,
+      "hr": 5.987825376560636,
+      "h": 11.460958881179346
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 11.609497070312498,
+        "ref": 11.627734375000001,
+        "rel_err_%": -0.15684314845300928,
+        "abs_err": -0.018237304687502842,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04274194870585,
+        "ref": 50.01183408984184,
+        "rel_err_%": 0.06180109053486959,
+        "abs_err": 0.030907858864011928,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 344.39823687764124,
+        "ref": 343.9643964524539,
+        "rel_err_%": 0.12612945690362948,
+        "abs_err": 0.43384042518732713,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": 3016.9285550481372,
+        "ref": 3013.1281129234962,
+        "rel_err_%": 0.12612945690362978,
+        "abs_err": 3.8004421246409947,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.474854836085535,
+        "ref": 5.47313350461871,
+        "rel_err_%": 0.03145056603081042,
+        "abs_err": 0.001721331466824516,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98875382738657,
+        "ref": 5.987825376560636,
+        "rel_err_%": 0.015505642993003462,
+        "abs_err": 0.0009284508259339574,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.463608663472105,
+        "ref": 11.460958881179346,
+        "rel_err_%": 0.023120075032376418,
+        "abs_err": 0.0026497822927584735,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "D-02",
+    "group": "D_FlatDimensions",
+    "varies": "2m×1m",
+    "inputs": {
+      "id": "D-02",
+      "group": "D_FlatDimensions",
+      "varies": "2m×1m",
+      "equipmentType": "flat",
+      "mode": "surface",
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 2,
+      "surfaceWidth": 1,
+      "outerDiameter": 60.3,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 11.609497070312498,
+      "standardThickness": 13,
+      "surfaceTemp": 50.04274194870585,
+      "heatFlux": 344.39823687764124,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 6033.8571100962745,
+      "dewPoint": null,
+      "hc": 5.474854836085536,
+      "hr": 5.98875382738657,
+      "h": 11.463608663472105
+    },
+    "reference": {
+      "thickness_mm": 11.627734375000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.01183408984184,
+      "heatFlux": 343.96439645245385,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 6026.256225846992,
+      "dewPoint": null,
+      "hc": 5.473133504618709,
+      "hr": 5.987825376560636,
+      "h": 11.460958881179344
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 11.609497070312498,
+        "ref": 11.627734375000001,
+        "rel_err_%": -0.15684314845300928,
+        "abs_err": -0.018237304687502842,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04274194870585,
+        "ref": 50.01183408984184,
+        "rel_err_%": 0.06180109053486959,
+        "abs_err": 0.030907858864011928,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 344.39823687764124,
+        "ref": 343.96439645245385,
+        "rel_err_%": 0.12612945690364605,
+        "abs_err": 0.43384042518738397,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": 6033.8571100962745,
+        "ref": 6026.256225846992,
+        "rel_err_%": 0.1261294569036449,
+        "abs_err": 7.600884249282899,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.474854836085536,
+        "ref": 5.473133504618709,
+        "rel_err_%": 0.03145056603084288,
+        "abs_err": 0.0017213314668262925,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98875382738657,
+        "ref": 5.987825376560636,
+        "rel_err_%": 0.015505642993003462,
+        "abs_err": 0.0009284508259339574,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.463608663472105,
+        "ref": 11.460958881179344,
+        "rel_err_%": 0.02312007503239192,
+        "abs_err": 0.00264978229276025,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "D-03",
+    "group": "D_FlatDimensions",
+    "varies": "5m×3m",
+    "inputs": {
+      "id": "D-03",
+      "group": "D_FlatDimensions",
+      "varies": "5m×3m",
+      "equipmentType": "flat",
+      "mode": "surface",
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 5,
+      "surfaceWidth": 3,
+      "outerDiameter": 60.3,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 11.609497070312498,
+      "standardThickness": 13,
+      "surfaceTemp": 50.04274194870585,
+      "heatFlux": 344.39823687764124,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 45253.92832572205,
+      "dewPoint": null,
+      "hc": 5.474854836085535,
+      "hr": 5.98875382738657,
+      "h": 11.463608663472105
+    },
+    "reference": {
+      "thickness_mm": 11.627734375000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.01183408984184,
+      "heatFlux": 343.96439645245385,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 45196.92169385244,
+      "dewPoint": null,
+      "hc": 5.473133504618709,
+      "hr": 5.987825376560636,
+      "h": 11.460958881179344
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 11.609497070312498,
+        "ref": 11.627734375000001,
+        "rel_err_%": -0.15684314845300928,
+        "abs_err": -0.018237304687502842,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04274194870585,
+        "ref": 50.01183408984184,
+        "rel_err_%": 0.06180109053486959,
+        "abs_err": 0.030907858864011928,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 344.39823687764124,
+        "ref": 343.96439645245385,
+        "rel_err_%": 0.12612945690364605,
+        "abs_err": 0.43384042518738397,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": 45253.92832572205,
+        "ref": 45196.92169385244,
+        "rel_err_%": 0.12612945690362276,
+        "abs_err": 57.00663186961174,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.474854836085535,
+        "ref": 5.473133504618709,
+        "rel_err_%": 0.03145056603082666,
+        "abs_err": 0.0017213314668254043,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98875382738657,
+        "ref": 5.987825376560636,
+        "rel_err_%": 0.015505642993003462,
+        "abs_err": 0.0009284508259339574,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.463608663472105,
+        "ref": 11.460958881179344,
+        "rel_err_%": 0.02312007503239192,
+        "abs_err": 0.00264978229276025,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-01",
+    "group": "E_Material",
+    "varies": "mineralwool k=0.040",
+    "inputs": {
+      "id": "E-01",
+      "group": "E_Material",
+      "varies": "mineralwool k=0.040",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "mineralwool",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-02",
+    "group": "E_Material",
+    "varies": "glasswool k=0.035",
+    "inputs": {
+      "id": "E-02",
+      "group": "E_Material",
+      "varies": "glasswool k=0.035",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "glasswool",
+      "outerDiameter": 60.3,
+      "k": 0.035,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 9.664843750000001,
+      "standardThickness": 10,
+      "surfaceTemp": 50.017656608950304,
+      "heatFlux": 316.0936865059905,
+      "linearHeatLoss": 79.07527403236762,
+      "annualHeatLoss": 692.6994005235404,
+      "dewPoint": null,
+      "hc": 4.542192093732023,
+      "hr": 5.988066501195787,
+      "h": 10.53025859492781
+    },
+    "reference": {
+      "thickness_mm": 9.6914453125,
+      "standardThickness": 10,
+      "surfaceTemp": 49.95735435982462,
+      "heatFlux": 315.3157411805564,
+      "linearHeatLoss": 78.93336276185865,
+      "annualHeatLoss": 691.4562577938817,
+      "dewPoint": null,
+      "hc": 4.539231336542736,
+      "hr": 5.986255573724007,
+      "h": 10.525486910266743
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 9.664843750000001,
+        "ref": 9.6914453125,
+        "rel_err_%": -0.2744849879686073,
+        "abs_err": -0.026601562499999787,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.017656608950304,
+        "ref": 49.95735435982462,
+        "rel_err_%": 0.12070745118195929,
+        "abs_err": 0.060302249125683716,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 316.0936865059905,
+        "ref": 315.3157411805564,
+        "rel_err_%": 0.24671946998948185,
+        "abs_err": 0.7779453254340751,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 79.07527403236762,
+        "ref": 78.93336276185865,
+        "rel_err_%": 0.1797861709466445,
+        "abs_err": 0.14191127050897023,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 692.6994005235404,
+        "ref": 691.4562577938817,
+        "rel_err_%": 0.17978617094665383,
+        "abs_err": 1.2431427296586435,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.542192093732023,
+        "ref": 4.539231336542736,
+        "rel_err_%": 0.06522595941413631,
+        "abs_err": 0.002960757189287122,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.988066501195787,
+        "ref": 5.986255573724007,
+        "rel_err_%": 0.03025142260429031,
+        "abs_err": 0.0018109274717801327,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.53025859492781,
+        "ref": 10.525486910266743,
+        "rel_err_%": 0.04533457408429125,
+        "abs_err": 0.004771684661067255,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-03",
+    "group": "E_Material",
+    "varies": "calciumsilicate k=0.052",
+    "inputs": {
+      "id": "E-03",
+      "group": "E_Material",
+      "varies": "calciumsilicate k=0.052",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "calciumsilicate",
+      "outerDiameter": 60.3,
+      "k": 0.052,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 13.88828125,
+      "standardThickness": 20,
+      "surfaceTemp": 49.963458717544206,
+      "heatFlux": 311.7715153766995,
+      "linearHeatLoss": 86.26739084044797,
+      "annualHeatLoss": 755.7023437623242,
+      "dewPoint": null,
+      "hc": 4.418618119172062,
+      "hr": 5.98643953173761,
+      "h": 10.405057650909672
+    },
+    "reference": {
+      "thickness_mm": 13.876328125,
+      "standardThickness": 20,
+      "surfaceTemp": 49.982767790950476,
+      "heatFlux": 312.0195279294757,
+      "linearHeatLoss": 86.31258226204747,
+      "annualHeatLoss": 756.0982206155359,
+      "dewPoint": null,
+      "hc": 4.419609209489784,
+      "hr": 5.987019361460589,
+      "h": 10.406628570950373
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 13.88828125,
+        "ref": 13.876328125,
+        "rel_err_%": 0.08614040322716704,
+        "abs_err": 0.011953124999999787,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.963458717544206,
+        "ref": 49.982767790950476,
+        "rel_err_%": -0.03863146092074811,
+        "abs_err": -0.019309073406269306,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 311.7715153766995,
+        "ref": 312.0195279294757,
+        "rel_err_%": -0.07948622780824417,
+        "abs_err": -0.24801255277623113,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 86.26739084044797,
+        "ref": 86.31258226204747,
+        "rel_err_%": -0.05235786071409041,
+        "abs_err": -0.04519142159949752,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 755.7023437623242,
+        "ref": 756.0982206155359,
+        "rel_err_%": -0.052357860714102436,
+        "abs_err": -0.3958768532116892,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.418618119172062,
+        "ref": 4.419609209489784,
+        "rel_err_%": -0.02242484054006597,
+        "abs_err": -0.0009910903177221542,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98643953173761,
+        "ref": 5.987019361460589,
+        "rel_err_%": -0.009684781156895679,
+        "abs_err": -0.000579829722978431,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.405057650909672,
+        "ref": 10.406628570950373,
+        "rel_err_%": -0.015095379161371596,
+        "abs_err": -0.0015709200407005852,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-04",
+    "group": "E_Material",
+    "varies": "polyurethane k=0.023",
+    "inputs": {
+      "id": "E-04",
+      "group": "E_Material",
+      "varies": "polyurethane k=0.023",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "polyurethane",
+      "outerDiameter": 60.3,
+      "k": 0.023,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 6.51875,
+      "standardThickness": 10,
+      "surfaceTemp": 50.09481141095416,
+      "heatFlux": 320.1402323740221,
+      "linearHeatLoss": 73.75920544979112,
+      "annualHeatLoss": 646.1306397401702,
+      "dewPoint": null,
+      "hc": 4.64733812973136,
+      "hr": 5.990383702195284,
+      "h": 10.637721831926644
+    },
+    "reference": {
+      "thickness_mm": 6.5330859375,
+      "standardThickness": 10,
+      "surfaceTemp": 50.047537651730565,
+      "heatFlux": 319.52846665797597,
+      "linearHeatLoss": 73.64703837771671,
+      "annualHeatLoss": 645.1480561887984,
+      "dewPoint": null,
+      "hc": 4.645134704123886,
+      "hr": 5.988963515886929,
+      "h": 10.634098220010815
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 6.51875,
+        "ref": 6.5330859375,
+        "rel_err_%": -0.21943592411224552,
+        "abs_err": -0.014335937500000284,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.09481141095416,
+        "ref": 50.047537651730565,
+        "rel_err_%": 0.09445771249039332,
+        "abs_err": 0.047273759223593004,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 320.1402323740221,
+        "ref": 319.52846665797597,
+        "rel_err_%": 0.1914589089494088,
+        "abs_err": 0.6117657160461363,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 73.75920544979112,
+        "ref": 73.64703837771671,
+        "rel_err_%": 0.1523035746517564,
+        "abs_err": 0.11216707207441345,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 646.1306397401702,
+        "ref": 645.1480561887984,
+        "rel_err_%": 0.1523035746517495,
+        "abs_err": 0.9825835513718175,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.64733812973136,
+        "ref": 4.645134704123886,
+        "rel_err_%": 0.047435128318628936,
+        "abs_err": 0.0022034256074743297,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.990383702195284,
+        "ref": 5.988963515886929,
+        "rel_err_%": 0.023713390548925756,
+        "abs_err": 0.0014201863083549426,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.637721831926644,
+        "ref": 10.634098220010815,
+        "rel_err_%": 0.03407540386462207,
+        "abs_err": 0.0036236119158292723,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-05",
+    "group": "E_Material",
+    "varies": "ceramicfiber k=0.120",
+    "inputs": {
+      "id": "E-05",
+      "group": "E_Material",
+      "varies": "ceramicfiber k=0.120",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "ceramicfiber",
+      "outerDiameter": 60.3,
+      "k": 0.12,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 29.009375000000006,
+      "standardThickness": 30,
+      "surfaceTemp": 49.9162591833048,
+      "heatFlux": 301.1819832399774,
+      "linearHeatLoss": 111.95214891597591,
+      "annualHeatLoss": 980.700824503949,
+      "dewPoint": null,
+      "hc": 4.082477000808498,
+      "hr": 5.985024467023961,
+      "h": 10.067501467832459
+    },
+    "reference": {
+      "thickness_mm": 28.8759765625,
+      "standardThickness": 30,
+      "surfaceTemp": 50.024652090421114,
+      "heatFlux": 302.54898890475397,
+      "linearHeatLoss": 112.20669104690519,
+      "annualHeatLoss": 982.9306135708895,
+      "dewPoint": null,
+      "hc": 4.088406606088186,
+      "hr": 5.988279311657301,
+      "h": 10.076685917745486
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 29.009375000000006,
+        "ref": 28.8759765625,
+        "rel_err_%": 0.46197030674018674,
+        "abs_err": 0.13339843750000568,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 30,
+        "ref": 30,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.9162591833048,
+        "ref": 50.024652090421114,
+        "rel_err_%": -0.21667898243527545,
+        "abs_err": -0.10839290711631122,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 301.1819832399774,
+        "ref": 302.54898890475397,
+        "rel_err_%": -0.4518295267570437,
+        "abs_err": -1.3670056647765705,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 111.95214891597591,
+        "ref": 112.20669104690519,
+        "rel_err_%": -0.22685111605588265,
+        "abs_err": -0.2545421309292806,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 980.700824503949,
+        "ref": 982.9306135708895,
+        "rel_err_%": -0.22685111605588265,
+        "abs_err": -2.229789066940498,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.082477000808498,
+        "ref": 4.088406606088186,
+        "rel_err_%": -0.14503462720312113,
+        "abs_err": -0.005929605279687777,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.985024467023961,
+        "ref": 5.988279311657301,
+        "rel_err_%": -0.0543535874655026,
+        "abs_err": -0.003254844633340248,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.067501467832459,
+        "ref": 10.076685917745486,
+        "rel_err_%": -0.09114554118286963,
+        "abs_err": -0.009184449913027137,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "E-06",
+    "group": "E_Material",
+    "varies": "custom k=0.060",
+    "inputs": {
+      "id": "E-06",
+      "group": "E_Material",
+      "varies": "custom k=0.060",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "materialType": "custom",
+      "outerDiameter": 60.3,
+      "k": 0.06,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 15.7515625,
+      "standardThickness": 20,
+      "surfaceTemp": 50.015346276171385,
+      "heatFlux": 310.9446074940277,
+      "linearHeatLoss": 89.67891953367736,
+      "annualHeatLoss": 785.5873351150136,
+      "dewPoint": null,
+      "hc": 4.371522865267988,
+      "hr": 5.9879980489012015,
+      "h": 10.359520914169188
+    },
+    "reference": {
+      "thickness_mm": 15.75015625,
+      "standardThickness": 20,
+      "surfaceTemp": 50.017366914814275,
+      "heatFlux": 310.9705163507344,
+      "linearHeatLoss": 89.68364420450567,
+      "annualHeatLoss": 785.6287232314696,
+      "dewPoint": null,
+      "hc": 4.37162794755134,
+      "hr": 5.988058737601016,
+      "h": 10.359686685152356
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 15.7515625,
+        "ref": 15.75015625,
+        "rel_err_%": 0.008928482852355812,
+        "abs_err": 0.0014062500000004974,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.015346276171385,
+        "ref": 50.017366914814275,
+        "rel_err_%": -0.004039874082798061,
+        "abs_err": -0.002020638642889594,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 310.9446074940277,
+        "ref": 310.9705163507344,
+        "rel_err_%": -0.008331611951744158,
+        "abs_err": -0.025908856706678307,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 89.67891953367736,
+        "ref": 89.68364420450567,
+        "rel_err_%": -0.005268152147716111,
+        "abs_err": -0.0047246708283097405,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 785.5873351150136,
+        "ref": 785.6287232314696,
+        "rel_err_%": -0.00526815214771763,
+        "abs_err": -0.041388116456005264,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.371522865267988,
+        "ref": 4.37162794755134,
+        "rel_err_%": -0.002403733451539784,
+        "abs_err": -0.00010508228335215364,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.9879980489012015,
+        "ref": 5.988058737601016,
+        "rel_err_%": -0.001013495399332326,
+        "abs_err": -6.068869981490366e-05,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.359520914169188,
+        "ref": 10.359686685152356,
+        "rel_err_%": -0.0016001544081977951,
+        "abs_err": -0.00016577098316794547,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "F-01",
+    "group": "F_MediumTemp",
+    "varies": "Tf=50°C",
+    "inputs": {
+      "id": "F-01",
+      "group": "F_MediumTemp",
+      "varies": "Tf=50°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 50,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 35,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 3.9390625,
+      "standardThickness": 10,
+      "surfaceTemp": 34.98649921361122,
+      "heatFlux": 143.4689855824236,
+      "linearHeatLoss": 30.72932025433201,
+      "annualHeatLoss": 269.1888454279484,
+      "dewPoint": null,
+      "hc": 4.022453232597106,
+      "hr": 5.550762202006892,
+      "h": 9.573215434603998
+    },
+    "reference": {
+      "thickness_mm": 3.93765625,
+      "standardThickness": 10,
+      "surfaceTemp": 34.98919254059066,
+      "heatFlux": 143.4973751300406,
+      "linearHeatLoss": 30.734133047855135,
+      "annualHeatLoss": 269.23100549921094,
+      "dewPoint": null,
+      "hc": 4.022587763862446,
+      "hr": 5.5508015125412316,
+      "h": 9.573389276403677
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 3.9390625,
+        "ref": 3.93765625,
+        "rel_err_%": 0.035712868536964176,
+        "abs_err": 0.0014062500000000533,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 34.98649921361122,
+        "ref": 34.98919254059066,
+        "rel_err_%": -0.007697596840268027,
+        "abs_err": -0.002693326979439803,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 143.4689855824236,
+        "ref": 143.4973751300406,
+        "rel_err_%": -0.019784018760809187,
+        "abs_err": -0.02838954761699597,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 30.72932025433201,
+        "ref": 30.734133047855135,
+        "rel_err_%": -0.01565944129815487,
+        "abs_err": -0.004812793523125691,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 269.1888454279484,
+        "ref": 269.23100549921094,
+        "rel_err_%": -0.01565944129813033,
+        "abs_err": -0.042160071262514975,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.022453232597106,
+        "ref": 4.022587763862446,
+        "rel_err_%": -0.0033443960265783627,
+        "abs_err": -0.00013453126534024307,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.550762202006892,
+        "ref": 5.5508015125412316,
+        "rel_err_%": -0.0007081956407715492,
+        "abs_err": -3.931053433969822e-05,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.573215434603998,
+        "ref": 9.573389276403677,
+        "rel_err_%": -0.0018158856248281406,
+        "abs_err": -0.0001738417996790531,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "F-02",
+    "group": "F_MediumTemp",
+    "varies": "Tf=150°C",
+    "inputs": {
+      "id": "F-02",
+      "group": "F_MediumTemp",
+      "varies": "Tf=150°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "F-03",
+    "group": "F_MediumTemp",
+    "varies": "Tf=300°C",
+    "inputs": {
+      "id": "F-03",
+      "group": "F_MediumTemp",
+      "varies": "Tf=300°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 300,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 55,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 20.660546874999998,
+      "standardThickness": 25,
+      "surfaceTemp": 55.02070453664275,
+      "heatFlux": 369.5152571084927,
+      "linearHeatLoss": 117.9685150055188,
+      "annualHeatLoss": 1033.4041914483446,
+      "dewPoint": null,
+      "hc": 4.411337120559821,
+      "hr": 6.139999924126496,
+      "h": 10.551337044686317
+    },
+    "reference": {
+      "thickness_mm": 20.69103515625,
+      "standardThickness": 25,
+      "surfaceTemp": 54.976866230169904,
+      "heatFlux": 368.93572089424623,
+      "linearHeatLoss": 117.85417148841277,
+      "annualHeatLoss": 1032.402542238496,
+      "dewPoint": null,
+      "hc": 4.409337571503007,
+      "hr": 6.138654877746612,
+      "h": 10.54799244924962
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 20.660546874999998,
+        "ref": 20.69103515625,
+        "rel_err_%": -0.1473501978985897,
+        "abs_err": -0.030488281250001137,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 25,
+        "ref": 25,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 55.02070453664275,
+        "ref": 54.976866230169904,
+        "rel_err_%": 0.079739551340206,
+        "abs_err": 0.0438383064728427,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 369.5152571084927,
+        "ref": 368.93572089424623,
+        "rel_err_%": 0.15708324822593336,
+        "abs_err": 0.5795362142464455,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 117.9685150055188,
+        "ref": 117.85417148841277,
+        "rel_err_%": 0.0970211878476138,
+        "abs_err": 0.11434351710602186,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 1033.4041914483446,
+        "ref": 1032.402542238496,
+        "rel_err_%": 0.09702118784760543,
+        "abs_err": 1.0016492098486651,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.411337120559821,
+        "ref": 4.409337571503007,
+        "rel_err_%": 0.04534806021060192,
+        "abs_err": 0.0019995490568138763,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 6.139999924126496,
+        "ref": 6.138654877746612,
+        "rel_err_%": 0.021911093010939603,
+        "abs_err": 0.001345046379883641,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.551337044686317,
+        "ref": 10.54799244924962,
+        "rel_err_%": 0.031708360171754296,
+        "abs_err": 0.0033445954366975172,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "F-04",
+    "group": "F_MediumTemp",
+    "varies": "Tf=500°C",
+    "inputs": {
+      "id": "F-04",
+      "group": "F_MediumTemp",
+      "varies": "Tf=500°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 500,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 60,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 29.881640625000003,
+      "standardThickness": 30,
+      "surfaceTemp": 59.98386596396503,
+      "heatFlux": 425.722489629823,
+      "linearHeatLoss": 160.57823280224125,
+      "annualHeatLoss": 1406.6653193476334,
+      "dewPoint": null,
+      "hc": 4.3535000032076745,
+      "hr": 6.293856858520008,
+      "h": 10.647356861727683
+    },
+    "reference": {
+      "thickness_mm": 29.8756640625,
+      "standardThickness": 30,
+      "surfaceTemp": 59.99102163393048,
+      "heatFlux": 425.81951325961376,
+      "linearHeatLoss": 160.59883882727132,
+      "annualHeatLoss": 1406.8458281268968,
+      "dewPoint": null,
+      "hc": 4.353796737684431,
+      "hr": 6.294081107434838,
+      "h": 10.647877845119268
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 29.881640625000003,
+        "ref": 29.8756640625,
+        "rel_err_%": 0.020004785458490788,
+        "abs_err": 0.005976562500002558,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 30,
+        "ref": 30,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 59.98386596396503,
+        "ref": 59.99102163393048,
+        "rel_err_%": -0.011927901493516437,
+        "abs_err": -0.007155669965449363,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 425.722489629823,
+        "ref": 425.81951325961376,
+        "rel_err_%": -0.022785153514472637,
+        "abs_err": -0.09702362979078316,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 160.57823280224125,
+        "ref": 160.59883882727132,
+        "rel_err_%": -0.012830743472709011,
+        "abs_err": -0.02060602503007658,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 1406.6653193476334,
+        "ref": 1406.8458281268968,
+        "rel_err_%": -0.012830743472703354,
+        "abs_err": -0.18050877926339126,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.3535000032076745,
+        "ref": 4.353796737684431,
+        "rel_err_%": -0.006815533536234761,
+        "abs_err": -0.0002967344767563773,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 6.293856858520008,
+        "ref": 6.294081107434838,
+        "rel_err_%": -0.0035628539099283713,
+        "abs_err": -0.00022424891483030507,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.647356861727683,
+        "ref": 10.647877845119268,
+        "rel_err_%": -0.0048928377951265875,
+        "abs_err": -0.000520983391584906,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "F-05",
+    "group": "F_MediumTemp",
+    "varies": "Tf=-10°C (制冷, 逆向热流)",
+    "inputs": {
+      "id": "F-05",
+      "group": "F_MediumTemp",
+      "varies": "Tf=-10°C (制冷, 逆向热流)",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": -10,
+      "ambientTemp": 30,
+      "targetSurfaceTemp": 25,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 25.021874999999998,
+      "standardThickness": 30,
+      "surfaceTemp": 24.926083070482854,
+      "heatFlux": -41.904653548470726,
+      "linearHeatLoss": -14.526462468461435,
+      "annualHeatLoss": -127.25181122372219,
+      "dewPoint": null,
+      "hc": 2.7132429319759783,
+      "hr": 5.545594201263911,
+      "h": 8.25883713323989
+    },
+    "reference": {
+      "thickness_mm": 25.502031249999998,
+      "standardThickness": 30,
+      "surfaceTemp": 25.01827541319668,
+      "heatFlux": -41.063906014399954,
+      "linearHeatLoss": -14.358899173121713,
+      "annualHeatLoss": -125.7839567565462,
+      "dewPoint": null,
+      "hc": 2.694780213248478,
+      "hr": 5.548129505843382,
+      "h": 8.242909719091859
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 25.021874999999998,
+        "ref": 25.502031249999998,
+        "rel_err_%": -1.8828157070821576,
+        "abs_err": -0.4801562500000003,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 30,
+        "ref": 30,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 24.926083070482854,
+        "ref": 25.01827541319668,
+        "rel_err_%": -0.368499991271166,
+        "abs_err": -0.09219234271382604,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -41.904653548470726,
+        "ref": -41.063906014399954,
+        "rel_err_%": -2.047412474049462,
+        "abs_err": -0.840747534070772,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": -14.526462468461435,
+        "ref": -14.358899173121713,
+        "rel_err_%": -1.1669647743845297,
+        "abs_err": -0.16756329533972192,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": -127.25181122372219,
+        "ref": -125.7839567565462,
+        "rel_err_%": -1.1669647743845444,
+        "abs_err": -1.4678544671759823,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 2.7132429319759783,
+        "ref": 2.694780213248478,
+        "rel_err_%": 0.685128925792575,
+        "abs_err": 0.01846271872750016,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.545594201263911,
+        "ref": 5.548129505843382,
+        "rel_err_%": -0.0456965645232453,
+        "abs_err": -0.0025353045794709317,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 8.25883713323989,
+        "ref": 8.242909719091859,
+        "rel_err_%": 0.1932256289443598,
+        "abs_err": 0.015927414148031005,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "G-01",
+    "group": "G_AmbientTemp",
+    "varies": "Ta=-5°C",
+    "inputs": {
+      "id": "G-01",
+      "group": "G_AmbientTemp",
+      "varies": "Ta=-5°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": -5,
+      "targetSurfaceTemp": 40,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 8.546874999999998,
+      "standardThickness": 10,
+      "surfaceTemp": 39.92469967767578,
+      "heatFlux": 455.9054332470691,
+      "linearHeatLoss": 110.84868128787052,
+      "annualHeatLoss": 971.0344480817457,
+      "dewPoint": null,
+      "hc": 5.10789219314574,
+      "hr": 5.040321073010384,
+      "h": 10.148213266156123
+    },
+    "reference": {
+      "thickness_mm": 8.535917968749999,
+      "standardThickness": 10,
+      "surfaceTemp": 39.962449512320006,
+      "heatFlux": 456.39603501645195,
+      "linearHeatLoss": 110.93654541231975,
+      "annualHeatLoss": 971.804137811921,
+      "dewPoint": null,
+      "hc": 5.109254913627691,
+      "hr": 5.041349423251162,
+      "h": 10.150604336878853
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 8.546874999999998,
+        "ref": 8.535917968749999,
+        "rel_err_%": 0.12836383023024658,
+        "abs_err": 0.01095703124999936,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 39.92469967767578,
+        "ref": 39.962449512320006,
+        "rel_err_%": -0.09446326515241736,
+        "abs_err": -0.03774983464422377,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 455.9054332470691,
+        "ref": 456.39603501645195,
+        "rel_err_%": -0.10749474836370525,
+        "abs_err": -0.49060176938286304,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 110.84868128787052,
+        "ref": 110.93654541231975,
+        "rel_err_%": -0.07920214580565824,
+        "abs_err": -0.08786412444922576,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 971.0344480817457,
+        "ref": 971.804137811921,
+        "rel_err_%": -0.07920214580566537,
+        "abs_err": -0.769689730175287,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.10789219314574,
+        "ref": 5.109254913627691,
+        "rel_err_%": -0.026671608776382003,
+        "abs_err": -0.001362720481950852,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.040321073010384,
+        "ref": 5.041349423251162,
+        "rel_err_%": -0.020398313119014595,
+        "abs_err": -0.0010283502407784084,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.148213266156123,
+        "ref": 10.150604336878853,
+        "rel_err_%": -0.02355594448739359,
+        "abs_err": -0.0023910707227301486,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "G-02",
+    "group": "G_AmbientTemp",
+    "varies": "Ta=20°C",
+    "inputs": {
+      "id": "G-02",
+      "group": "G_AmbientTemp",
+      "varies": "Ta=20°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "G-03",
+    "group": "G_AmbientTemp",
+    "varies": "Ta=35°C",
+    "inputs": {
+      "id": "G-03",
+      "group": "G_AmbientTemp",
+      "varies": "Ta=35°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 35,
+      "targetSurfaceTemp": 55,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 14.88203125,
+      "standardThickness": 20,
+      "surfaceTemp": 54.96835146520229,
+      "heatFlux": 210.40573437876589,
+      "linearHeatLoss": 59.53316574184544,
+      "annualHeatLoss": 521.510531898566,
+      "dewPoint": null,
+      "hc": 3.95759682780277,
+      "hr": 6.579363859484208,
+      "h": 10.536960687286978
+    },
+    "reference": {
+      "thickness_mm": 14.875703125,
+      "standardThickness": 20,
+      "surfaceTemp": 54.97535283346591,
+      "heatFlux": 210.49353716321946,
+      "linearHeatLoss": 59.54963967766894,
+      "annualHeatLoss": 521.6548435763799,
+      "dewPoint": null,
+      "hc": 3.958077638657687,
+      "hr": 6.579585396288405,
+      "h": 10.537663034946092
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 14.88203125,
+        "ref": 14.875703125,
+        "rel_err_%": 0.04254000598712103,
+        "abs_err": 0.00632812500000135,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 54.96835146520229,
+        "ref": 54.97535283346591,
+        "rel_err_%": -0.012735467628251262,
+        "abs_err": -0.007001368263622965,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 210.40573437876589,
+        "ref": 210.49353716321946,
+        "rel_err_%": -0.04171281723746645,
+        "abs_err": -0.08780278445357226,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 59.53316574184544,
+        "ref": 59.54963967766894,
+        "rel_err_%": -0.02766420739516754,
+        "abs_err": -0.016473935823505315,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 521.510531898566,
+        "ref": 521.6548435763799,
+        "rel_err_%": -0.027664207395166833,
+        "abs_err": -0.14431167781390286,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.95759682780277,
+        "ref": 3.958077638657687,
+        "rel_err_%": -0.012147585237364946,
+        "abs_err": -0.00048081085491702424,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 6.579363859484208,
+        "ref": 6.579585396288405,
+        "rel_err_%": -0.003367032888156032,
+        "abs_err": -0.000221536804197342,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.536960687286978,
+        "ref": 10.537663034946092,
+        "rel_err_%": -0.006665117842401754,
+        "abs_err": -0.0007023476591143663,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "H-01",
+    "group": "H_TargetSurfaceTemp",
+    "varies": "Ts_target=40°C",
+    "inputs": {
+      "id": "H-01",
+      "group": "H_TargetSurfaceTemp",
+      "varies": "Ts_target=40°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 40,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 18.29296875,
+      "standardThickness": 20,
+      "surfaceTemp": 39.952021182232336,
+      "heatFlux": 191.62301675203395,
+      "linearHeatLoss": 58.325475991905996,
+      "annualHeatLoss": 510.9311696890965,
+      "dewPoint": null,
+      "hc": 3.912163439164814,
+      "hr": 5.692027284263144,
+      "h": 9.604190723427958
+    },
+    "reference": {
+      "thickness_mm": 18.254296874999994,
+      "standardThickness": 20,
+      "surfaceTemp": 39.987792331004684,
+      "heatFlux": 192.03718869534032,
+      "linearHeatLoss": 58.4048783661247,
+      "annualHeatLoss": 511.62673448725235,
+      "dewPoint": null,
+      "hc": 3.9146678409364517,
+      "hr": 5.693055989446552,
+      "h": 9.607723830383003
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 18.29296875,
+        "ref": 18.254296874999994,
+        "rel_err_%": 0.21185080567506492,
+        "abs_err": 0.038671875000005684,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 39.952021182232336,
+        "ref": 39.987792331004684,
+        "rel_err_%": -0.08945517290938935,
+        "abs_err": -0.03577114877234777,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 191.62301675203395,
+        "ref": 192.03718869534032,
+        "rel_err_%": -0.21567277990277148,
+        "abs_err": -0.4141719433063713,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 58.325475991905996,
+        "ref": 58.4048783661247,
+        "rel_err_%": -0.13595161301586792,
+        "abs_err": -0.07940237421870222,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 510.9311696890965,
+        "ref": 511.62673448725235,
+        "rel_err_%": -0.1359516130158674,
+        "abs_err": -0.6955647981558286,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.912163439164814,
+        "ref": 3.9146678409364517,
+        "rel_err_%": -0.06397482170642364,
+        "abs_err": -0.0025044017716377986,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.692027284263144,
+        "ref": 5.693055989446552,
+        "rel_err_%": -0.01806947244703771,
+        "abs_err": -0.0010287051834074745,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.604190723427958,
+        "ref": 9.607723830383003,
+        "rel_err_%": -0.03677361066386922,
+        "abs_err": -0.003533106955044829,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "H-02",
+    "group": "H_TargetSurfaceTemp",
+    "varies": "Ts_target=50°C",
+    "inputs": {
+      "id": "H-02",
+      "group": "H_TargetSurfaceTemp",
+      "varies": "Ts_target=50°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "H-03",
+    "group": "H_TargetSurfaceTemp",
+    "varies": "Ts_target=60°C",
+    "inputs": {
+      "id": "H-03",
+      "group": "H_TargetSurfaceTemp",
+      "varies": "Ts_target=60°C",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 60,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 7.19765625,
+      "standardThickness": 10,
+      "surfaceTemp": 60.042965660612495,
+      "heatFlux": 450.0337151278919,
+      "linearHeatLoss": 105.60592192101906,
+      "annualHeatLoss": 925.107876028127,
+      "dewPoint": null,
+      "hc": 4.943055995700338,
+      "hr": 6.295714852148202,
+      "h": 11.23877084784854
+    },
+    "reference": {
+      "thickness_mm": 7.219726562499999,
+      "standardThickness": 10,
+      "surfaceTemp": 59.963931872010384,
+      "heatFlux": 448.92427624145773,
+      "linearHeatLoss": 105.40783166706296,
+      "annualHeatLoss": 923.3726054034717,
+      "dewPoint": null,
+      "hc": 4.939997949102231,
+      "hr": 6.293238001734521,
+      "h": 11.23323595083675
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 7.19765625,
+        "ref": 7.219726562499999,
+        "rel_err_%": -0.3056945759502158,
+        "abs_err": -0.022070312499999467,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 60.042965660612495,
+        "ref": 59.963931872010384,
+        "rel_err_%": 0.13180221198770584,
+        "abs_err": 0.07903378860211063,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 450.0337151278919,
+        "ref": 448.92427624145773,
+        "rel_err_%": 0.2471327449080677,
+        "abs_err": 1.1094388864341909,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 105.60592192101906,
+        "ref": 105.40783166706296,
+        "rel_err_%": 0.18792745360873744,
+        "abs_err": 0.1980902539560958,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 925.107876028127,
+        "ref": 923.3726054034717,
+        "rel_err_%": 0.18792745360872665,
+        "abs_err": 1.7352706246552998,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.943055995700338,
+        "ref": 4.939997949102231,
+        "rel_err_%": 0.06190380298970721,
+        "abs_err": 0.003058046598107822,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 6.295714852148202,
+        "ref": 6.293238001734521,
+        "rel_err_%": 0.039357329454229074,
+        "abs_err": 0.0024768504136813974,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 11.23877084784854,
+        "ref": 11.23323595083675,
+        "rel_err_%": 0.04927250737021882,
+        "abs_err": 0.0055348970117901075,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "I-01",
+    "group": "I_TargetHeatLoss",
+    "varies": "q_target=50 W/m²",
+    "inputs": {
+      "id": "I-01",
+      "group": "I_TargetHeatLoss",
+      "varies": "q_target=50 W/m²",
+      "equipmentType": "pipe",
+      "mode": "heatloss",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetHeatLoss": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 60.006249999999994,
+      "standardThickness": 75,
+      "surfaceTemp": 26.390767826946497,
+      "heatFlux": 50.06779206995482,
+      "linearHeatLoss": 28.361823334639027,
+      "annualHeatLoss": 248.44957241143786,
+      "dewPoint": null,
+      "hc": 2.520998203819565,
+      "hr": 5.313395632058083,
+      "h": 7.834393835877648
+    },
+    "reference": {
+      "thickness_mm": 60.000625,
+      "standardThickness": 75,
+      "surfaceTemp": 26.39140056613003,
+      "heatFlux": 50.07351204902984,
+      "linearHeatLoss": 28.363293778180775,
+      "annualHeatLoss": 248.4624534968636,
+      "dewPoint": null,
+      "hc": 2.5211004299208564,
+      "hr": 5.31341276181752,
+      "h": 7.834513191738376
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 60.006249999999994,
+        "ref": 60.000625,
+        "rel_err_%": 0.009374902344758716,
+        "abs_err": 0.005624999999994884,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 75,
+        "ref": 75,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 26.390767826946497,
+        "ref": 26.39140056613003,
+        "rel_err_%": -0.002397520290550623,
+        "abs_err": -0.0006327391835334595,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 50.06779206995482,
+        "ref": 50.07351204902984,
+        "rel_err_%": -0.011423163347154031,
+        "abs_err": -0.005719979075017534,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 28.361823334639027,
+        "ref": 28.363293778180775,
+        "rel_err_%": -0.005184318694606975,
+        "abs_err": -0.0014704435417485229,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 248.44957241143786,
+        "ref": 248.4624534968636,
+        "rel_err_%": -0.005184318694613152,
+        "abs_err": -0.012881085425732408,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 2.520998203819565,
+        "ref": 2.5211004299208564,
+        "rel_err_%": -0.004054820667922496,
+        "abs_err": -0.00010222610129151377,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.313395632058083,
+        "ref": 5.31341276181752,
+        "rel_err_%": -0.00032238713995231513,
+        "abs_err": -1.712975943668482e-05,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 7.834393835877648,
+        "ref": 7.834513191738376,
+        "rel_err_%": -0.0015234623748310635,
+        "abs_err": -0.00011935586072731041,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "I-02",
+    "group": "I_TargetHeatLoss",
+    "varies": "q_target=100 W/m²",
+    "inputs": {
+      "id": "I-02",
+      "group": "I_TargetHeatLoss",
+      "varies": "q_target=100 W/m²",
+      "equipmentType": "pipe",
+      "mode": "heatloss",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetHeatLoss": 100,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 33.54765625,
+      "standardThickness": 40,
+      "surfaceTemp": 31.51163063789072,
+      "heatFlux": 99.47918906600376,
+      "linearHeatLoss": 39.81397665730273,
+      "annualHeatLoss": 348.7704355179719,
+      "dewPoint": null,
+      "hc": 3.187833449861125,
+      "hr": 5.4537910250040085,
+      "h": 8.641624474865134
+    },
+    "reference": {
+      "thickness_mm": 33.504765625000005,
+      "standardThickness": 40,
+      "surfaceTemp": 31.52583772474108,
+      "heatFlux": 99.62399818082736,
+      "linearHeatLoss": 39.84508512038117,
+      "annualHeatLoss": 349.04294565453904,
+      "dewPoint": null,
+      "hc": 3.1893518753885317,
+      "hr": 5.454184547736435,
+      "h": 8.643536423124967
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 33.54765625,
+        "ref": 33.504765625000005,
+        "rel_err_%": 0.1280135055414174,
+        "abs_err": 0.042890624999998295,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 40,
+        "ref": 40,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 31.51163063789072,
+        "ref": 31.52583772474108,
+        "rel_err_%": -0.0450648987487897,
+        "abs_err": -0.014207086850362316,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 99.47918906600376,
+        "ref": 99.62399818082736,
+        "rel_err_%": -0.14535565472965553,
+        "abs_err": -0.1448091148236017,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 39.81397665730273,
+        "ref": 39.84508512038117,
+        "rel_err_%": -0.078073526469961,
+        "abs_err": -0.031108463078439286,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 348.7704355179719,
+        "ref": 349.04294565453904,
+        "rel_err_%": -0.0780735264699589,
+        "abs_err": -0.27251013656712075,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.187833449861125,
+        "ref": 3.1893518753885317,
+        "rel_err_%": -0.04760921926250536,
+        "abs_err": -0.0015184255274065528,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.4537910250040085,
+        "ref": 5.454184547736435,
+        "rel_err_%": -0.007215060821317769,
+        "abs_err": -0.00039352273242609925,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 8.641624474865134,
+        "ref": 8.643536423124967,
+        "rel_err_%": -0.022119976896468656,
+        "abs_err": -0.0019119482598330961,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "I-03",
+    "group": "I_TargetHeatLoss",
+    "varies": "q_target=200 W/m²",
+    "inputs": {
+      "id": "I-03",
+      "group": "I_TargetHeatLoss",
+      "varies": "q_target=200 W/m²",
+      "equipmentType": "pipe",
+      "mode": "heatloss",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetHeatLoss": 200,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 17.5453125,
+      "standardThickness": 20,
+      "surfaceTemp": 40.6658029483891,
+      "heatFlux": 199.9220146638456,
+      "linearHeatLoss": 59.91232681674258,
+      "annualHeatLoss": 524.831982914665,
+      "dewPoint": null,
+      "hc": 3.961465424611748,
+      "hr": 5.712584752056056,
+      "h": 9.674050176667805
+    },
+    "reference": {
+      "thickness_mm": 17.504531249999996,
+      "standardThickness": 20,
+      "surfaceTemp": 40.706129516562726,
+      "heatFlux": 200.39304315836037,
+      "linearHeatLoss": 60.00213598115369,
+      "annualHeatLoss": 525.6187111949064,
+      "dewPoint": null,
+      "hc": 3.9642094726083537,
+      "hr": 5.7137481098585665,
+      "h": 9.67795758246692
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 17.5453125,
+        "ref": 17.504531249999996,
+        "rel_err_%": 0.2329753903007574,
+        "abs_err": 0.04078125000000554,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 40.6658029483891,
+        "ref": 40.706129516562726,
+        "rel_err_%": -0.09906755727590731,
+        "abs_err": -0.04032656817362579,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 199.9220146638456,
+        "ref": 200.39304315836037,
+        "rel_err_%": -0.23505231872871923,
+        "abs_err": -0.47102849451476914,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 59.91232681674258,
+        "ref": 60.00213598115369,
+        "rel_err_%": -0.14967661224480955,
+        "abs_err": -0.08980916441111475,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 524.831982914665,
+        "ref": 525.6187111949064,
+        "rel_err_%": -0.14967661224481443,
+        "abs_err": -0.7867282802413911,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 3.961465424611748,
+        "ref": 3.9642094726083537,
+        "rel_err_%": -0.06922056000234876,
+        "abs_err": -0.0027440479966056586,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.712584752056056,
+        "ref": 5.7137481098585665,
+        "rel_err_%": -0.020360677092205744,
+        "abs_err": -0.001163357802510312,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.674050176667805,
+        "ref": 9.67795758246692,
+        "rel_err_%": -0.040374281100321596,
+        "abs_err": -0.003907405799115082,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "J-01",
+    "group": "J_Humidity",
+    "varies": "RH=40%",
+    "inputs": {
+      "id": "J-01",
+      "group": "J_Humidity",
+      "varies": "RH=40%",
+      "equipmentType": "pipe",
+      "mode": "condensation",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": -10,
+      "ambientTemp": 30,
+      "relativeHumidity": 40,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 7.259375,
+      "standardThickness": 10,
+      "surfaceTemp": 15.969903502498495,
+      "heatFlux": -128.71418482993852,
+      "linearHeatLoss": -30.254273694422768,
+      "annualHeatLoss": -265.02743756314345,
+      "dewPoint": 14.925054638017764,
+      "hc": 3.870086548143435,
+      "hr": 5.304061673350273,
+      "h": 9.174148221493708
+    },
+    "reference": {
+      "thickness_mm": 7.250937499999999,
+      "standardThickness": 10,
+      "surfaceTemp": 15.95900395962206,
+      "heatFlux": -128.82388499390538,
+      "linearHeatLoss": -30.273229203960533,
+      "annualHeatLoss": -265.19348782669425,
+      "dewPoint": 14.925054638017764,
+      "hc": 3.871065535223601,
+      "hr": 5.303773957889583,
+      "h": 9.174839493113184
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 7.259375,
+        "ref": 7.250937499999999,
+        "rel_err_%": 0.11636426324183886,
+        "abs_err": 0.008437500000001208,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 15.969903502498495,
+        "ref": 15.95900395962206,
+        "rel_err_%": 0.06829713749061378,
+        "abs_err": 0.010899542876435575,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -128.71418482993852,
+        "ref": -128.82388499390538,
+        "rel_err_%": 0.08515514337426884,
+        "abs_err": 0.10970016396686333,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": -30.254273694422768,
+        "ref": -30.273229203960533,
+        "rel_err_%": 0.06261475909971655,
+        "abs_err": 0.018955509537764925,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": -265.02743756314345,
+        "ref": -265.19348782669425,
+        "rel_err_%": 0.06261475909970911,
+        "abs_err": 0.166050263550801,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 14.925054638017764,
+        "ref": 14.925054638017764,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 3.870086548143435,
+        "ref": 3.871065535223601,
+        "rel_err_%": -0.02528986066648617,
+        "abs_err": -0.0009789870801664158,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.304061673350273,
+        "ref": 5.303773957889583,
+        "rel_err_%": 0.005424730823265266,
+        "abs_err": 0.00028771546068995235,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.174148221493708,
+        "ref": 9.174839493113184,
+        "rel_err_%": -0.007534427386940008,
+        "abs_err": -0.0006912716194769075,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "J-02",
+    "group": "J_Humidity",
+    "varies": "RH=60%",
+    "inputs": {
+      "id": "J-02",
+      "group": "J_Humidity",
+      "varies": "RH=60%",
+      "equipmentType": "pipe",
+      "mode": "condensation",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": -10,
+      "ambientTemp": 30,
+      "relativeHumidity": 60,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 16.05,
+      "standardThickness": 20,
+      "surfaceTemp": 22.380399558899388,
+      "heatFlux": -65.68724139128757,
+      "linearHeatLoss": -19.067900081025034,
+      "annualHeatLoss": -167.0348047097793,
+      "dewPoint": 21.385418967118323,
+      "hc": 3.1448338580719035,
+      "hr": 5.475991065629656,
+      "h": 8.620824923701559
+    },
+    "reference": {
+      "thickness_mm": 16.005,
+      "standardThickness": 20,
+      "surfaceTemp": 22.361847416487343,
+      "heatFlux": -65.86400033099025,
+      "linearHeatLoss": -19.100587617448994,
+      "annualHeatLoss": -167.32114752885317,
+      "dewPoint": 21.385418967118323,
+      "hc": 3.1475408857223535,
+      "hr": 5.4754866868298215,
+      "h": 8.623027572552175
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 16.05,
+        "ref": 16.005,
+        "rel_err_%": 0.2811621368322506,
+        "abs_err": 0.045000000000001705,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 22.380399558899388,
+        "ref": 22.361847416487343,
+        "rel_err_%": 0.08296337089915946,
+        "abs_err": 0.018552142412044503,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -65.68724139128757,
+        "ref": -65.86400033099025,
+        "rel_err_%": 0.2683695779400014,
+        "abs_err": 0.17675893970267964,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": -19.067900081025034,
+        "ref": -19.100587617448994,
+        "rel_err_%": 0.17113366917622677,
+        "abs_err": 0.032687536423960495,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": -167.0348047097793,
+        "ref": -167.32114752885317,
+        "rel_err_%": 0.17113366917621003,
+        "abs_err": 0.28634281907386594,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 21.385418967118323,
+        "ref": 21.385418967118323,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 3.1448338580719035,
+        "ref": 3.1475408857223535,
+        "rel_err_%": -0.08600452698579285,
+        "abs_err": -0.0027070276504499446,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.475991065629656,
+        "ref": 5.4754866868298215,
+        "rel_err_%": 0.009211579329516587,
+        "abs_err": 0.0005043787998344484,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 8.620824923701559,
+        "ref": 8.623027572552175,
+        "rel_err_%": -0.025543799229259125,
+        "abs_err": -0.0022026488506163844,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "J-03",
+    "group": "J_Humidity",
+    "varies": "RH=85%",
+    "inputs": {
+      "id": "J-03",
+      "group": "J_Humidity",
+      "varies": "RH=85%",
+      "equipmentType": "pipe",
+      "mode": "condensation",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": -10,
+      "ambientTemp": 30,
+      "relativeHumidity": 85,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 64.05,
+      "standardThickness": 75,
+      "surfaceTemp": 28.10148085350462,
+      "heatFlux": -14.20160817719608,
+      "linearHeatLoss": -8.405591835871764,
+      "annualHeatLoss": -73.63298448223665,
+      "dewPoint": 27.199036200258,
+      "hc": 1.8466811944461352,
+      "hr": 5.633679592755773,
+      "h": 7.480360787201908
+    },
+    "reference": {
+      "thickness_mm": 68.00468749999999,
+      "standardThickness": 75,
+      "surfaceTemp": 28.224728794770574,
+      "heatFlux": -13.197113926272932,
+      "linearHeatLoss": -8.138978081172656,
+      "annualHeatLoss": -71.29744799107246,
+      "dewPoint": 27.199036200258,
+      "hc": 1.7967408709308503,
+      "hr": 5.637117058718504,
+      "h": 7.4338579296493545
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 64.05,
+        "ref": 68.00468749999999,
+        "rel_err_%": -5.815316039795039,
+        "abs_err": -3.9546874999999915,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 75,
+        "ref": 75,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 28.10148085350462,
+        "ref": 28.224728794770574,
+        "rel_err_%": -0.4366665209154825,
+        "abs_err": -0.12324794126595506,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -14.20160817719608,
+        "ref": -13.197113926272932,
+        "rel_err_%": -7.611469117678769,
+        "abs_err": -1.0044942509231483,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": -8.405591835871764,
+        "ref": -8.138978081172656,
+        "rel_err_%": -3.275764500654542,
+        "abs_err": -0.2666137546991081,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": -73.63298448223665,
+        "ref": -71.29744799107246,
+        "rel_err_%": -3.2757645006545486,
+        "abs_err": -2.3355364911641914,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 27.199036200258,
+        "ref": 27.199036200258,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 1.8466811944461352,
+        "ref": 1.7967408709308503,
+        "rel_err_%": 2.779495047018769,
+        "abs_err": 0.04994032351528488,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.633679592755773,
+        "ref": 5.637117058718504,
+        "rel_err_%": -0.06097914815187429,
+        "abs_err": -0.003437465962730535,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 7.480360787201908,
+        "ref": 7.4338579296493545,
+        "rel_err_%": 0.6255548329364852,
+        "abs_err": 0.04650285755255368,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "K-01",
+    "group": "K_Environment",
+    "varies": "indoor v=0",
+    "inputs": {
+      "id": "K-01",
+      "group": "K_Environment",
+      "varies": "indoor v=0",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "K-02",
+    "group": "K_Environment",
+    "varies": "outdoor_calm v=1",
+    "inputs": {
+      "id": "K-02",
+      "group": "K_Environment",
+      "varies": "outdoor_calm v=1",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 1,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 6.148437499999999,
+      "standardThickness": 10,
+      "surfaceTemp": 50.09703829377345,
+      "heatFlux": 593.1934994647359,
+      "linearHeatLoss": 135.28952822592836,
+      "annualHeatLoss": 1185.1362672591326,
+      "dewPoint": null,
+      "hc": 13.719015718101945,
+      "hr": 5.990348827161539,
+      "h": 19.709364545263483
+    },
+    "reference": {
+      "thickness_mm": 6.17416015625,
+      "standardThickness": 10,
+      "surfaceTemp": 50.00166974508684,
+      "heatFlux": 591.083149679453,
+      "linearHeatLoss": 134.90375213932322,
+      "annualHeatLoss": 1181.7568687404714,
+      "dewPoint": null,
+      "hc": 13.714191408608725,
+      "hr": 5.9874836881998625,
+      "h": 19.701675096808586
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 6.148437499999999,
+        "ref": 6.17416015625,
+        "rel_err_%": -0.416617897803678,
+        "abs_err": -0.02572265625000103,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.09703829377345,
+        "ref": 50.00166974508684,
+        "rel_err_%": 0.1907307279392979,
+        "abs_err": 0.09536854868660782,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 593.1934994647359,
+        "ref": 591.083149679453,
+        "rel_err_%": 0.3570309501171442,
+        "abs_err": 2.1103497852828923,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 135.28952822592836,
+        "ref": 134.90375213932322,
+        "rel_err_%": 0.28596394131924047,
+        "abs_err": 0.38577608660514784,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 1185.1362672591326,
+        "ref": 1181.7568687404714,
+        "rel_err_%": 0.28596394131925096,
+        "abs_err": 3.379398518661219,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 13.719015718101945,
+        "ref": 13.714191408608725,
+        "rel_err_%": 0.0351774986179012,
+        "abs_err": 0.004824309493219658,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.990348827161539,
+        "ref": 5.9874836881998625,
+        "rel_err_%": 0.047852138074686454,
+        "abs_err": 0.0028651389616767275,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 19.709364545263483,
+        "ref": 19.701675096808586,
+        "rel_err_%": 0.03902941459095965,
+        "abs_err": 0.007689448454897274,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "K-03",
+    "group": "K_Environment",
+    "varies": "outdoor_moderate v=5",
+    "inputs": {
+      "id": "K-03",
+      "group": "K_Environment",
+      "varies": "outdoor_moderate v=5",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 5,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 3.23828125,
+      "standardThickness": 10,
+      "surfaceTemp": 50.068888895726964,
+      "heatFlux": 1173.4945942193822,
+      "linearHeatLoss": 246.18127967617346,
+      "annualHeatLoss": 2156.5480099632796,
+      "dewPoint": null,
+      "hc": 33.0373230677433,
+      "hr": 5.98954614211784,
+      "h": 39.02686920986114
+    },
+    "reference": {
+      "thickness_mm": 3.251875,
+      "standardThickness": 10,
+      "surfaceTemp": 49.97302006444852,
+      "heatFlux": 1169.4761510413794,
+      "linearHeatLoss": 245.43815890160977,
+      "annualHeatLoss": 2150.038271978102,
+      "dewPoint": null,
+      "hc": 33.03096176838464,
+      "hr": 5.9866663694123154,
+      "h": 39.01762813779696
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 3.23828125,
+        "ref": 3.251875,
+        "rel_err_%": -0.41802806073419396,
+        "abs_err": -0.013593750000000071,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.068888895726964,
+        "ref": 49.97302006444852,
+        "rel_err_%": 0.19184117981023718,
+        "abs_err": 0.09586883127844459,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 1173.4945942193822,
+        "ref": 1169.4761510413794,
+        "rel_err_%": 0.3436105280492071,
+        "abs_err": 4.018443178002826,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 246.18127967617346,
+        "ref": 245.43815890160977,
+        "rel_err_%": 0.30277312129838446,
+        "abs_err": 0.7431207745636925,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 2156.5480099632796,
+        "ref": 2150.038271978102,
+        "rel_err_%": 0.3027731212983733,
+        "abs_err": 6.509737985177708,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 33.0373230677433,
+        "ref": 33.03096176838464,
+        "rel_err_%": 0.019258595626929293,
+        "abs_err": 0.006361299358658812,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.98954614211784,
+        "ref": 5.9866663694123154,
+        "rel_err_%": 0.048103109941755866,
+        "abs_err": 0.0028797727055245304,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 39.02686920986114,
+        "ref": 39.01762813779696,
+        "rel_err_%": 0.023684351164406245,
+        "abs_err": 0.009241072064178013,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "K-04",
+    "group": "K_Environment",
+    "varies": "outdoor_strong v=10",
+    "inputs": {
+      "id": "K-04",
+      "group": "K_Environment",
+      "varies": "outdoor_strong v=10",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 10,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 2.369921875,
+      "standardThickness": 10,
+      "surfaceTemp": 49.99660876999667,
+      "heatFlux": 1625.5981815388222,
+      "linearHeatLoss": 332.15635554128494,
+      "annualHeatLoss": 2909.689674541656,
+      "dewPoint": null,
+      "hc": 48.20534466633234,
+      "hr": 5.987387385591624,
+      "h": 54.19273205192396
+    },
+    "reference": {
+      "thickness_mm": 2.37126953125,
+      "standardThickness": 10,
+      "surfaceTemp": 49.98358669246035,
+      "heatFlux": 1624.8526268515798,
+      "linearHeatLoss": 332.0177758845286,
+      "annualHeatLoss": 2908.4757167484704,
+      "dewPoint": null,
+      "hc": 48.20440662812811,
+      "hr": 5.986996272318218,
+      "h": 54.19140290044633
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 2.369921875,
+        "ref": 2.37126953125,
+        "rel_err_%": -0.056832689504058787,
+        "abs_err": -0.0013476562499996625,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.99660876999667,
+        "ref": 49.98358669246035,
+        "rel_err_%": 0.026052707294581125,
+        "abs_err": 0.013022077536319898,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 1625.5981815388222,
+        "ref": 1624.8526268515798,
+        "rel_err_%": 0.045884449760044396,
+        "abs_err": 0.7455546872424748,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 332.15635554128494,
+        "ref": 332.0177758845286,
+        "rel_err_%": 0.041738625706758854,
+        "abs_err": 0.13857965675634887,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 2909.689674541656,
+        "ref": 2908.4757167484704,
+        "rel_err_%": 0.04173862570676269,
+        "abs_err": 1.2139577931857275,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 48.20534466633234,
+        "ref": 48.20440662812811,
+        "rel_err_%": 0.0019459594461180665,
+        "abs_err": 0.0009380382042252222,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.987387385591624,
+        "ref": 5.986996272318218,
+        "rel_err_%": 0.006532712826540613,
+        "abs_err": 0.0003911132734062406,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 54.19273205192396,
+        "ref": 54.19140290044633,
+        "rel_err_%": 0.002452698041561829,
+        "abs_err": 0.0013291514776341273,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "L-01",
+    "group": "L_Emittance",
+    "varies": "ε=0.9 painted",
+    "inputs": {
+      "id": "L-01",
+      "group": "L_Emittance",
+      "varies": "ε=0.9 painted",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "L-02",
+    "group": "L_Emittance",
+    "varies": "ε=0.7 Al jacket",
+    "inputs": {
+      "id": "L-02",
+      "group": "L_Emittance",
+      "varies": "ε=0.7 Al jacket",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.7,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 12.39765625,
+      "standardThickness": 13,
+      "surfaceTemp": 49.956133489373414,
+      "heatFlux": 273.0621016850133,
+      "linearHeatLoss": 72.99900469122234,
+      "annualHeatLoss": 639.4712810951077,
+      "dewPoint": null,
+      "hc": 4.459457441598303,
+      "hr": 4.655941305769371,
+      "h": 9.115398747367674
+    },
+    "reference": {
+      "thickness_mm": 12.377265625000001,
+      "standardThickness": 13,
+      "surfaceTemp": 49.99249052728976,
+      "heatFlux": 273.474340133542,
+      "linearHeatLoss": 73.074173371829,
+      "annualHeatLoss": 640.129758737222,
+      "dewPoint": null,
+      "hc": 4.461303254180156,
+      "hr": 4.656790486141657,
+      "h": 9.118093740321813
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 12.39765625,
+        "ref": 12.377265625000001,
+        "rel_err_%": 0.16474256607059945,
+        "abs_err": 0.02039062499999922,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.956133489373414,
+        "ref": 49.99249052728976,
+        "rel_err_%": -0.07272499836050332,
+        "abs_err": -0.03635703791634626,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 273.0621016850133,
+        "ref": 273.474340133542,
+        "rel_err_%": -0.15074118044397883,
+        "abs_err": -0.41223844852868297,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 72.99900469122234,
+        "ref": 73.074173371829,
+        "rel_err_%": -0.1028662756459511,
+        "abs_err": -0.07516868060666582,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 639.4712810951077,
+        "ref": 640.129758737222,
+        "rel_err_%": -0.10286627564594426,
+        "abs_err": -0.6584776421143488,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.459457441598303,
+        "ref": 4.461303254180156,
+        "rel_err_%": -0.041373842500468876,
+        "abs_err": -0.0018458125818527904,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 4.655941305769371,
+        "ref": 4.656790486141657,
+        "rel_err_%": -0.01823531410341015,
+        "abs_err": -0.0008491803722856517,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 9.115398747367674,
+        "ref": 9.118093740321813,
+        "rel_err_%": -0.0295565392382479,
+        "abs_err": -0.002694992954138442,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "L-03",
+    "group": "L_Emittance",
+    "varies": "ε=0.3 polished Al",
+    "inputs": {
+      "id": "L-03",
+      "group": "L_Emittance",
+      "varies": "ε=0.3 polished Al",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.3,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 17.046875000000004,
+      "standardThickness": 20,
+      "surfaceTemp": 49.90436440163293,
+      "heatFlux": 189.2977730101355,
+      "linearHeatLoss": 56.13563208890807,
+      "annualHeatLoss": 491.74813709883466,
+      "dewPoint": null,
+      "hc": 4.335229075245361,
+      "hr": 1.9948761384203342,
+      "h": 6.3301052136656955
+    },
+    "reference": {
+      "thickness_mm": 17.004687499999996,
+      "standardThickness": 20,
+      "surfaceTemp": 49.95852303662347,
+      "heatFlux": 189.74324541872153,
+      "linearHeatLoss": 56.217439867949935,
+      "annualHeatLoss": 492.46477324324144,
+      "dewPoint": null,
+      "hc": 4.338113150849232,
+      "hr": 1.9954182180625681,
+      "h": 6.3335313689118
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 17.046875000000004,
+        "ref": 17.004687499999996,
+        "rel_err_%": 0.24809335661127455,
+        "abs_err": 0.042187500000007816,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 49.90436440163293,
+        "ref": 49.95852303662347,
+        "rel_err_%": -0.10840719800870291,
+        "abs_err": -0.05415863499053586,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 189.2977730101355,
+        "ref": 189.74324541872153,
+        "rel_err_%": -0.23477642516494768,
+        "abs_err": -0.44547240858602777,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 56.13563208890807,
+        "ref": 56.217439867949935,
+        "rel_err_%": -0.1455202855804651,
+        "abs_err": -0.08180777904186698,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 491.74813709883466,
+        "ref": 492.46477324324144,
+        "rel_err_%": -0.1455202855804697,
+        "abs_err": -0.7166361444067775,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.335229075245361,
+        "ref": 4.338113150849232,
+        "rel_err_%": -0.06648225861296443,
+        "abs_err": -0.002884075603870606,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 1.9948761384203342,
+        "ref": 1.9954182180625681,
+        "rel_err_%": -0.027166216952769343,
+        "abs_err": -0.0005420796422339613,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 6.3301052136656955,
+        "ref": 6.3335313689118,
+        "rel_err_%": -0.054095496596439696,
+        "abs_err": -0.0034261552461041234,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "L-04",
+    "group": "L_Emittance",
+    "varies": "ε=0.1 polished steel",
+    "inputs": {
+      "id": "L-04",
+      "group": "L_Emittance",
+      "varies": "ε=0.1 polished steel",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.1,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 21.034375,
+      "standardThickness": 25,
+      "surfaceTemp": 50.04518744887854,
+      "heatFlux": 147.5930584995804,
+      "linearHeatLoss": 47.46606235960607,
+      "annualHeatLoss": 415.80270627014914,
+      "dewPoint": null,
+      "hc": 4.246943269549751,
+      "hr": 0.6654260991122961,
+      "h": 4.9123693686620475
+    },
+    "reference": {
+      "thickness_mm": 21.065917968749996,
+      "standardThickness": 25,
+      "surfaceTemp": 50.012932064202744,
+      "heatFlux": 147.37820211915866,
+      "linearHeatLoss": 47.42617328422179,
+      "annualHeatLoss": 415.4532779697829,
+      "dewPoint": null,
+      "hc": 4.245171548307245,
+      "hr": 0.6653184299425218,
+      "h": 4.910489978249767
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 21.034375,
+        "ref": 21.065917968749996,
+        "rel_err_%": -0.14973460352778267,
+        "abs_err": -0.03154296874999574,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 25,
+        "ref": 25,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04518744887854,
+        "ref": 50.012932064202744,
+        "rel_err_%": 0.06449408851773143,
+        "abs_err": 0.0322553846757998,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 147.5930584995804,
+        "ref": 147.37820211915866,
+        "rel_err_%": 0.14578572497988526,
+        "abs_err": 0.21485638042173605,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 47.46606235960607,
+        "ref": 47.42617328422179,
+        "rel_err_%": 0.08410772495859654,
+        "abs_err": 0.03988907538428066,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 415.80270627014914,
+        "ref": 415.4532779697829,
+        "rel_err_%": 0.08410772495858286,
+        "abs_err": 0.34942830036624173,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.246943269549751,
+        "ref": 4.245171548307245,
+        "rel_err_%": 0.041734974013307495,
+        "abs_err": 0.0017717212425063522,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 0.6654260991122961,
+        "ref": 0.6653184299425218,
+        "rel_err_%": 0.016183103447718998,
+        "abs_err": 0.00010766916977433816,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 4.9123693686620475,
+        "ref": 4.910489978249767,
+        "rel_err_%": 0.03827297114148227,
+        "abs_err": 0.0018793904122809124,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "L-05",
+    "group": "L_Emittance",
+    "varies": "custom ε=0.5",
+    "inputs": {
+      "id": "L-05",
+      "group": "L_Emittance",
+      "varies": "custom ε=0.5",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.5,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 14.2609375,
+      "standardThickness": 20,
+      "surfaceTemp": 50.04007579323287,
+      "heatFlux": 232.45961357769758,
+      "linearHeatLoss": 64.86603035579229,
+      "annualHeatLoss": 568.2264259167405,
+      "dewPoint": null,
+      "hc": 4.411249905348694,
+      "hr": 3.327066574866836,
+      "h": 7.738316480215531
+    },
+    "reference": {
+      "thickness_mm": 14.313554687499998,
+      "standardThickness": 20,
+      "surfaceTemp": 49.95889470361266,
+      "heatFlux": 231.6648323500086,
+      "linearHeatLoss": 64.72084210678635,
+      "annualHeatLoss": 566.9545768554484,
+      "dewPoint": null,
+      "hc": 4.407044318647837,
+      "hr": 3.3257120010328367,
+      "h": 7.732756319680673
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 14.2609375,
+        "ref": 14.313554687499998,
+        "rel_err_%": -0.3676039156503027,
+        "abs_err": -0.05261718749999744,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 20,
+        "ref": 20,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.04007579323287,
+        "ref": 49.95889470361266,
+        "rel_err_%": 0.16249576797451779,
+        "abs_err": 0.08118108962021608,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 232.45961357769758,
+        "ref": 231.6648323500086,
+        "rel_err_%": 0.34307374996313583,
+        "abs_err": 0.7947812276889863,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 64.86603035579229,
+        "ref": 64.72084210678635,
+        "rel_err_%": 0.2243299751359641,
+        "abs_err": 0.1451882490059404,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 568.2264259167405,
+        "ref": 566.9545768554484,
+        "rel_err_%": 0.22432997513597033,
+        "abs_err": 1.2718490612920732,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.411249905348694,
+        "ref": 4.407044318647837,
+        "rel_err_%": 0.09542873628617873,
+        "abs_err": 0.0042055867008574666,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 3.327066574866836,
+        "ref": 3.3257120010328367,
+        "rel_err_%": 0.04073034085870419,
+        "abs_err": 0.0013545738339995061,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 7.738316480215531,
+        "ref": 7.732756319680673,
+        "rel_err_%": 0.07190399263851399,
+        "abs_err": 0.005560160534857417,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "M-01",
+    "group": "M_OperatingHours",
+    "varies": "hours=2000",
+    "inputs": {
+      "id": "M-01",
+      "group": "M_OperatingHours",
+      "varies": "hours=2000",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 2000,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 162.70830872698897,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 162.3885010382351,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 162.70830872698897,
+        "ref": 162.3885010382351,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.3198076887538832,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "M-02",
+    "group": "M_OperatingHours",
+    "varies": "hours=5000",
+    "inputs": {
+      "id": "M-02",
+      "group": "M_OperatingHours",
+      "varies": "hours=5000",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 5000,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 406.7707718174724,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 405.97125259558777,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 406.7707718174724,
+        "ref": 405.97125259558777,
+        "rel_err_%": 0.1969398613258638,
+        "abs_err": 0.7995192218846228,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "M-03",
+    "group": "M_OperatingHours",
+    "varies": "hours=8760",
+    "inputs": {
+      "id": "M-03",
+      "group": "M_OperatingHours",
+      "varies": "hours=8760",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "N-01",
+    "group": "N_UnitSystem",
+    "varies": "metric (基准)",
+    "inputs": {
+      "id": "N-01",
+      "group": "N_UnitSystem",
+      "varies": "metric (基准)",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "unitSystem": "metric",
+      "outerDiameter": 60.3,
+      "k": 0.04,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.0494757524564,
+      "heatFlux": 315.364151128468,
+      "linearHeatLoss": 81.35415436349449,
+      "annualHeatLoss": 712.6623922242117,
+      "dewPoint": null,
+      "hc": 4.505807937283344,
+      "hr": 5.989022445995091,
+      "h": 10.494830383278435
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.98139621650578,
+      "heatFlux": 314.4866751509255,
+      "linearHeatLoss": 81.19425051911755,
+      "annualHeatLoss": 711.2616345474697,
+      "dewPoint": null,
+      "hc": 4.50241620213322,
+      "hr": 5.986977716679336,
+      "h": 10.489393918812556
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.0494757524564,
+        "ref": 49.98139621650578,
+        "rel_err_%": 0.1362097522360549,
+        "abs_err": 0.06807953595062344,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.364151128468,
+        "ref": 314.4866751509255,
+        "rel_err_%": 0.27901849168056614,
+        "abs_err": 0.8774759775424741,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.35415436349449,
+        "ref": 81.19425051911755,
+        "rel_err_%": 0.1969398613258848,
+        "abs_err": 0.1599038443769416,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 712.6623922242117,
+        "ref": 711.2616345474697,
+        "rel_err_%": 0.1969398613258741,
+        "abs_err": 1.4007576767419323,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.505807937283344,
+        "ref": 4.50241620213322,
+        "rel_err_%": 0.07533144422582456,
+        "abs_err": 0.0033917351501244752,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.989022445995091,
+        "ref": 5.986977716679336,
+        "rel_err_%": 0.03415294682087377,
+        "abs_err": 0.002044729315755056,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.494830383278435,
+        "ref": 10.489393918812556,
+        "rel_err_%": 0.05182820387866675,
+        "abs_err": 0.005436464465878643,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "N-02",
+    "group": "N_UnitSystem",
+    "varies": "imperial→metric 等价换算",
+    "inputs": {
+      "id": "N-02",
+      "group": "N_UnitSystem",
+      "varies": "imperial→metric 等价换算",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "unitSystem": "imperial",
+      "outerDiameter": 60.325,
+      "k": 0.04003,
+      "mediumTemp": 150,
+      "ambientTemp": 20,
+      "targetSurfaceTemp": 50,
+      "windSpeed": 0,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 10.907031250000001,
+      "standardThickness": 13,
+      "surfaceTemp": 50.06639235083795,
+      "heatFlux": 315.5637377781699,
+      "linearHeatLoss": 81.43042583706796,
+      "annualHeatLoss": 713.3305303327154,
+      "dewPoint": null,
+      "hc": 4.506033131860051,
+      "hr": 5.9895306223784965,
+      "h": 10.495563754238548
+    },
+    "reference": {
+      "thickness_mm": 10.940664062500002,
+      "standardThickness": 13,
+      "surfaceTemp": 49.998288208952964,
+      "heatFlux": 314.685854981271,
+      "linearHeatLoss": 81.2703901881005,
+      "annualHeatLoss": 711.9286180477604,
+      "dewPoint": null,
+      "hc": 4.502642057595992,
+      "hr": 5.987485005299328,
+      "h": 10.490127062895318
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 10.907031250000001,
+        "ref": 10.940664062500002,
+        "rel_err_%": -0.3074110703689335,
+        "abs_err": -0.0336328125000005,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 13,
+        "ref": 13,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 50.06639235083795,
+        "ref": 49.998288208952964,
+        "rel_err_%": 0.13621294713204232,
+        "abs_err": 0.06810414188498726,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 315.5637377781699,
+        "ref": 314.685854981271,
+        "rel_err_%": 0.2789711653709903,
+        "abs_err": 0.8778827968989162,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 81.43042583706796,
+        "ref": 81.2703901881005,
+        "rel_err_%": 0.19691753490668393,
+        "abs_err": 0.16003564896745104,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 713.3305303327154,
+        "ref": 711.9286180477604,
+        "rel_err_%": 0.19691753490669647,
+        "abs_err": 1.4019122849549603,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 4.506033131860051,
+        "ref": 4.502642057595992,
+        "rel_err_%": 0.07531298781209406,
+        "abs_err": 0.0033910742640594904,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.9895306223784965,
+        "ref": 5.987485005299328,
+        "rel_err_%": 0.03416488020192852,
+        "abs_err": 0.0020456170791689487,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 10.495563754238548,
+        "ref": 10.490127062895318,
+        "rel_err_%": 0.0518267444296216,
+        "abs_err": 0.005436691343229327,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "Z-01",
+    "group": "Z_StressCombined",
+    "varies": "高温大管+强风+低发射率",
+    "inputs": {
+      "id": "Z-01",
+      "group": "Z_StressCombined",
+      "varies": "高温大管+强风+低发射率",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 219.1,
+      "k": 0.052,
+      "mediumTemp": 450,
+      "ambientTemp": 30,
+      "targetSurfaceTemp": 60,
+      "windSpeed": 10,
+      "emittance": 0.1,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 24.025000000000002,
+      "standardThickness": 25,
+      "surfaceTemp": 60.02445137818365,
+      "heatFlux": 765.6532568307182,
+      "linearHeatLoss": 642.5947683077095,
+      "annualHeatLoss": 5629.130170375535,
+      "dewPoint": null,
+      "hc": 24.76885067084173,
+      "hr": 0.7321400778870467,
+      "h": 25.500990748728775
+    },
+    "reference": {
+      "thickness_mm": 24.064980468749997,
+      "standardThickness": 25,
+      "surfaceTemp": 59.978121522628136,
+      "heatFlux": 764.3614434630646,
+      "linearHeatLoss": 641.7025909174146,
+      "annualHeatLoss": 5621.3146964365515,
+      "dewPoint": null,
+      "hc": 24.765334125056324,
+      "hr": 0.7319754006959159,
+      "h": 25.49730952575224
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 24.025000000000002,
+        "ref": 24.064980468749997,
+        "rel_err_%": -0.1661354714245977,
+        "abs_err": -0.03998046874999517,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 25,
+        "ref": 25,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 60.02445137818365,
+        "ref": 59.978121522628136,
+        "rel_err_%": 0.07724459249367073,
+        "abs_err": 0.04632985555551272,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 765.6532568307182,
+        "ref": 764.3614434630646,
+        "rel_err_%": 0.16900556388622184,
+        "abs_err": 1.2918133676536172,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 642.5947683077095,
+        "ref": 641.7025909174146,
+        "rel_err_%": 0.1390328483822116,
+        "abs_err": 0.8921773902949326,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 5629.130170375535,
+        "ref": 5621.3146964365515,
+        "rel_err_%": 0.13903284838221527,
+        "abs_err": 7.815473938983814,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 24.76885067084173,
+        "ref": 24.765334125056324,
+        "rel_err_%": 0.014199468368358281,
+        "abs_err": 0.0035165457854056115,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 0.7321400778870467,
+        "ref": 0.7319754006959159,
+        "rel_err_%": 0.022497640081103158,
+        "abs_err": 0.00016467719113077983,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 25.500990748728775,
+        "ref": 25.49730952575224,
+        "rel_err_%": 0.01443769183888697,
+        "abs_err": 0.003681222976535281,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "Z-02",
+    "group": "Z_StressCombined",
+    "varies": "低温制冷管+高湿防凝露",
+    "inputs": {
+      "id": "Z-02",
+      "group": "Z_StressCombined",
+      "varies": "低温制冷管+高湿防凝露",
+      "equipmentType": "pipe",
+      "mode": "condensation",
+      "outerDiameter": 114.3,
+      "k": 0.023,
+      "mediumTemp": -30,
+      "ambientTemp": 32,
+      "relativeHumidity": 85,
+      "windSpeed": 1,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 40.0375,
+      "standardThickness": 50,
+      "surfaceTemp": 30.125004900827207,
+      "heatFlux": -26.79837913553009,
+      "linearHeatLoss": -16.364351754569906,
+      "annualHeatLoss": -143.35172137003238,
+      "dewPoint": 29.158077696143366,
+      "hc": 8.545603590523779,
+      "hr": 5.7469026391474,
+      "h": 14.29250622967118
+    },
+    "reference": {
+      "thickness_mm": 40.00375,
+      "standardThickness": 50,
+      "surfaceTemp": 30.12335662897575,
+      "heatFlux": -26.824500792552207,
+      "linearHeatLoss": -16.374614531260068,
+      "annualHeatLoss": -143.4416232938382,
+      "dewPoint": 29.158077696143366,
+      "hc": 8.547016314930644,
+      "hr": 5.746856035419913,
+      "h": 14.293872350350558
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 40.0375,
+        "ref": 40.00375,
+        "rel_err_%": 0.08436709058526971,
+        "abs_err": 0.03375000000000483,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 50,
+        "ref": 50,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 30.125004900827207,
+        "ref": 30.12335662897575,
+        "rel_err_%": 0.00547174032349578,
+        "abs_err": 0.0016482718514581052,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -26.79837913553009,
+        "ref": -26.824500792552207,
+        "rel_err_%": 0.0973798439871403,
+        "abs_err": 0.02612165702211655,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": -16.364351754569906,
+        "ref": -16.374614531260068,
+        "rel_err_%": 0.06267492080848519,
+        "abs_err": 0.010262776690161957,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": -143.35172137003238,
+        "ref": -143.4416232938382,
+        "rel_err_%": 0.06267492080849014,
+        "abs_err": 0.08990192380582585,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 29.158077696143366,
+        "ref": 29.158077696143366,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 8.545603590523779,
+        "ref": 8.547016314930644,
+        "rel_err_%": -0.01652886053812119,
+        "abs_err": -0.001412724406865351,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.7469026391474,
+        "ref": 5.746856035419913,
+        "rel_err_%": 0.0008109430130082805,
+        "abs_err": 4.660372748688246e-05,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 14.29250622967118,
+        "ref": 14.293872350350558,
+        "rel_err_%": -0.009557386871059923,
+        "abs_err": -0.0013661206793784686,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "Z-03",
+    "group": "Z_StressCombined",
+    "varies": "大平壁+高热损目标+陶瓷纤维",
+    "inputs": {
+      "id": "Z-03",
+      "group": "Z_StressCombined",
+      "varies": "大平壁+高热损目标+陶瓷纤维",
+      "equipmentType": "flat",
+      "mode": "heatloss",
+      "k": 0.12,
+      "mediumTemp": 600,
+      "ambientTemp": 25,
+      "targetHeatLoss": 300,
+      "windSpeed": 5,
+      "emittance": 0.7,
+      "operatingHours": 5000,
+      "surfaceLength": 5,
+      "surfaceWidth": 3,
+      "outerDiameter": 60.3,
+      "targetSurfaceTemp": 50,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 227.33593749999997,
+      "standardThickness": 150,
+      "surfaceTemp": 33.41977532950471,
+      "heatFlux": 299.07117945423585,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 22430.338459067687,
+      "dewPoint": null,
+      "hc": 31.13029285961229,
+      "hr": 4.38979737441401,
+      "h": 35.5200902340263
+    },
+    "reference": {
+      "thickness_mm": 227.0011328125,
+      "standardThickness": 150,
+      "surfaceTemp": 33.43199587554732,
+      "heatFlux": 299.5058203127632,
+      "linearHeatLoss": null,
+      "annualHeatLoss": 22462.936523457243,
+      "dewPoint": null,
+      "hc": 31.130091420559328,
+      "hr": 4.390065934038795,
+      "h": 35.520157354598126
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 227.33593749999997,
+        "ref": 227.0011328125,
+        "rel_err_%": 0.1474903157318217,
+        "abs_err": 0.33480468749996817,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 150,
+        "ref": 150,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 33.41977532950471,
+        "ref": 33.43199587554732,
+        "rel_err_%": -0.03655344445514041,
+        "abs_err": -0.012220546042613023,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 299.07117945423585,
+        "ref": 299.5058203127632,
+        "rel_err_%": -0.1451193362698192,
+        "abs_err": -0.43464085852735934,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": 22430.338459067687,
+        "ref": 22462.936523457243,
+        "rel_err_%": -0.14511933626983892,
+        "abs_err": -32.598064389556384,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 31.13029285961229,
+        "ref": 31.130091420559328,
+        "rel_err_%": 0.0006470878939617363,
+        "abs_err": 0.00020143905296166054,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 4.38979737441401,
+        "ref": 4.390065934038795,
+        "rel_err_%": -0.006117439437585422,
+        "abs_err": -0.00026855962478489204,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 35.5200902340263,
+        "ref": 35.520157354598126,
+        "rel_err_%": -0.00018896473672007412,
+        "abs_err": -6.712057182767239e-05,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "Z-04",
+    "group": "Z_StressCombined",
+    "varies": "小管+高表面温度目标+PUR",
+    "inputs": {
+      "id": "Z-04",
+      "group": "Z_StressCombined",
+      "varies": "小管+高表面温度目标+PUR",
+      "equipmentType": "pipe",
+      "mode": "surface",
+      "outerDiameter": 21.3,
+      "k": 0.023,
+      "mediumTemp": 110,
+      "ambientTemp": 25,
+      "targetSurfaceTemp": 45,
+      "windSpeed": 0,
+      "emittance": 0.3,
+      "operatingHours": 4000,
+      "surfaceLength": 1,
+      "surfaceWidth": 1,
+      "targetHeatLoss": 100,
+      "relativeHumidity": 60
+    },
+    "webapp": {
+      "thickness_mm": 8.05,
+      "standardThickness": 10,
+      "surfaceTemp": 45.04485276627305,
+      "heatFlux": 141.91211129966527,
+      "linearHeatLoss": 16.674043732160264,
+      "annualHeatLoss": 66.69617492864106,
+      "dewPoint": null,
+      "hc": 5.086093711426575,
+      "hr": 1.993634583631942,
+      "h": 7.079728295058517
+    },
+    "reference": {
+      "thickness_mm": 8.067460937500002,
+      "standardThickness": 10,
+      "surfaceTemp": 45.01291954023651,
+      "heatFlux": 141.61465299196706,
+      "linearHeatLoss": 16.654630287067352,
+      "annualHeatLoss": 66.61852114826941,
+      "dewPoint": null,
+      "hc": 5.08284329831075,
+      "hr": 1.9933183135543748,
+      "h": 7.076161611865125
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 8.05,
+        "ref": 8.067460937500002,
+        "rel_err_%": -0.21643659182577843,
+        "abs_err": -0.017460937500000995,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 45.04485276627305,
+        "ref": 45.01291954023651,
+        "rel_err_%": 0.07094235691154864,
+        "abs_err": 0.031933226036542806,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": 141.91211129966527,
+        "ref": 141.61465299196706,
+        "rel_err_%": 0.21004769027332232,
+        "abs_err": 0.29745830769820714,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": 16.674043732160264,
+        "ref": 16.654630287067352,
+        "rel_err_%": 0.11656485168564149,
+        "abs_err": 0.019413445092911985,
+        "status": "PASS"
+      },
+      "annualHeatLoss": {
+        "webapp": 66.69617492864106,
+        "ref": 66.61852114826941,
+        "rel_err_%": 0.11656485168564149,
+        "abs_err": 0.07765378037164794,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "hc": {
+        "webapp": 5.086093711426575,
+        "ref": 5.08284329831075,
+        "rel_err_%": 0.06394871777585151,
+        "abs_err": 0.0032504131158255234,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 1.993634583631942,
+        "ref": 1.9933183135543748,
+        "rel_err_%": 0.015866511405457716,
+        "abs_err": 0.0003162700775671823,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 7.079728295058517,
+        "ref": 7.076161611865125,
+        "rel_err_%": 0.05040420766269928,
+        "abs_err": 0.0035666831933927057,
+        "status": "PASS"
+      }
+    }
+  },
+  {
+    "case_id": "Z-05",
+    "group": "Z_StressCombined",
+    "varies": "平壁防凝露+玻璃棉+室外",
+    "inputs": {
+      "id": "Z-05",
+      "group": "Z_StressCombined",
+      "varies": "平壁防凝露+玻璃棉+室外",
+      "equipmentType": "flat",
+      "mode": "condensation",
+      "k": 0.035,
+      "mediumTemp": 5,
+      "ambientTemp": 28,
+      "relativeHumidity": 75,
+      "windSpeed": 5,
+      "emittance": 0.9,
+      "operatingHours": 8760,
+      "surfaceLength": 2,
+      "surfaceWidth": 2,
+      "outerDiameter": 60.3,
+      "targetSurfaceTemp": 50,
+      "targetHeatLoss": 100
+    },
+    "webapp": {
+      "thickness_mm": 3.9267578125,
+      "standardThickness": 10,
+      "surfaceTemp": 24.052714338220508,
+      "heatFlux": -169.82076147272397,
+      "linearHeatLoss": null,
+      "annualHeatLoss": -5950.519482004248,
+      "dewPoint": 23.15188321115281,
+      "hc": 37.55579329416672,
+      "hr": 5.466368267904355,
+      "h": 43.022161562071076
+    },
+    "reference": {
+      "thickness_mm": 4.005,
+      "standardThickness": 10,
+      "surfaceTemp": 24.11684162842567,
+      "heatFlux": -167.0635348301869,
+      "linearHeatLoss": null,
+      "annualHeatLoss": -5853.906260449749,
+      "dewPoint": 23.15188321115281,
+      "hc": 37.55447452887873,
+      "hr": 5.4681165797232145,
+      "h": 43.022591108601944
+    },
+    "diffs": {
+      "thickness_mm": {
+        "webapp": 3.9267578125,
+        "ref": 4.005,
+        "rel_err_%": -1.9536126716604219,
+        "abs_err": -0.0782421874999999,
+        "status": "PASS"
+      },
+      "standardThickness": {
+        "webapp": 10,
+        "ref": 10,
+        "rel_err_%": 0.0,
+        "abs_err": 0,
+        "status": "INFO"
+      },
+      "surfaceTemp": {
+        "webapp": 24.052714338220508,
+        "ref": 24.11684162842567,
+        "rel_err_%": -0.26590252236669065,
+        "abs_err": -0.06412729020516394,
+        "status": "PASS"
+      },
+      "heatFlux": {
+        "webapp": -169.82076147272397,
+        "ref": -167.0635348301869,
+        "rel_err_%": -1.650406023875688,
+        "abs_err": -2.757226642537063,
+        "status": "PASS"
+      },
+      "linearHeatLoss": {
+        "webapp": null,
+        "ref": null,
+        "rel_err_%": NaN,
+        "abs_err": NaN,
+        "status": "N/A"
+      },
+      "annualHeatLoss": {
+        "webapp": -5950.519482004248,
+        "ref": -5853.906260449749,
+        "rel_err_%": -1.6504060238756852,
+        "abs_err": -96.61322155449852,
+        "status": "PASS"
+      },
+      "dewPoint": {
+        "webapp": 23.15188321115281,
+        "ref": 23.15188321115281,
+        "rel_err_%": 0.0,
+        "abs_err": 0.0,
+        "status": "PASS"
+      },
+      "hc": {
+        "webapp": 37.55579329416672,
+        "ref": 37.55447452887873,
+        "rel_err_%": 0.0035116062853617594,
+        "abs_err": 0.0013187652879906864,
+        "status": "PASS"
+      },
+      "hr": {
+        "webapp": 5.466368267904355,
+        "ref": 5.4681165797232145,
+        "rel_err_%": -0.031972833668959574,
+        "abs_err": -0.0017483118188597047,
+        "status": "PASS"
+      },
+      "h": {
+        "webapp": 43.022161562071076,
+        "ref": 43.022591108601944,
+        "rel_err_%": -0.0009984208756347041,
+        "abs_err": -0.0004295465308672419,
+        "status": "PASS"
+      }
+    }
+  }
+]

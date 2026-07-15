@@ -29,11 +29,13 @@ type EquipmentType = 'pipe' | 'flat'
 type Mode = 'surface' | 'heatloss' | 'condensation'
 type UnitSystem = 'metric' | 'imperial'
 type MaterialType = 'mineralwool' | 'glasswool' | 'calciumsilicate' | 'polyurethane' | 'ceramicfiber' | 'custom'
+type InsulationPosition = 'external' | 'internal'
 
 interface MaterialProperty {
   conductivity: number
   name: string
   maxTemp: number
+  kCoeff: number
 }
 
 interface CalculationResult {
@@ -47,11 +49,16 @@ interface CalculationResult {
 }
 
 const materialProperties: Record<string, MaterialProperty> = {
-  mineralwool: { conductivity: 0.040, name: 'Mineral Wool', maxTemp: 650 },
-  glasswool: { conductivity: 0.035, name: 'Glass Wool', maxTemp: 450 },
-  calciumsilicate: { conductivity: 0.052, name: 'Calcium Silicate', maxTemp: 650 },
-  polyurethane: { conductivity: 0.023, name: 'Polyurethane Foam', maxTemp: 120 },
-  ceramicfiber: { conductivity: 0.120, name: 'Ceramic Fiber', maxTemp: 1260 }
+  mineralwool: { conductivity: 0.0316, name: 'Mineral Wool', maxTemp: 650, kCoeff: 9.4e-5 },
+  glasswool: { conductivity: 0.028, name: 'Glass Wool', maxTemp: 450, kCoeff: 8.5e-5 },
+  calciumsilicate: { conductivity: 0.038, name: 'Calcium Silicate', maxTemp: 650, kCoeff: 1.1e-4 },
+  polyurethane: { conductivity: 0.023, name: 'Polyurethane Foam', maxTemp: 120, kCoeff: 5e-5 },
+  ceramicfiber: { conductivity: 0.042, name: 'Ceramic Fiber', maxTemp: 1260, kCoeff: 1.6e-4 }
+}
+
+const getThermalConductivityTemp = (baseK: number, kCoeff: number, Tf: number, Ts: number): number => {
+  const T_mean = (Tf + Ts) / 2
+  return baseK + kCoeff * T_mean + 5.6e-7 * T_mean * T_mean
 }
 
 const standardThicknessesMetric = [10, 13, 20, 25, 30, 40, 50, 60, 75, 80, 100, 120, 150]
@@ -79,7 +86,11 @@ function InsulationCalculatorPage() {
   
   const [pipeSize, setPipeSize] = useState<string>('2"')
   const [outerDiameter, setOuterDiameter] = useState<number>(60.3)
-  
+
+  const [insulationPosition, setInsulationPosition] = useState<InsulationPosition>('external')
+  const [innerDiameter, setInnerDiameter] = useState<number>(50.3)
+  const [wallThickness, setWallThickness] = useState<number>(5)
+
   const [surfaceLength, setSurfaceLength] = useState<number>(1)
   const [surfaceWidth, setSurfaceWidth] = useState<number>(1)
   
@@ -138,6 +149,11 @@ function InsulationCalculatorPage() {
     return materialProperties[materialType]?.conductivity || 0.040
   }
 
+  const getThermalConductivityCoeff = () => {
+    if (materialType === 'custom') return 0.00018
+    return materialProperties[materialType]?.kCoeff || 0.00018
+  }
+
   const calculateDewPoint = (temp: number, humidity: number) => {
     const a = 17.62
     const b = 243.12
@@ -145,39 +161,179 @@ function InsulationCalculatorPage() {
     return (b * gamma) / (a - gamma)
   }
 
+  // ---------------------------------------------------------------------------
+  // ASTM C680 / ISO 12241 对流-辐射换热 (校准后采用, 替换原 hc = 4 + 7*sqrt(v))
+  // ---------------------------------------------------------------------------
+  // Stefan-Boltzmann 常数 (与 ASTM C680 / ISO 12241 参考一致)
+  const SIGMA_SB = 5.670374419e-8 // W/m^2·K^4
+
+  // 空气物性拟合 (ASTM C680 附录, T_mean 单位 °C)
+  const airProperties = (tMeanC: number) => {
+    const kAir = 0.02421 + 7.8e-5 * tMeanC - 1.4e-8 * tMeanC * tMeanC // W/m·K
+    const nu = 1.334e-5 + 9.0e-8 * tMeanC                              // m²/s
+    const alpha = 1.887e-5 + 1.26e-7 * tMeanC                          // m²/s
+    const Pr = 0.71
+    const beta = 1.0 / (tMeanC + 273.15)
+    return { kAir, nu, alpha, Pr, beta }
+  }
+
+  // 水平圆柱混合对流 hc (Churchill-Chu 自然 + Churchill-Bernstein 强制)
+  // dM: 圆柱外径 [m], tsC/taC: 表面/环境温度 [°C], v: 风速 [m/s]
+  const hcCylinderASTM = (dM: number, tsC: number, taC: number, v: number): number => {
+    const tMean = (tsC + taC) / 2
+    const { kAir, nu, alpha, Pr, beta } = airProperties(tMean)
+    const d = Math.max(dM, 1e-3)
+    const dT = Math.abs(tsC - taC)
+    // 自然对流 (Churchill-Chu, 水平圆柱)
+    const Ra = dT > 1e-6 ? (9.81 * beta * dT * Math.pow(d, 3)) / (nu * alpha) : 0
+    const NuNat = Ra > 0
+      ? 0.36 + 0.518 * Math.pow(Ra, 0.25) / Math.pow(1 + Math.pow(0.559 / Pr, 0.5625), 0.45)
+      : 0.36
+    // 强制对流 (Churchill-Bernstein, 横掠圆柱)
+    const Re = v * d / nu
+    const NuFor = Re > 1e-3
+      ? 0.3 + 0.62 * Math.pow(Re, 0.5) * Math.pow(Pr, 1 / 3)
+          / Math.pow(1 + Math.pow(0.4 / Pr, 2 / 3), 0.25)
+          * Math.pow(1 + 0.07 * Math.pow(Re, 0.6), 0.05)
+      : 0
+    // 混合对流
+    const Nu = (NuNat + NuFor) > 0
+      ? Math.pow(Math.pow(NuNat, 3.5) + Math.pow(NuFor, 3.5), 1 / 3.5)
+      : 0.36
+    return Math.max(Nu * kAir / d, 0.5)
+  }
+
+  // 平壁混合对流 hc (水平板, 特征长度 L = 面积/周长)
+  const hcFlatASTM = (lengthM: number, widthM: number, tsC: number, taC: number, v: number): number => {
+    const tMean = (tsC + taC) / 2
+    const { kAir, nu, alpha, Pr, beta } = airProperties(tMean)
+    const area = lengthM * widthM
+    const perim = 2 * (lengthM + widthM)
+    const L = perim > 0 ? area / perim : 1.0
+    const dT = Math.abs(tsC - taC)
+    const Ra = dT > 1e-6 ? (9.81 * beta * dT * Math.pow(L, 3)) / (nu * alpha) : 0
+    const NuNat = Ra > 0
+      ? (Ra > 1e7 ? 0.15 * Math.pow(Ra, 1 / 3) : 0.59 * Math.pow(Ra, 0.25))
+      : 0.5
+    const Re = v * L / nu
+    const NuFor = Re > 1e-3
+      ? 0.664 * Math.pow(Re, 0.5) * Math.pow(Pr, 1 / 3) + 0.037 * Math.pow(Re, 0.8) * Math.pow(Pr, 1 / 3)
+      : 0
+    const Nu = (NuNat + NuFor) > 0
+      ? Math.pow(Math.pow(NuNat, 3.5) + Math.pow(NuFor, 3.5), 1 / 3.5)
+      : NuNat
+    return Math.max(Nu * kAir / L, 0.5)
+  }
+
+  // 辐射换热系数 hr [W/m²·K]
+  const hrRadiation = (epsilon: number, tsC: number, taC: number): number => {
+    const Ts = tsC + 273.15
+    const Ta = taC + 273.15
+    if (Math.abs(Ts - Ta) < 1e-6) {
+      return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3) // 极限情形: 4εσT^3
+    }
+    return epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta)
+  }
+
   // Helper to calculate surface temperature for given thickness
+  // position='external': D1=管道外径, 保温层在外侧 (r1=D1/2, r2=r1+delta)
+  // position='internal': D1=管道内径, 保温层在内侧 (r2=D1/2, r1=r2-delta)
   const calculateTsForThickness = (
-    D1: number, k: number, Tf: number, Ta: number, delta: number, h: number
+    D1: number, k: number, Tf: number, Ta: number, delta: number, h: number,
+    position: InsulationPosition = 'external', wallThickness: number = 0
   ) => {
-    const r1 = D1 / 2000
-    const r2 = r1 + delta
+    let r1: number, r2: number, r_conv: number
+    if (position === 'external') {
+      r1 = D1 / 2000
+      r2 = r1 + delta
+      r_conv = r2
+    } else {
+      // 内保温: D1=管道内径, 保温层向内延伸
+      r2 = D1 / 2000
+      r1 = r2 - delta
+      if (r1 <= 0) r1 = 1e-6
+      r_conv = (D1 + 2 * wallThickness) / 2000
+    }
     const R_cond = Math.log(r2 / r1) / (2 * Math.PI * k)
-    const R_conv = 1 / (h * 2 * Math.PI * r2)
+    const R_conv = 1 / (h * 2 * Math.PI * r_conv)
     const q_linear = (Tf - Ta) / (R_cond + R_conv)
     const Ts = Ta + q_linear * R_conv
     return { Ts, q_linear }
   }
 
-  // Find valid initial bounds for binary search
+  // 自洽迭代: 给定保温厚度, 求解 Ts↔h 收敛后的表面状态 (圆柱)
+  // delta 单位 m, D1 单位 mm
+  // position='external': D1=管道外径, 散热面在保温层外表面
+  // position='internal': D1=管道内径, 散热面在金属管道外表面
+  const surfaceStatePipeSC = (
+    D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
+    v: number, epsilon: number, position: InsulationPosition = 'external',
+    wallThickness: number = 0
+  ) => {
+    let tsGuess = Ta + 0.5 * (Tf - Ta)
+    let hc = 0, hr = 0, h = 0, Ts = tsGuess, q_linear = 0
+    for (let i = 0; i < 30; i++) {
+      const k = getThermalConductivityTemp(baseK, kCoeff, Tf, tsGuess)
+      const outerD_m = position === 'external'
+        ? (D1 / 1000) + 2 * delta  // 保温层外径
+        : (D1 + 2 * wallThickness) / 1000  // 管道外径 (散热面)
+      hc = hcCylinderASTM(outerD_m, tsGuess, Ta, v)
+      hr = hrRadiation(epsilon, tsGuess, Ta)
+      h = hc + hr
+      const r = calculateTsForThickness(D1, k, Tf, Ta, delta, h, position, wallThickness)
+      Ts = r.Ts
+      q_linear = r.q_linear
+      if (Math.abs(Ts - tsGuess) < 0.01) break
+      tsGuess = 0.5 * tsGuess + 0.5 * Ts
+    }
+    return { Ts, q_linear, hc, hr, h }
+  }
+
+  // 自洽迭代: 给定保温厚度, 求解 Ts↔h 收敛后的表面状态 (平壁)
+  // delta 单位 m
+  const surfaceStateFlatSC = (
+    baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
+    v: number, epsilon: number, lengthM: number, widthM: number
+  ) => {
+    let tsGuess = Ta + 0.5 * (Tf - Ta)
+    let hc = 0, hr = 0, h = 0, Ts = tsGuess, q_flux = 0
+    for (let i = 0; i < 30; i++) {
+      const k = getThermalConductivityTemp(baseK, kCoeff, Tf, tsGuess)
+      hc = hcFlatASTM(lengthM, widthM, tsGuess, Ta, v)
+      hr = hrRadiation(epsilon, tsGuess, Ta)
+      h = hc + hr
+      const R_cond = delta / k
+      const R_conv = 1 / h
+      q_flux = (Tf - Ta) / (R_cond + R_conv)
+      Ts = Ta + q_flux * R_conv
+      if (Math.abs(Ts - tsGuess) < 0.01) break
+      tsGuess = 0.5 * tsGuess + 0.5 * Ts
+    }
+    return { Ts, q_flux, hc, hr, h }
+  }
+
+  // Find valid initial bounds for binary search (使用自洽状态)
   const findPipeBounds = (
-    D1: number, k: number, Tf: number, Ta: number, target: number, h: number, calcMode: string
+    D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
+    v: number, epsilon: number, calcMode: string,
+    position: InsulationPosition = 'external', wallT: number = 0
   ) => {
     let lower = 0.0001 // 0.1mm
     let upper = 0.001 // 1mm
-    
+
     const isHeating = Tf > Ta
-    
+
     if (calcMode === 'surface' || calcMode === 'condensation') {
       if (isHeating) {
         while (true) {
-          const { Ts } = calculateTsForThickness(D1, k, Tf, Ta, upper, h)
+          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
           if (Ts < target) break
           upper *= 2
           if (upper > 5.0) break
         }
       } else {
         while (true) {
-          const { Ts } = calculateTsForThickness(D1, k, Tf, Ta, upper, h)
+          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
           if (Ts > target) break
           upper *= 2
           if (upper > 5.0) break
@@ -185,125 +341,137 @@ function InsulationCalculatorPage() {
       }
     } else {
       while (true) {
-        const { q_linear } = calculateTsForThickness(D1, k, Tf, Ta, upper, h)
-        const r2 = (D1 / 2000) + upper
-        const q_flux = q_linear / (2 * Math.PI * r2)
+        const { q_linear } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
+        const r_surface = position === 'external'
+          ? (D1 / 2000) + upper
+          : (D1 + 2 * wallT) / 2000
+        const q_flux = q_linear / (2 * Math.PI * r_surface)
         if (q_flux < target) break
         upper *= 2
         if (upper > 5.0) break
       }
     }
-    
+
     return { lower, upper }
   }
 
   const calculatePipeThickness = (
-    D1: number, k: number, Tf: number, Ta: number, target: number, h: number, calcMode: string
+    D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
+    v: number, epsilon: number, calcMode: string,
+    position: InsulationPosition = 'external', wallT: number = 0
   ) => {
-    const bounds = findPipeBounds(D1, k, Tf, Ta, target, h, calcMode)
+    const bounds = findPipeBounds(D1, baseK, kCoeff, Tf, Ta, target, v, epsilon, calcMode, position, wallT)
     let lower = bounds.lower
     let upper = bounds.upper
     let iterations = 0
     const maxIterations = 100
     const isHeating = Tf > Ta
-    
+    // 修复: 收敛 break 时记录本次通过的 delta, 避免循环外重新算 (lower+upper)/2
+    let convergedDelta: number | null = null
+
     while (iterations < maxIterations) {
       const delta = (lower + upper) / 2
-      const { Ts, q_linear } = calculateTsForThickness(D1, k, Tf, Ta, delta, h)
-      const r2 = (D1 / 2000) + delta
-      const q_flux = q_linear / (2 * Math.PI * r2)
-      
+      const st = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, delta, v, epsilon, position, wallT)
+      const r_surface = position === 'external'
+        ? (D1 / 2000) + delta
+        : (D1 + 2 * wallT) / 2000
+      const q_flux = st.q_linear / (2 * Math.PI * r_surface)
+
       if (calcMode === 'surface' || calcMode === 'condensation') {
         if (isHeating) {
-          if (Ts > target) {
+          if (st.Ts > target) {
             lower = delta
           } else {
             upper = delta
           }
         } else {
-          if (Ts < target) {
+          if (st.Ts < target) {
             lower = delta
           } else {
             upper = delta
           }
         }
-        if (Math.abs(Ts - target) < 0.1) break
+        if (Math.abs(st.Ts - target) < 0.1) { convergedDelta = delta; break }
       } else {
         if (q_flux > target) {
           lower = delta
         } else {
           upper = delta
         }
-        if (Math.abs(q_flux - target) < 1) break
+        if (Math.abs(q_flux - target) < 1) { convergedDelta = delta; break }
       }
       iterations++
     }
-    
-    const finalDelta = (lower + upper) / 2
-    const { Ts: finalTs, q_linear: finalQlinear } = calculateTsForThickness(D1, k, Tf, Ta, finalDelta, h)
-    const finalR2 = (D1 / 2000) + finalDelta
-    const finalQflux = finalQlinear / (2 * Math.PI * finalR2)
-    
+
+    const finalDelta = convergedDelta !== null ? convergedDelta : (lower + upper) / 2
+    const finalSt = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, position, wallT)
+    const finalR_surface = position === 'external'
+      ? (D1 / 2000) + finalDelta
+      : (D1 + 2 * wallT) / 2000
+    const finalQflux = finalSt.q_linear / (2 * Math.PI * finalR_surface)
+
     return {
       thickness: finalDelta * 1000,
-      surfaceTemp: finalTs,
+      surfaceTemp: finalSt.Ts,
       heatFlux: finalQflux,
-      linearHeatLoss: finalQlinear
+      linearHeatLoss: finalSt.q_linear,
+      hc: finalSt.hc,
+      hr: finalSt.hr,
+      h: finalSt.h
     }
   }
 
   const calculateFlatThickness = (
-    k: number, Tf: number, Ta: number, target: number, h: number, calcMode: string
+    baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
+    v: number, epsilon: number, lengthM: number, widthM: number, calcMode: string
   ) => {
     let lower = 0.001
     let upper = 1.0
     let iterations = 0
     const maxIterations = 100
     const isHeating = Tf > Ta
-    
+    let convergedDelta: number | null = null
+
     while (iterations < maxIterations) {
       const delta = (lower + upper) / 2
-      const R_cond = delta / k
-      const R_conv = 1 / h
-      const q_flux = (Tf - Ta) / (R_cond + R_conv)
-      const Ts = Ta + q_flux * R_conv
-      
+      const st = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, delta, v, epsilon, lengthM, widthM)
+
       if (calcMode === 'surface' || calcMode === 'condensation') {
         if (isHeating) {
-          if (Ts > target) {
+          if (st.Ts > target) {
             lower = delta
           } else {
             upper = delta
           }
         } else {
-          if (Ts < target) {
+          if (st.Ts < target) {
             lower = delta
           } else {
             upper = delta
           }
         }
-        if (Math.abs(Ts - target) < 0.1) break
+        if (Math.abs(st.Ts - target) < 0.1) { convergedDelta = delta; break }
       } else {
-        if (q_flux > target) {
+        if (st.q_flux > target) {
           lower = delta
         } else {
           upper = delta
         }
-        if (Math.abs(q_flux - target) < 1) break
+        if (Math.abs(st.q_flux - target) < 1) { convergedDelta = delta; break }
       }
       iterations++
     }
-    
-    const finalDelta = (lower + upper) / 2
-    const R_cond = finalDelta / k
-    const R_conv = 1 / h
-    const q_flux = (Tf - Ta) / (R_cond + R_conv)
-    const Ts = Ta + q_flux * R_conv
-    
+
+    const finalDelta = convergedDelta !== null ? convergedDelta : (lower + upper) / 2
+    const finalSt = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, lengthM, widthM)
+
     return {
       thickness: finalDelta * 1000,
-      surfaceTemp: Ts,
-      heatFlux: q_flux
+      surfaceTemp: finalSt.Ts,
+      heatFlux: finalSt.q_flux,
+      hc: finalSt.hc,
+      hr: finalSt.hr,
+      h: finalSt.h
     }
   }
 
@@ -315,9 +483,10 @@ function InsulationCalculatorPage() {
   }
 
   const handleCalculate = () => {
-    const k = getThermalConductivity()
-    
-    // Recalculate h immediately based on current inputs
+    const baseK = getThermalConductivity()
+    const kCoeff = getThermalConductivityCoeff()
+
+    // 风速: 由环境选项决定
     let windSpeedMetric = 0
     switch(environment) {
       case 'indoor': windSpeedMetric = 0; break
@@ -325,32 +494,28 @@ function InsulationCalculatorPage() {
       case 'outdoor_moderate': windSpeedMetric = 5; break
       case 'outdoor_strong': windSpeedMetric = 10; break
     }
-    
-    const hcVal = 4 + 7 * Math.sqrt(windSpeedMetric)
+
     const epsilon = getEmittance()
-    const sigma = 5.67e-8
-    const Ts = targetSurfaceTemp + 273.15
-    const Ta = ambientTemp + 273.15
-    const hrVal = epsilon * sigma * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta)
-    const h = hcVal + hrVal
-    
-    // Update display values
-    setHeatTransferCoeff(h)
-    setHc(hcVal)
-    setHr(hrVal)
-    setWindSpeed(windSpeedMetric)
-    
+    const v = windSpeedMetric
+
     let newResult: CalculationResult
-    
+    // 求解器内部做 Ts↔h 自洽迭代, 返回收敛后的 hc/hr/h
+    let hcOut = 0, hrOut = 0, hOut = 0
+
     if (equipmentType === 'pipe') {
+      const isInternal = insulationPosition === 'internal'
+      const D1 = isInternal ? innerDiameter : outerDiameter
+      const wallT = isInternal ? wallThickness : 0
+
       if (mode === 'surface' || mode === 'condensation') {
-        const targetTemp = mode === 'condensation' ? 
-          calculateDewPoint(ambientTemp, relativeHumidity) + 1 : 
+        const targetTemp = mode === 'condensation' ?
+          calculateDewPoint(ambientTemp, relativeHumidity) + 1 :
           targetSurfaceTemp
-        
-        const pipeResult = calculatePipeThickness(outerDiameter, k, mediumTemp, ambientTemp, targetTemp, h, 'surface')
-        const annualLoss = pipeResult.linearHeatLoss * operatingHours / 1000
-        
+
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, 'surface', insulationPosition, wallT)
+        const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
+        hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+
         newResult = {
           thickness: pipeResult.thickness,
           surfaceTemp: pipeResult.surfaceTemp,
@@ -361,9 +526,10 @@ function InsulationCalculatorPage() {
           dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined
         }
       } else {
-        const pipeResult = calculatePipeThickness(outerDiameter, k, mediumTemp, ambientTemp, targetHeatLoss, h, 'heatloss')
-        const annualLoss = pipeResult.linearHeatLoss * operatingHours / 1000
-        
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, 'heatloss', insulationPosition, wallT)
+        const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
+        hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+
         newResult = {
           thickness: pipeResult.thickness,
           surfaceTemp: pipeResult.surfaceTemp,
@@ -375,15 +541,16 @@ function InsulationCalculatorPage() {
       }
     } else {
       if (mode === 'surface' || mode === 'condensation') {
-        const targetTemp = mode === 'condensation' ? 
-          calculateDewPoint(ambientTemp, relativeHumidity) + 1 : 
+        const targetTemp = mode === 'condensation' ?
+          calculateDewPoint(ambientTemp, relativeHumidity) + 1 :
           targetSurfaceTemp
-        
-        const flatResult = calculateFlatThickness(k, mediumTemp, ambientTemp, targetTemp, h, 'surface')
+
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, surfaceLength, surfaceWidth, 'surface')
         const area = surfaceLength * surfaceWidth
         const heatLoss = flatResult.heatFlux * area
         const annualLoss = heatLoss * operatingHours / 1000
-        
+        hcOut = flatResult.hc; hrOut = flatResult.hr; hOut = flatResult.h
+
         newResult = {
           thickness: flatResult.thickness,
           surfaceTemp: flatResult.surfaceTemp,
@@ -393,11 +560,12 @@ function InsulationCalculatorPage() {
           dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined
         }
       } else {
-        const flatResult = calculateFlatThickness(k, mediumTemp, ambientTemp, targetHeatLoss, h, 'heatloss')
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, surfaceLength, surfaceWidth, 'heatloss')
         const area = surfaceLength * surfaceWidth
         const heatLoss = flatResult.heatFlux * area
         const annualLoss = heatLoss * operatingHours / 1000
-        
+        hcOut = flatResult.hc; hrOut = flatResult.hr; hOut = flatResult.h
+
         newResult = {
           thickness: flatResult.thickness,
           surfaceTemp: flatResult.surfaceTemp,
@@ -407,7 +575,13 @@ function InsulationCalculatorPage() {
         }
       }
     }
-    
+
+    // 更新显示值 (使用收敛后的 hc/hr/h)
+    setHeatTransferCoeff(hOut)
+    setHc(hcOut)
+    setHr(hrOut)
+    setWindSpeed(windSpeedMetric)
+
     setResult(newResult)
     setShowResults(true)
   }
@@ -438,13 +612,20 @@ function InsulationCalculatorPage() {
       ['Thermal Conductivity (k)', `${getThermalConductivity().toFixed(3)} W/mK`],
       ['Medium Temperature', `${mediumTemp.toFixed(1)} °C`],
       ['Ambient Temperature', `${ambientTemp.toFixed(1)} °C`],
-      ['Environment', environment.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())],
+      ['Environment', environment.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())],
       ['Surface Emittance', getEmittance().toFixed(2)],
       ['Operating Hours', `${operatingHours.toFixed(0)} h/year`],
     ]
 
     if (equipmentType === 'pipe') {
-      inputItems.splice(2, 0, ['Pipe Size / OD', `${outerDiameter.toFixed(1)} mm`])
+      inputItems.splice(2, 0, ['Insulation Position', insulationPosition === 'external' ? 'External' : 'Internal'])
+      if (insulationPosition === 'external') {
+        inputItems.splice(3, 0, ['Pipe Size / OD', `${outerDiameter.toFixed(1)} mm`])
+      } else {
+        inputItems.splice(3, 0, ['Inner Diameter', `${innerDiameter.toFixed(1)} mm`])
+        inputItems.splice(4, 0, ['Wall Thickness', `${wallThickness.toFixed(1)} mm`])
+        inputItems.splice(5, 0, ['Pipe OD', `${(innerDiameter + 2 * wallThickness).toFixed(1)} mm`])
+      }
     } else {
       inputItems.splice(2, 0, ['Surface Dimensions', `${surfaceLength.toFixed(2)} m × ${surfaceWidth.toFixed(2)} m`])
     }
@@ -500,11 +681,21 @@ function InsulationCalculatorPage() {
     doc.save('insulation-report.pdf')
   }
 
+  // 切换 pipeSize 或 unitSystem 时自动更新对应直径
   useEffect(() => {
-    if (pipeSizes.metric[pipeSize]) {
-      setOuterDiameter(pipeSizes.metric[pipeSize])
+    const metricMap = pipeSizes.metric as Record<string, number>
+    const imperialMap = pipeSizes.imperial as Record<string, number>
+    const od = unitSystem === 'metric' ? metricMap[pipeSize] : imperialMap[pipeSize]
+    if (od !== undefined) {
+      if (unitSystem === 'metric') {
+        setOuterDiameter(od)
+        setInnerDiameter(od - 2 * wallThickness)
+      } else {
+        setOuterDiameter(od * 25.4)
+        setInnerDiameter(od * 25.4 - 2 * wallThickness)
+      }
     }
-  }, [pipeSize])
+  }, [pipeSize, unitSystem, wallThickness])
 
   return (
     <ProFeaturePreview
@@ -586,42 +777,77 @@ function InsulationCalculatorPage() {
               <div className="mb-6">
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Dimensions</div>
                 {equipmentType === 'pipe' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Pipe Size</label>
-                      <select value={pipeSize} onChange={(e) => setPipeSize(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
-                        <option value="1/2">1/2"</option>
-                        <option value="3/4">3/4"</option>
-                        <option value="1">1"</option>
-                        <option value="1¼">1¼"</option>
-                        <option value="1½">1½"</option>
-                        <option value="2">2"</option>
-                        <option value="2½">2½"</option>
-                        <option value="3">3"</option>
-                        <option value="4">4"</option>
-                        <option value="5">5"</option>
-                        <option value="6">6"</option>
-                        <option value="8">8"</option>
-                        <option value="10">10"</option>
-                        <option value="12">12"</option>
-                        <option value="14">14"</option>
-                        <option value="16">16"</option>
-                      </select>
+                  <div className="space-y-4">
+                    {/* 内外保温切换 */}
+                    <div className="flex gap-3">
+                      <button
+                        className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'external' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
+                        onClick={() => setInsulationPosition('external')}
+                      >
+                        外保温 (External)
+                      </button>
+                      <button
+                        className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'internal' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
+                        onClick={() => setInsulationPosition('internal')}
+                      >
+                        内保温 (Internal)
+                      </button>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm)</label>
-                      <input type="number" value={outerDiameter} onChange={(e) => setOuterDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Pipe Size</label>
+                        <select value={pipeSize} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeSize(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                          <option value='1/2"'>1/2"</option>
+                          <option value='3/4"'>3/4"</option>
+                          <option value='1"'>1"</option>
+                          <option value='1¼"'>1¼"</option>
+                          <option value='1½"'>1½"</option>
+                          <option value='2"'>2"</option>
+                          <option value='2½"'>2½"</option>
+                          <option value='3"'>3"</option>
+                          <option value='4"'>4"</option>
+                          <option value='5"'>5"</option>
+                          <option value='6"'>6"</option>
+                          <option value='8"'>8"</option>
+                          <option value='10"'>10"</option>
+                          <option value='12"'>12"</option>
+                          <option value='14"'>14"</option>
+                          <option value='16"'>16"</option>
+                        </select>
+                      </div>
+                      {insulationPosition === 'external' ? (
+                        <div className="flex flex-col gap-2">
+                          <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm)</label>
+                          <input type="number" value={outerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOuterDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[#555] font-medium rounded">Inner Diameter (mm)</label>
+                            <input type="number" value={innerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setInnerDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[#555] font-medium rounded">Wall Thickness (mm)</label>
+                            <input type="number" value={wallThickness} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setWallThickness(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm) — auto</label>
+                            <input type="number" value={(innerDiameter + 2 * wallThickness).toFixed(1)} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium rounded">Length (m)</label>
-                      <input type="number" value={surfaceLength} onChange={(e) => setSurfaceLength(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <input type="number" value={surfaceLength} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceLength(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium rounded">Width (m)</label>
-                      <input type="number" value={surfaceWidth} onChange={(e) => setSurfaceWidth(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <input type="number" value={surfaceWidth} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWidth(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   </div>
                 )}
@@ -632,7 +858,7 @@ function InsulationCalculatorPage() {
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Material</div>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium rounded">Material</label>
-                  <select value={materialType} onChange={(e) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                  <select value={materialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="mineralwool">Mineral Wool (0.040 W/m·K)</option>
                     <option value="glasswool">Glass Wool (0.035 W/m·K)</option>
                     <option value="calciumsilicate">Calcium Silicate (0.052 W/m·K)</option>
@@ -644,7 +870,7 @@ function InsulationCalculatorPage() {
                 {materialType === 'custom' && (
                   <div className="flex flex-col gap-2 mt-2">
                     <label className="text-xs text-[#555] font-medium rounded">Thermal Conductivity (W/m·K)</label>
-                    <input type="number" step="0.001" value={customLambda} onChange={(e) => setCustomLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <input type="number" step="0.001" value={customLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                 )}
               </div>
@@ -655,28 +881,28 @@ function InsulationCalculatorPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded">
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-[#555] font-medium rounded">Fluid Temp (°C)</label>
-                    <input type="number" value={mediumTemp} onChange={(e) => setMediumTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <input type="number" value={mediumTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMediumTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-[#555] font-medium rounded">Ambient Temp (°C)</label>
-                    <input type="number" value={ambientTemp} onChange={(e) => setAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <input type="number" value={ambientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                   {mode === 'surface' && (
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium rounded">Target Surface (°C)</label>
-                      <input type="number" value={targetSurfaceTemp} onChange={(e) => setTargetSurfaceTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <input type="number" value={targetSurfaceTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetSurfaceTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                   {mode === 'heatloss' && (
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium rounded">Target Heat Loss (W/m²)</label>
-                      <input type="number" value={targetHeatLoss} onChange={(e) => setTargetHeatLoss(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <input type="number" value={targetHeatLoss} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetHeatLoss(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                   {mode === 'condensation' && (
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium rounded">Relative Humidity (%)</label>
-                      <input type="number" value={relativeHumidity} onChange={(e) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <input type="number" value={relativeHumidity} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
                 </div>
@@ -687,7 +913,7 @@ function InsulationCalculatorPage() {
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Environment</div>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium rounded">Location</label>
-                  <select value={environment} onChange={(e) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                  <select value={environment} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="indoor">Indoor (Still Air)</option>
                     <option value="outdoor_calm">Outdoor (Calm)</option>
                     <option value="outdoor_moderate">Outdoor (Moderate Wind)</option>
@@ -696,7 +922,7 @@ function InsulationCalculatorPage() {
                 </div>
                 <div className="flex flex-col gap-2 mt-2">
                   <label className="text-xs text-[#555] font-medium rounded">Surface Finish</label>
-                  <select value={surfaceFinish} onChange={(e) => setSurfaceFinish(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                  <select value={surfaceFinish} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceFinish(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
                     <option value="0.9">Uninsulated / Painted (ε=0.9)</option>
                     <option value="0.7">Aluminum Jacket (ε=0.7)</option>
                     <option value="0.3">Polished Aluminum (ε=0.3)</option>
@@ -707,7 +933,7 @@ function InsulationCalculatorPage() {
                 {surfaceFinish === 'custom' && (
                   <div className="flex flex-col gap-2 mt-2">
                     <label className="text-xs text-[#555] font-medium rounded">Emissivity (ε)</label>
-                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e) => setCustomEmittance(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomEmittance(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                   </div>
                 )}
                 <div className="flex flex-col gap-2 mt-2">
@@ -750,7 +976,7 @@ function InsulationCalculatorPage() {
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Operating Conditions</div>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium rounded">Operating Hours per Year</label>
-                  <input type="number" value={operatingHours} onChange={(e) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                  <input type="number" value={operatingHours} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                 </div>
               </div>
 
