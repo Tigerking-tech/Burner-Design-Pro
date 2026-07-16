@@ -33,7 +33,7 @@ export default function ProFeaturePreview({
     navigate('/subscription')
   }
   
-  // 重写 children 中的按钮和交互元素，添加拦截
+  // Override buttons and interactive elements in children, add interception
   const renderWithProGuard = (child: React.ReactNode): React.ReactNode => {
     if (!React.isValidElement(child)) {
       return child
@@ -48,7 +48,7 @@ export default function ProFeaturePreview({
       element.props.onClick ||
       element.props.type === 'submit'
     
-    // 不再拦截所有点击，只在模态框中提示
+    // No longer intercept all clicks, only show prompt in modal
     if (element.props.children) {
       return React.cloneElement(element, {
         children: React.Children.map(element.props.children, renderWithProGuard)
@@ -60,7 +60,7 @@ export default function ProFeaturePreview({
   
   return (
     <div className="relative">
-      {/* Pro 标记横幅 */}
+      {/* Pro badge banner */}
       {!isProUser && (
         <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 flex items-center justify-center gap-3">
           <div className="text-2xl">{icon}</div>
@@ -77,12 +77,12 @@ export default function ProFeaturePreview({
         </div>
       )}
       
-      {/* 主内容区域 */}
+      {/* Main content area */}
       <div className={!isProUser ? 'opacity-90' : ''}>
         {React.Children.map(children, renderWithProGuard)}
       </div>
       
-      {/* 订阅提示模态框 */}
+      {/* Subscription prompt modal */}
       {showSubscriptionModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl">

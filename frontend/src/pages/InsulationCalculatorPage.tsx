@@ -162,12 +162,12 @@ function InsulationCalculatorPage() {
   }
 
   // ---------------------------------------------------------------------------
-  // ASTM C680 / ISO 12241 对流-辐射换热 (校准后采用, 替换原 hc = 4 + 7*sqrt(v))
+  // ASTM C680 / ISO 12241 convection-radiation heat transfer (calibrated, replaces hc = 4 + 7*sqrt(v))
   // ---------------------------------------------------------------------------
-  // Stefan-Boltzmann 常数 (与 ASTM C680 / ISO 12241 参考一致)
+  // Stefan-Boltzmann constant (consistent with ASTM C680 / ISO 12241 reference)
   const SIGMA_SB = 5.670374419e-8 // W/m^2·K^4
 
-  // 空气物性拟合 (ASTM C680 附录, T_mean 单位 °C)
+  // Air property correlations (ASTM C680 appendix, T_mean in °C)
   const airProperties = (tMeanC: number) => {
     const kAir = 0.02421 + 7.8e-5 * tMeanC - 1.4e-8 * tMeanC * tMeanC // W/m·K
     const nu = 1.334e-5 + 9.0e-8 * tMeanC                              // m²/s
@@ -177,33 +177,33 @@ function InsulationCalculatorPage() {
     return { kAir, nu, alpha, Pr, beta }
   }
 
-  // 水平圆柱混合对流 hc (Churchill-Chu 自然 + Churchill-Bernstein 强制)
-  // dM: 圆柱外径 [m], tsC/taC: 表面/环境温度 [°C], v: 风速 [m/s]
+  // Horizontal cylinder mixed convection hc (Churchill-Chu natural + Churchill-Bernstein forced)
+  // dM: cylinder outer diameter [m], tsC/taC: surface/ambient temp [°C], v: wind speed [m/s]
   const hcCylinderASTM = (dM: number, tsC: number, taC: number, v: number): number => {
     const tMean = (tsC + taC) / 2
     const { kAir, nu, alpha, Pr, beta } = airProperties(tMean)
     const d = Math.max(dM, 1e-3)
     const dT = Math.abs(tsC - taC)
-    // 自然对流 (Churchill-Chu, 水平圆柱)
+    // Natural convection (Churchill-Chu, horizontal cylinder)
     const Ra = dT > 1e-6 ? (9.81 * beta * dT * Math.pow(d, 3)) / (nu * alpha) : 0
     const NuNat = Ra > 0
       ? 0.36 + 0.518 * Math.pow(Ra, 0.25) / Math.pow(1 + Math.pow(0.559 / Pr, 0.5625), 0.45)
       : 0.36
-    // 强制对流 (Churchill-Bernstein, 横掠圆柱)
+    // Forced convection (Churchill-Bernstein, cross-flow cylinder)
     const Re = v * d / nu
     const NuFor = Re > 1e-3
       ? 0.3 + 0.62 * Math.pow(Re, 0.5) * Math.pow(Pr, 1 / 3)
           / Math.pow(1 + Math.pow(0.4 / Pr, 2 / 3), 0.25)
           * Math.pow(1 + 0.07 * Math.pow(Re, 0.6), 0.05)
       : 0
-    // 混合对流
+    // Mixed convection
     const Nu = (NuNat + NuFor) > 0
       ? Math.pow(Math.pow(NuNat, 3.5) + Math.pow(NuFor, 3.5), 1 / 3.5)
       : 0.36
     return Math.max(Nu * kAir / d, 0.5)
   }
 
-  // 平壁混合对流 hc (水平板, 特征长度 L = 面积/周长)
+  // Flat surface mixed convection hc (horizontal plate, characteristic length L = area/perimeter)
   const hcFlatASTM = (lengthM: number, widthM: number, tsC: number, taC: number, v: number): number => {
     const tMean = (tsC + taC) / 2
     const { kAir, nu, alpha, Pr, beta } = airProperties(tMean)
@@ -225,19 +225,19 @@ function InsulationCalculatorPage() {
     return Math.max(Nu * kAir / L, 0.5)
   }
 
-  // 辐射换热系数 hr [W/m²·K]
+  // Radiation heat transfer coefficient hr [W/m²·K]
   const hrRadiation = (epsilon: number, tsC: number, taC: number): number => {
     const Ts = tsC + 273.15
     const Ta = taC + 273.15
     if (Math.abs(Ts - Ta) < 1e-6) {
-      return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3) // 极限情形: 4εσT^3
+      return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3) // Limiting case: 4εσT^3
     }
     return epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta)
   }
 
   // Helper to calculate surface temperature for given thickness
-  // position='external': D1=管道外径, 保温层在外侧 (r1=D1/2, r2=r1+delta)
-  // position='internal': D1=管道内径, 保温层在内侧 (r2=D1/2, r1=r2-delta)
+  // position='external': D1=pipe outer diameter, insulation on outside (r1=D1/2, r2=r1+delta)
+  // position='internal': D1=pipe inner diameter, insulation on inside (r2=D1/2, r1=r2-delta)
   const calculateTsForThickness = (
     D1: number, k: number, Tf: number, Ta: number, delta: number, h: number,
     position: InsulationPosition = 'external', wallThickness: number = 0
@@ -248,7 +248,7 @@ function InsulationCalculatorPage() {
       r2 = r1 + delta
       r_conv = r2
     } else {
-      // 内保温: D1=管道内径, 保温层向内延伸
+      // Internal insulation: D1=pipe inner diameter, insulation extends inward
       r2 = D1 / 2000
       r1 = r2 - delta
       if (r1 <= 0) r1 = 1e-6
@@ -261,10 +261,10 @@ function InsulationCalculatorPage() {
     return { Ts, q_linear }
   }
 
-  // 自洽迭代: 给定保温厚度, 求解 Ts↔h 收敛后的表面状态 (圆柱)
-  // delta 单位 m, D1 单位 mm
-  // position='external': D1=管道外径, 散热面在保温层外表面
-  // position='internal': D1=管道内径, 散热面在金属管道外表面
+  // Self-consistent iteration: given insulation thickness, solve for converged surface state Ts↔h (cylinder)
+  // delta in m, D1 in mm
+  // position='external': D1=pipe outer diameter, heat dissipation surface on insulation outer surface
+  // position='internal': D1=pipe inner diameter, heat dissipation surface on metal pipe outer surface
   const surfaceStatePipeSC = (
     D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
     v: number, epsilon: number, position: InsulationPosition = 'external',
@@ -275,8 +275,8 @@ function InsulationCalculatorPage() {
     for (let i = 0; i < 30; i++) {
       const k = getThermalConductivityTemp(baseK, kCoeff, Tf, tsGuess)
       const outerD_m = position === 'external'
-        ? (D1 / 1000) + 2 * delta  // 保温层外径
-        : (D1 + 2 * wallThickness) / 1000  // 管道外径 (散热面)
+        ? (D1 / 1000) + 2 * delta  // insulation outer diameter
+        : (D1 + 2 * wallThickness) / 1000  // pipe outer diameter (heat dissipation surface)
       hc = hcCylinderASTM(outerD_m, tsGuess, Ta, v)
       hr = hrRadiation(epsilon, tsGuess, Ta)
       h = hc + hr
@@ -289,8 +289,8 @@ function InsulationCalculatorPage() {
     return { Ts, q_linear, hc, hr, h }
   }
 
-  // 自洽迭代: 给定保温厚度, 求解 Ts↔h 收敛后的表面状态 (平壁)
-  // delta 单位 m
+  // Self-consistent iteration: given insulation thickness, solve for converged surface state Ts↔h (flat)
+  // delta in m
   const surfaceStateFlatSC = (
     baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
     v: number, epsilon: number, lengthM: number, widthM: number
@@ -312,7 +312,7 @@ function InsulationCalculatorPage() {
     return { Ts, q_flux, hc, hr, h }
   }
 
-  // Find valid initial bounds for binary search (使用自洽状态)
+  // Find valid initial bounds for binary search (using self-consistent state)
   const findPipeBounds = (
     D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
     v: number, epsilon: number, calcMode: string,
@@ -366,7 +366,7 @@ function InsulationCalculatorPage() {
     let iterations = 0
     const maxIterations = 100
     const isHeating = Tf > Ta
-    // 修复: 收敛 break 时记录本次通过的 delta, 避免循环外重新算 (lower+upper)/2
+    // Fix: record the delta that passed convergence on break, avoid recalculating (lower+upper)/2 outside loop
     let convergedDelta: number | null = null
 
     while (iterations < maxIterations) {
@@ -486,7 +486,7 @@ function InsulationCalculatorPage() {
     const baseK = getThermalConductivity()
     const kCoeff = getThermalConductivityCoeff()
 
-    // 风速: 由环境选项决定
+    // Wind speed: determined by environment option
     let windSpeedMetric = 0
     switch(environment) {
       case 'indoor': windSpeedMetric = 0; break
@@ -499,7 +499,7 @@ function InsulationCalculatorPage() {
     const v = windSpeedMetric
 
     let newResult: CalculationResult
-    // 求解器内部做 Ts↔h 自洽迭代, 返回收敛后的 hc/hr/h
+    // Solver performs Ts↔h self-consistent iteration internally, returns converged hc/hr/h
     let hcOut = 0, hrOut = 0, hOut = 0
 
     if (equipmentType === 'pipe') {
@@ -576,7 +576,7 @@ function InsulationCalculatorPage() {
       }
     }
 
-    // 更新显示值 (使用收敛后的 hc/hr/h)
+    // Update display values (using converged hc/hr/h)
     setHeatTransferCoeff(hOut)
     setHc(hcOut)
     setHr(hrOut)
@@ -681,7 +681,7 @@ function InsulationCalculatorPage() {
     doc.save('insulation-report.pdf')
   }
 
-  // 切换 pipeSize 或 unitSystem 时自动更新对应直径
+  // Auto-update corresponding diameter when pipeSize or unitSystem changes
   useEffect(() => {
     const metricMap = pipeSizes.metric as Record<string, number>
     const imperialMap = pipeSizes.imperial as Record<string, number>
@@ -778,19 +778,19 @@ function InsulationCalculatorPage() {
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Dimensions</div>
                 {equipmentType === 'pipe' ? (
                   <div className="space-y-4">
-                    {/* 内外保温切换 */}
+                    {/* Insulation position toggle */}
                     <div className="flex gap-3">
                       <button
                         className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'external' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('external')}
                       >
-                        外保温 (External)
+                        External
                       </button>
                       <button
                         className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'internal' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('internal')}
                       >
-                        内保温 (Internal)
+                        Internal
                       </button>
                     </div>
 
