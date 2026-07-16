@@ -784,13 +784,13 @@ function InsulationCalculatorPage() {
                         className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'external' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('external')}
                       >
-                        External
+                        External Insulation
                       </button>
                       <button
                         className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'internal' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('internal')}
                       >
-                        Internal
+                        Internal Insulation
                       </button>
                     </div>
 
