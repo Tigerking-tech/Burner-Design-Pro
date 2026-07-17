@@ -58,6 +58,22 @@ G = 9.81                 # 重力加速度 [m/s^2]
 
 
 # ---------------------------------------------------------------------------
+# 管子材质库 (对标 3E Plus "Base Metal / Pipe Material")
+# k 单位 W/m·K, 取常温~中温典型值;  maxTemp 为材质长期使用上限 [°C]
+# ---------------------------------------------------------------------------
+PIPE_MATERIALS = {
+    'carbon_steel':   {'name': 'Carbon Steel',         'k': 50.0,  'maxTemp': 540},
+    'stainless_316':  {'name': 'Stainless Steel 316',  'k': 16.0,  'maxTemp': 815},
+    'stainless_304':  {'name': 'Stainless Steel 304',  'k': 16.2,  'maxTemp': 815},
+    'copper':         {'name': 'Copper',               'k': 400.0, 'maxTemp': 200},
+    'aluminum':       {'name': 'Aluminum',             'k': 200.0, 'maxTemp': 200},
+    'pvc':            {'name': 'PVC',                  'k': 0.19,  'maxTemp': 60},
+    'frp':            {'name': 'FRP (Glass Composite)','k': 0.35,  'maxTemp': 120},
+    'custom':         {'name': 'Custom',               'k': 50.0,  'maxTemp': 9999},
+}
+
+
+# ---------------------------------------------------------------------------
 # 空气物性
 # ---------------------------------------------------------------------------
 def air_properties(t_mean_c: float):
@@ -150,18 +166,51 @@ def dew_point(t_c: float, rh: float) -> float:
 
 # ---------------------------------------------------------------------------
 # 表面温度求解 (给定厚度)
+#   position='external': D1=管道外径, 保温在外;  热流链 Tf→壁→保温→环境
+#   position='internal': D1=管道内径, 保温在内;  热流链 Tf→保温→壁→环境
+#   k_pipe=0 时跳过 R_wall (兼容旧行为)
 # ---------------------------------------------------------------------------
-def surface_state_pipe(d1_mm: float, k: float, tf: float, ta: float,
-                       delta_mm: float, h: float):
-    """给定保温厚度求表面温度、热流、线热损失"""
-    r1 = d1_mm / 2000.0          # [m]
-    r2 = r1 + delta_mm / 1000.0
-    R_cond = math.log(r2 / r1) / (2 * math.pi * k)
-    R_conv = 1.0 / (h * 2 * math.pi * r2)
-    q_l = (tf - ta) / (R_cond + R_conv)
-    Ts = ta + q_l * R_conv
-    q_flux = q_l / (2 * math.pi * r2)
-    return Ts, q_flux, q_l
+def surface_state_pipe(d1_mm: float, k_ins: float, tf: float, ta: float,
+                       delta_mm: float, h: float,
+                       position: str = 'external',
+                       k_pipe: float = 0.0, wall_t_mm: float = 0.0):
+    """给定保温厚度求表面温度、热流、线热损失、界面温度"""
+    delta = delta_mm / 1000.0  # [m]
+    if position == 'external':
+        # 保温在管道外侧, 散热面在保温外表面
+        r_inner_pipe = (d1_mm - 2 * wall_t_mm) / 2000.0   # [m] 管内径
+        r_outer_pipe = d1_mm / 2000.0                      # [m] 管外径 = 保温内径
+        r_outer_ins  = r_outer_pipe + delta                # [m] 保温外径 = 散热半径
+        r_surface    = r_outer_ins
+        # 热阻链: R_wall + R_ins + R_conv (顺序由内向外)
+        R_wall = (math.log(r_outer_pipe / r_inner_pipe) / (2 * math.pi * k_pipe)
+                  if (k_pipe > 0 and wall_t_mm > 0 and r_inner_pipe > 0) else 0.0)
+        R_ins  = math.log(r_outer_ins / r_outer_pipe) / (2 * math.pi * k_ins)
+        R_conv = 1.0 / (h * 2 * math.pi * r_surface)
+        q_l = (tf - ta) / (R_wall + R_ins + R_conv)
+        # 界面温度 = 管壁外表面 = 保温内表面
+        T_interface = tf - q_l * R_wall
+        Ts = ta + q_l * R_conv
+        q_flux = q_l / (2 * math.pi * r_surface)
+    else:
+        # 内保温: D1=管道内径, 保温向管中心延伸, 散热面在管道外表面
+        r_inner_pipe = d1_mm / 2000.0                      # [m] 管内径 = 保温外径
+        r_outer_pipe = (d1_mm + 2 * wall_t_mm) / 2000.0    # [m] 管外径 = 散热半径
+        r_inner_ins  = r_inner_pipe - delta                # [m] 保温内径
+        if r_inner_ins <= 0:
+            r_inner_ins = 1e-6
+        r_surface    = r_outer_pipe
+        # 热阻链: R_ins + R_wall + R_conv (顺序由内向外)
+        R_ins  = math.log(r_inner_pipe / r_inner_ins) / (2 * math.pi * k_ins)
+        R_wall = (math.log(r_outer_pipe / r_inner_pipe) / (2 * math.pi * k_pipe)
+                  if (k_pipe > 0 and wall_t_mm > 0) else 0.0)
+        R_conv = 1.0 / (h * 2 * math.pi * r_surface)
+        q_l = (tf - ta) / (R_ins + R_wall + R_conv)
+        # 界面温度 = 保温外表面 = 管壁内表面
+        T_interface = tf - q_l * R_ins
+        Ts = ta + q_l * R_conv
+        q_flux = q_l / (2 * math.pi * r_surface)
+    return Ts, q_flux, q_l, T_interface, R_wall, R_ins, R_conv
 
 
 def surface_state_flat(k: float, tf: float, ta: float, delta_mm: float, h: float):
@@ -180,31 +229,37 @@ def get_k_temp(baseK, kCoeff, Tf, Ts):
     T_mean = (Tf + Ts) / 2
     return baseK + kCoeff * T_mean + 5.6e-7 * T_mean * T_mean
 
-def _solve_sc_state_pipe(d1_mm, baseK, kCoeff, tf, ta, delta_mm, v, epsilon):
+def _solve_sc_state_pipe(d1_mm, baseK, kCoeff, tf, ta, delta_mm, v, epsilon,
+                         position='external', k_pipe=0.0, wall_t_mm=0.0):
     """圆柱自洽 Ts↔h 状态 (内部辅助, 给 solve_pipe 的 bounds 搜索和二分搜索共用)"""
     is_heating = tf > ta
     ts_guess = ta + 0.5 * (tf - ta)
     for _ in range(30):
         k = get_k_temp(baseK, kCoeff, tf, ts_guess)
-        hc = hc_cylinder_astm(d1_mm / 1000.0 + 2 * delta_mm / 1000.0, ts_guess, ta, v)
+        # 散热面直径: 外保温=保温外径, 内保温=管道外径
+        d_surface = (d1_mm + 2 * delta_mm) if position == 'external' else (d1_mm + 2 * wall_t_mm)
+        hc = hc_cylinder_astm(d_surface / 1000.0, ts_guess, ta, v)
         hr = hr_radiation(epsilon, ts_guess, ta)
         h = hc + hr
-        Ts, q_flux, q_l = surface_state_pipe(d1_mm, k, tf, ta, delta_mm, h)
+        Ts, q_flux, q_l, T_int, R_wall, R_ins, R_conv = surface_state_pipe(
+            d1_mm, k, tf, ta, delta_mm, h, position, k_pipe, wall_t_mm)
         if abs(Ts - ts_guess) < 0.01:
             break
         ts_guess = 0.5 * ts_guess + 0.5 * Ts
-    return Ts, q_flux, q_l, hc, hr, h
+    return Ts, q_flux, q_l, hc, hr, h, T_int, R_wall, R_ins, R_conv
 
 
 def solve_pipe(d1_mm: float, baseK: float, kCoeff: float, tf: float, ta: float, target: float,
                mode: str, v: float, epsilon: float,
-               length_m: float = 1.0, width_m: float = 1.0):
+               length_m: float = 1.0, width_m: float = 1.0,
+               position: str = 'external', k_pipe: float = 0.0, wall_t_mm: float = 0.0):
     """mode ∈ {'surface','heatloss','condensation'};  返回 dict"""
     is_heating = tf > ta
     lower, upper = 0.01, 1.0   # mm
     # 找上界 (用自洽 h, 而非固定 h=10, 与 webapp 一致)
     for _ in range(60):
-        Ts, q_flux, q_l, _, _, _ = _solve_sc_state_pipe(d1_mm, baseK, kCoeff, tf, ta, upper, v, epsilon)
+        Ts, q_flux, q_l, _, _, _, _, _, _, _ = _solve_sc_state_pipe(
+            d1_mm, baseK, kCoeff, tf, ta, upper, v, epsilon, position, k_pipe, wall_t_mm)
         if mode in ('surface', 'condensation'):
             if (is_heating and Ts < target) or ((not is_heating) and Ts > target):
                 break
@@ -218,7 +273,8 @@ def solve_pipe(d1_mm: float, baseK: float, kCoeff: float, tf: float, ta: float, 
     converged_delta = None
     for _ in range(200):
         delta = 0.5 * (lower + upper)
-        Ts, q_flux, q_l, hc, hr, h = _solve_sc_state_pipe(d1_mm, baseK, kCoeff, tf, ta, delta, v, epsilon)
+        Ts, q_flux, q_l, hc, hr, h, T_int, R_wall, R_ins, R_conv = _solve_sc_state_pipe(
+            d1_mm, baseK, kCoeff, tf, ta, delta, v, epsilon, position, k_pipe, wall_t_mm)
 
         if mode in ('surface', 'condensation'):
             if is_heating:
@@ -246,13 +302,18 @@ def solve_pipe(d1_mm: float, baseK: float, kCoeff: float, tf: float, ta: float, 
     # 修复: 若 break 由收敛条件触发, 用本次通过检验的 delta, 而非 (lower+upper)/2
     delta = converged_delta if converged_delta is not None else 0.5 * (lower + upper)
     # 最终自洽计算
-    Ts, q_flux, q_l, hc, hr, h = _solve_sc_state_pipe(d1_mm, baseK, kCoeff, tf, ta, delta, v, epsilon)
+    Ts, q_flux, q_l, hc, hr, h, T_int, R_wall, R_ins, R_conv = _solve_sc_state_pipe(
+        d1_mm, baseK, kCoeff, tf, ta, delta, v, epsilon, position, k_pipe, wall_t_mm)
 
     return {
         'thickness_mm': delta,
         'surface_temp_c': Ts,
         'heat_flux_w_m2': q_flux,
         'linear_heat_loss_w_m': q_l,
+        'interface_temp_c': T_int,
+        'R_wall': R_wall,
+        'R_insulation': R_ins,
+        'R_conv': R_conv,
         'hc': hc, 'hr': hr, 'h': h,
     }
 
@@ -357,6 +418,15 @@ def calculate(case: dict) -> dict:
     eps = case['emittance']
     hours = case['operatingHours']
 
+    # 管子材质 (与 3E Plus "Base Metal" 对齐)
+    pipe_material_key = case.get('pipeMaterial', 'carbon_steel')
+    pipe_mat = PIPE_MATERIALS.get(pipe_material_key, PIPE_MATERIALS['carbon_steel'])
+    k_pipe = case.get('pipeMaterialK', pipe_mat['k'])   # 允许用户自定义 k
+    pipe_max_temp = pipe_mat['maxTemp']
+
+    # 保温材质最高使用温度 (用于界面温度校核)
+    ins_max_temp = case.get('insulationMaxTemp', 9999)
+
     if mode == 'condensation':
         target = dew_point(ta, case['relativeHumidity']) + 1.0
         dp = dew_point(ta, case['relativeHumidity'])
@@ -367,16 +437,36 @@ def calculate(case: dict) -> dict:
         target = case['targetHeatLoss']
         dp = None
 
+    interface_temp = None
+    material_warnings = []
+
     if equip == 'pipe':
-        r = solve_pipe(case['outerDiameter'], baseK, kCoeff, tf, ta, target, mode, v, eps)
+        position = case.get('insulationPosition', 'external')
+        if position == 'external':
+            d1 = case['outerDiameter']
+            wall_t = case.get('wallThickness', 0.0)
+        else:
+            d1 = case.get('innerDiameter', case['outerDiameter'] - 2 * case.get('wallThickness', 0))
+            wall_t = case.get('wallThickness', 0.0)
+        r = solve_pipe(d1, baseK, kCoeff, tf, ta, target, mode, v, eps,
+                       position=position, k_pipe=k_pipe, wall_t_mm=wall_t)
         linear = r['linear_heat_loss_w_m']
         annual = linear * hours / 1000.0
+        interface_temp = r.get('interface_temp_c')
+        # 材质温度校核
+        if interface_temp is not None and ins_max_temp < interface_temp:
+            material_warnings.append(
+                f"Interface temp {interface_temp:.1f}°C exceeds insulation max {ins_max_temp}°C")
+        if tf > pipe_max_temp:
+            material_warnings.append(
+                f"Medium temp {tf:.1f}°C exceeds pipe material ({pipe_mat['name']}) max {pipe_max_temp}°C")
     else:
         r = solve_flat(baseK, kCoeff, tf, ta, target, mode, v, eps,
                        case['surfaceLength'], case['surfaceWidth'])
         area = case['surfaceLength'] * case['surfaceWidth']
         annual = r['heat_flux_w_m2'] * area * hours / 1000.0
         linear = None
+        interface_temp = tf  # 平壁无管壁热阻, 界面温度近似为介质温度
 
     return {
         'thickness_mm': r['thickness_mm'],
@@ -386,9 +476,13 @@ def calculate(case: dict) -> dict:
         'linearHeatLoss': linear,
         'annualHeatLoss': annual,
         'dewPoint': dp,
+        'interfaceTemp': interface_temp,
+        'pipeMaterial': pipe_mat['name'],
+        'pipeMaterialK': k_pipe,
         'hc': r['hc'],
         'hr': r['hr'],
         'h': r['h'],
+        'warnings': material_warnings,
     }
 
 
@@ -396,11 +490,13 @@ if __name__ == '__main__':
     # 自检: 与项目默认工况对照
     demo = {
         'equipmentType': 'pipe', 'mode': 'surface',
-        'outerDiameter': 60.3, 'k': 0.040,
+        'outerDiameter': 60.3, 'k': 0.040, 'kCoeff': 9.4e-5,
         'mediumTemp': 150.0, 'ambientTemp': 20.0,
         'windSpeed': 0.0, 'emittance': 0.9, 'operatingHours': 8760,
         'targetSurfaceTemp': 50.0,
+        'pipeMaterial': 'carbon_steel', 'wallThickness': 3.91,
+        'insulationMaxTemp': 650,
     }
-    print('参考实现自检 (2" 管道, 矿棉, 150°C→50°C):')
+    print('参考实现自检 (2" 碳钢管, 矿棉, 150°C→50°C):')
     for k_, v_ in calculate(demo).items():
         print(f'  {k_:>18} = {v_}')

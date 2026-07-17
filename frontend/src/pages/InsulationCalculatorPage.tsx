@@ -29,6 +29,7 @@ type EquipmentType = 'pipe' | 'flat'
 type Mode = 'surface' | 'heatloss' | 'condensation'
 type UnitSystem = 'metric' | 'imperial'
 type MaterialType = 'mineralwool' | 'glasswool' | 'calciumsilicate' | 'polyurethane' | 'ceramicfiber' | 'custom'
+type PipeMaterialType = 'carbon_steel' | 'stainless_316' | 'stainless_304' | 'copper' | 'aluminum' | 'pvc' | 'frp' | 'custom_pipe'
 type InsulationPosition = 'external' | 'internal'
 
 interface MaterialProperty {
@@ -36,6 +37,12 @@ interface MaterialProperty {
   name: string
   maxTemp: number
   kCoeff: number
+}
+
+interface PipeMaterialProperty {
+  conductivity: number
+  name: string
+  maxTemp: number
 }
 
 interface CalculationResult {
@@ -46,6 +53,8 @@ interface CalculationResult {
   annualHeatLoss?: number
   standardThickness?: number
   dewPoint?: number
+  interfaceTemp?: number
+  warnings?: string[]
 }
 
 const materialProperties: Record<string, MaterialProperty> = {
@@ -54,6 +63,18 @@ const materialProperties: Record<string, MaterialProperty> = {
   calciumsilicate: { conductivity: 0.038, name: 'Calcium Silicate', maxTemp: 650, kCoeff: 1.1e-4 },
   polyurethane: { conductivity: 0.023, name: 'Polyurethane Foam', maxTemp: 120, kCoeff: 5e-5 },
   ceramicfiber: { conductivity: 0.042, name: 'Ceramic Fiber', maxTemp: 1260, kCoeff: 1.6e-4 }
+}
+
+// 管子材质库 (对标 3E Plus "Base Metal / Pipe Material")
+const pipeMaterialProperties: Record<string, PipeMaterialProperty> = {
+  carbon_steel:   { conductivity: 50.0,  name: 'Carbon Steel',          maxTemp: 540 },
+  stainless_316:  { conductivity: 16.0,  name: 'Stainless Steel 316',   maxTemp: 815 },
+  stainless_304:  { conductivity: 16.2,  name: 'Stainless Steel 304',   maxTemp: 815 },
+  copper:         { conductivity: 400.0, name: 'Copper',                maxTemp: 200 },
+  aluminum:       { conductivity: 200.0, name: 'Aluminum',              maxTemp: 200 },
+  pvc:            { conductivity: 0.19,  name: 'PVC',                   maxTemp: 60 },
+  frp:            { conductivity: 0.35,  name: 'FRP (Glass Composite)', maxTemp: 120 },
+  custom_pipe:    { conductivity: 50.0,  name: 'Custom',                maxTemp: 9999 }
 }
 
 const getThermalConductivityTemp = (baseK: number, kCoeff: number, Tf: number, Ts: number): number => {
@@ -65,9 +86,9 @@ const standardThicknessesMetric = [10, 13, 20, 25, 30, 40, 50, 60, 75, 80, 100, 
 const standardThicknessesImperial = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6]
 
 const pipeSizes = {
-  metric: { 
-    '1/2"': 21.3, '3/4"': 26.9, '1"': 33.7, '1¼"': 42.4, 
-    '1½"': 48.3, '2"': 60.3, '2½"': 76.1, '3"': 88.9, 
+  metric: {
+    '1/2"': 21.3, '3/4"': 26.9, '1"': 33.7, '1¼"': 42.4,
+    '1½"': 48.3, '2"': 60.3, '2½"': 76.1, '3"': 88.9,
     '4"': 114.3, '5"': 141.3, '6"': 168.3, '8"': 219.1,
     '10"': 273.0, '12"': 323.9, '14"': 355.6, '16"': 406.4
   },
@@ -77,6 +98,14 @@ const pipeSizes = {
     '4"': 4.5, '5"': 5.563, '6"': 6.625, '8"': 8.625,
     '10"': 10.75, '12"': 12.75, '14"': 14.0, '16"': 16.0
   }
+}
+
+// NPS 标准壁厚 (Schedule STD, mm) —— 用于自动填充管子壁厚默认值
+const pipeWallThicknessStd: Record<string, number> = {
+  '1/2"': 2.77, '3/4"': 2.87, '1"': 3.38, '1¼"': 3.56,
+  '1½"': 3.68, '2"': 3.91, '2½"': 5.16, '3"': 5.49,
+  '4"': 6.02, '5"': 6.55, '6"': 7.11, '8"': 8.18,
+  '10"': 9.27, '12"': 10.31, '14"': 11.13, '16"': 12.70
 }
 
 function InsulationCalculatorPage() {
@@ -90,10 +119,13 @@ function InsulationCalculatorPage() {
   const [insulationPosition, setInsulationPosition] = useState<InsulationPosition>('external')
   const [innerDiameter, setInnerDiameter] = useState<number>(50.3)
   const [wallThickness, setWallThickness] = useState<number>(5)
+  // 管子材质 (与 3E Plus "Base Metal" 对齐)
+  const [pipeMaterialType, setPipeMaterialType] = useState<PipeMaterialType>('carbon_steel')
+  const [customPipeLambda, setCustomPipeLambda] = useState<number>(50.0)
 
   const [surfaceLength, setSurfaceLength] = useState<number>(1)
   const [surfaceWidth, setSurfaceWidth] = useState<number>(1)
-  
+
   const [materialType, setMaterialType] = useState<MaterialType>('mineralwool')
   const [customLambda, setCustomLambda] = useState<number>(0.040)
   
@@ -152,6 +184,21 @@ function InsulationCalculatorPage() {
   const getThermalConductivityCoeff = () => {
     if (materialType === 'custom') return 0.00018
     return materialProperties[materialType]?.kCoeff || 0.00018
+  }
+
+  // 获取管子材质导热系数 (W/m·K), 用于 R_wall 计算
+  const getPipeThermalConductivity = () => {
+    if (pipeMaterialType === 'custom_pipe') return customPipeLambda
+    return pipeMaterialProperties[pipeMaterialType]?.conductivity || 50.0
+  }
+
+  const getPipeMaxTemp = () => {
+    return pipeMaterialProperties[pipeMaterialType]?.maxTemp || 9999
+  }
+
+  const getInsulationMaxTemp = () => {
+    if (materialType === 'custom') return 9999
+    return materialProperties[materialType]?.maxTemp || 9999
   }
 
   const calculateDewPoint = (temp: number, humidity: number) => {
@@ -236,42 +283,63 @@ function InsulationCalculatorPage() {
   }
 
   // Helper to calculate surface temperature for given thickness
-  // position='external': D1=pipe outer diameter, insulation on outside (r1=D1/2, r2=r1+delta)
-  // position='internal': D1=pipe inner diameter, insulation on inside (r2=D1/2, r1=r2-delta)
+  // 热阻链 (外保温): R_wall(管壁) + R_ins(保温) + R_conv(表面)
+  // 热阻链 (内保温): R_ins(保温) + R_wall(管壁) + R_conv(表面)
+  // k_pipe=0 时跳过 R_wall (兼容旧行为)
+  // 返回 Ts(表面温度), q_linear(线热损失), T_interface(管壁-保温界面温度)
   const calculateTsForThickness = (
     D1: number, k: number, Tf: number, Ta: number, delta: number, h: number,
-    position: InsulationPosition = 'external', wallThickness: number = 0
+    position: InsulationPosition = 'external', wallT: number = 0, k_pipe: number = 0
   ) => {
-    let r1: number, r2: number, r_conv: number
+    let r_inner_pipe: number, r_outer_pipe: number, r_inner_ins: number, r_outer_ins: number, r_surface: number
+    let R_wall: number, R_ins: number, R_conv: number
+    let T_interface: number
+
     if (position === 'external') {
-      r1 = D1 / 2000
-      r2 = r1 + delta
-      r_conv = r2
+      // 外保温: D1=管道外径, 散热面=保温外表面
+      r_inner_pipe = (D1 - 2 * wallT) / 2000   // 管内径
+      r_outer_pipe = D1 / 2000                   // 管外径 = 保温内径
+      r_outer_ins = r_outer_pipe + delta         // 保温外径
+      r_surface = r_outer_ins
+      R_wall = (k_pipe > 0 && wallT > 0 && r_inner_pipe > 0)
+        ? Math.log(r_outer_pipe / r_inner_pipe) / (2 * Math.PI * k_pipe) : 0
+      R_ins = Math.log(r_outer_ins / r_outer_pipe) / (2 * Math.PI * k)
+      R_conv = 1 / (h * 2 * Math.PI * r_surface)
+      const q_linear = (Tf - Ta) / (R_wall + R_ins + R_conv)
+      T_interface = Tf - q_linear * R_wall   // 管壁外表面 = 保温内表面
+      const Ts = Ta + q_linear * R_conv
+      return { Ts, q_linear, T_interface, R_wall, R_ins, R_conv }
     } else {
-      // Internal insulation: D1=pipe inner diameter, insulation extends inward
-      r2 = D1 / 2000
-      r1 = r2 - delta
-      if (r1 <= 0) r1 = 1e-6
-      r_conv = (D1 + 2 * wallThickness) / 2000
+      // 内保温: D1=管道内径, 散热面=管道外表面
+      r_inner_pipe = D1 / 2000                   // 管内径 = 保温外径
+      r_outer_pipe = (D1 + 2 * wallT) / 2000     // 管外径
+      r_inner_ins = r_inner_pipe - delta         // 保温内径
+      if (r_inner_ins <= 0) r_inner_ins = 1e-6
+      r_surface = r_outer_pipe
+      R_ins = Math.log(r_inner_pipe / r_inner_ins) / (2 * Math.PI * k)
+      R_wall = (k_pipe > 0 && wallT > 0)
+        ? Math.log(r_outer_pipe / r_inner_pipe) / (2 * Math.PI * k_pipe) : 0
+      R_conv = 1 / (h * 2 * Math.PI * r_surface)
+      const q_linear = (Tf - Ta) / (R_ins + R_wall + R_conv)
+      T_interface = Tf - q_linear * R_ins   // 保温外表面 = 管壁内表面
+      const Ts = Ta + q_linear * R_conv
+      return { Ts, q_linear, T_interface, R_wall, R_ins, R_conv }
     }
-    const R_cond = Math.log(r2 / r1) / (2 * Math.PI * k)
-    const R_conv = 1 / (h * 2 * Math.PI * r_conv)
-    const q_linear = (Tf - Ta) / (R_cond + R_conv)
-    const Ts = Ta + q_linear * R_conv
-    return { Ts, q_linear }
   }
 
   // Self-consistent iteration: given insulation thickness, solve for converged surface state Ts↔h (cylinder)
   // delta in m, D1 in mm
   // position='external': D1=pipe outer diameter, heat dissipation surface on insulation outer surface
   // position='internal': D1=pipe inner diameter, heat dissipation surface on metal pipe outer surface
+  // k_pipe=0 跳过 R_wall; wallThickness 参与管壁热阻计算
   const surfaceStatePipeSC = (
     D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
     v: number, epsilon: number, position: InsulationPosition = 'external',
-    wallThickness: number = 0
+    wallThickness: number = 0, k_pipe: number = 0
   ) => {
     let tsGuess = Ta + 0.5 * (Tf - Ta)
-    let hc = 0, hr = 0, h = 0, Ts = tsGuess, q_linear = 0
+    let hc = 0, hr = 0, h = 0, Ts = tsGuess, q_linear = 0, T_interface = 0
+    let R_wall = 0, R_ins = 0, R_conv = 0
     for (let i = 0; i < 30; i++) {
       const k = getThermalConductivityTemp(baseK, kCoeff, Tf, tsGuess)
       const outerD_m = position === 'external'
@@ -280,13 +348,17 @@ function InsulationCalculatorPage() {
       hc = hcCylinderASTM(outerD_m, tsGuess, Ta, v)
       hr = hrRadiation(epsilon, tsGuess, Ta)
       h = hc + hr
-      const r = calculateTsForThickness(D1, k, Tf, Ta, delta, h, position, wallThickness)
+      const r = calculateTsForThickness(D1, k, Tf, Ta, delta, h, position, wallThickness, k_pipe)
       Ts = r.Ts
       q_linear = r.q_linear
+      T_interface = r.T_interface
+      R_wall = r.R_wall
+      R_ins = r.R_ins
+      R_conv = r.R_conv
       if (Math.abs(Ts - tsGuess) < 0.01) break
       tsGuess = 0.5 * tsGuess + 0.5 * Ts
     }
-    return { Ts, q_linear, hc, hr, h }
+    return { Ts, q_linear, hc, hr, h, T_interface, R_wall, R_ins, R_conv }
   }
 
   // Self-consistent iteration: given insulation thickness, solve for converged surface state Ts↔h (flat)
@@ -316,7 +388,7 @@ function InsulationCalculatorPage() {
   const findPipeBounds = (
     D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
     v: number, epsilon: number, calcMode: string,
-    position: InsulationPosition = 'external', wallT: number = 0
+    position: InsulationPosition = 'external', wallT: number = 0, k_pipe: number = 0
   ) => {
     let lower = 0.0001 // 0.1mm
     let upper = 0.001 // 1mm
@@ -326,14 +398,14 @@ function InsulationCalculatorPage() {
     if (calcMode === 'surface' || calcMode === 'condensation') {
       if (isHeating) {
         while (true) {
-          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
+          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT, k_pipe)
           if (Ts < target) break
           upper *= 2
           if (upper > 5.0) break
         }
       } else {
         while (true) {
-          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
+          const { Ts } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT, k_pipe)
           if (Ts > target) break
           upper *= 2
           if (upper > 5.0) break
@@ -341,7 +413,7 @@ function InsulationCalculatorPage() {
       }
     } else {
       while (true) {
-        const { q_linear } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT)
+        const { q_linear } = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, upper, v, epsilon, position, wallT, k_pipe)
         const r_surface = position === 'external'
           ? (D1 / 2000) + upper
           : (D1 + 2 * wallT) / 2000
@@ -358,9 +430,9 @@ function InsulationCalculatorPage() {
   const calculatePipeThickness = (
     D1: number, baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
     v: number, epsilon: number, calcMode: string,
-    position: InsulationPosition = 'external', wallT: number = 0
+    position: InsulationPosition = 'external', wallT: number = 0, k_pipe: number = 0
   ) => {
-    const bounds = findPipeBounds(D1, baseK, kCoeff, Tf, Ta, target, v, epsilon, calcMode, position, wallT)
+    const bounds = findPipeBounds(D1, baseK, kCoeff, Tf, Ta, target, v, epsilon, calcMode, position, wallT, k_pipe)
     let lower = bounds.lower
     let upper = bounds.upper
     let iterations = 0
@@ -371,7 +443,7 @@ function InsulationCalculatorPage() {
 
     while (iterations < maxIterations) {
       const delta = (lower + upper) / 2
-      const st = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, delta, v, epsilon, position, wallT)
+      const st = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, delta, v, epsilon, position, wallT, k_pipe)
       const r_surface = position === 'external'
         ? (D1 / 2000) + delta
         : (D1 + 2 * wallT) / 2000
@@ -404,7 +476,7 @@ function InsulationCalculatorPage() {
     }
 
     const finalDelta = convergedDelta !== null ? convergedDelta : (lower + upper) / 2
-    const finalSt = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, position, wallT)
+    const finalSt = surfaceStatePipeSC(D1, baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, position, wallT, k_pipe)
     const finalR_surface = position === 'external'
       ? (D1 / 2000) + finalDelta
       : (D1 + 2 * wallT) / 2000
@@ -415,6 +487,7 @@ function InsulationCalculatorPage() {
       surfaceTemp: finalSt.Ts,
       heatFlux: finalQflux,
       linearHeatLoss: finalSt.q_linear,
+      interfaceTemp: finalSt.T_interface,
       hc: finalSt.hc,
       hr: finalSt.hr,
       h: finalSt.h
@@ -485,6 +558,9 @@ function InsulationCalculatorPage() {
   const handleCalculate = () => {
     const baseK = getThermalConductivity()
     const kCoeff = getThermalConductivityCoeff()
+    const k_pipe = getPipeThermalConductivity()    // 管子材质导热系数
+    const insMaxTemp = getInsulationMaxTemp()
+    const pipeMaxTemp = getPipeMaxTemp()
 
     // Wind speed: determined by environment option
     let windSpeedMetric = 0
@@ -501,20 +577,24 @@ function InsulationCalculatorPage() {
     let newResult: CalculationResult
     // Solver performs Ts↔h self-consistent iteration internally, returns converged hc/hr/h
     let hcOut = 0, hrOut = 0, hOut = 0
+    let interfaceTempOut: number | undefined = undefined
+    const warnings: string[] = []
 
     if (equipmentType === 'pipe') {
       const isInternal = insulationPosition === 'internal'
+      // 外保温也需要 wallThickness 用于 R_wall
       const D1 = isInternal ? innerDiameter : outerDiameter
-      const wallT = isInternal ? wallThickness : 0
+      const wallT = wallThickness
 
       if (mode === 'surface' || mode === 'condensation') {
         const targetTemp = mode === 'condensation' ?
           calculateDewPoint(ambientTemp, relativeHumidity) + 1 :
           targetSurfaceTemp
 
-        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, 'surface', insulationPosition, wallT)
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, 'surface', insulationPosition, wallT, k_pipe)
         const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
         hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+        interfaceTempOut = pipeResult.interfaceTemp
 
         newResult = {
           thickness: pipeResult.thickness,
@@ -523,12 +603,15 @@ function InsulationCalculatorPage() {
           linearHeatLoss: pipeResult.linearHeatLoss,
           annualHeatLoss: annualLoss,
           standardThickness: getStandardThickness(pipeResult.thickness),
-          dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined
+          dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined,
+          interfaceTemp: interfaceTempOut,
+          warnings
         }
       } else {
-        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, 'heatloss', insulationPosition, wallT)
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, 'heatloss', insulationPosition, wallT, k_pipe)
         const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
         hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+        interfaceTempOut = pipeResult.interfaceTemp
 
         newResult = {
           thickness: pipeResult.thickness,
@@ -536,8 +619,22 @@ function InsulationCalculatorPage() {
           heatFlux: pipeResult.heatFlux,
           linearHeatLoss: pipeResult.linearHeatLoss,
           annualHeatLoss: annualLoss,
-          standardThickness: getStandardThickness(pipeResult.thickness)
+          standardThickness: getStandardThickness(pipeResult.thickness),
+          interfaceTemp: interfaceTempOut,
+          warnings
         }
+      }
+
+      // 材质温度校核 (与 3E Plus "Material Operating Temperature Limit" 对齐)
+      if (interfaceTempOut !== undefined && insMaxTemp < interfaceTempOut) {
+        warnings.push(
+          `Interface temperature ${interfaceTempOut.toFixed(1)}°C exceeds insulation material max ${insMaxTemp}°C — select a higher-rated insulation.`
+        )
+      }
+      if (mediumTemp > pipeMaxTemp) {
+        warnings.push(
+          `Medium temperature ${mediumTemp.toFixed(1)}°C exceeds pipe material (${pipeMaterialProperties[pipeMaterialType]?.name}) max ${pipeMaxTemp}°C.`
+        )
       }
     } else {
       if (mode === 'surface' || mode === 'condensation') {
@@ -557,7 +654,9 @@ function InsulationCalculatorPage() {
           heatFlux: flatResult.heatFlux,
           annualHeatLoss: annualLoss,
           standardThickness: getStandardThickness(flatResult.thickness),
-          dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined
+          dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined,
+          interfaceTemp: mediumTemp,   // 平壁无管壁热阻, 界面温度≈介质温度
+          warnings
         }
       } else {
         const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, surfaceLength, surfaceWidth, 'heatloss')
@@ -571,10 +670,20 @@ function InsulationCalculatorPage() {
           surfaceTemp: flatResult.surfaceTemp,
           heatFlux: flatResult.heatFlux,
           annualHeatLoss: annualLoss,
-          standardThickness: getStandardThickness(flatResult.thickness)
+          standardThickness: getStandardThickness(flatResult.thickness),
+          interfaceTemp: mediumTemp,
+          warnings
         }
       }
+      // 平壁: 校核保温材料耐温
+      if (insMaxTemp < mediumTemp) {
+        warnings.push(
+          `Medium temperature ${mediumTemp.toFixed(1)}°C exceeds insulation material max ${insMaxTemp}°C.`
+        )
+      }
     }
+
+    newResult.warnings = warnings
 
     // Update display values (using converged hc/hr/h)
     setHeatTransferCoeff(hOut)
@@ -619,12 +728,15 @@ function InsulationCalculatorPage() {
 
     if (equipmentType === 'pipe') {
       inputItems.splice(2, 0, ['Insulation Position', insulationPosition === 'external' ? 'External' : 'Internal'])
+      inputItems.splice(3, 0, ['Pipe Material', pipeMaterialProperties[pipeMaterialType]?.name || 'Custom'])
+      inputItems.splice(4, 0, ['Pipe Wall k', `${getPipeThermalConductivity().toFixed(2)} W/mK`])
+      inputItems.splice(5, 0, ['Wall Thickness', `${wallThickness.toFixed(2)} mm`])
       if (insulationPosition === 'external') {
-        inputItems.splice(3, 0, ['Pipe Size / OD', `${outerDiameter.toFixed(1)} mm`])
+        inputItems.splice(6, 0, ['Pipe OD', `${outerDiameter.toFixed(1)} mm`])
+        inputItems.splice(7, 0, ['Pipe ID', `${(outerDiameter - 2 * wallThickness).toFixed(1)} mm`])
       } else {
-        inputItems.splice(3, 0, ['Inner Diameter', `${innerDiameter.toFixed(1)} mm`])
-        inputItems.splice(4, 0, ['Wall Thickness', `${wallThickness.toFixed(1)} mm`])
-        inputItems.splice(5, 0, ['Pipe OD', `${(innerDiameter + 2 * wallThickness).toFixed(1)} mm`])
+        inputItems.splice(6, 0, ['Pipe ID', `${innerDiameter.toFixed(1)} mm`])
+        inputItems.splice(7, 0, ['Pipe OD', `${(innerDiameter + 2 * wallThickness).toFixed(1)} mm`])
       }
     } else {
       inputItems.splice(2, 0, ['Surface Dimensions', `${surfaceLength.toFixed(2)} m × ${surfaceWidth.toFixed(2)} m`])
@@ -655,6 +767,9 @@ function InsulationCalculatorPage() {
     if (result.linearHeatLoss !== undefined) {
       resultItems.splice(3, 0, ['Linear Heat Loss', `${Math.abs(result.linearHeatLoss).toFixed(1)} W/m`])
     }
+    if (result.interfaceTemp !== undefined) {
+      resultItems.splice(3, 0, ['Interface Temp (Pipe–Insulation)', `${result.interfaceTemp.toFixed(1)} °C`])
+    }
     if (result.dewPoint !== undefined) {
       resultItems.unshift(['Dew Point Temperature', `${result.dewPoint.toFixed(1)} °C`])
     }
@@ -675,27 +790,47 @@ function InsulationCalculatorPage() {
     y = checkPageBreak(doc, y, 60, 'Insulation Report', 'Heat Transfer Coefficient');
     y = drawInfoTable(doc, hItems, MARGIN_LEFT, y, CONTENT_WIDTH);
 
+    if (result.warnings && result.warnings.length > 0) {
+      y += 8
+      y = drawSectionTitle(doc, '4. Material Temperature Warnings', y, 'Exceeds material operating temperature limit')
+      y = checkPageBreak(doc, y, 30 + result.warnings.length * 12, 'Insulation Report', 'Warnings');
+      doc.setTextColor(220, 60, 60);
+      result.warnings.forEach((w: string) => {
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(`• ${w}`, CONTENT_WIDTH - 4);
+        lines.forEach((line: string) => {
+          doc.text(line, MARGIN_LEFT + 2, y);
+          y += 12;
+        });
+      });
+      setTextColor(doc, COLORS.textDark);
+    }
+
     addDisclaimerPage(doc)
     drawPageFooter(doc)
 
     doc.save('insulation-report.pdf')
   }
 
-  // Auto-update corresponding diameter when pipeSize or unitSystem changes
+  // Auto-update corresponding diameter and standard wall thickness when pipeSize or unitSystem changes
   useEffect(() => {
     const metricMap = pipeSizes.metric as Record<string, number>
     const imperialMap = pipeSizes.imperial as Record<string, number>
     const od = unitSystem === 'metric' ? metricMap[pipeSize] : imperialMap[pipeSize]
+    // 默认 STD 壁厚 (mm);  imperial 时按 NPS 表查得 STD 壁厚并转换为 mm
+    const stdWall = pipeWallThicknessStd[pipeSize] ?? 3.91
     if (od !== undefined) {
       if (unitSystem === 'metric') {
         setOuterDiameter(od)
-        setInnerDiameter(od - 2 * wallThickness)
+        setInnerDiameter(od - 2 * stdWall)
+        setWallThickness(stdWall)
       } else {
         setOuterDiameter(od * 25.4)
-        setInnerDiameter(od * 25.4 - 2 * wallThickness)
+        setInnerDiameter(od * 25.4 - 2 * stdWall)
+        setWallThickness(stdWall)
       }
     }
-  }, [pipeSize, unitSystem, wallThickness])
+  }, [pipeSize, unitSystem])
 
   return (
     <ProFeaturePreview
@@ -816,20 +951,43 @@ function InsulationCalculatorPage() {
                           <option value='16"'>16"</option>
                         </select>
                       </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Wall Thickness (mm) — STD default</label>
+                        <input type="number" step="0.01" value={wallThickness} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+                          const w = parseFloat(e.target.value)
+                          setWallThickness(w)
+                          // 同步对端直径
+                          if (insulationPosition === 'external') {
+                            setInnerDiameter(outerDiameter - 2 * w)
+                          } else {
+                            setOuterDiameter(innerDiameter + 2 * w)
+                          }
+                        }} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      </div>
                       {insulationPosition === 'external' ? (
-                        <div className="flex flex-col gap-2">
-                          <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm)</label>
-                          <input type="number" value={outerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOuterDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
-                        </div>
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm)</label>
+                            <input type="number" value={outerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+                              const od = parseFloat(e.target.value)
+                              setOuterDiameter(od)
+                              setInnerDiameter(od - 2 * wallThickness)
+                            }} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs text-[#555] font-medium rounded">Inner Diameter (mm) — auto</label>
+                            <input type="number" value={(outerDiameter - 2 * wallThickness).toFixed(1)} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
+                          </div>
+                        </>
                       ) : (
                         <>
                           <div className="flex flex-col gap-2">
                             <label className="text-xs text-[#555] font-medium rounded">Inner Diameter (mm)</label>
-                            <input type="number" value={innerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setInnerDiameter(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <label className="text-xs text-[#555] font-medium rounded">Wall Thickness (mm)</label>
-                            <input type="number" value={wallThickness} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setWallThickness(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                            <input type="number" value={innerDiameter} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+                              const id = parseFloat(e.target.value)
+                              setInnerDiameter(id)
+                              setOuterDiameter(id + 2 * wallThickness)
+                            }} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                           </div>
                           <div className="flex flex-col gap-2">
                             <label className="text-xs text-[#555] font-medium rounded">Outer Diameter (mm) — auto</label>
@@ -874,6 +1032,35 @@ function InsulationCalculatorPage() {
                   </div>
                 )}
               </div>
+
+              {/* Pipe Material (与 3E Plus "Base Metal" 对齐) */}
+              {equipmentType === 'pipe' && (
+                <div className="mb-6">
+                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Pipe Material (Base Metal)</div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-[#555] font-medium rounded">Material</label>
+                    <select value={pipeMaterialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeMaterialType(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                      <option value="carbon_steel">Carbon Steel (k=50 W/m·K)</option>
+                      <option value="stainless_316">Stainless Steel 316 (k=16 W/m·K)</option>
+                      <option value="stainless_304">Stainless Steel 304 (k=16.2 W/m·K)</option>
+                      <option value="copper">Copper (k=400 W/m·K)</option>
+                      <option value="aluminum">Aluminum (k=200 W/m·K)</option>
+                      <option value="pvc">PVC (k=0.19 W/m·K)</option>
+                      <option value="frp">FRP (k=0.35 W/m·K)</option>
+                      <option value="custom_pipe">Custom Material</option>
+                    </select>
+                  </div>
+                  {pipeMaterialType === 'custom_pipe' && (
+                    <div className="flex flex-col gap-2 mt-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Pipe Thermal Conductivity (W/m·K)</label>
+                      <input type="number" step="0.1" value={customPipeLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomPipeLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    </div>
+                  )}
+                  <p className="text-xs text-[#7f8c8d] mt-2">
+                    Used for pipe wall thermal resistance (R_wall) and interface temperature check. Aligns with 3E Plus Base Metal input.
+                  </p>
+                </div>
+              )}
 
               {/* Temperatures */}
               <div className="mb-6">
@@ -1023,6 +1210,13 @@ function InsulationCalculatorPage() {
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
                       <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.surfaceTemp.toFixed(1)}°C</div>
                     </div>
+                    {result.interfaceTemp !== undefined && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Interface Temp (Pipe–Insulation)</div>
+                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.interfaceTemp.toFixed(1)}°C</div>
+                        <div className="text-xs text-[#7f8c8d] mt-1">Insulation max: {getInsulationMaxTemp()}°C</div>
+                      </div>
+                    )}
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
                       <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
@@ -1039,6 +1233,17 @@ function InsulationCalculatorPage() {
                     </div>
                   </div>
 
+                  {result.warnings && result.warnings.length > 0 && (
+                    <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4 flex items-start gap-3 mt-6">
+                      <AlertTriangle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
+                      <div className="text-sm">
+                        <p className="font-semibold text-red-800">Material Temperature Limit Exceeded</p>
+                        {result.warnings.map((w: string, i: number) => (
+                          <p key={i} className="text-red-700 mt-1">• {w}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
