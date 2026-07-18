@@ -418,7 +418,7 @@ def standard_thickness(thk: float) -> float:
 def calculate(case: dict) -> dict:
     """统一参考计算入口;  case 字段与项目页面变量一一对应"""
     equip = case['equipmentType']           # 'pipe' | 'flat'
-    mode = case['mode']                     # 'surface' | 'heatloss' | 'condensation'
+    mode = case.get('mode', 'surface')      # 'surface' | 'heatloss' | 'condensation'
     baseK = case['k']
     kCoeff = case.get('kCoeff', 0.00023)
     tf = case['mediumTemp']
@@ -470,12 +470,15 @@ def calculate(case: dict) -> dict:
             material_warnings.append(
                 f"Medium temp {tf:.1f}°C exceeds pipe material ({pipe_mat['name']}) max {pipe_max_temp}°C")
     else:
+        k_wall = case.get('k_wall', 0)
+        wall_t_mm = case.get('wall_t_mm', 0)
         r = solve_flat(baseK, kCoeff, tf, ta, target, mode, v, eps,
-                       case['surfaceLength'], case['surfaceWidth'])
+                       case['surfaceLength'], case['surfaceWidth'],
+                       k_wall=k_wall, wall_t_mm=wall_t_mm)
         area = case['surfaceLength'] * case['surfaceWidth']
         annual = r['heat_flux_w_m2'] * area * hours / 1000.0
         linear = None
-        interface_temp = tf  # 平壁无管壁热阻, 界面温度近似为介质温度
+        interface_temp = r.get('interface_temp_c', tf)
 
     return {
         'thickness_mm': r['thickness_mm'],
@@ -491,6 +494,9 @@ def calculate(case: dict) -> dict:
         'hc': r['hc'],
         'hr': r['hr'],
         'h': r['h'],
+        'R_wall': r.get('R_wall', 0),
+        'R_insulation': r.get('R_insulation', 0),
+        'R_conv': r.get('R_conv', 0),
         'warnings': material_warnings,
     }
 
