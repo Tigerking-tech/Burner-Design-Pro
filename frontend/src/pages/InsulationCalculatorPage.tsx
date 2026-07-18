@@ -841,16 +841,16 @@ function InsulationCalculatorPage() {
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <Navbar />
 
-        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 px-6 text-center">
+        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-8 md:py-12 px-4 md:px-6 text-center">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-semibold mb-4">Insulation Thickness Calculator</h1>
-            <p className="text-[#bdc3c7] max-w-2xl mx-auto">
+            <h1 className="text-2xl md:text-4xl font-semibold mb-2 md:mb-4">Insulation Thickness Calculator</h1>
+            <p className="text-[#bdc3c7] max-w-2xl mx-auto text-sm md:text-base">
               ISO 12241 &amp; ASTM C680 Standards | Pipe &amp; Flat Surface | Anti-Condensation
             </p>
           </div>
         </section>
 
-        <div className="max-w-5xl mx-auto px-5 py-10">
+        <div className="max-w-5xl mx-auto px-3 md:px-5 py-6 md:py-10">
           {/* Inline Disclaimer */}
           <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
             <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
@@ -865,45 +865,45 @@ function InsulationCalculatorPage() {
 
           <div className="bg-white rounded-lg shadow-xl border border-gray-300 mb-6">
             {/* Mode Tabs */}
-            <div className="flex border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
               <button
-                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tl ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tl ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('surface')}
               >
-                Surface Temperature
+                Surface Temp
               </button>
               <button
-                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'heatloss' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'heatloss' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('heatloss')}
               >
                 Heat Loss
               </button>
               <button
-                className={`flex-1 py-4 px-4 text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'condensation' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'condensation' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('condensation')}
               >
                 Anti-Condensation
               </button>
             </div>
 
-            <div className="p-6 rounded-b-lg">
+            <div className="p-4 md:p-6 rounded-b-lg">
               {/* Equipment Type */}
               <div className="mb-6">
                 <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Equipment Type</div>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <button
-                    className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'pipe' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
+                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'pipe' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
                     onClick={() => setEquipmentType('pipe')}
                   >
-                    <Cylinder size={20} />
-                    Pipe
+                    <Cylinder size={18} />
+                    <span className="text-sm">Pipe</span>
                   </button>
                   <button
-                    className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'flat' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
+                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'flat' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
                     onClick={() => setEquipmentType('flat')}
                   >
-                    <Square size={20} />
-                    Flat Surface
+                    <Square size={18} />
+                    <span className="text-sm">Flat Surface</span>
                   </button>
                 </div>
               </div>
@@ -914,15 +914,15 @@ function InsulationCalculatorPage() {
                 {equipmentType === 'pipe' ? (
                   <div className="space-y-4">
                     {/* Insulation position toggle */}
-                    <div className="flex gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <button
-                        className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'external' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
+                        className={`py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'external' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('external')}
                       >
                         External Insulation
                       </button>
                       <button
-                        className={`flex-1 py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'internal' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
+                        className={`py-2 px-3 rounded border text-sm font-semibold transition-all ${insulationPosition === 'internal' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12]' : 'bg-white text-[#555] border-gray-300 hover:bg-gray-50'}`}
                         onClick={() => setInsulationPosition('internal')}
                       >
                         Internal Insulation
@@ -1168,22 +1168,22 @@ function InsulationCalculatorPage() {
               </div>
 
               {/* Calculate Button */}
-              <div className="mt-8">
+              <div className="mt-6 md:mt-8">
                 <button
                   onClick={() => handleProAction(handleCalculate)}
-                  className="w-full py-4 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] font-bold rounded rounded transition-all duration-300 text-base"
+                  className="w-full py-3 md:py-4 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] font-bold rounded rounded transition-all duration-300 text-sm md:text-base"
                 >
                   Calculate Insulation Thickness
                 </button>
               </div>
 
               {/* Export PDF Button */}
-              <div className="mt-4">
+              <div className="mt-3 md:mt-4">
                 <button
                   onClick={exportToPDF}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                  className="w-full py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <Download size={20} />
+                  <Download size={18} />
                   Export PDF Report
                 </button>
               </div>
@@ -1191,45 +1191,45 @@ function InsulationCalculatorPage() {
               {/* Results */}
               {showResults && result && (
                 <>
-                  <div className="mt-8 pt-8 border-t border-gray-300 rounded">
+                  <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300 rounded">
                     <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Calculation Results</div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     {result.dewPoint !== undefined && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center rounded">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 md:p-6 text-center rounded">
                         <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Dew Point Temperature</div>
-                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.dewPoint.toFixed(1)}°C</div>
+                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.dewPoint.toFixed(1)}°C</div>
                       </div>
                     )}
-                    <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-6 text-center rounded">
+                    <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-4 md:p-6 text-center rounded">
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Required Insulation Thickness</div>
-                      <div className="text-3xl font-bold text-[#f39c12] mt-2">{result.thickness.toFixed(1)} mm</div>
-                      <div className="text-sm text-[#7f8c8d] mt-2">Standard Size: {result.standardThickness} mm</div>
+                      <div className="text-2xl md:text-3xl font-bold text-[#f39c12] mt-1 md:mt-2">{result.thickness.toFixed(1)} mm</div>
+                      <div className="text-xs md:text-sm text-[#7f8c8d] mt-1 md:mt-2">Standard Size: {result.standardThickness} mm</div>
                     </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
-                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.surfaceTemp.toFixed(1)}°C</div>
+                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.surfaceTemp.toFixed(1)}°C</div>
                     </div>
                     {result.interfaceTemp !== undefined && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
                         <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Interface Temp (Pipe–Insulation)</div>
-                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{result.interfaceTemp.toFixed(1)}°C</div>
+                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.interfaceTemp.toFixed(1)}°C</div>
                         <div className="text-xs text-[#7f8c8d] mt-1">Insulation max: {getInsulationMaxTemp()}°C</div>
                       </div>
                     )}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
-                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
+                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
                     </div>
                     {result.linearHeatLoss !== undefined && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
                         <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Linear Heat Loss</div>
-                        <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
+                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
                       </div>
                     )}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center rounded">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
-                      <div className="text-3xl font-bold text-[#2c3e50] mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
+                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
                   </div>
 
