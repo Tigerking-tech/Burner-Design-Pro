@@ -213,13 +213,18 @@ def surface_state_pipe(d1_mm: float, k_ins: float, tf: float, ta: float,
     return Ts, q_flux, q_l, T_interface, R_wall, R_ins, R_conv
 
 
-def surface_state_flat(k: float, tf: float, ta: float, delta_mm: float, h: float):
+def surface_state_flat(k: float, tf: float, ta: float, delta_mm: float, h: float, k_wall: float = 0, wall_t_mm: float = 0):
     delta = delta_mm / 1000.0
     R_cond = delta / k
     R_conv = 1.0 / h
-    q_flux = (tf - ta) / (R_cond + R_conv)
+    if k_wall > 0 and wall_t_mm > 0:
+        R_wall = (wall_t_mm / 1000.0) / k_wall
+    else:
+        R_wall = 0
+    q_flux = (tf - ta) / (R_wall + R_cond + R_conv)
     Ts = ta + q_flux * R_conv
-    return Ts, q_flux
+    T_int = tf - q_flux * R_wall
+    return Ts, q_flux, T_int, R_wall, R_cond, R_conv
 
 
 # ---------------------------------------------------------------------------
@@ -318,7 +323,7 @@ def solve_pipe(d1_mm: float, baseK: float, kCoeff: float, tf: float, ta: float, 
     }
 
 
-def _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta_mm, v, epsilon, length_m, width_m):
+def _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta_mm, v, epsilon, length_m, width_m, k_wall=0, wall_t_mm=0):
     """平壁自洽 Ts↔h 状态 (内部辅助)"""
     ts_guess = ta + 0.5 * (tf - ta)
     for _ in range(30):
@@ -326,20 +331,20 @@ def _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta_mm, v, epsilon, length_m, 
         hc = hc_flat_astm(length_m, width_m, ts_guess, ta, v)
         hr = hr_radiation(epsilon, ts_guess, ta)
         h = hc + hr
-        Ts, q_flux = surface_state_flat(k, tf, ta, delta_mm, h)
+        Ts, q_flux, T_int, R_wall, R_ins, R_conv = surface_state_flat(k, tf, ta, delta_mm, h, k_wall, wall_t_mm)
         if abs(Ts - ts_guess) < 0.01:
             break
         ts_guess = 0.5 * ts_guess + 0.5 * Ts
-    return Ts, q_flux, hc, hr, h
+    return Ts, q_flux, hc, hr, h, T_int, R_wall, R_ins, R_conv
 
 
 def solve_flat(baseK: float, kCoeff: float, tf: float, ta: float, target: float, mode: str,
-               v: float, epsilon: float, length_m: float, width_m: float):
+               v: float, epsilon: float, length_m: float, width_m: float, k_wall=0, wall_t_mm=0):
     is_heating = tf > ta
     lower, upper = 0.01, 1.0
     # 找上界 (用自洽 h, 与 webapp 一致)
     for _ in range(60):
-        Ts, q_flux, _, _, _ = _solve_sc_state_flat(baseK, kCoeff, tf, ta, upper, v, epsilon, length_m, width_m)
+        Ts, q_flux, _, _, _, _, _, _, _ = _solve_sc_state_flat(baseK, kCoeff, tf, ta, upper, v, epsilon, length_m, width_m, k_wall, wall_t_mm)
         if mode in ('surface', 'condensation'):
             if (is_heating and Ts < target) or ((not is_heating) and Ts > target):
                 break
@@ -353,7 +358,7 @@ def solve_flat(baseK: float, kCoeff: float, tf: float, ta: float, target: float,
     converged_delta = None
     for _ in range(200):
         delta = 0.5 * (lower + upper)
-        Ts, q_flux, hc, hr, h = _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta, v, epsilon, length_m, width_m)
+        Ts, q_flux, hc, hr, h, _, _, _, _ = _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta, v, epsilon, length_m, width_m, k_wall, wall_t_mm)
 
         if mode in ('surface', 'condensation'):
             if is_heating:
@@ -380,12 +385,16 @@ def solve_flat(baseK: float, kCoeff: float, tf: float, ta: float, target: float,
 
     # 修复: 若 break 由收敛条件触发, 用本次通过检验的 delta, 而非 (lower+upper)/2
     delta = converged_delta if converged_delta is not None else 0.5 * (lower + upper)
-    Ts, q_flux, hc, hr, h = _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta, v, epsilon, length_m, width_m)
+    Ts, q_flux, hc, hr, h, T_int, R_wall, R_ins, R_conv = _solve_sc_state_flat(baseK, kCoeff, tf, ta, delta, v, epsilon, length_m, width_m, k_wall, wall_t_mm)
 
     return {
         'thickness_mm': delta,
         'surface_temp_c': Ts,
         'heat_flux_w_m2': q_flux,
+        'interface_temp_c': T_int,
+        'R_wall': R_wall,
+        'R_insulation': R_ins,
+        'R_conv': R_conv,
         'hc': hc, 'hr': hr, 'h': h,
     }
 

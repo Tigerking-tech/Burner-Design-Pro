@@ -125,6 +125,9 @@ function InsulationCalculatorPage() {
 
   const [surfaceLength, setSurfaceLength] = useState<number>(1)
   const [surfaceWidth, setSurfaceWidth] = useState<number>(1)
+  const [surfaceWallMaterial, setSurfaceWallMaterial] = useState<PipeMaterialType>('carbon_steel')
+  const [surfaceWallThickness, setSurfaceWallThickness] = useState<number>(5)
+  const [customSurfaceWallLambda, setCustomSurfaceWallLambda] = useState<number>(50.0)
 
   const [materialType, setMaterialType] = useState<MaterialType>('mineralwool')
   const [customLambda, setCustomLambda] = useState<number>(0.040)
@@ -190,6 +193,11 @@ function InsulationCalculatorPage() {
   const getPipeThermalConductivity = () => {
     if (pipeMaterialType === 'custom_pipe') return customPipeLambda
     return pipeMaterialProperties[pipeMaterialType]?.conductivity || 50.0
+  }
+
+  const getSurfaceWallThermalConductivity = () => {
+    if (surfaceWallMaterial === 'custom_pipe') return customSurfaceWallLambda
+    return pipeMaterialProperties[surfaceWallMaterial]?.conductivity || 50.0
   }
 
   const getPipeMaxTemp = () => {
@@ -365,23 +373,31 @@ function InsulationCalculatorPage() {
   // delta in m
   const surfaceStateFlatSC = (
     baseK: number, kCoeff: number, Tf: number, Ta: number, delta: number,
-    v: number, epsilon: number, lengthM: number, widthM: number
+    v: number, epsilon: number, lengthM: number, widthM: number,
+    k_wall: number = 0, wall_t_mm: number = 0
   ) => {
     let tsGuess = Ta + 0.5 * (Tf - Ta)
     let hc = 0, hr = 0, h = 0, Ts = tsGuess, q_flux = 0
+    let T_int = Tf, R_wall = 0, R_ins = 0, R_conv = 0
     for (let i = 0; i < 30; i++) {
       const k = getThermalConductivityTemp(baseK, kCoeff, Tf, tsGuess)
       hc = hcFlatASTM(lengthM, widthM, tsGuess, Ta, v)
       hr = hrRadiation(epsilon, tsGuess, Ta)
       h = hc + hr
-      const R_cond = delta / k
-      const R_conv = 1 / h
-      q_flux = (Tf - Ta) / (R_cond + R_conv)
+      R_ins = delta / k
+      R_conv = 1 / h
+      if (k_wall > 0 && wall_t_mm > 0) {
+        R_wall = (wall_t_mm / 1000) / k_wall
+      } else {
+        R_wall = 0
+      }
+      q_flux = (Tf - Ta) / (R_wall + R_ins + R_conv)
       Ts = Ta + q_flux * R_conv
+      T_int = Tf - q_flux * R_wall
       if (Math.abs(Ts - tsGuess) < 0.01) break
       tsGuess = 0.5 * tsGuess + 0.5 * Ts
     }
-    return { Ts, q_flux, hc, hr, h }
+    return { Ts, q_flux, hc, hr, h, T_int, R_wall, R_ins, R_conv }
   }
 
   // Find valid initial bounds for binary search (using self-consistent state)
@@ -496,7 +512,8 @@ function InsulationCalculatorPage() {
 
   const calculateFlatThickness = (
     baseK: number, kCoeff: number, Tf: number, Ta: number, target: number,
-    v: number, epsilon: number, lengthM: number, widthM: number, calcMode: string
+    v: number, epsilon: number, lengthM: number, widthM: number, calcMode: string,
+    k_wall: number = 0, wall_t_mm: number = 0
   ) => {
     let lower = 0.001
     let upper = 1.0
@@ -507,7 +524,7 @@ function InsulationCalculatorPage() {
 
     while (iterations < maxIterations) {
       const delta = (lower + upper) / 2
-      const st = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, delta, v, epsilon, lengthM, widthM)
+      const st = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, delta, v, epsilon, lengthM, widthM, k_wall, wall_t_mm)
 
       if (calcMode === 'surface' || calcMode === 'condensation') {
         if (isHeating) {
@@ -536,7 +553,7 @@ function InsulationCalculatorPage() {
     }
 
     const finalDelta = convergedDelta !== null ? convergedDelta : (lower + upper) / 2
-    const finalSt = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, lengthM, widthM)
+    const finalSt = surfaceStateFlatSC(baseK, kCoeff, Tf, Ta, finalDelta, v, epsilon, lengthM, widthM, k_wall, wall_t_mm)
 
     return {
       thickness: finalDelta * 1000,
@@ -544,7 +561,11 @@ function InsulationCalculatorPage() {
       heatFlux: finalSt.q_flux,
       hc: finalSt.hc,
       hr: finalSt.hr,
-      h: finalSt.h
+      h: finalSt.h,
+      interfaceTemp: finalSt.T_int,
+      R_wall: finalSt.R_wall,
+      R_insulation: finalSt.R_ins,
+      R_conv: finalSt.R_conv
     }
   }
 
@@ -637,12 +658,15 @@ function InsulationCalculatorPage() {
         )
       }
     } else {
+      const k_wall = getSurfaceWallThermalConductivity()
+      const wall_t_mm = surfaceWallThickness
+
       if (mode === 'surface' || mode === 'condensation') {
         const targetTemp = mode === 'condensation' ?
           calculateDewPoint(ambientTemp, relativeHumidity) + 1 :
           targetSurfaceTemp
 
-        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, surfaceLength, surfaceWidth, 'surface')
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetTemp, v, epsilon, surfaceLength, surfaceWidth, 'surface', k_wall, wall_t_mm)
         const area = surfaceLength * surfaceWidth
         const heatLoss = flatResult.heatFlux * area
         const annualLoss = heatLoss * operatingHours / 1000
@@ -655,11 +679,11 @@ function InsulationCalculatorPage() {
           annualHeatLoss: annualLoss,
           standardThickness: getStandardThickness(flatResult.thickness),
           dewPoint: mode === 'condensation' ? calculateDewPoint(ambientTemp, relativeHumidity) : undefined,
-          interfaceTemp: mediumTemp,   // 平壁无管壁热阻, 界面温度≈介质温度
+          interfaceTemp: flatResult.interfaceTemp,
           warnings
         }
       } else {
-        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, surfaceLength, surfaceWidth, 'heatloss')
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, surfaceLength, surfaceWidth, 'heatloss', k_wall, wall_t_mm)
         const area = surfaceLength * surfaceWidth
         const heatLoss = flatResult.heatFlux * area
         const annualLoss = heatLoss * operatingHours / 1000
@@ -671,7 +695,7 @@ function InsulationCalculatorPage() {
           heatFlux: flatResult.heatFlux,
           annualHeatLoss: annualLoss,
           standardThickness: getStandardThickness(flatResult.thickness),
-          interfaceTemp: mediumTemp,
+          interfaceTemp: flatResult.interfaceTemp,
           warnings
         }
       }
@@ -998,14 +1022,46 @@ function InsulationCalculatorPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Length (m)</label>
-                      <input type="number" value={surfaceLength} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceLength(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Length (m)</label>
+                        <input type="number" value={surfaceLength} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceLength(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Width (m)</label>
+                        <input type="number" value={surfaceWidth} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWidth(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Width (m)</label>
-                      <input type="number" value={surfaceWidth} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWidth(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Wall Material (Base Metal)</div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Material</label>
+                        <select value={surfaceWallMaterial} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWallMaterial(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                          <option value="carbon_steel">Carbon Steel (k=50 W/m·K)</option>
+                          <option value="stainless_316">Stainless Steel 316 (k=16 W/m·K)</option>
+                          <option value="stainless_304">Stainless Steel 304 (k=16.2 W/m·K)</option>
+                          <option value="copper">Copper (k=400 W/m·K)</option>
+                          <option value="aluminum">Aluminum (k=200 W/m·K)</option>
+                          <option value="pvc">PVC (k=0.19 W/m·K)</option>
+                          <option value="frp">FRP (k=0.35 W/m·K)</option>
+                          <option value="custom_pipe">Custom Material</option>
+                        </select>
+                      </div>
+                      {surfaceWallMaterial === 'custom_pipe' && (
+                        <div className="flex flex-col gap-2 mt-2">
+                          <label className="text-xs text-[#555] font-medium rounded">Wall Thermal Conductivity (W/m·K)</label>
+                          <input type="number" step="0.1" value={customSurfaceWallLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomSurfaceWallLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-2 mt-2">
+                        <label className="text-xs text-[#555] font-medium rounded">Wall Thickness (mm)</label>
+                        <input type="number" step="0.1" value={surfaceWallThickness} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWallThickness(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      </div>
+                      <p className="text-xs text-[#7f8c8d] mt-2">
+                        Used for wall thermal resistance (R_wall) and interface temperature check.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1212,7 +1268,7 @@ function InsulationCalculatorPage() {
                     </div>
                     {result.interfaceTemp !== undefined && (
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Interface Temp (Pipe–Insulation)</div>
+                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Interface Temp (Wall–Insulation)</div>
                         <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.interfaceTemp.toFixed(1)}°C</div>
                         <div className="text-xs text-[#7f8c8d] mt-1">Insulation max: {getInsulationMaxTemp()}°C</div>
                       </div>
