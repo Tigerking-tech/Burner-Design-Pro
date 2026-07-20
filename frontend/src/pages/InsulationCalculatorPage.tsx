@@ -26,11 +26,12 @@ import {
 
 type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_strong'
 type EquipmentType = 'pipe' | 'flat'
-type Mode = 'surface' | 'heatloss' | 'condensation'
+type Mode = 'surface' | 'heatloss' | 'condensation' | 'energysavings' | 'freezeprotection'
 type UnitSystem = 'metric' | 'imperial'
 type MaterialType = 'mineralwool' | 'glasswool' | 'calciumsilicate' | 'polyurethane' | 'phenolic' | 'polyisocyanurate' | 'cellularglass' | 'vermiculite' | 'perlite' | 'ceramicfiber' | 'aerogel' | 'fiberglass' | 'foamglass' | 'elastomeric' | 'custom'
 type PipeMaterialType = 'carbon_steel' | 'carbon_steel_low' | 'carbon_steel_high' | 'stainless_316' | 'stainless_304' | 'stainless_310' | 'copper' | 'copper_alloy' | 'aluminum' | 'aluminum_3003' | 'titanium' | 'nickel_200' | 'inconel_600' | 'hastelloy_c276' | 'cast_iron' | 'pvc' | 'cpvc' | 'pe' | 'pp' | 'frp' | 'grp' | 'carbon_fiber' | 'custom_pipe'
 type InsulationPosition = 'external' | 'internal'
+type FuelType = 'electricity' | 'natural_gas' | 'steam' | 'hot_water' | 'oil'
 
 interface MaterialProperty {
   conductivity: number
@@ -55,6 +56,7 @@ interface CalculationResult {
   dewPoint?: number
   interfaceTemp?: number
   warnings?: string[]
+  annualSavings?: number
 }
 
 const materialProperties: Record<string, MaterialProperty> = {
@@ -161,6 +163,12 @@ function InsulationCalculatorPage() {
   const [targetSurfaceTemp, setTargetSurfaceTemp] = useState<number>(50)
   const [targetHeatLoss, setTargetHeatLoss] = useState<number>(100)
   const [relativeHumidity, setRelativeHumidity] = useState<number>(60)
+  const [energyCost, setEnergyCost] = useState<number>(0.8)
+  const [fuelType, setFuelType] = useState<FuelType>('electricity')
+  const [efficiency, setEfficiency] = useState<number>(90)
+  const [minAmbientTemp, setMinAmbientTemp] = useState<number>(-10)
+  const [targetFluidTemp, setTargetFluidTemp] = useState<number>(5)
+  const [safetyMargin, setSafetyMargin] = useState<number>(5)
   
   const [environment, setEnvironment] = useState<Environment>('indoor')
   const [windSpeed, setWindSpeed] = useState<number>(0)
@@ -652,8 +660,42 @@ function InsulationCalculatorPage() {
           interfaceTemp: interfaceTempOut,
           warnings
         }
-      } else {
+      } else if (mode === 'heatloss') {
         const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, 'heatloss', insulationPosition, wallT, k_pipe)
+        const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
+        hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+        interfaceTempOut = pipeResult.interfaceTemp
+
+        newResult = {
+          thickness: pipeResult.thickness,
+          surfaceTemp: pipeResult.surfaceTemp,
+          heatFlux: pipeResult.heatFlux,
+          linearHeatLoss: pipeResult.linearHeatLoss,
+          annualHeatLoss: annualLoss,
+          standardThickness: getStandardThickness(pipeResult.thickness),
+          interfaceTemp: interfaceTempOut,
+          warnings
+        }
+      } else if (mode === 'energysavings') {
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, ambientTemp, 45, v, epsilon, 'surface', insulationPosition, wallT, k_pipe)
+        const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
+        const annualSavings = annualLoss * energyCost * (efficiency / 100)
+        hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
+        interfaceTempOut = pipeResult.interfaceTemp
+
+        newResult = {
+          thickness: pipeResult.thickness,
+          surfaceTemp: pipeResult.surfaceTemp,
+          heatFlux: pipeResult.heatFlux,
+          linearHeatLoss: pipeResult.linearHeatLoss,
+          annualHeatLoss: annualLoss,
+          standardThickness: getStandardThickness(pipeResult.thickness),
+          interfaceTemp: interfaceTempOut,
+          warnings,
+          annualSavings
+        }
+      } else if (mode === 'freezeprotection') {
+        const pipeResult = calculatePipeThickness(D1, baseK, kCoeff, mediumTemp, minAmbientTemp, targetFluidTemp + safetyMargin, v, epsilon, 'surface', insulationPosition, wallT, k_pipe)
         const annualLoss = pipeResult.linearHeatLoss! * operatingHours / 1000
         hcOut = pipeResult.hc; hrOut = pipeResult.hr; hOut = pipeResult.h
         interfaceTempOut = pipeResult.interfaceTemp
@@ -706,8 +748,42 @@ function InsulationCalculatorPage() {
           interfaceTemp: flatResult.interfaceTemp,
           warnings
         }
-      } else {
+      } else if (mode === 'heatloss') {
         const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, targetHeatLoss, v, epsilon, surfaceLength, surfaceWidth, 'heatloss', k_wall, wall_t_mm)
+        const area = surfaceLength * surfaceWidth
+        const heatLoss = flatResult.heatFlux * area
+        const annualLoss = heatLoss * operatingHours / 1000
+        hcOut = flatResult.hc; hrOut = flatResult.hr; hOut = flatResult.h
+
+        newResult = {
+          thickness: flatResult.thickness,
+          surfaceTemp: flatResult.surfaceTemp,
+          heatFlux: flatResult.heatFlux,
+          annualHeatLoss: annualLoss,
+          standardThickness: getStandardThickness(flatResult.thickness),
+          interfaceTemp: flatResult.interfaceTemp,
+          warnings
+        }
+      } else if (mode === 'energysavings') {
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, ambientTemp, 45, v, epsilon, surfaceLength, surfaceWidth, 'surface', k_wall, wall_t_mm)
+        const area = surfaceLength * surfaceWidth
+        const heatLoss = flatResult.heatFlux * area
+        const annualLoss = heatLoss * operatingHours / 1000
+        const annualSavings = annualLoss * energyCost * (efficiency / 100)
+        hcOut = flatResult.hc; hrOut = flatResult.hr; hOut = flatResult.h
+
+        newResult = {
+          thickness: flatResult.thickness,
+          surfaceTemp: flatResult.surfaceTemp,
+          heatFlux: flatResult.heatFlux,
+          annualHeatLoss: annualLoss,
+          standardThickness: getStandardThickness(flatResult.thickness),
+          interfaceTemp: flatResult.interfaceTemp,
+          warnings,
+          annualSavings
+        }
+      } else if (mode === 'freezeprotection') {
+        const flatResult = calculateFlatThickness(baseK, kCoeff, mediumTemp, minAmbientTemp, targetFluidTemp + safetyMargin, v, epsilon, surfaceLength, surfaceWidth, 'surface', k_wall, wall_t_mm)
         const area = surfaceLength * surfaceWidth
         const heatLoss = flatResult.heatFlux * area
         const annualLoss = heatLoss * operatingHours / 1000
@@ -794,8 +870,16 @@ function InsulationCalculatorPage() {
       inputItems.push(['Target Surface Temperature', `${targetSurfaceTemp.toFixed(1)} °C`])
     } else if (mode === 'heatloss') {
       inputItems.push(['Target Heat Loss', `${targetHeatLoss.toFixed(1)} W/m²`])
-    } else {
+    } else if (mode === 'condensation') {
       inputItems.push(['Relative Humidity', `${relativeHumidity.toFixed(0)} %`])
+    } else if (mode === 'energysavings') {
+      inputItems.push(['Energy Cost', `${energyCost.toFixed(2)} ¥/kWh`])
+      inputItems.push(['Fuel Type', fuelType.charAt(0).toUpperCase() + fuelType.slice(1).replace('_', ' ')])
+      inputItems.push(['Efficiency', `${efficiency.toFixed(0)} %`])
+    } else if (mode === 'freezeprotection') {
+      inputItems.push(['Minimum Ambient Temp', `${minAmbientTemp.toFixed(1)} °C`])
+      inputItems.push(['Target Fluid Temp', `${targetFluidTemp.toFixed(1)} °C`])
+      inputItems.push(['Safety Margin', `${safetyMargin.toFixed(1)} °C`])
     }
 
     y = checkPageBreak(doc, y, 120, 'Insulation Report', 'Input Parameters');
@@ -913,7 +997,7 @@ function InsulationCalculatorPage() {
 
           <div className="bg-white rounded-lg shadow-xl border border-gray-300 mb-6">
             {/* Mode Tabs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-5 border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
               <button
                 className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tl ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('surface')}
@@ -931,6 +1015,18 @@ function InsulationCalculatorPage() {
                 onClick={() => setMode('condensation')}
               >
                 Anti-Condensation
+              </button>
+              <button
+                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'energysavings' ? 'bg-[#27ae60] text-white' : 'text-[#555] hover:bg-gray-100'}`}
+                onClick={() => setMode('energysavings')}
+              >
+                Energy Savings
+              </button>
+              <button
+                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tr ${mode === 'freezeprotection' ? 'bg-[#3498db] text-white' : 'text-[#555] hover:bg-gray-100'}`}
+                onClick={() => setMode('freezeprotection')}
+              >
+                Freeze Protection
               </button>
             </div>
 
@@ -1243,8 +1339,60 @@ function InsulationCalculatorPage() {
                       <input type="number" value={relativeHumidity} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
                     </div>
                   )}
+                  {mode === 'energysavings' && (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Energy Cost (¥/kWh)</label>
+                      <input type="number" value={energyCost} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnergyCost(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60] rounded text-[#2c3e50] rounded" />
+                    </div>
+                  )}
+                  {mode === 'freezeprotection' && (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Min Ambient (°C)</label>
+                      <input type="number" value={minAmbientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMinAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Energy Savings Settings */}
+              {mode === 'energysavings' && (
+                <div className="mb-6">
+                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Energy Savings Parameters</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Fuel Type</label>
+                      <select value={fuelType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFuelType(e.target.value as FuelType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                        <option value="electricity">Electricity</option>
+                        <option value="natural_gas">Natural Gas</option>
+                        <option value="steam">Steam</option>
+                        <option value="hot_water">Hot Water</option>
+                        <option value="oil">Oil</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Efficiency (%)</label>
+                      <input type="number" value={efficiency} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEfficiency(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60] rounded text-[#2c3e50] rounded" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Freeze Protection Settings */}
+              {mode === 'freezeprotection' && (
+                <div className="mb-6">
+                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Freeze Protection Parameters</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Target Fluid Temp (°C)</label>
+                      <input type="number" value={targetFluidTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetFluidTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-[#555] font-medium rounded">Safety Margin (°C)</label>
+                      <input type="number" value={safetyMargin} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSafetyMargin(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Environment */}
               <div className="mb-6">
@@ -1382,6 +1530,12 @@ function InsulationCalculatorPage() {
                       <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
                       <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                     </div>
+                    {result.annualSavings !== undefined && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 md:p-6 text-center rounded">
+                        <div className="text-xs text-[#27ae60] uppercase tracking-wider font-semibold">Annual Savings</div>
+                        <div className="text-2xl md:text-3xl font-bold text-[#27ae60] mt-1 md:mt-2">¥{result.annualSavings.toFixed(0)}/year</div>
+                      </div>
+                    )}
                   </div>
 
                   {result.warnings && result.warnings.length > 0 && (
@@ -1395,6 +1549,105 @@ function InsulationCalculatorPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Insulation Preview */}
+                  <div className="mt-6">
+                    <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Preview</div>
+                    <div className="bg-white border border-gray-300 rounded-lg p-4 md:p-6 rounded">
+                      <div className="flex justify-center">
+                        {equipmentType === 'pipe' ? (
+                          <svg viewBox="0 0 300 300" className="w-full max-w-[280px]">
+                            <defs>
+                              <linearGradient id="pipeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#7f8c8d" />
+                                <stop offset="100%" stopColor="#95a5a6" />
+                              </linearGradient>
+                              <linearGradient id="insulationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#bdc3c7" />
+                                <stop offset="100%" stopColor="#dfe6e9" />
+                              </linearGradient>
+                              <linearGradient id="jacketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#3498db" />
+                                <stop offset="100%" stopColor="#2980b9" />
+                              </linearGradient>
+                            </defs>
+                            {(() => {
+                              const D1 = insulationPosition === 'internal' ? innerDiameter : outerDiameter
+                              const wallT = wallThickness
+                              const insulationT = result.thickness
+                              const scale = 1.2
+                              const center = 150
+                              const pipeRadius = (D1 / 2) * scale
+                              const outerRadius = (D1 / 2 + wallT) * scale
+                              const insulationOuterRadius = outerRadius + insulationT * scale
+                              return (
+                                <>
+                                  <circle cx={center} cy={center} r={insulationOuterRadius} fill="url(#insulationGradient)" />
+                                  <circle cx={center} cy={center} r={outerRadius} fill="url(#pipeGradient)" />
+                                  <circle cx={center} cy={center} r={pipeRadius} fill="#2c3e50" />
+                                  <circle cx={center} cy={center} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
+                                  <text x={center} y={center - pipeRadius - 15} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Fluid: {mediumTemp}°C</text>
+                                  <text x={center} y={center - outerRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Pipe Wall</text>
+                                  <text x={center} y={center - insulationOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Insulation: {insulationT.toFixed(1)}mm</text>
+                                  <text x={center} y={center + insulationOuterRadius + 25} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                </>
+                              )
+                            })()}
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 400 150" className="w-full max-w-[380px]">
+                            <defs>
+                              <linearGradient id="flatPipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#7f8c8d" />
+                                <stop offset="100%" stopColor="#95a5a6" />
+                              </linearGradient>
+                              <linearGradient id="flatInsulationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#bdc3c7" />
+                                <stop offset="100%" stopColor="#dfe6e9" />
+                              </linearGradient>
+                            </defs>
+                            {(() => {
+                              const wallT = surfaceWallThickness
+                              const insulationT = result.thickness
+                              const scale = 2
+                              const left = 50
+                              const pipeThickness = wallT * scale
+                              const insulationThickness = insulationT * scale
+                              return (
+                                <>
+                                  <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
+                                  <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
+                                  <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
+                                  <text x={left + pipeThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Wall</text>
+                                  <text x={left + pipeThickness + insulationThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Insulation</text>
+                                  <text x={left - 20} y={80} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{mediumTemp}°C</text>
+                                  <text x={left + pipeThickness + insulationThickness + 25} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
+                                </>
+                              )
+                            })()}
+                          </svg>
+                        )}
+                      </div>
+                      <div className="mt-4 flex justify-center gap-4 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded bg-[#2c3e50]"></div>
+                          <span className="text-[#555]">Fluid / Medium</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded bg-[#95a5a6]"></div>
+                          <span className="text-[#555]">Pipe / Wall</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded bg-[#dfe6e9]"></div>
+                          <span className="text-[#555]">Insulation</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded bg-[#3498db]"></div>
+                          <span className="text-[#555]">Surface</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
             </div>
