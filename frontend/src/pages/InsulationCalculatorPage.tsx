@@ -28,8 +28,8 @@ type Environment = 'indoor' | 'outdoor_calm' | 'outdoor_moderate' | 'outdoor_str
 type EquipmentType = 'pipe' | 'flat'
 type Mode = 'surface' | 'heatloss' | 'condensation'
 type UnitSystem = 'metric' | 'imperial'
-type MaterialType = 'mineralwool' | 'glasswool' | 'calciumsilicate' | 'polyurethane' | 'ceramicfiber' | 'custom'
-type PipeMaterialType = 'carbon_steel' | 'stainless_316' | 'stainless_304' | 'copper' | 'aluminum' | 'pvc' | 'frp' | 'custom_pipe'
+type MaterialType = 'mineralwool' | 'glasswool' | 'calciumsilicate' | 'polyurethane' | 'phenolic' | 'polyisocyanurate' | 'cellularglass' | 'vermiculite' | 'perlite' | 'ceramicfiber' | 'aerogel' | 'fiberglass' | 'foamglass' | 'elastomeric' | 'custom'
+type PipeMaterialType = 'carbon_steel' | 'carbon_steel_low' | 'carbon_steel_high' | 'stainless_316' | 'stainless_304' | 'stainless_310' | 'copper' | 'copper_alloy' | 'aluminum' | 'aluminum_3003' | 'titanium' | 'nickel_200' | 'inconel_600' | 'hastelloy_c276' | 'cast_iron' | 'pvc' | 'cpvc' | 'pe' | 'pp' | 'frp' | 'grp' | 'carbon_fiber' | 'custom_pipe'
 type InsulationPosition = 'external' | 'internal'
 
 interface MaterialProperty {
@@ -58,22 +58,46 @@ interface CalculationResult {
 }
 
 const materialProperties: Record<string, MaterialProperty> = {
-  mineralwool: { conductivity: 0.0316, name: 'Mineral Wool', maxTemp: 650, kCoeff: 9.4e-5 },
-  glasswool: { conductivity: 0.028, name: 'Glass Wool', maxTemp: 450, kCoeff: 8.5e-5 },
-  calciumsilicate: { conductivity: 0.038, name: 'Calcium Silicate', maxTemp: 650, kCoeff: 1.1e-4 },
+  mineralwool: { conductivity: 0.032, name: 'Mineral Wool (850F)', maxTemp: 454, kCoeff: 9.4e-5 },
+  glasswool: { conductivity: 0.028, name: 'Glass Wool (600F)', maxTemp: 316, kCoeff: 8.5e-5 },
+  calciumsilicate: { conductivity: 0.038, name: 'Calcium Silicate (1200F)', maxTemp: 649, kCoeff: 1.1e-4 },
   polyurethane: { conductivity: 0.023, name: 'Polyurethane Foam', maxTemp: 120, kCoeff: 5e-5 },
-  ceramicfiber: { conductivity: 0.042, name: 'Ceramic Fiber', maxTemp: 1260, kCoeff: 1.6e-4 }
+  phenolic: { conductivity: 0.025, name: 'Phenolic Foam', maxTemp: 120, kCoeff: 6e-5 },
+  polyisocyanurate: { conductivity: 0.022, name: 'Polyisocyanurate', maxTemp: 135, kCoeff: 4.5e-5 },
+  cellularglass: { conductivity: 0.038, name: 'Cellular Glass', maxTemp: 260, kCoeff: 8e-5 },
+  vermiculite: { conductivity: 0.055, name: 'Vermiculite', maxTemp: 760, kCoeff: 1.5e-4 },
+  perlite: { conductivity: 0.050, name: 'Perlite', maxTemp: 900, kCoeff: 1.3e-4 },
+  ceramicfiber: { conductivity: 0.045, name: 'Ceramic Fiber (2300F)', maxTemp: 1260, kCoeff: 1.6e-4 },
+  aerogel: { conductivity: 0.012, name: 'Aerogel', maxTemp: 650, kCoeff: 3e-5 },
+  fiberglass: { conductivity: 0.030, name: 'Fiberglass (400F)', maxTemp: 204, kCoeff: 8e-5 },
+  foamglass: { conductivity: 0.040, name: 'Foam Glass', maxTemp: 400, kCoeff: 9e-5 },
+  elastomeric: { conductivity: 0.034, name: 'Elastomeric Rubber', maxTemp: 100, kCoeff: 7e-5 }
 }
 
 // 管子材质库 (对标 3E Plus "Base Metal / Pipe Material")
 const pipeMaterialProperties: Record<string, PipeMaterialProperty> = {
   carbon_steel:   { conductivity: 50.0,  name: 'Carbon Steel',          maxTemp: 540 },
+  carbon_steel_low: { conductivity: 45.0, name: 'Low Carbon Steel',     maxTemp: 540 },
+  carbon_steel_high: { conductivity: 40.0, name: 'High Carbon Steel',   maxTemp: 540 },
   stainless_316:  { conductivity: 16.0,  name: 'Stainless Steel 316',   maxTemp: 815 },
   stainless_304:  { conductivity: 16.2,  name: 'Stainless Steel 304',   maxTemp: 815 },
+  stainless_310:  { conductivity: 15.0,  name: 'Stainless Steel 310',   maxTemp: 1100 },
   copper:         { conductivity: 400.0, name: 'Copper',                maxTemp: 200 },
-  aluminum:       { conductivity: 200.0, name: 'Aluminum',              maxTemp: 200 },
+  copper_alloy:   { conductivity: 350.0, name: 'Copper Alloy',          maxTemp: 250 },
+  aluminum:       { conductivity: 200.0, name: 'Aluminum 6061',         maxTemp: 200 },
+  aluminum_3003:  { conductivity: 230.0, name: 'Aluminum 3003',         maxTemp: 200 },
+  titanium:       { conductivity: 21.9,  name: 'Titanium',              maxTemp: 500 },
+  nickel_200:     { conductivity: 70.0,  name: 'Nickel 200',             maxTemp: 600 },
+  inconel_600:    { conductivity: 11.7,  name: 'Inconel 600',           maxTemp: 1100 },
+  hastelloy_c276: { conductivity: 11.4,  name: 'Hastelloy C-276',       maxTemp: 1000 },
+  cast_iron:      { conductivity: 52.0,  name: 'Cast Iron',             maxTemp: 400 },
   pvc:            { conductivity: 0.19,  name: 'PVC',                   maxTemp: 60 },
+  cpvc:           { conductivity: 0.20,  name: 'CPVC',                  maxTemp: 95 },
+  pe:             { conductivity: 0.42,  name: 'PE (Polyethylene)',      maxTemp: 60 },
+  pp:             { conductivity: 0.22,  name: 'PP (Polypropylene)',    maxTemp: 80 },
   frp:            { conductivity: 0.35,  name: 'FRP (Glass Composite)', maxTemp: 120 },
+  grp:            { conductivity: 0.30,  name: 'GRP (Glass Reinforced)', maxTemp: 150 },
+  carbon_fiber:   { conductivity: 100.0, name: 'Carbon Fiber',          maxTemp: 300 },
   custom_pipe:    { conductivity: 50.0,  name: 'Custom',                maxTemp: 9999 }
 }
 
@@ -82,8 +106,8 @@ const getThermalConductivityTemp = (baseK: number, kCoeff: number, Tf: number, T
   return baseK + kCoeff * T_mean + 5.6e-7 * T_mean * T_mean
 }
 
-const standardThicknessesMetric = [10, 13, 20, 25, 30, 40, 50, 60, 75, 80, 100, 120, 150]
-const standardThicknessesImperial = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6]
+const standardThicknessesMetric = [5, 6, 8, 10, 13, 15, 16, 20, 25, 30, 32, 40, 50, 60, 65, 75, 80, 100, 120, 150, 200]
+const standardThicknessesImperial = [0.25, 0.375, 0.5, 0.625, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8]
 
 const pipeSizes = {
   metric: {
@@ -1039,13 +1063,40 @@ function InsulationCalculatorPage() {
                       <div className="flex flex-col gap-2">
                         <label className="text-xs text-[#555] font-medium rounded">Material</label>
                         <select value={surfaceWallMaterial} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceWallMaterial(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
-                          <option value="carbon_steel">Carbon Steel (k=50 W/m·K)</option>
-                          <option value="stainless_316">Stainless Steel 316 (k=16 W/m·K)</option>
-                          <option value="stainless_304">Stainless Steel 304 (k=16.2 W/m·K)</option>
-                          <option value="copper">Copper (k=400 W/m·K)</option>
-                          <option value="aluminum">Aluminum (k=200 W/m·K)</option>
-                          <option value="pvc">PVC (k=0.19 W/m·K)</option>
-                          <option value="frp">FRP (k=0.35 W/m·K)</option>
+                          <optgroup label="Carbon Steel">
+                            <option value="carbon_steel">Carbon Steel (k=50)</option>
+                            <option value="carbon_steel_low">Low Carbon Steel (k=45)</option>
+                            <option value="carbon_steel_high">High Carbon Steel (k=40)</option>
+                            <option value="cast_iron">Cast Iron (k=52)</option>
+                          </optgroup>
+                          <optgroup label="Stainless Steel">
+                            <option value="stainless_304">Stainless Steel 304 (k=16.2)</option>
+                            <option value="stainless_316">Stainless Steel 316 (k=16)</option>
+                            <option value="stainless_310">Stainless Steel 310 (k=15)</option>
+                          </optgroup>
+                          <optgroup label="High-Temp Alloys">
+                            <option value="inconel_600">Inconel 600 (k=11.7)</option>
+                            <option value="hastelloy_c276">Hastelloy C-276 (k=11.4)</option>
+                            <option value="nickel_200">Nickel 200 (k=70)</option>
+                            <option value="titanium">Titanium (k=21.9)</option>
+                          </optgroup>
+                          <optgroup label="Copper & Aluminum">
+                            <option value="copper">Copper (k=400)</option>
+                            <option value="copper_alloy">Copper Alloy (k=350)</option>
+                            <option value="aluminum">Aluminum 6061 (k=200)</option>
+                            <option value="aluminum_3003">Aluminum 3003 (k=230)</option>
+                          </optgroup>
+                          <optgroup label="Plastics">
+                            <option value="pvc">PVC (k=0.19)</option>
+                            <option value="cpvc">CPVC (k=0.20)</option>
+                            <option value="pe">Polyethylene PE (k=0.42)</option>
+                            <option value="pp">Polypropylene PP (k=0.22)</option>
+                          </optgroup>
+                          <optgroup label="Composites">
+                            <option value="frp">FRP (k=0.35)</option>
+                            <option value="grp">GRP (k=0.30)</option>
+                            <option value="carbon_fiber">Carbon Fiber (k=100)</option>
+                          </optgroup>
                           <option value="custom_pipe">Custom Material</option>
                         </select>
                       </div>
@@ -1073,11 +1124,28 @@ function InsulationCalculatorPage() {
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium rounded">Material</label>
                   <select value={materialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
-                    <option value="mineralwool">Mineral Wool (0.040 W/m·K)</option>
-                    <option value="glasswool">Glass Wool (0.035 W/m·K)</option>
-                    <option value="calciumsilicate">Calcium Silicate (0.052 W/m·K)</option>
-                    <option value="polyurethane">Polyurethane Foam (0.023 W/m·K)</option>
-                    <option value="ceramicfiber">Ceramic Fiber (0.120 W/m·K)</option>
+                    <optgroup label="Mineral Fibers">
+                      <option value="mineralwool">Mineral Wool (850F, k=0.032)</option>
+                      <option value="glasswool">Glass Wool (600F, k=0.028)</option>
+                      <option value="fiberglass">Fiberglass (400F, k=0.030)</option>
+                      <option value="ceramicfiber">Ceramic Fiber (2300F, k=0.045)</option>
+                    </optgroup>
+                    <optgroup label="Foam Materials">
+                      <option value="polyurethane">Polyurethane Foam (k=0.023)</option>
+                      <option value="polyisocyanurate">Polyisocyanurate (k=0.022)</option>
+                      <option value="phenolic">Phenolic Foam (k=0.025)</option>
+                      <option value="elastomeric">Elastomeric Rubber (k=0.034)</option>
+                    </optgroup>
+                    <optgroup label="Rigid & High-Temp">
+                      <option value="calciumsilicate">Calcium Silicate (1200F, k=0.038)</option>
+                      <option value="cellularglass">Cellular Glass (k=0.038)</option>
+                      <option value="foamglass">Foam Glass (k=0.040)</option>
+                      <option value="vermiculite">Vermiculite (k=0.055)</option>
+                      <option value="perlite">Perlite (k=0.050)</option>
+                    </optgroup>
+                    <optgroup label="Advanced">
+                      <option value="aerogel">Aerogel (k=0.012)</option>
+                    </optgroup>
                     <option value="custom">Custom Material</option>
                   </select>
                 </div>
@@ -1096,13 +1164,40 @@ function InsulationCalculatorPage() {
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-[#555] font-medium rounded">Material</label>
                     <select value={pipeMaterialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeMaterialType(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
-                      <option value="carbon_steel">Carbon Steel (k=50 W/m·K)</option>
-                      <option value="stainless_316">Stainless Steel 316 (k=16 W/m·K)</option>
-                      <option value="stainless_304">Stainless Steel 304 (k=16.2 W/m·K)</option>
-                      <option value="copper">Copper (k=400 W/m·K)</option>
-                      <option value="aluminum">Aluminum (k=200 W/m·K)</option>
-                      <option value="pvc">PVC (k=0.19 W/m·K)</option>
-                      <option value="frp">FRP (k=0.35 W/m·K)</option>
+                      <optgroup label="Carbon Steel">
+                        <option value="carbon_steel">Carbon Steel (k=50)</option>
+                        <option value="carbon_steel_low">Low Carbon Steel (k=45)</option>
+                        <option value="carbon_steel_high">High Carbon Steel (k=40)</option>
+                        <option value="cast_iron">Cast Iron (k=52)</option>
+                      </optgroup>
+                      <optgroup label="Stainless Steel">
+                        <option value="stainless_304">Stainless Steel 304 (k=16.2)</option>
+                        <option value="stainless_316">Stainless Steel 316 (k=16)</option>
+                        <option value="stainless_310">Stainless Steel 310 (k=15)</option>
+                      </optgroup>
+                      <optgroup label="High-Temp Alloys">
+                        <option value="inconel_600">Inconel 600 (k=11.7)</option>
+                        <option value="hastelloy_c276">Hastelloy C-276 (k=11.4)</option>
+                        <option value="nickel_200">Nickel 200 (k=70)</option>
+                        <option value="titanium">Titanium (k=21.9)</option>
+                      </optgroup>
+                      <optgroup label="Copper & Aluminum">
+                        <option value="copper">Copper (k=400)</option>
+                        <option value="copper_alloy">Copper Alloy (k=350)</option>
+                        <option value="aluminum">Aluminum 6061 (k=200)</option>
+                        <option value="aluminum_3003">Aluminum 3003 (k=230)</option>
+                      </optgroup>
+                      <optgroup label="Plastics">
+                        <option value="pvc">PVC (k=0.19)</option>
+                        <option value="cpvc">CPVC (k=0.20)</option>
+                        <option value="pe">Polyethylene PE (k=0.42)</option>
+                        <option value="pp">Polypropylene PP (k=0.22)</option>
+                      </optgroup>
+                      <optgroup label="Composites">
+                        <option value="frp">FRP (k=0.35)</option>
+                        <option value="grp">GRP (k=0.30)</option>
+                        <option value="carbon_fiber">Carbon Fiber (k=100)</option>
+                      </optgroup>
                       <option value="custom_pipe">Custom Material</option>
                     </select>
                   </div>
