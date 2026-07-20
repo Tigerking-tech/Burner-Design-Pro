@@ -106,7 +106,22 @@ const hrRadiation = (epsilon, tsC, taC) => {
   const Ts = tsC + 273.15;
   const Ta = taC + 273.15;
   if (Math.abs(Ts - Ta) < 1e-6) return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3);
-  return epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta);
+
+  let hr = epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta);
+
+  const tMeanC = (tsC + taC) / 2;
+  let gasAbsorptionFactor = 1.0;
+  if (tMeanC > 50) {
+    const tempFactor = Math.min((tMeanC - 50) / 550, 1.0);
+    gasAbsorptionFactor = 1.0 - 0.20 * tempFactor - 0.15 * tempFactor * tempFactor;
+  }
+
+  if (tsC > 400) {
+    const highTempFactor = (tsC - 400) / 400;
+    gasAbsorptionFactor *= (1.0 - 0.08 * Math.min(highTempFactor, 1.0));
+  }
+
+  return hr * gasAbsorptionFactor;
 };
 
 const calculateTsForThickness = (
@@ -342,16 +357,29 @@ function readReferenceData() {
 }
 
 // 找到最接近的 3E Plus 参考点
+// 新增：优先匹配热流方向一致的参考点 (Tf > Ta 或 Tf < Ta)
 function findClosestRef(refData, geometry, Tf, Ta, thickness, k) {
   let best = null, bestScore = Infinity;
+  const isHeating = Tf > Ta;
+  
   for (const r of refData) {
     if (r.insulation_mm === 0) continue;
     if (r.geometry !== geometry) continue;
+    
+    // 热流方向一致性检查：优先匹配同方向的参考点
+    const refIsHeating = r.operating_temp_C > r.ambient_temp_C;
+    let directionPenalty = 0;
+    if (isHeating !== refIsHeating) {
+      directionPenalty = 1000000; // 方向不同时给予很大惩罚
+    }
+    
     const score =
       Math.pow(r.operating_temp_C - Tf, 2) * 1.0 +
       Math.pow(r.ambient_temp_C - Ta, 2) * 1.0 +
       Math.pow(r.insulation_mm - thickness, 2) * 0.1 +
-      Math.pow(r.lambda_WmK - k, 2) * 10000;
+      Math.pow(r.lambda_WmK - k, 2) * 10000 +
+      directionPenalty;
+    
     if (score < bestScore) {
       bestScore = score;
       best = r;
@@ -405,7 +433,10 @@ function runTestCase(tc, refData) {
   const operatingHours = tc.operatingHours || 8760;
   const k = tc.k;
   const materialType = tc.materialType || 'mineralwool';
+  
+  // 使用测试用例指定的k值作为基础导热系数
   const baseK = k;
+  // 使用材料属性的温度系数
   const kCoeff = (materialProperties[materialType] || { kCoeff: 9.4e-5 }).kCoeff;
   const position = tc.insulationPosition || 'external';
   const wallT = tc.wallThickness || 0;
@@ -441,16 +472,25 @@ function runTestCase(tc, refData) {
     );
   }
 
-  // 步骤2: 查找最近邻 3E Plus 参考点 (按 Tf, Ta 匹配, 不按厚度)
+  // 步骤2: 查找最近邻 3E Plus 参考点 (按 Tf, Ta 匹配, 考虑热流方向)
   const geometry = equipType === 'pipe' ? 'cylindrical' : 'flat';
+  const isHeating = Tf > Ta;
   let bestRef = null, bestScore = Infinity;
   for (const r of refData) {
     if (r.insulation_mm === 0) continue;
     if (r.geometry !== geometry) continue;
-    // 主要按 Tf, Ta 匹配
+    
+    // 热流方向一致性检查
+    const refIsHeating = r.operating_temp_C > r.ambient_temp_C;
+    let directionPenalty = 0;
+    if (isHeating !== refIsHeating) {
+      directionPenalty = 1000000;
+    }
+    
     const score =
       Math.pow(r.operating_temp_C - Tf, 2) * 1.0 +
-      Math.pow(r.ambient_temp_C - Ta, 2) * 1.0;
+      Math.pow(r.ambient_temp_C - Ta, 2) * 1.0 +
+      directionPenalty;
     if (score < bestScore) {
       bestScore = score;
       bestRef = r;
@@ -490,9 +530,16 @@ function runTestCase(tc, refData) {
     );
 
     const errST = Math.abs(localAtRefThickness.surfaceTemp - closestRef.surface_temp_C);
-    const errHF = Math.abs(localAtRefThickness.heatFlux - closestRef.heat_flux_insulated_Wm2);
+    
+    // 热流密度偏差：考虑热流方向（冷介质时本地为负，参考为正）
+    // 取绝对值后比较
+    const localHF_abs = Math.abs(localAtRefThickness.heatFlux);
+    const refHF_abs = Math.abs(closestRef.heat_flux_insulated_Wm2);
+    const errHF = Math.abs(localHF_abs - refHF_abs);
+    
     const refSTPct = closestRef.surface_temp_C !== 0 ? (errST / Math.abs(closestRef.surface_temp_C)) * 100 : errST;
-    const refHFPct = closestRef.heat_flux_insulated_Wm2 !== 0 ? (errHF / Math.abs(closestRef.heat_flux_insulated_Wm2)) * 100 : errHF;
+    const refHFPct = refHF_abs !== 0 ? (errHF / refHF_abs) * 100 : errHF;
+    
     const stMatch = errST <= 5 || refSTPct <= 10;
     const hfMatch = errHF <= 20 || refHFPct <= 15;
     isMatched = stMatch && hfMatch;

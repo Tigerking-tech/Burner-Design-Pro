@@ -1,16 +1,16 @@
 {
   "_meta": {
     "description": "71个测试用例 3E Plus 逐个交叉验证报告",
-    "created": "2026-07-20T13:57:38.343Z",
-    "reference_data_points": 672,
+    "created": "2026-07-20T14:17:07.018Z",
+    "reference_data_points": 1122,
     "verification_method": "本地计算 vs ASTM C680 (3E Plus) 最近邻参考点"
   },
   "summary": {
     "total_cases": 69,
-    "matched": 42,
-    "indirect": 27,
+    "matched": 48,
+    "indirect": 21,
     "no_reference": 0,
-    "match_rate_pct": 60.9,
+    "match_rate_pct": 69.6,
     "insulation_preview_match_rate_pct": 100
   },
   "groups": [
@@ -1711,10 +1711,10 @@
     {
       "name": "组2 环境参数组 (F-N)",
       "total": 31,
-      "matched": 19,
-      "indirect": 12,
+      "matched": 23,
+      "indirect": 8,
       "no_ref": 0,
-      "match_rate_pct": 61.3,
+      "match_rate_pct": 74.2,
       "case_results": [
         {
           "id": "F-01",
@@ -2099,22 +2099,22 @@
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
+            "ref_Tf": -10,
             "ref_Ta": 30,
             "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 32.6,
-            "ref_heatFlux": 26.1
+            "ref_k": 0.0352,
+            "ref_surfaceTemp": 24.8,
+            "ref_heatFlux": 41.9
           },
           "deviation": {
-            "err_surfaceTemp": 7.75,
-            "err_surfaceTemp_pct": 23.8,
-            "err_heatFlux": 68.71,
-            "err_heatFlux_pct": 263.3,
-            "stMatch": false,
-            "hfMatch": false
+            "err_surfaceTemp": 0.05,
+            "err_surfaceTemp_pct": 0.2,
+            "err_heatFlux": 0.71,
+            "err_heatFlux_pct": 1.7,
+            "stMatch": true,
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "pipe (同心圆)",
             "layers": [
@@ -2959,22 +2959,22 @@
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
+            "ref_Tf": -10,
             "ref_Ta": 30,
             "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 32.6,
-            "ref_heatFlux": 26.1
+            "ref_k": 0.0352,
+            "ref_surfaceTemp": 24.8,
+            "ref_heatFlux": 41.9
           },
           "deviation": {
-            "err_surfaceTemp": 7.75,
-            "err_surfaceTemp_pct": 23.8,
-            "err_heatFlux": 68.71,
-            "err_heatFlux_pct": 263.3,
-            "stMatch": false,
-            "hfMatch": false
+            "err_surfaceTemp": 0.05,
+            "err_surfaceTemp_pct": 0.2,
+            "err_heatFlux": 0.71,
+            "err_heatFlux_pct": 1.7,
+            "stMatch": true,
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "pipe (同心圆)",
             "layers": [
@@ -3045,22 +3045,22 @@
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
+            "ref_Tf": -10,
             "ref_Ta": 30,
             "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 32.6,
-            "ref_heatFlux": 26.1
+            "ref_k": 0.0352,
+            "ref_surfaceTemp": 24.8,
+            "ref_heatFlux": 41.9
           },
           "deviation": {
-            "err_surfaceTemp": 7.75,
-            "err_surfaceTemp_pct": 23.8,
-            "err_heatFlux": 68.71,
-            "err_heatFlux_pct": 263.3,
-            "stMatch": false,
-            "hfMatch": false
+            "err_surfaceTemp": 0.05,
+            "err_surfaceTemp_pct": 0.2,
+            "err_heatFlux": 0.71,
+            "err_heatFlux_pct": 1.7,
+            "stMatch": true,
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "pipe (同心圆)",
             "layers": [
@@ -3124,29 +3124,29 @@
             "annualHeatLoss": -72.81
           },
           "localAtRefThickness": {
-            "thickness_mm": 25,
-            "surfaceTemp": 24.85,
-            "heatFlux": -42.61,
-            "linearHeatLoss": -14.77
+            "thickness_mm": 75,
+            "surfaceTemp": 28.38,
+            "heatFlux": -11.95,
+            "linearHeatLoss": -7.9
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
-            "ref_Ta": 30,
-            "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 32.6,
-            "ref_heatFlux": 26.1
+            "ref_Tf": -10,
+            "ref_Ta": 25,
+            "ref_thickness_mm": 75,
+            "ref_k": 0.0352,
+            "ref_surfaceTemp": 23.4,
+            "ref_heatFlux": 10.8
           },
           "deviation": {
-            "err_surfaceTemp": 7.75,
-            "err_surfaceTemp_pct": 23.8,
-            "err_heatFlux": 68.71,
-            "err_heatFlux_pct": 263.3,
-            "stMatch": false,
-            "hfMatch": false
+            "err_surfaceTemp": 4.98,
+            "err_surfaceTemp_pct": 21.3,
+            "err_heatFlux": 1.15,
+            "err_heatFlux_pct": 10.7,
+            "stMatch": true,
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "pipe (同心圆)",
             "layers": [
@@ -4387,10 +4387,10 @@
     {
       "name": "组3 新增功能组 (O-Z)",
       "total": 18,
-      "matched": 8,
-      "indirect": 10,
+      "matched": 10,
+      "indirect": 8,
       "no_ref": 0,
-      "match_rate_pct": 44.4,
+      "match_rate_pct": 55.6,
       "case_results": [
         {
           "id": "Z-01",
@@ -4510,29 +4510,29 @@
             "annualHeatLoss": -143.39
           },
           "localAtRefThickness": {
-            "thickness_mm": 25,
-            "surfaceTemp": 28.97,
-            "heatFlux": -45.4,
-            "linearHeatLoss": -23.43
+            "thickness_mm": 50,
+            "surfaceTemp": 30.51,
+            "heatFlux": -20.69,
+            "linearHeatLoss": -13.93
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
+            "ref_Tf": -30,
             "ref_Ta": 30,
-            "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 32.6,
-            "ref_heatFlux": 26.1
+            "ref_thickness_mm": 50,
+            "ref_k": 0.0348,
+            "ref_surfaceTemp": 26.2,
+            "ref_heatFlux": 28.9
           },
           "deviation": {
-            "err_surfaceTemp": 3.63,
-            "err_surfaceTemp_pct": 11.1,
-            "err_heatFlux": 71.5,
-            "err_heatFlux_pct": 274,
+            "err_surfaceTemp": 4.31,
+            "err_surfaceTemp_pct": 16.5,
+            "err_heatFlux": 8.21,
+            "err_heatFlux_pct": 28.4,
             "stMatch": true,
-            "hfMatch": false
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "pipe (同心圆)",
             "layers": [
@@ -4766,22 +4766,22 @@
           },
           "ref3eplus": {
             "ref_geometry": "flat",
-            "ref_Tf": 50,
+            "ref_Tf": 5,
             "ref_Ta": 30,
             "ref_thickness_mm": 25,
-            "ref_k": 0.0447,
-            "ref_surfaceTemp": 33,
-            "ref_heatFlux": 30.4
+            "ref_k": 0.0355,
+            "ref_surfaceTemp": 26.3,
+            "ref_heatFlux": 31.6
           },
           "deviation": {
-            "err_surfaceTemp": 5.76,
-            "err_surfaceTemp_pct": 17.4,
-            "err_heatFlux": 63.02,
-            "err_heatFlux_pct": 207.3,
-            "stMatch": false,
-            "hfMatch": false
+            "err_surfaceTemp": 0.94,
+            "err_surfaceTemp_pct": 3.6,
+            "err_heatFlux": 1.02,
+            "err_heatFlux_pct": 3.2,
+            "stMatch": true,
+            "hfMatch": true
           },
-          "matched": false,
+          "matched": true,
           "insulation_preview": {
             "type": "flat (横向分层)",
             "layers": [
@@ -5788,18 +5788,18 @@
           },
           "ref3eplus": {
             "ref_geometry": "cylindrical",
-            "ref_Tf": 50,
-            "ref_Ta": 20,
+            "ref_Tf": -20,
+            "ref_Ta": 25,
             "ref_thickness_mm": 25,
-            "ref_k": 0.0436,
-            "ref_surfaceTemp": 23.8,
-            "ref_heatFlux": 38.3
+            "ref_k": 0.035,
+            "ref_surfaceTemp": 19.1,
+            "ref_heatFlux": 45.9
           },
           "deviation": {
-            "err_surfaceTemp": 0.99,
-            "err_surfaceTemp_pct": 4.2,
-            "err_heatFlux": 55.73,
-            "err_heatFlux_pct": 145.5,
+            "err_surfaceTemp": 3.71,
+            "err_surfaceTemp_pct": 19.4,
+            "err_heatFlux": 28.47,
+            "err_heatFlux_pct": 62,
             "stMatch": true,
             "hfMatch": false
           },
@@ -7983,22 +7983,22 @@
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
+        "ref_Tf": -10,
         "ref_Ta": 30,
         "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 32.6,
-        "ref_heatFlux": 26.1
+        "ref_k": 0.0352,
+        "ref_surfaceTemp": 24.8,
+        "ref_heatFlux": 41.9
       },
       "deviation": {
-        "err_surfaceTemp": 7.75,
-        "err_surfaceTemp_pct": 23.8,
-        "err_heatFlux": 68.71,
-        "err_heatFlux_pct": 263.3,
-        "stMatch": false,
-        "hfMatch": false
+        "err_surfaceTemp": 0.05,
+        "err_surfaceTemp_pct": 0.2,
+        "err_heatFlux": 0.71,
+        "err_heatFlux_pct": 1.7,
+        "stMatch": true,
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "pipe (同心圆)",
         "layers": [
@@ -8843,22 +8843,22 @@
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
+        "ref_Tf": -10,
         "ref_Ta": 30,
         "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 32.6,
-        "ref_heatFlux": 26.1
+        "ref_k": 0.0352,
+        "ref_surfaceTemp": 24.8,
+        "ref_heatFlux": 41.9
       },
       "deviation": {
-        "err_surfaceTemp": 7.75,
-        "err_surfaceTemp_pct": 23.8,
-        "err_heatFlux": 68.71,
-        "err_heatFlux_pct": 263.3,
-        "stMatch": false,
-        "hfMatch": false
+        "err_surfaceTemp": 0.05,
+        "err_surfaceTemp_pct": 0.2,
+        "err_heatFlux": 0.71,
+        "err_heatFlux_pct": 1.7,
+        "stMatch": true,
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "pipe (同心圆)",
         "layers": [
@@ -8929,22 +8929,22 @@
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
+        "ref_Tf": -10,
         "ref_Ta": 30,
         "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 32.6,
-        "ref_heatFlux": 26.1
+        "ref_k": 0.0352,
+        "ref_surfaceTemp": 24.8,
+        "ref_heatFlux": 41.9
       },
       "deviation": {
-        "err_surfaceTemp": 7.75,
-        "err_surfaceTemp_pct": 23.8,
-        "err_heatFlux": 68.71,
-        "err_heatFlux_pct": 263.3,
-        "stMatch": false,
-        "hfMatch": false
+        "err_surfaceTemp": 0.05,
+        "err_surfaceTemp_pct": 0.2,
+        "err_heatFlux": 0.71,
+        "err_heatFlux_pct": 1.7,
+        "stMatch": true,
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "pipe (同心圆)",
         "layers": [
@@ -9008,29 +9008,29 @@
         "annualHeatLoss": -72.81
       },
       "localAtRefThickness": {
-        "thickness_mm": 25,
-        "surfaceTemp": 24.85,
-        "heatFlux": -42.61,
-        "linearHeatLoss": -14.77
+        "thickness_mm": 75,
+        "surfaceTemp": 28.38,
+        "heatFlux": -11.95,
+        "linearHeatLoss": -7.9
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
-        "ref_Ta": 30,
-        "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 32.6,
-        "ref_heatFlux": 26.1
+        "ref_Tf": -10,
+        "ref_Ta": 25,
+        "ref_thickness_mm": 75,
+        "ref_k": 0.0352,
+        "ref_surfaceTemp": 23.4,
+        "ref_heatFlux": 10.8
       },
       "deviation": {
-        "err_surfaceTemp": 7.75,
-        "err_surfaceTemp_pct": 23.8,
-        "err_heatFlux": 68.71,
-        "err_heatFlux_pct": 263.3,
-        "stMatch": false,
-        "hfMatch": false
+        "err_surfaceTemp": 4.98,
+        "err_surfaceTemp_pct": 21.3,
+        "err_heatFlux": 1.15,
+        "err_heatFlux_pct": 10.7,
+        "stMatch": true,
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "pipe (同心圆)",
         "layers": [
@@ -10384,29 +10384,29 @@
         "annualHeatLoss": -143.39
       },
       "localAtRefThickness": {
-        "thickness_mm": 25,
-        "surfaceTemp": 28.97,
-        "heatFlux": -45.4,
-        "linearHeatLoss": -23.43
+        "thickness_mm": 50,
+        "surfaceTemp": 30.51,
+        "heatFlux": -20.69,
+        "linearHeatLoss": -13.93
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
+        "ref_Tf": -30,
         "ref_Ta": 30,
-        "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 32.6,
-        "ref_heatFlux": 26.1
+        "ref_thickness_mm": 50,
+        "ref_k": 0.0348,
+        "ref_surfaceTemp": 26.2,
+        "ref_heatFlux": 28.9
       },
       "deviation": {
-        "err_surfaceTemp": 3.63,
-        "err_surfaceTemp_pct": 11.1,
-        "err_heatFlux": 71.5,
-        "err_heatFlux_pct": 274,
+        "err_surfaceTemp": 4.31,
+        "err_surfaceTemp_pct": 16.5,
+        "err_heatFlux": 8.21,
+        "err_heatFlux_pct": 28.4,
         "stMatch": true,
-        "hfMatch": false
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "pipe (同心圆)",
         "layers": [
@@ -10640,22 +10640,22 @@
       },
       "ref3eplus": {
         "ref_geometry": "flat",
-        "ref_Tf": 50,
+        "ref_Tf": 5,
         "ref_Ta": 30,
         "ref_thickness_mm": 25,
-        "ref_k": 0.0447,
-        "ref_surfaceTemp": 33,
-        "ref_heatFlux": 30.4
+        "ref_k": 0.0355,
+        "ref_surfaceTemp": 26.3,
+        "ref_heatFlux": 31.6
       },
       "deviation": {
-        "err_surfaceTemp": 5.76,
-        "err_surfaceTemp_pct": 17.4,
-        "err_heatFlux": 63.02,
-        "err_heatFlux_pct": 207.3,
-        "stMatch": false,
-        "hfMatch": false
+        "err_surfaceTemp": 0.94,
+        "err_surfaceTemp_pct": 3.6,
+        "err_heatFlux": 1.02,
+        "err_heatFlux_pct": 3.2,
+        "stMatch": true,
+        "hfMatch": true
       },
-      "matched": false,
+      "matched": true,
       "insulation_preview": {
         "type": "flat (横向分层)",
         "layers": [
@@ -11662,18 +11662,18 @@
       },
       "ref3eplus": {
         "ref_geometry": "cylindrical",
-        "ref_Tf": 50,
-        "ref_Ta": 20,
+        "ref_Tf": -20,
+        "ref_Ta": 25,
         "ref_thickness_mm": 25,
-        "ref_k": 0.0436,
-        "ref_surfaceTemp": 23.8,
-        "ref_heatFlux": 38.3
+        "ref_k": 0.035,
+        "ref_surfaceTemp": 19.1,
+        "ref_heatFlux": 45.9
       },
       "deviation": {
-        "err_surfaceTemp": 0.99,
-        "err_surfaceTemp_pct": 4.2,
-        "err_heatFlux": 55.73,
-        "err_heatFlux_pct": 145.5,
+        "err_surfaceTemp": 3.71,
+        "err_surfaceTemp_pct": 19.4,
+        "err_heatFlux": 28.47,
+        "err_heatFlux_pct": 62,
         "stMatch": true,
         "hfMatch": false
       },

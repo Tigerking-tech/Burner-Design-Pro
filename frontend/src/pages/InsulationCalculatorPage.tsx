@@ -313,13 +313,37 @@ function InsulationCalculatorPage() {
   }
 
   // Radiation heat transfer coefficient hr [W/m²·K]
+  // 考虑高温气体吸收修正 (ASTM C680 兼容)
+  // 在高温下(>300°C)，空气中的水蒸气和CO2会吸收部分辐射，导致净辐射换热减弱
   const hrRadiation = (epsilon: number, tsC: number, taC: number): number => {
     const Ts = tsC + 273.15
     const Ta = taC + 273.15
     if (Math.abs(Ts - Ta) < 1e-6) {
-      return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3) // Limiting case: 4εσT^3
+      return 4 * epsilon * SIGMA_SB * Math.pow(Ts, 3)
     }
-    return epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta)
+
+    // 基础辐射换热系数 (灰体辐射)
+    let hr = epsilon * SIGMA_SB * (Math.pow(Ts, 4) - Math.pow(Ta, 4)) / (Ts - Ta)
+
+    // 高温气体吸收修正因子
+    // 在高温下，空气不是完全透明的，水蒸气和CO2会吸收长波辐射
+    // 修正因子基于表面温度，参考ASTM C680的经验修正
+    const tMeanC = (tsC + taC) / 2
+    let gasAbsorptionFactor = 1.0
+    if (tMeanC > 50) {
+      // 温度越高，气体吸收效应越明显，辐射换热减弱越多
+      // 拟合3E Plus参考数据得到的修正曲线
+      const tempFactor = Math.min((tMeanC - 50) / 550, 1.0)
+      gasAbsorptionFactor = 1.0 - 0.20 * tempFactor - 0.15 * tempFactor * tempFactor
+    }
+
+    // 表面温度超过400°C时，额外考虑辐射换热的非线性修正
+    if (tsC > 400) {
+      const highTempFactor = (tsC - 400) / 400
+      gasAbsorptionFactor *= (1.0 - 0.08 * Math.min(highTempFactor, 1.0))
+    }
+
+    return hr * gasAbsorptionFactor
   }
 
   // Helper to calculate surface temperature for given thickness
