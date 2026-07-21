@@ -1596,24 +1596,66 @@ function InsulationCalculatorPage() {
                               </linearGradient>
                             </defs>
                             {(() => {
-                              const D1 = insulationPosition === 'internal' ? innerDiameter : outerDiameter
                               const wallT = wallThickness
                               const insulationT = result.thickness
                               const scale = 1.2
                               const center = 150
-                              const pipeRadius = (D1 / 2) * scale
-                              const outerRadius = (D1 / 2 + wallT) * scale
-                              const insulationOuterRadius = outerRadius + insulationT * scale
+                              let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
+                              let fluidLabel, pipeLabel, insulationLabel
+                              
+                              if (insulationPosition === 'internal') {
+                                // 内保温结构（从里到外）：流体 → 保温 → 管壁
+                                // D1 = innerDiameter（管道内径）
+                                const D1 = innerDiameter
+                                fluidRadius = (D1 / 2 - insulationT) * scale
+                                if (fluidRadius < 10) fluidRadius = 10
+                                pipeInnerRadius = (D1 / 2) * scale
+                                pipeOuterRadius = (D1 / 2 + wallT) * scale
+                                insulationOuterRadius = pipeInnerRadius
+                                fluidLabel = `Fluid: ${mediumTemp}°C`
+                                insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
+                                pipeLabel = 'Pipe Wall'
+                              } else {
+                                // 外保温结构（从里到外）：流体 → 管壁 → 保温
+                                // D1 = outerDiameter（管道外径）
+                                const D1 = outerDiameter
+                                fluidRadius = (D1 / 2 - wallT) * scale
+                                if (fluidRadius < 10) fluidRadius = 10
+                                pipeInnerRadius = (D1 / 2) * scale
+                                pipeOuterRadius = pipeInnerRadius
+                                insulationOuterRadius = pipeOuterRadius + insulationT * scale
+                                fluidLabel = `Fluid: ${mediumTemp}°C`
+                                pipeLabel = 'Pipe Wall'
+                                insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
+                              }
+                              
                               return (
                                 <>
-                                  <circle cx={center} cy={center} r={insulationOuterRadius} fill="url(#insulationGradient)" />
-                                  <circle cx={center} cy={center} r={outerRadius} fill="url(#pipeGradient)" />
-                                  <circle cx={center} cy={center} r={pipeRadius} fill="#2c3e50" />
-                                  <circle cx={center} cy={center} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
-                                  <text x={center} y={center - pipeRadius - 15} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Fluid: {mediumTemp}°C</text>
-                                  <text x={center} y={center - outerRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Pipe Wall</text>
-                                  <text x={center} y={center - insulationOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">Insulation: {insulationT.toFixed(1)}mm</text>
-                                  <text x={center} y={center + insulationOuterRadius + 25} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                  {insulationPosition === 'internal' ? (
+                                    // 内保温绘图顺序：从外到内
+                                    <>
+                                      <circle cx={center} cy={center} r={pipeOuterRadius} fill="url(#pipeGradient)" />
+                                      <circle cx={center} cy={center} r={insulationOuterRadius} fill="url(#insulationGradient)" />
+                                      <circle cx={center} cy={center} r={fluidRadius} fill="#2c3e50" />
+                                      <circle cx={center} cy={center} r={pipeOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
+                                      <text x={center} y={center - fluidRadius - 15} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{fluidLabel}</text>
+                                      <text x={center} y={center - insulationOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{insulationLabel}</text>
+                                      <text x={center} y={center - pipeOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{pipeLabel}</text>
+                                      <text x={center} y={center + pipeOuterRadius + 25} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                    </>
+                                  ) : (
+                                    // 外保温绘图顺序：从外到内
+                                    <>
+                                      <circle cx={center} cy={center} r={insulationOuterRadius} fill="url(#insulationGradient)" />
+                                      <circle cx={center} cy={center} r={pipeOuterRadius} fill="url(#pipeGradient)" />
+                                      <circle cx={center} cy={center} r={fluidRadius} fill="#2c3e50" />
+                                      <circle cx={center} cy={center} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
+                                      <text x={center} y={center - fluidRadius - 15} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{fluidLabel}</text>
+                                      <text x={center} y={center - pipeOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{pipeLabel}</text>
+                                      <text x={center} y={center - insulationOuterRadius - 10} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{insulationLabel}</text>
+                                      <text x={center} y={center + insulationOuterRadius + 25} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                    </>
+                                  )}
                                 </>
                               )
                             })()}
@@ -1637,17 +1679,34 @@ function InsulationCalculatorPage() {
                               const left = 50
                               const pipeThickness = wallT * scale
                               const insulationThickness = insulationT * scale
-                              return (
-                                <>
-                                  <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
-                                  <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
-                                  <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
-                                  <text x={left + pipeThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Wall</text>
-                                  <text x={left + pipeThickness + insulationThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Insulation</text>
-                                  <text x={left - 20} y={80} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{mediumTemp}°C</text>
-                                  <text x={left + pipeThickness + insulationThickness + 25} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
-                                </>
-                              )
+                              
+                              if (insulationPosition === 'internal') {
+                                // 内保温平壁结构（从左到右）：流体 → 保温 → 管壁
+                                return (
+                                  <>
+                                    <rect x={left} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
+                                    <rect x={left + insulationThickness} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
+                                    <rect x={left + insulationThickness + pipeThickness} y={25} width={2} height={100} fill="#3498db" />
+                                    <text x={left + insulationThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Insulation</text>
+                                    <text x={left + insulationThickness + pipeThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Wall</text>
+                                    <text x={left - 20} y={80} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{mediumTemp}°C</text>
+                                    <text x={left + insulationThickness + pipeThickness + 25} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
+                                  </>
+                                )
+                              } else {
+                                // 外保温平壁结构（从左到右）：流体 → 管壁 → 保温
+                                return (
+                                  <>
+                                    <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
+                                    <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
+                                    <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
+                                    <text x={left + pipeThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Wall</text>
+                                    <text x={left + pipeThickness + insulationThickness / 2} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50]">Insulation</text>
+                                    <text x={left - 20} y={80} textAnchor="middle" className="text-xs fill-[#7f8c8d]">{mediumTemp}°C</text>
+                                    <text x={left + pipeThickness + insulationThickness + 25} y={80} textAnchor="middle" className="text-xs fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
+                                  </>
+                                )
+                              }
                             })()}
                           </svg>
                         )}
