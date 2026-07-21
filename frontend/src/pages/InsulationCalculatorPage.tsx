@@ -1515,244 +1515,246 @@ function InsulationCalculatorPage() {
               {showResults && result && (
                 <>
                   <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300 rounded">
-                    <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Calculation Results</div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    {result.dewPoint !== undefined && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 md:p-6 text-center rounded">
-                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Dew Point Temperature</div>
-                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.dewPoint.toFixed(1)}°C</div>
+                    <div className="text-xs uppercase tracking-wider text-[#555] mb-4 font-semibold rounded rounded">Calculation Results</div>
+                    <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+                      <div className="flex-1">
+                        <div className="grid grid-cols-2 gap-2 md:gap-3">
+                          {result.dewPoint !== undefined && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center rounded">
+                              <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Dew Point Temperature</div>
+                              <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.dewPoint.toFixed(1)}°C</div>
+                            </div>
+                          )}
+                          <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-3 text-center rounded">
+                            <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Required Insulation Thickness</div>
+                            <div className="text-lg md:text-xl font-bold text-[#f39c12] mt-1">{result.thickness.toFixed(1)} mm</div>
+                            <div className="text-[10px] text-[#7f8c8d] mt-1">Standard: {result.standardThickness} mm</div>
+                          </div>
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                            <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
+                            <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.surfaceTemp.toFixed(1)}°C</div>
+                          </div>
+                          {result.interfaceTemp !== undefined && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                              <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Interface Temp</div>
+                              <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.interfaceTemp.toFixed(1)}°C</div>
+                              <div className="text-[10px] text-[#7f8c8d]">Max: {getInsulationMaxTemp()}°C</div>
+                            </div>
+                          )}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                            <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
+                            <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
+                          </div>
+                          {result.linearHeatLoss !== undefined && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                              <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Linear Heat Loss</div>
+                              <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
+                            </div>
+                          )}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                            <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
+                            <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
+                          </div>
+                          {result.annualSavings !== undefined && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center rounded">
+                              <div className="text-[10px] text-[#27ae60] uppercase tracking-wider font-semibold">Annual Savings</div>
+                              <div className="text-lg md:text-xl font-bold text-[#27ae60] mt-1">¥{result.annualSavings.toFixed(0)}/year</div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-4 md:p-6 text-center rounded">
-                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Required Insulation Thickness</div>
-                      <div className="text-2xl md:text-3xl font-bold text-[#f39c12] mt-1 md:mt-2">{result.thickness.toFixed(1)} mm</div>
-                      <div className="text-xs md:text-sm text-[#7f8c8d] mt-1 md:mt-2">Standard Size: {result.standardThickness} mm</div>
-                    </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
-                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.surfaceTemp.toFixed(1)}°C</div>
-                    </div>
-                    {result.interfaceTemp !== undefined && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Interface Temp (Wall–Insulation)</div>
-                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{result.interfaceTemp.toFixed(1)}°C</div>
-                        <div className="text-xs text-[#7f8c8d] mt-1">Insulation max: {getInsulationMaxTemp()}°C</div>
-                      </div>
-                    )}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
-                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
-                    </div>
-                    {result.linearHeatLoss !== undefined && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                        <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Linear Heat Loss</div>
-                        <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
-                      </div>
-                    )}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 text-center rounded">
-                      <div className="text-xs text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
-                      <div className="text-2xl md:text-3xl font-bold text-[#2c3e50] mt-1 md:mt-2">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
-                    </div>
-                    {result.annualSavings !== undefined && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 md:p-6 text-center rounded">
-                        <div className="text-xs text-[#27ae60] uppercase tracking-wider font-semibold">Annual Savings</div>
-                        <div className="text-2xl md:text-3xl font-bold text-[#27ae60] mt-1 md:mt-2">¥{result.annualSavings.toFixed(0)}/year</div>
-                      </div>
-                    )}
-                  </div>
-
-                  {result.warnings && result.warnings.length > 0 && (
-                    <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4 flex items-start gap-3 mt-6">
-                      <AlertTriangle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
-                      <div className="text-sm">
-                        <p className="font-semibold text-red-800">Material Temperature Limit Exceeded</p>
-                        {result.warnings.map((w: string, i: number) => (
-                          <p key={i} className="text-red-700 mt-1">• {w}</p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Insulation Preview */}
-                  <div className="mt-6">
-                    <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Preview</div>
-                    <div className="bg-white border border-gray-300 rounded-lg p-4 md:p-6 rounded">
-                      <div className="flex justify-center">
-                        {equipmentType === 'pipe' ? (
-                          <svg viewBox="0 0 400 320" className="w-full max-w-[300px]">
-                            <defs>
-                              <linearGradient id="pipeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#7f8c8d" />
-                                <stop offset="100%" stopColor="#95a5a6" />
-                              </linearGradient>
-                              <linearGradient id="insulationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#bdc3c7" />
-                                <stop offset="100%" stopColor="#dfe6e9" />
-                              </linearGradient>
-                              <linearGradient id="jacketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#3498db" />
-                                <stop offset="100%" stopColor="#2980b9" />
-                              </linearGradient>
-                            </defs>
-                            {(() => {
-                              const wallT = wallThickness
-                              const insulationT = result.thickness
-                              const scale = 1.0
-                              const centerX = 200
-                              const centerY = 140
-                              let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
-                              let fluidLabel, pipeLabel, insulationLabel
-                              
-                              if (insulationPosition === 'internal') {
-                                const D1 = innerDiameter
-                                fluidRadius = (D1 / 2 - insulationT) * scale
-                                if (fluidRadius < 15) fluidRadius = 15
-                                pipeInnerRadius = (D1 / 2) * scale
-                                pipeOuterRadius = (D1 / 2 + wallT) * scale
-                                insulationOuterRadius = pipeInnerRadius
-                                fluidLabel = `Fluid: ${mediumTemp}°C`
-                                insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
-                                pipeLabel = 'Pipe Wall'
-                              } else {
-                                const D1 = outerDiameter
-                                fluidRadius = (D1 / 2 - wallT) * scale
-                                if (fluidRadius < 15) fluidRadius = 15
-                                pipeInnerRadius = (D1 / 2) * scale
-                                pipeOuterRadius = pipeInnerRadius
-                                insulationOuterRadius = pipeOuterRadius + insulationT * scale
-                                fluidLabel = `Fluid: ${mediumTemp}°C`
-                                pipeLabel = 'Pipe Wall'
-                                insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
-                              }
-                              
-                              return (
-                                <>
-                                  {insulationPosition === 'internal' ? (
+                      <div className="w-full lg:w-auto lg:min-w-[260px]">
+                        <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Preview</div>
+                        <div className="bg-white border border-gray-300 rounded-lg p-3 md:p-4 rounded">
+                          <div className="flex justify-center">
+                            {equipmentType === 'pipe' ? (
+                              <svg viewBox="0 0 400 320" className="w-full max-w-[260px]">
+                                <defs>
+                                  <linearGradient id="pipeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#7f8c8d" />
+                                    <stop offset="100%" stopColor="#95a5a6" />
+                                  </linearGradient>
+                                  <linearGradient id="insulationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#bdc3c7" />
+                                    <stop offset="100%" stopColor="#dfe6e9" />
+                                  </linearGradient>
+                                  <linearGradient id="jacketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#3498db" />
+                                    <stop offset="100%" stopColor="#2980b9" />
+                                  </linearGradient>
+                                </defs>
+                                {(() => {
+                                  const wallT = wallThickness
+                                  const insulationT = result.thickness
+                                  const scale = 1.0
+                                  const centerX = 200
+                                  const centerY = 140
+                                  let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
+                                  let fluidLabel, pipeLabel, insulationLabel
+                                  
+                                  if (insulationPosition === 'internal') {
+                                    const D1 = innerDiameter
+                                    fluidRadius = (D1 / 2 - insulationT) * scale
+                                    if (fluidRadius < 15) fluidRadius = 15
+                                    pipeInnerRadius = (D1 / 2) * scale
+                                    pipeOuterRadius = (D1 / 2 + wallT) * scale
+                                    insulationOuterRadius = pipeInnerRadius
+                                    fluidLabel = `Fluid: ${mediumTemp}°C`
+                                    insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
+                                    pipeLabel = 'Pipe Wall'
+                                  } else {
+                                    const D1 = outerDiameter
+                                    fluidRadius = (D1 / 2 - wallT) * scale
+                                    if (fluidRadius < 15) fluidRadius = 15
+                                    pipeInnerRadius = (D1 / 2) * scale
+                                    pipeOuterRadius = pipeInnerRadius
+                                    insulationOuterRadius = pipeOuterRadius + insulationT * scale
+                                    fluidLabel = `Fluid: ${mediumTemp}°C`
+                                    pipeLabel = 'Pipe Wall'
+                                    insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
+                                  }
+                                  
+                                  return (
                                     <>
-                                      <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
-                                      <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
-                                      <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
-                                      <circle cx={centerX} cy={centerY} r={pipeOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
-                                      <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
-                                      <rect x="270" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="320" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{insulationLabel}</text>
-                                      <rect x="30" y="260" width="80" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="70" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{pipeLabel}</text>
-                                      <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
-                                      <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                      <line x1="320" y1="55" x2={centerX} y2={centerY - insulationOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                      <line x1="70" y1="235" x2={centerX} y2={centerY + pipeOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                      {insulationPosition === 'internal' ? (
+                                        <>
+                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
+                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
+                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
+                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
+                                          <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
+                                          <rect x="270" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="320" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{insulationLabel}</text>
+                                          <rect x="30" y="260" width="80" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="70" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{pipeLabel}</text>
+                                          <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                          <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                          <line x1="320" y1="55" x2={centerX} y2={centerY - insulationOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                          <line x1="70" y1="235" x2={centerX} y2={centerY + pipeOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
+                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
+                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
+                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
+                                          <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
+                                          <rect x="270" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="320" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{pipeLabel}</text>
+                                          <rect x="30" y="260" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="80" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{insulationLabel}</text>
+                                          <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
+                                          <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
+                                          <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                          <line x1="320" y1="55" x2={centerX} y2={centerY - pipeOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                          <line x1="80" y1="235" x2={centerX} y2={centerY + insulationOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
+                                        </>
+                                      )}
                                     </>
-                                  ) : (
-                                    <>
-                                      <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
-                                      <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
-                                      <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
-                                      <circle cx={centerX} cy={centerY} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
-                                      <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
-                                      <rect x="270" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="320" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{pipeLabel}</text>
-                                      <rect x="30" y="260" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="80" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{insulationLabel}</text>
-                                      <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
-                                      <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
-                                      <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                      <line x1="320" y1="55" x2={centerX} y2={centerY - pipeOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                      <line x1="80" y1="235" x2={centerX} y2={centerY + insulationOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                    </>
-                                  )}
-                                </>
-                              )
-                            })()}
-                          </svg>
-                        ) : (
-                          <svg viewBox="0 0 400 150" className="w-full max-w-[380px]">
-                            <defs>
-                              <linearGradient id="flatPipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#7f8c8d" />
-                                <stop offset="100%" stopColor="#95a5a6" />
-                              </linearGradient>
-                              <linearGradient id="flatInsulationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#bdc3c7" />
-                                <stop offset="100%" stopColor="#dfe6e9" />
-                              </linearGradient>
-                            </defs>
-                            {(() => {
-                              const wallT = surfaceWallThickness
-                              const insulationT = result.thickness
-                              const scale = 2
-                              const left = 50
-                              const pipeThickness = wallT * scale
-                              const insulationThickness = insulationT * scale
-                              
-                              if (insulationPosition === 'internal') {
-                                // 内保温平壁结构（从左到右）：流体 → 保温 → 管壁
-                                return (
-                                  <>
-                                    <rect x={left} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
-                                    <rect x={left + insulationThickness} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
-                                    <rect x={left + insulationThickness + pipeThickness} y={25} width={2} height={100} fill="#3498db" />
-                                    {/* 上方标签 */}
-                                    <rect x={left + insulationThickness / 2 - 35} y={2} width="70" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + insulationThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Insulation</text>
-                                    <rect x={left + insulationThickness + pipeThickness / 2 - 25} y={2} width="50" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + insulationThickness + pipeThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Wall</text>
-                                    {/* 左侧温度 */}
-                                    <rect x={left - 50} y={72} width="45" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left - 8} y={85} textAnchor="end" className="text-[10px] fill-[#7f8c8d]">{mediumTemp}°C</text>
-                                    {/* 右侧温度 */}
-                                    <rect x={left + insulationThickness + pipeThickness + 5} y={72} width="60" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + insulationThickness + pipeThickness + 10} y={85} textAnchor="start" className="text-[11px] fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
-                                  </>
-                                )
-                              } else {
-                                // 外保温平壁结构（从左到右）：流体 → 管壁 → 保温
-                                return (
-                                  <>
-                                    <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
-                                    <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
-                                    <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
-                                    {/* 上方标签 */}
-                                    <rect x={left + pipeThickness / 2 - 25} y={2} width="50" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + pipeThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Wall</text>
-                                    <rect x={left + pipeThickness + insulationThickness / 2 - 35} y={2} width="70" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + pipeThickness + insulationThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Insulation</text>
-                                    {/* 左侧温度 */}
-                                    <rect x={left - 50} y={72} width="45" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left - 8} y={85} textAnchor="end" className="text-[10px] fill-[#7f8c8d]">{mediumTemp}°C</text>
-                                    {/* 右侧温度 */}
-                                    <rect x={left + pipeThickness + insulationThickness + 5} y={72} width="60" height="18" rx="3" fill="white" fillOpacity="0.9" />
-                                    <text x={left + pipeThickness + insulationThickness + 10} y={85} textAnchor="start" className="text-[11px] fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
-                                  </>
-                                )
-                              }
-                            })()}
-                          </svg>
-                        )}
-                      </div>
-                      <div className="mt-4 flex justify-center gap-4 text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded bg-[#2c3e50]"></div>
-                          <span className="text-[#555]">Fluid / Medium</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded bg-[#95a5a6]"></div>
-                          <span className="text-[#555]">Pipe / Wall</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded bg-[#dfe6e9]"></div>
-                          <span className="text-[#555]">Insulation</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded bg-[#3498db]"></div>
-                          <span className="text-[#555]">Surface</span>
+                                  )
+                                })()}
+                              </svg>
+                            ) : (
+                              <svg viewBox="0 0 400 150" className="w-full max-w-[260px]">
+                                <defs>
+                                  <linearGradient id="flatPipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#7f8c8d" />
+                                    <stop offset="100%" stopColor="#95a5a6" />
+                                  </linearGradient>
+                                  <linearGradient id="flatInsulationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#bdc3c7" />
+                                    <stop offset="100%" stopColor="#dfe6e9" />
+                                  </linearGradient>
+                                </defs>
+                                {(() => {
+                                  const wallT = surfaceWallThickness
+                                  const insulationT = result.thickness
+                                  const scale = 2
+                                  const left = 50
+                                  const pipeThickness = wallT * scale
+                                  const insulationThickness = insulationT * scale
+                                  
+                                  if (insulationPosition === 'internal') {
+                                    // 内保温平壁结构（从左到右）：流体 → 保温 → 管壁
+                                    return (
+                                      <>
+                                        <rect x={left} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
+                                        <rect x={left + insulationThickness} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
+                                        <rect x={left + insulationThickness + pipeThickness} y={25} width={2} height={100} fill="#3498db" />
+                                        {/* 上方标签 */}
+                                        <rect x={left + insulationThickness / 2 - 35} y={2} width="70" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + insulationThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Insulation</text>
+                                        <rect x={left + insulationThickness + pipeThickness / 2 - 25} y={2} width="50" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + insulationThickness + pipeThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Wall</text>
+                                        {/* 左侧温度 */}
+                                        <rect x={left - 50} y={72} width="45" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left - 8} y={85} textAnchor="end" className="text-[10px] fill-[#7f8c8d]">{mediumTemp}°C</text>
+                                        {/* 右侧温度 */}
+                                        <rect x={left + insulationThickness + pipeThickness + 5} y={72} width="60" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + insulationThickness + pipeThickness + 10} y={85} textAnchor="start" className="text-[11px] fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
+                                      </>
+                                    )
+                                  } else {
+                                    // 外保温平壁结构（从左到右）：流体 → 管壁 → 保温
+                                    return (
+                                      <>
+                                        <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
+                                        <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
+                                        <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
+                                        {/* 上方标签 */}
+                                        <rect x={left + pipeThickness / 2 - 25} y={2} width="50" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + pipeThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Wall</text>
+                                        <rect x={left + pipeThickness + insulationThickness / 2 - 35} y={2} width="70" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + pipeThickness + insulationThickness / 2} y={15} textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">Insulation</text>
+                                        {/* 左侧温度 */}
+                                        <rect x={left - 50} y={72} width="45" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left - 8} y={85} textAnchor="end" className="text-[10px] fill-[#7f8c8d]">{mediumTemp}°C</text>
+                                        {/* 右侧温度 */}
+                                        <rect x={left + pipeThickness + insulationThickness + 5} y={72} width="60" height="18" rx="3" fill="white" fillOpacity="0.9" />
+                                        <text x={left + pipeThickness + insulationThickness + 10} y={85} textAnchor="start" className="text-[11px] fill-[#2c3e50] font-semibold">{result.surfaceTemp.toFixed(1)}°C</text>
+                                      </>
+                                    )
+                                  }
+                                })()}
+                              </svg>
+                            )}
+                          </div>
+                          <div className="mt-3 flex justify-center gap-3 text-[10px]">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-3 rounded bg-[#2c3e50]"></div>
+                              <span className="text-[#555]">Fluid</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-3 rounded bg-[#95a5a6]"></div>
+                              <span className="text-[#555]">Wall</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-3 rounded bg-[#dfe6e9]"></div>
+                              <span className="text-[#555]">Insulation</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-3 h-3 rounded bg-[#3498db]"></div>
+                              <span className="text-[#555]">Surface</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {result.warnings && result.warnings.length > 0 && (
+                      <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4 flex items-start gap-3 mt-6">
+                        <AlertTriangle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
+                        <div className="text-sm">
+                          <p className="font-semibold text-red-800">Material Temperature Limit Exceeded</p>
+                          {result.warnings.map((w: string, i: number) => (
+                            <p key={i} className="text-red-700 mt-1">• {w}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
