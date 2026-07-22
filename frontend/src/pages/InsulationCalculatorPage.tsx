@@ -185,12 +185,15 @@ function InsulationCalculatorPage() {
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    dimensions: true,
-    material: true,
-    pipeMaterial: true,
-    temperatures: true,
-    environment: true,
-    operatingHours: true
+    equipment: true,
+    dimensions: false,
+    material: false,
+    pipeMaterial: false,
+    temperatures: false,
+    energySettings: false,
+    freezeSettings: false,
+    environment: false,
+    operatingHours: false
   })
 
   const isLoggedIn = authAPI.isAuthenticated()
@@ -1125,7 +1128,7 @@ function InsulationCalculatorPage() {
                   <Layers size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Dimensions</span>
                 </div>
-                <div className={`${expandedSections.dimensions || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className={`${expandedSections.dimensions ? 'block' : 'hidden md:block'}`}>
                 {equipmentType === 'pipe' ? (
                   <div className="space-y-4">
                     {/* Insulation position toggle */}
@@ -1304,7 +1307,7 @@ function InsulationCalculatorPage() {
                   <BrickWall size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Material</span>
                 </div>
-                <div className={`${expandedSections.material || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className={`${expandedSections.material ? 'block' : 'hidden md:block'}`}>
               <div className="flex flex-col gap-2">
                 <label className="text-xs text-[#555] font-medium">Material</label>
                 <select value={materialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
@@ -1360,7 +1363,7 @@ function InsulationCalculatorPage() {
                     <Settings size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Pipe Material (Base Metal)</span>
                   </div>
-                  <div className={`${expandedSections.pipeMaterial || 'md:block'} overflow-hidden transition-all duration-300`}>
+                  <div className={`${expandedSections.pipeMaterial ? 'block' : 'hidden md:block'}`}>
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-[#555] font-medium">Material</label>
                     <select value={pipeMaterialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeMaterialType(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
@@ -1432,7 +1435,7 @@ function InsulationCalculatorPage() {
                   <ThermometerSun size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Temperatures</span>
                 </div>
-                <div className={`${expandedSections.temperatures || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className={`${expandedSections.temperatures ? 'block' : 'hidden md:block'}`}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-[#555] font-medium">Fluid Temp (°C)</label>
@@ -1495,7 +1498,7 @@ function InsulationCalculatorPage() {
                     <Zap size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Energy Savings Parameters</span>
                   </div>
-                  <div className={`${expandedSections.energySettings || 'md:block'} overflow-hidden transition-all duration-300`}>
+                  <div className={`${expandedSections.energySettings ? 'block' : 'hidden md:block'}`}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium">Fuel Type</label>
@@ -1535,7 +1538,7 @@ function InsulationCalculatorPage() {
                     <Snowflake size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Freeze Protection Parameters</span>
                   </div>
-                  <div className={`${expandedSections.freezeSettings || 'md:block'} overflow-hidden transition-all duration-300`}>
+                  <div className={`${expandedSections.freezeSettings ? 'block' : 'hidden md:block'}`}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <label className="text-xs text-[#555] font-medium">Target Fluid Temp (°C)</label>
@@ -1568,7 +1571,7 @@ function InsulationCalculatorPage() {
                   <Cloud size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Environment</span>
                 </div>
-                <div className={`${expandedSections.environment || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className={`${expandedSections.environment ? 'block' : 'hidden md:block'}`}>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium">Location</label>
                   <select value={environment} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
@@ -1647,7 +1650,7 @@ function InsulationCalculatorPage() {
                   <Clock size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Operating Conditions</span>
                 </div>
-                <div className={`${expandedSections.operatingHours || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className={`${expandedSections.operatingHours ? 'block' : 'hidden md:block'}`}>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[#555] font-medium">Operating Hours per Year</label>
                   <input type="number" value={operatingHours} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
