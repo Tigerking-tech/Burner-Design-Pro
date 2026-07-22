@@ -1667,11 +1667,11 @@ function InsulationCalculatorPage() {
               {showResults && result && (
                 <>
                   <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300">
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Calculation Results</span>
-                    </div>
                     <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
                       <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Calculation Results</span>
+                        </div>
                         <div className="grid grid-cols-2 gap-2 md:gap-3">
                           {result.dewPoint !== undefined && (
                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.1s'}}>
