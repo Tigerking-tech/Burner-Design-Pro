@@ -1799,8 +1799,12 @@ function InsulationCalculatorPage() {
                                 })()}
                               </svg>
                             ) : (
-                              <svg viewBox="0 0 400 150" className="w-full max-w-[380px]">
+                              <svg viewBox="0 0 400 300" className="w-full max-w-[380px]">
                                 <defs>
+                                  <linearGradient id="flatFluidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#2c3e50" />
+                                    <stop offset="100%" stopColor="#34495e" />
+                                  </linearGradient>
                                   <linearGradient id="flatPipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stopColor="#5d6d7e" />
                                     <stop offset="100%" stopColor="#85929e" />
@@ -1809,29 +1813,40 @@ function InsulationCalculatorPage() {
                                     <stop offset="0%" stopColor="#f0c419" />
                                     <stop offset="100%" stopColor="#f7dc6f" />
                                   </linearGradient>
+                                  <filter id="flatShadow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.2" />
+                                  </filter>
                                 </defs>
                                 {(() => {
                                   const wallT = surfaceWallThickness
                                   const insulationT = result.thickness
-                                  const scale = 6
-                                  const left = 50
+                                  const scale = 12
+                                  const centerX = 200
+                                  const centerY = 150
+                                  const fluidWidth = 80
                                   const pipeThickness = wallT * scale
                                   const insulationThickness = insulationT * scale
+                                  const halfHeight = 100
+                                  
+                                  const totalWidth = fluidWidth + pipeThickness + insulationThickness
+                                  const startX = centerX - totalWidth / 2
                                   
                                   if (insulationPosition === 'internal') {
                                     return (
                                       <>
-                                        <rect x={left} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
-                                        <rect x={left + insulationThickness} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
-                                        <rect x={left + insulationThickness + pipeThickness} y={25} width={2} height={100} fill="#3498db" />
+                                        <rect x={startX} y={centerY - halfHeight} width={insulationThickness} height={halfHeight * 2} fill="url(#flatInsulationGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + insulationThickness} y={centerY - halfHeight} width={pipeThickness} height={halfHeight * 2} fill="url(#flatPipeGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + insulationThickness + pipeThickness} y={centerY - halfHeight} width={fluidWidth} height={halfHeight * 2} fill="url(#flatFluidGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + insulationThickness + pipeThickness + fluidWidth} y={centerY - halfHeight - 5} width={3} height={halfHeight * 2 + 10} fill="#3498db" />
                                       </>
                                     )
                                   } else {
                                     return (
                                       <>
-                                        <rect x={left} y={25} width={pipeThickness} height={100} fill="url(#flatPipeGradient)" />
-                                        <rect x={left + pipeThickness} y={25} width={insulationThickness} height={100} fill="url(#flatInsulationGradient)" />
-                                        <rect x={left + pipeThickness + insulationThickness} y={25} width={2} height={100} fill="#3498db" />
+                                        <rect x={startX} y={centerY - halfHeight} width={fluidWidth} height={halfHeight * 2} fill="url(#flatFluidGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + fluidWidth} y={centerY - halfHeight} width={pipeThickness} height={halfHeight * 2} fill="url(#flatPipeGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + fluidWidth + pipeThickness} y={centerY - halfHeight} width={insulationThickness} height={halfHeight * 2} fill="url(#flatInsulationGradient)" filter="url(#flatShadow)" />
+                                        <rect x={startX + fluidWidth + pipeThickness + insulationThickness} y={centerY - halfHeight - 5} width={3} height={halfHeight * 2 + 10} fill="#3498db" />
                                       </>
                                     )
                                   }
