@@ -6,10 +6,15 @@
   html {
     font-family: 'IBM Plex Sans', system-ui, sans-serif;
   }
-  
+
   .font-mono-tech {
     font-family: 'IBM Plex Mono', monospace;
     font-variant-numeric: tabular-nums;
+  }
+
+  .font-display {
+    font-family: 'Oswald', 'IBM Plex Sans', sans-serif;
+    letter-spacing: 0.01em;
   }
 }
 
@@ -126,3 +131,105 @@
     transition: max-height 0.5s ease-in;
   }
 }
+
+/* === Industrial Homepage Animations === */
+
+@keyframes blueprintPan {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes staggerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes borderTrace {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(243, 156, 18, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 156, 18, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: blueprintPan 20s linear infinite;
+}
+
+.scanline-effect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(243, 156, 18, 0.4), transparent);
+  animation: scanline 8s ease-in-out infinite;
+}
+
+.glow-pulse {
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+.stagger-1 { animation: staggerReveal 0.6s ease-out 0.1s both; }
+.stagger-2 { animation: staggerReveal 0.6s ease-out 0.25s both; }
+.stagger-3 { animation: staggerReveal 0.6s ease-out 0.4s both; }
+.stagger-4 { animation: staggerReveal 0.6s ease-out 0.55s both; }
+.stagger-5 { animation: staggerReveal 0.6s ease-out 0.7s both; }
+.stagger-6 { animation: staggerReveal 0.6s ease-out 0.85s both; }
+
+.industrial-card {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.industrial-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+  transition: width 0.4s ease;
+}
+
+.industrial-card:hover::before {
+  width: 100%;
+}
+
+.industrial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.corner-mark {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: rgba(243, 156, 18, 0.5);
+  border-style: solid;
+  border-width: 0;
+}
+
+.corner-mark.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.corner-mark.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.corner-mark.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.corner-mark.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
