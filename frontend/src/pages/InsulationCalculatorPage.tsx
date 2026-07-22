@@ -1749,32 +1749,39 @@ function InsulationCalculatorPage() {
                                 {(() => {
                                   const wallT = wallThickness
                                   const insulationT = result.thickness
-                                  const scale = 3.0
                                   const centerX = 200
                                   const centerY = 140
-                                  let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
-                                  let fluidLabel, pipeLabel, insulationLabel
+                                  const maxViewRadius = Math.min(centerX, centerY) - 20
+                                  
+                                  let pipeOuterRadius_unscaled, insulationOuterRadius_unscaled
                                   
                                   if (insulationPosition === 'internal') {
                                     const D1 = innerDiameter
-                                    fluidRadius = (D1 / 2 - insulationT) * scale
-                                    if (fluidRadius < 15) fluidRadius = 15
+                                    pipeOuterRadius_unscaled = D1 / 2 + wallT
+                                    insulationOuterRadius_unscaled = D1 / 2
+                                  } else {
+                                    const D1 = outerDiameter
+                                    pipeOuterRadius_unscaled = D1 / 2
+                                    insulationOuterRadius_unscaled = D1 / 2 + insulationT
+                                  }
+                                  
+                                  const maxRadius_unscaled = Math.max(pipeOuterRadius_unscaled, insulationOuterRadius_unscaled)
+                                  const scale = maxRadius_unscaled > 0 ? maxViewRadius / maxRadius_unscaled : 3.0
+                                  
+                                  let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
+                                  
+                                  if (insulationPosition === 'internal') {
+                                    const D1 = innerDiameter
+                                    fluidRadius = Math.max((D1 / 2 - insulationT) * scale, 10)
                                     pipeInnerRadius = (D1 / 2) * scale
                                     pipeOuterRadius = (D1 / 2 + wallT) * scale
                                     insulationOuterRadius = pipeInnerRadius
-                                    fluidLabel = `Fluid: ${mediumTemp}°C`
-                                    insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
-                                    pipeLabel = 'Pipe Wall'
                                   } else {
                                     const D1 = outerDiameter
-                                    fluidRadius = (D1 / 2 - wallT) * scale
-                                    if (fluidRadius < 15) fluidRadius = 15
+                                    fluidRadius = Math.max((D1 / 2 - wallT) * scale, 10)
                                     pipeInnerRadius = (D1 / 2) * scale
                                     pipeOuterRadius = pipeInnerRadius
                                     insulationOuterRadius = pipeOuterRadius + insulationT * scale
-                                    fluidLabel = `Fluid: ${mediumTemp}°C`
-                                    pipeLabel = 'Pipe Wall'
-                                    insulationLabel = `Insulation: ${insulationT.toFixed(1)}mm`
                                   }
                                   
                                   return (
@@ -1820,13 +1827,22 @@ function InsulationCalculatorPage() {
                                 {(() => {
                                   const wallT = surfaceWallThickness
                                   const insulationT = result.thickness
-                                  const scale = 12
                                   const centerX = 200
                                   const centerY = 150
-                                  const fluidWidth = 80
-                                  const pipeThickness = wallT * scale
-                                  const insulationThickness = insulationT * scale
-                                  const halfHeight = 100
+                                  const maxWidth = 360
+                                  const minFluidWidth = 60
+                                  const maxHalfHeight = 130
+                                  
+                                  const pipeThickness_unscaled = wallT
+                                  const insulationThickness_unscaled = insulationT
+                                  const totalThickness_unscaled = pipeThickness_unscaled + insulationThickness_unscaled
+                                  const scale = totalThickness_unscaled > 0 ? (maxWidth - minFluidWidth) / totalThickness_unscaled : 12
+                                  const clampedScale = Math.min(Math.max(scale, 1), 50)
+                                  
+                                  const pipeThickness = pipeThickness_unscaled * clampedScale
+                                  const insulationThickness = insulationThickness_unscaled * clampedScale
+                                  const fluidWidth = Math.max(minFluidWidth, maxWidth - pipeThickness - insulationThickness)
+                                  const halfHeight = Math.min(maxHalfHeight, fluidWidth * 0.8)
                                   
                                   const totalWidth = fluidWidth + pipeThickness + insulationThickness
                                   const startX = centerX - totalWidth / 2
