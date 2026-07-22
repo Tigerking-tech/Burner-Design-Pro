@@ -1721,10 +1721,10 @@ function InsulationCalculatorPage() {
                         <div className="flex items-center gap-2 mb-4">
                           <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Preview</span>
                         </div>
-                        <div className="bg-white border border-gray-300 rounded-lg p-4">
+                        <div className="bg-white border border-gray-300 rounded-lg p-2">
                           <div className="flex justify-center">
                             {equipmentType === 'pipe' ? (
-                              <svg viewBox="0 0 400 320" className="w-full max-w-[350px]">
+                              <svg viewBox="0 0 400 320" className="w-full max-w-[380px]">
                                 <defs>
                                   <linearGradient id="pipeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stopColor="#5d6d7e" />
@@ -1749,7 +1749,7 @@ function InsulationCalculatorPage() {
                                 {(() => {
                                   const wallT = wallThickness
                                   const insulationT = result.thickness
-                                  const scale = 1.0
+                                  const scale = 3.0
                                   const centerX = 200
                                   const centerY = 140
                                   let fluidRadius, pipeInnerRadius, pipeOuterRadius, insulationOuterRadius
@@ -1799,7 +1799,7 @@ function InsulationCalculatorPage() {
                                 })()}
                               </svg>
                             ) : (
-                              <svg viewBox="0 0 400 150" className="w-full max-w-[350px]">
+                              <svg viewBox="0 0 400 150" className="w-full max-w-[380px]">
                                 <defs>
                                   <linearGradient id="flatPipeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stopColor="#5d6d7e" />
@@ -1813,7 +1813,7 @@ function InsulationCalculatorPage() {
                                 {(() => {
                                   const wallT = surfaceWallThickness
                                   const insulationT = result.thickness
-                                  const scale = 2
+                                  const scale = 6
                                   const left = 50
                                   const pipeThickness = wallT * scale
                                   const insulationThickness = insulationT * scale
