@@ -1806,7 +1806,7 @@ function InsulationCalculatorPage() {
                                 })()}
                               </svg>
                             ) : (
-                              <svg viewBox="0 0 400 300" className="w-full max-w-[380px]">
+                              <svg viewBox="0 0 400 280" className="w-full max-w-[380px]">
                                 <defs>
                                   <linearGradient id="flatFluidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stopColor="#2c3e50" />
@@ -1828,23 +1828,23 @@ function InsulationCalculatorPage() {
                                   const wallT = surfaceWallThickness
                                   const insulationT = result.thickness
                                   const centerX = 200
-                                  const centerY = 150
-                                  const maxWidth = 360
-                                  const minFluidWidth = 60
-                                  const maxHalfHeight = 130
+                                  const centerY = 140
+                                  const maxWidth = 340
+                                  const minFluidWidth = 50
+                                  const maxHalfHeight = 120
                                   
                                   const pipeThickness_unscaled = wallT
                                   const insulationThickness_unscaled = insulationT
                                   const totalThickness_unscaled = pipeThickness_unscaled + insulationThickness_unscaled
-                                  const scale = totalThickness_unscaled > 0 ? (maxWidth - minFluidWidth) / totalThickness_unscaled : 12
-                                  const clampedScale = Math.min(Math.max(scale, 1), 50)
+                                  const scale = totalThickness_unscaled > 0 ? (maxWidth - minFluidWidth) / totalThickness_unscaled : 10
+                                  const clampedScale = Math.min(Math.max(scale, 2), 40)
                                   
                                   const pipeThickness = pipeThickness_unscaled * clampedScale
                                   const insulationThickness = insulationThickness_unscaled * clampedScale
                                   const fluidWidth = Math.max(minFluidWidth, maxWidth - pipeThickness - insulationThickness)
-                                  const halfHeight = Math.min(maxHalfHeight, fluidWidth * 0.8)
-                                  
                                   const totalWidth = fluidWidth + pipeThickness + insulationThickness
+                                  const halfHeight = Math.min(maxHalfHeight, totalWidth * 0.65)
+                                  
                                   const startX = centerX - totalWidth / 2
                                   
                                   if (insulationPosition === 'internal') {
