@@ -1089,7 +1089,6 @@ function InsulationCalculatorPage() {
               {/* Equipment Type - Always visible */}
               <div className="mb-4 md:mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#f39c12] text-white text-xs font-bold">1</span>
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Equipment Type</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -1117,14 +1116,12 @@ function InsulationCalculatorPage() {
                   onClick={() => setExpandedSections(prev => ({...prev, dimensions: !prev.dimensions}))}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">2</span>
                     <Layers size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Dimensions</span>
                   </div>
                   {expandedSections.dimensions ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
                 <div className="hidden md:flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">2</span>
                   <Layers size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Dimensions</span>
                 </div>
@@ -1296,14 +1293,12 @@ function InsulationCalculatorPage() {
                   onClick={() => setExpandedSections(prev => ({...prev, material: !prev.material}))}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">3</span>
                     <BrickWall size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Material</span>
                   </div>
                   {expandedSections.material ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
                 <div className="hidden md:flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">3</span>
                   <BrickWall size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Material</span>
                 </div>
@@ -1352,14 +1347,12 @@ function InsulationCalculatorPage() {
                     onClick={() => setExpandedSections(prev => ({...prev, pipeMaterial: !prev.pipeMaterial}))}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e67e22] text-white text-xs font-bold">4</span>
                       <Settings size={14} className="text-[#555]" />
                       <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Pipe Material</span>
                     </div>
                     {expandedSections.pipeMaterial ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                   <div className="hidden md:flex items-center gap-2 mb-3">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e67e22] text-white text-xs font-bold">4</span>
                     <Settings size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Pipe Material (Base Metal)</span>
                   </div>
@@ -1424,14 +1417,12 @@ function InsulationCalculatorPage() {
                   onClick={() => setExpandedSections(prev => ({...prev, temperatures: !prev.temperatures}))}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e74c3c] text-white text-xs font-bold">5</span>
                     <ThermometerSun size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Temperatures</span>
                   </div>
                   {expandedSections.temperatures ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
                 <div className="hidden md:flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e74c3c] text-white text-xs font-bold">5</span>
                   <ThermometerSun size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Temperatures</span>
                 </div>
@@ -1487,14 +1478,12 @@ function InsulationCalculatorPage() {
                     onClick={() => setExpandedSections(prev => ({...prev, energySettings: !prev.energySettings}))}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#27ae60] text-white text-xs font-bold">6</span>
                       <Zap size={14} className="text-[#555]" />
                       <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Energy Savings Parameters</span>
                     </div>
                     {expandedSections.energySettings ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                   <div className="hidden md:flex items-center gap-2 mb-3">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#27ae60] text-white text-xs font-bold">6</span>
                     <Zap size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Energy Savings Parameters</span>
                   </div>
@@ -1527,14 +1516,12 @@ function InsulationCalculatorPage() {
                     onClick={() => setExpandedSections(prev => ({...prev, freezeSettings: !prev.freezeSettings}))}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">6</span>
                       <Snowflake size={14} className="text-[#555]" />
                       <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Freeze Protection Parameters</span>
                     </div>
                     {expandedSections.freezeSettings ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                   <div className="hidden md:flex items-center gap-2 mb-3">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">6</span>
                     <Snowflake size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Freeze Protection Parameters</span>
                   </div>
@@ -1560,14 +1547,12 @@ function InsulationCalculatorPage() {
                   onClick={() => setExpandedSections(prev => ({...prev, environment: !prev.environment}))}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1abc9c] text-white text-xs font-bold">7</span>
                     <Cloud size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Environment</span>
                   </div>
                   {expandedSections.environment ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
                 <div className="hidden md:flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1abc9c] text-white text-xs font-bold">7</span>
                   <Cloud size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Environment</span>
                 </div>
@@ -1639,14 +1624,12 @@ function InsulationCalculatorPage() {
                   onClick={() => setExpandedSections(prev => ({...prev, operatingHours: !prev.operatingHours}))}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#34495e] text-white text-xs font-bold">8</span>
                     <Clock size={14} className="text-[#555]" />
                     <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Operating Conditions</span>
                   </div>
                   {expandedSections.operatingHours ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
                 <div className="hidden md:flex items-center gap-2 mb-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#34495e] text-white text-xs font-bold">8</span>
                   <Clock size={14} className="text-[#555]" />
                   <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Operating Conditions</span>
                 </div>
@@ -1685,7 +1668,6 @@ function InsulationCalculatorPage() {
                 <>
                   <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300">
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#f39c12] text-[#2c3e50] text-xs font-bold">R</span>
                       <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Calculation Results</span>
                     </div>
                     <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
@@ -1737,7 +1719,6 @@ function InsulationCalculatorPage() {
                       </div>
                       <div className="w-full lg:w-auto lg:min-w-[260px]">
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">P</span>
                           <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Preview</span>
                         </div>
                         <div className="bg-white border border-gray-300 rounded-lg p-3 md:p-4 rounded">
@@ -1812,9 +1793,6 @@ function InsulationCalculatorPage() {
                                           <text x="70" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{pipeLabel}</text>
                                           <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
                                           <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
-                                          <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                          <line x1="320" y1="55" x2={centerX} y2={centerY - insulationOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                          <line x1="70" y1="235" x2={centerX} y2={centerY + pipeOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
                                         </>
                                       ) : (
                                         <>
@@ -1830,9 +1808,6 @@ function InsulationCalculatorPage() {
                                           <text x="80" y="276" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{insulationLabel}</text>
                                           <rect x="240" y="260" width="130" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
                                           <text x="305" y="276" textAnchor="middle" className="text-[11px] fill-[#2c3e50] font-semibold">Surface: {result.surfaceTemp.toFixed(1)}°C</text>
-                                          <line x1="80" y1="55" x2={centerX} y2={centerY - fluidRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                          <line x1="320" y1="55" x2={centerX} y2={centerY - pipeOuterRadius - 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
-                                          <line x1="80" y1="235" x2={centerX} y2={centerY + insulationOuterRadius + 5} stroke="#7f8c8d" strokeWidth="1" strokeDasharray="3,3" />
                                         </>
                                       )}
                                     </>
