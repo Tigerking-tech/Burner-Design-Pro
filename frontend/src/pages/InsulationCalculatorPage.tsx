@@ -6,7 +6,7 @@ import { Download } from 'lucide-react'
 import ProFeaturePreview from '../components/ProFeaturePreview'
 import { Navbar } from '../components/Navbar'
 import { authAPI } from '../services/api'
-import { Cylinder, Square, BrickWall, AlertTriangle } from 'lucide-react'
+import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Flame, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
 import {
   PAGE_WIDTH,
   PAGE_HEIGHT,
@@ -184,6 +184,14 @@ function InsulationCalculatorPage() {
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [showResults, setShowResults] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    dimensions: true,
+    material: true,
+    pipeMaterial: true,
+    temperatures: true,
+    environment: true,
+    operatingHours: true
+  })
 
   const isLoggedIn = authAPI.isAuthenticated()
   const isProUser = true
@@ -1021,53 +1029,76 @@ function InsulationCalculatorPage() {
 
           <div className="bg-white rounded-lg shadow-xl border border-gray-300 mb-6">
             {/* Mode Tabs */}
-            <div className="grid grid-cols-1 sm:grid-cols-5 border-b border-gray-300 bg-gray-50 rounded-lg rounded-t-lg rounded-t-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-5 border-b border-gray-200 bg-gray-50 rounded-t-lg overflow-hidden">
               <button
-                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tl ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 relative overflow-hidden ${mode === 'surface' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('surface')}
               >
-                Surface Temp
+                <ThermometerSun size={16} />
+                <span>Surface</span>
+                {mode === 'surface' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2c3e50]" />
+                )}
               </button>
               <button
-                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'heatloss' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 relative overflow-hidden ${mode === 'heatloss' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('heatloss')}
               >
-                Heat Loss
+                <Flame size={16} />
+                <span>Heat Loss</span>
+                {mode === 'heatloss' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2c3e50]" />
+                )}
               </button>
               <button
-                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'condensation' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 relative overflow-hidden ${mode === 'condensation' ? 'bg-[#f39c12] text-[#2c3e50]' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('condensation')}
               >
-                Anti-Condensation
+                <Droplets size={16} />
+                <span>Anti-Cond.</span>
+                {mode === 'condensation' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2c3e50]" />
+                )}
               </button>
               <button
-                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none ${mode === 'energysavings' ? 'bg-[#27ae60] text-white' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 relative overflow-hidden ${mode === 'energysavings' ? 'bg-[#27ae60] text-white' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('energysavings')}
               >
-                Energy Savings
+                <Zap size={16} />
+                <span>Energy</span>
+                {mode === 'energysavings' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
+                )}
               </button>
               <button
-                className={`py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 rounded-none rounded-tr ${mode === 'freezeprotection' ? 'bg-[#3498db] text-white' : 'text-[#555] hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold rounded-t-lg transition-all duration-300 relative overflow-hidden ${mode === 'freezeprotection' ? 'bg-[#3498db] text-white' : 'text-[#555] hover:bg-gray-100'}`}
                 onClick={() => setMode('freezeprotection')}
               >
-                Freeze Protection
+                <Snowflake size={16} />
+                <span>Freeze</span>
+                {mode === 'freezeprotection' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
+                )}
               </button>
             </div>
 
             <div className="p-4 md:p-6 rounded-b-lg">
-              {/* Equipment Type */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Equipment Type</div>
+              {/* Equipment Type - Always visible */}
+              <div className="mb-4 md:mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#f39c12] text-white text-xs font-bold">1</span>
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Equipment Type</span>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'pipe' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
+                    className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 transition-all duration-200 ${equipmentType === 'pipe' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold shadow-md' : 'bg-white text-[#555] hover:bg-gray-50 hover:border-gray-400'}`}
                     onClick={() => setEquipmentType('pipe')}
                   >
                     <Cylinder size={18} />
                     <span className="text-sm">Pipe</span>
                   </button>
                   <button
-                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 transition-all rounded ${equipmentType === 'flat' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold rounded' : 'bg-white text-[#555] hover:bg-gray-100 rounded'}`}
+                    className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 transition-all duration-200 ${equipmentType === 'flat' ? 'bg-[#f39c12] text-[#2c3e50] border-[#f39c12] font-semibold shadow-md' : 'bg-white text-[#555] hover:bg-gray-50 hover:border-gray-400'}`}
                     onClick={() => setEquipmentType('flat')}
                   >
                     <Square size={18} />
@@ -1076,9 +1107,25 @@ function InsulationCalculatorPage() {
                 </div>
               </div>
 
-              {/* Dimensions */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Dimensions</div>
+              {/* Dimensions - Accordion for mobile */}
+              <div className="mb-4 md:mb-6">
+                <button 
+                  className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                  onClick={() => setExpandedSections(prev => ({...prev, dimensions: !prev.dimensions}))}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">2</span>
+                    <Layers size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Dimensions</span>
+                  </div>
+                  {expandedSections.dimensions ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <div className="hidden md:flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">2</span>
+                  <Layers size={14} className="text-[#555]" />
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Dimensions</span>
+                </div>
+                <div className={`${expandedSections.dimensions || 'md:block'} overflow-hidden transition-all duration-300`}>
                 {equipmentType === 'pipe' ? (
                   <div className="space-y-4">
                     {/* Insulation position toggle */}
@@ -1236,54 +1283,87 @@ function InsulationCalculatorPage() {
                     </div>
                   </div>
                 )}
-              </div>
-
-              {/* Material */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Material</div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Material</label>
-                  <select value={materialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
-                    <optgroup label="Mineral Fibers">
-                      <option value="mineralwool">Mineral Wool (850F, k=0.032)</option>
-                      <option value="glasswool">Glass Wool (600F, k=0.028)</option>
-                      <option value="fiberglass">Fiberglass (400F, k=0.030)</option>
-                      <option value="ceramicfiber">Ceramic Fiber (2300F, k=0.045)</option>
-                    </optgroup>
-                    <optgroup label="Foam Materials">
-                      <option value="polyurethane">Polyurethane Foam (k=0.023)</option>
-                      <option value="polyisocyanurate">Polyisocyanurate (k=0.022)</option>
-                      <option value="phenolic">Phenolic Foam (k=0.025)</option>
-                      <option value="elastomeric">Elastomeric Rubber (k=0.034)</option>
-                    </optgroup>
-                    <optgroup label="Rigid & High-Temp">
-                      <option value="calciumsilicate">Calcium Silicate (1200F, k=0.038)</option>
-                      <option value="cellularglass">Cellular Glass (k=0.038)</option>
-                      <option value="foamglass">Foam Glass (k=0.040)</option>
-                      <option value="vermiculite">Vermiculite (k=0.055)</option>
-                      <option value="perlite">Perlite (k=0.050)</option>
-                    </optgroup>
-                    <optgroup label="Advanced">
-                      <option value="aerogel">Aerogel (k=0.012)</option>
-                    </optgroup>
-                    <option value="custom">Custom Material</option>
-                  </select>
                 </div>
-                {materialType === 'custom' && (
-                  <div className="flex flex-col gap-2 mt-2">
-                    <label className="text-xs text-[#555] font-medium rounded">Thermal Conductivity (W/m·K)</label>
-                    <input type="number" step="0.001" value={customLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
-                  </div>
-                )}
               </div>
 
-              {/* Pipe Material (与 3E Plus "Base Metal" 对齐) */}
+              {/* Material - Accordion for mobile */}
+              <div className="mb-4 md:mb-6">
+                <button 
+                  className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                  onClick={() => setExpandedSections(prev => ({...prev, material: !prev.material}))}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">3</span>
+                    <BrickWall size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Material</span>
+                  </div>
+                  {expandedSections.material ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <div className="hidden md:flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">3</span>
+                  <BrickWall size={14} className="text-[#555]" />
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Material</span>
+                </div>
+                <div className={`${expandedSections.material || 'md:block'} overflow-hidden transition-all duration-300`}>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-[#555] font-medium">Material</label>
+                <select value={materialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMaterialType(e.target.value as MaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
+                  <optgroup label="Mineral Fibers">
+                    <option value="mineralwool">Mineral Wool (850F, k=0.032)</option>
+                    <option value="glasswool">Glass Wool (600F, k=0.028)</option>
+                    <option value="fiberglass">Fiberglass (400F, k=0.030)</option>
+                    <option value="ceramicfiber">Ceramic Fiber (2300F, k=0.045)</option>
+                  </optgroup>
+                  <optgroup label="Foam Materials">
+                    <option value="polyurethane">Polyurethane Foam (k=0.023)</option>
+                    <option value="polyisocyanurate">Polyisocyanurate (k=0.022)</option>
+                    <option value="phenolic">Phenolic Foam (k=0.025)</option>
+                    <option value="elastomeric">Elastomeric Rubber (k=0.034)</option>
+                  </optgroup>
+                  <optgroup label="Rigid & High-Temp">
+                    <option value="calciumsilicate">Calcium Silicate (1200F, k=0.038)</option>
+                    <option value="cellularglass">Cellular Glass (k=0.038)</option>
+                    <option value="foamglass">Foam Glass (k=0.040)</option>
+                    <option value="vermiculite">Vermiculite (k=0.055)</option>
+                    <option value="perlite">Perlite (k=0.050)</option>
+                  </optgroup>
+                  <optgroup label="Advanced">
+                    <option value="aerogel">Aerogel (k=0.012)</option>
+                  </optgroup>
+                  <option value="custom">Custom Material</option>
+                </select>
+              </div>
+              {materialType === 'custom' && (
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-xs text-[#555] font-medium">Thermal Conductivity (W/m·K)</label>
+                  <input type="number" step="0.001" value={customLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
+                </div>
+              )}
+                </div>
+              </div>
+              {/* Pipe Material (与 3E Plus "Base Metal" 对齐) - Accordion for mobile */}
               {equipmentType === 'pipe' && (
-                <div className="mb-6">
-                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Pipe Material (Base Metal)</div>
+                <div className="mb-4 md:mb-6">
+                  <button 
+                    className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                    onClick={() => setExpandedSections(prev => ({...prev, pipeMaterial: !prev.pipeMaterial}))}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e67e22] text-white text-xs font-bold">4</span>
+                      <Settings size={14} className="text-[#555]" />
+                      <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Pipe Material</span>
+                    </div>
+                    {expandedSections.pipeMaterial ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  <div className="hidden md:flex items-center gap-2 mb-3">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e67e22] text-white text-xs font-bold">4</span>
+                    <Settings size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Pipe Material (Base Metal)</span>
+                  </div>
+                  <div className={`${expandedSections.pipeMaterial || 'md:block'} overflow-hidden transition-all duration-300`}>
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs text-[#555] font-medium rounded">Material</label>
-                    <select value={pipeMaterialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeMaterialType(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                    <label className="text-xs text-[#555] font-medium">Material</label>
+                    <select value={pipeMaterialType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPipeMaterialType(e.target.value as PipeMaterialType)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
                       <optgroup label="Carbon Steel">
                         <option value="carbon_steel">Carbon Steel (k=50)</option>
                         <option value="carbon_steel_low">Low Carbon Steel (k=45)</option>
@@ -1323,69 +1403,103 @@ function InsulationCalculatorPage() {
                   </div>
                   {pipeMaterialType === 'custom_pipe' && (
                     <div className="flex flex-col gap-2 mt-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Pipe Thermal Conductivity (W/m·K)</label>
-                      <input type="number" step="0.1" value={customPipeLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomPipeLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Pipe Thermal Conductivity (W/m·K)</label>
+                      <input type="number" step="0.1" value={customPipeLambda} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomPipeLambda(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                     </div>
                   )}
                   <p className="text-xs text-[#7f8c8d] mt-2">
                     Used for pipe wall thermal resistance (R_wall) and interface temperature check. Aligns with 3E Plus Base Metal input.
                   </p>
+                  </div>
                 </div>
               )}
 
-              {/* Temperatures */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Temperatures</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded">
+              {/* Temperatures - Accordion for mobile */}
+              <div className="mb-4 md:mb-6">
+                <button 
+                  className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                  onClick={() => setExpandedSections(prev => ({...prev, temperatures: !prev.temperatures}))}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e74c3c] text-white text-xs font-bold">5</span>
+                    <ThermometerSun size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Temperatures</span>
+                  </div>
+                  {expandedSections.temperatures ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <div className="hidden md:flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#e74c3c] text-white text-xs font-bold">5</span>
+                  <ThermometerSun size={14} className="text-[#555]" />
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Temperatures</span>
+                </div>
+                <div className={`${expandedSections.temperatures || 'md:block'} overflow-hidden transition-all duration-300`}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs text-[#555] font-medium rounded">Fluid Temp (°C)</label>
-                    <input type="number" value={mediumTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMediumTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <label className="text-xs text-[#555] font-medium">Fluid Temp (°C)</label>
+                    <input type="number" value={mediumTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMediumTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs text-[#555] font-medium rounded">Ambient Temp (°C)</label>
-                    <input type="number" value={ambientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <label className="text-xs text-[#555] font-medium">Ambient Temp (°C)</label>
+                    <input type="number" value={ambientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                   </div>
                   {mode === 'surface' && (
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Target Surface (°C)</label>
-                      <input type="number" value={targetSurfaceTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetSurfaceTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Target Surface (°C)</label>
+                      <input type="number" value={targetSurfaceTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetSurfaceTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                     </div>
                   )}
                   {mode === 'heatloss' && (
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Target Heat Loss (W/m²)</label>
-                      <input type="number" value={targetHeatLoss} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetHeatLoss(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Target Heat Loss (W/m²)</label>
+                      <input type="number" value={targetHeatLoss} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetHeatLoss(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                     </div>
                   )}
                   {mode === 'condensation' && (
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Relative Humidity (%)</label>
-                      <input type="number" value={relativeHumidity} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Relative Humidity (%)</label>
+                      <input type="number" value={relativeHumidity} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setRelativeHumidity(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                     </div>
                   )}
                   {mode === 'energysavings' && (
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Energy Cost (¥/kWh)</label>
-                      <input type="number" value={energyCost} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnergyCost(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Energy Cost (¥/kWh)</label>
+                      <input type="number" value={energyCost} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnergyCost(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60]" />
                     </div>
                   )}
                   {mode === 'freezeprotection' && (
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Min Ambient (°C)</label>
-                      <input type="number" value={minAmbientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMinAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Min Ambient (°C)</label>
+                      <input type="number" value={minAmbientTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setMinAmbientTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db]" />
                     </div>
                   )}
                 </div>
+                </div>
               </div>
 
-              {/* Energy Savings Settings */}
+              {/* Energy Savings Settings - Accordion for mobile */}
               {mode === 'energysavings' && (
-                <div className="mb-6">
-                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Energy Savings Parameters</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                <div className="mb-4 md:mb-6">
+                  <button 
+                    className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                    onClick={() => setExpandedSections(prev => ({...prev, energySettings: !prev.energySettings}))}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#27ae60] text-white text-xs font-bold">6</span>
+                      <Zap size={14} className="text-[#555]" />
+                      <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Energy Savings Parameters</span>
+                    </div>
+                    {expandedSections.energySettings ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  <div className="hidden md:flex items-center gap-2 mb-3">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#27ae60] text-white text-xs font-bold">6</span>
+                    <Zap size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Energy Savings Parameters</span>
+                  </div>
+                  <div className={`${expandedSections.energySettings || 'md:block'} overflow-hidden transition-all duration-300`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Fuel Type</label>
-                      <select value={fuelType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFuelType(e.target.value as FuelType)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                      <label className="text-xs text-[#555] font-medium">Fuel Type</label>
+                      <select value={fuelType} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFuelType(e.target.value as FuelType)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60]">
                         <option value="electricity">Electricity</option>
                         <option value="natural_gas">Natural Gas</option>
                         <option value="steam">Steam</option>
@@ -1394,36 +1508,70 @@ function InsulationCalculatorPage() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Efficiency (%)</label>
-                      <input type="number" value={efficiency} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEfficiency(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Efficiency (%)</label>
+                      <input type="number" value={efficiency} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEfficiency(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#27ae60] focus:border-[#27ae60]" />
                     </div>
+                  </div>
                   </div>
                 </div>
               )}
 
-              {/* Freeze Protection Settings */}
+              {/* Freeze Protection Settings - Accordion for mobile */}
               {mode === 'freezeprotection' && (
-                <div className="mb-6">
-                  <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Freeze Protection Parameters</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded">
+                <div className="mb-4 md:mb-6">
+                  <button 
+                    className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                    onClick={() => setExpandedSections(prev => ({...prev, freezeSettings: !prev.freezeSettings}))}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">6</span>
+                      <Snowflake size={14} className="text-[#555]" />
+                      <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Freeze Protection Parameters</span>
+                    </div>
+                    {expandedSections.freezeSettings ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  <div className="hidden md:flex items-center gap-2 mb-3">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#3498db] text-white text-xs font-bold">6</span>
+                    <Snowflake size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Freeze Protection Parameters</span>
+                  </div>
+                  <div className={`${expandedSections.freezeSettings || 'md:block'} overflow-hidden transition-all duration-300`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Target Fluid Temp (°C)</label>
-                      <input type="number" value={targetFluidTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetFluidTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Target Fluid Temp (°C)</label>
+                      <input type="number" value={targetFluidTemp} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setTargetFluidTemp(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db]" />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs text-[#555] font-medium rounded">Safety Margin (°C)</label>
-                      <input type="number" value={safetyMargin} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSafetyMargin(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db] rounded text-[#2c3e50] rounded" />
+                      <label className="text-xs text-[#555] font-medium">Safety Margin (°C)</label>
+                      <input type="number" value={safetyMargin} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSafetyMargin(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-[#3498db]" />
                     </div>
+                  </div>
                   </div>
                 </div>
               )}
 
-              {/* Environment */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Environment</div>
+              {/* Environment - Accordion for mobile */}
+              <div className="mb-4 md:mb-6">
+                <button 
+                  className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                  onClick={() => setExpandedSections(prev => ({...prev, environment: !prev.environment}))}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1abc9c] text-white text-xs font-bold">7</span>
+                    <Cloud size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Environment</span>
+                  </div>
+                  {expandedSections.environment ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <div className="hidden md:flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1abc9c] text-white text-xs font-bold">7</span>
+                  <Cloud size={14} className="text-[#555]" />
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Environment</span>
+                </div>
+                <div className={`${expandedSections.environment || 'md:block'} overflow-hidden transition-all duration-300`}>
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Location</label>
-                  <select value={environment} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                  <label className="text-xs text-[#555] font-medium">Location</label>
+                  <select value={environment} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setEnvironment(e.target.value as Environment)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
                     <option value="indoor">Indoor (Still Air)</option>
                     <option value="outdoor_calm">Outdoor (Calm)</option>
                     <option value="outdoor_moderate">Outdoor (Moderate Wind)</option>
@@ -1431,8 +1579,8 @@ function InsulationCalculatorPage() {
                   </select>
                 </div>
                 <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Surface Finish</label>
-                  <select value={surfaceFinish} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceFinish(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-white text-[#2c3e50] rounded rounded">
+                  <label className="text-xs text-[#555] font-medium">Surface Finish</label>
+                  <select value={surfaceFinish} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setSurfaceFinish(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]">
                     <option value="0.9">Uninsulated / Painted (ε=0.9)</option>
                     <option value="0.7">Aluminum Jacket (ε=0.7)</option>
                     <option value="0.3">Polished Aluminum (ε=0.3)</option>
@@ -1442,19 +1590,18 @@ function InsulationCalculatorPage() {
                 </div>
                 {surfaceFinish === 'custom' && (
                   <div className="flex flex-col gap-2 mt-2">
-                    <label className="text-xs text-[#555] font-medium rounded">Emissivity (ε)</label>
-                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomEmittance(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                    <label className="text-xs text-[#555] font-medium">Emissivity (ε)</label>
+                    <input type="number" step="0.01" min="0" max="1" value={customEmittance} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setCustomEmittance(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
                   </div>
                 )}
                 <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Wind Speed (m/s)</label>
-                  <input type="number" step="0.1" value={windSpeed} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
+                  <label className="text-xs text-[#555] font-medium">Wind Speed (m/s)</label>
+                  <input type="number" step="0.1" value={windSpeed} readOnly className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-[#7f8c8d] cursor-not-allowed" />
                 </div>
                 <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Heat Transfer Coeff (W/m²·K)</label>
-                  <input type="number" step="0.1" value={heatTransferCoeff.toFixed(1)} readOnly className="w-full px-3 py-2 border border-gray-300 rounded rounded bg-gray-100 text-[#7f8c8d] cursor-not-allowed rounded rounded" />
+                  <label className="text-xs text-[#555] font-medium">Heat Transfer Coeff (W/m²·K)</label>
+                  <input type="number" step="0.1" value={heatTransferCoeff.toFixed(1)} readOnly className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-[#7f8c8d] cursor-not-allowed" />
                 </div>
-                
                 {(() => {
                   const totalH = hc + hr;
                   const convPercent = (hc / totalH) * 100;
@@ -1479,14 +1626,32 @@ function InsulationCalculatorPage() {
                     </div>
                   );
                 })()}
+                </div>
               </div>
 
-              {/* Operating Hours */}
-              <div className="mb-6">
-                <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Operating Conditions</div>
+              {/* Operating Hours - Accordion for mobile */}
+              <div className="mb-4 md:mb-6">
+                <button 
+                  className="flex items-center justify-between w-full text-left mb-3 md:hidden"
+                  onClick={() => setExpandedSections(prev => ({...prev, operatingHours: !prev.operatingHours}))}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#34495e] text-white text-xs font-bold">8</span>
+                    <Clock size={14} className="text-[#555]" />
+                    <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Operating Conditions</span>
+                  </div>
+                  {expandedSections.operatingHours ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <div className="hidden md:flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#34495e] text-white text-xs font-bold">8</span>
+                  <Clock size={14} className="text-[#555]" />
+                  <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Operating Conditions</span>
+                </div>
+                <div className={`${expandedSections.operatingHours || 'md:block'} overflow-hidden transition-all duration-300`}>
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs text-[#555] font-medium rounded">Operating Hours per Year</label>
-                  <input type="number" value={operatingHours} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded rounded focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12] rounded text-[#2c3e50] rounded" />
+                  <label className="text-xs text-[#555] font-medium">Operating Hours per Year</label>
+                  <input type="number" value={operatingHours} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setOperatingHours(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-[#2c3e50] focus:outline-none focus:ring-2 focus:ring-[#f39c12] focus:border-[#f39c12]" />
+                </div>
                 </div>
               </div>
 
@@ -1494,8 +1659,9 @@ function InsulationCalculatorPage() {
               <div className="mt-6 md:mt-8">
                 <button
                   onClick={() => handleProAction(handleCalculate)}
-                  className="w-full py-3 md:py-4 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] font-bold rounded rounded transition-all duration-300 text-sm md:text-base"
+                  className="w-full py-3 md:py-4 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] font-bold rounded-lg transition-all duration-300 text-sm md:text-base hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                 >
+                  <Calculator size={18} />
                   Calculate Insulation Thickness
                 </button>
               </div>
@@ -1504,7 +1670,7 @@ function InsulationCalculatorPage() {
               <div className="mt-3 md:mt-4">
                 <button
                   onClick={exportToPDF}
-                  className="w-full py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+                  className="w-full py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                 >
                   <Download size={18} />
                   Export PDF Report
@@ -1514,49 +1680,52 @@ function InsulationCalculatorPage() {
               {/* Results */}
               {showResults && result && (
                 <>
-                  <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300 rounded">
-                    <div className="text-xs uppercase tracking-wider text-[#555] mb-4 font-semibold rounded rounded">Calculation Results</div>
+                  <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-300">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#f39c12] text-[#2c3e50] text-xs font-bold">R</span>
+                      <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Calculation Results</span>
+                    </div>
                     <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
                       <div className="flex-1">
                         <div className="grid grid-cols-2 gap-2 md:gap-3">
                           {result.dewPoint !== undefined && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center rounded">
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.1s'}}>
                               <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Dew Point Temperature</div>
                               <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.dewPoint.toFixed(1)}°C</div>
                             </div>
                           )}
-                          <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-3 text-center rounded">
+                          <div className="bg-[#f39c12]/10 border-2 border-[#f39c12] rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.15s'}}>
                             <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Required Insulation Thickness</div>
                             <div className="text-lg md:text-xl font-bold text-[#f39c12] mt-1">{result.thickness.toFixed(1)} mm</div>
                             <div className="text-[10px] text-[#7f8c8d] mt-1">Standard: {result.standardThickness} mm</div>
                           </div>
-                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.2s'}}>
                             <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Surface Temperature</div>
                             <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.surfaceTemp.toFixed(1)}°C</div>
                           </div>
                           {result.interfaceTemp !== undefined && (
-                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.25s'}}>
                               <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Interface Temp</div>
                               <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{result.interfaceTemp.toFixed(1)}°C</div>
                               <div className="text-[10px] text-[#7f8c8d]">Max: {getInsulationMaxTemp()}°C</div>
                             </div>
                           )}
-                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.3s'}}>
                             <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Heat Flux</div>
                             <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.heatFlux).toFixed(1)} W/m²</div>
                           </div>
                           {result.linearHeatLoss !== undefined && (
-                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.35s'}}>
                               <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Linear Heat Loss</div>
                               <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.linearHeatLoss).toFixed(1)} W/m</div>
                             </div>
                           )}
-                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center rounded">
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.4s'}}>
                             <div className="text-[10px] text-[#555] uppercase tracking-wider font-semibold">Annual Heat Loss</div>
                             <div className="text-lg md:text-xl font-bold text-[#2c3e50] mt-1">{Math.abs(result.annualHeatLoss || 0).toFixed(0)} kWh/year</div>
                           </div>
                           {result.annualSavings !== undefined && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center rounded">
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center card-hover animate-fade-in-up" style={{animationDelay: '0.45s'}}>
                               <div className="text-[10px] text-[#27ae60] uppercase tracking-wider font-semibold">Annual Savings</div>
                               <div className="text-lg md:text-xl font-bold text-[#27ae60] mt-1">¥{result.annualSavings.toFixed(0)}/year</div>
                             </div>
@@ -1564,7 +1733,10 @@ function InsulationCalculatorPage() {
                         </div>
                       </div>
                       <div className="w-full lg:w-auto lg:min-w-[260px]">
-                        <div className="text-xs uppercase tracking-wider text-[#555] mb-3 font-semibold rounded rounded">Insulation Preview</div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#9b59b6] text-white text-xs font-bold">P</span>
+                          <span className="text-xs uppercase tracking-wider text-[#555] font-semibold">Insulation Preview</span>
+                        </div>
                         <div className="bg-white border border-gray-300 rounded-lg p-3 md:p-4 rounded">
                           <div className="flex justify-center">
                             {equipmentType === 'pipe' ? (
@@ -1582,6 +1754,13 @@ function InsulationCalculatorPage() {
                                     <stop offset="0%" stopColor="#3498db" />
                                     <stop offset="100%" stopColor="#2980b9" />
                                   </linearGradient>
+                                  <radialGradient id="fluidGradient" cx="30%" cy="30%" r="70%">
+                                    <stop offset="0%" stopColor="#2c3e50" />
+                                    <stop offset="100%" stopColor="#1a252f" />
+                                  </radialGradient>
+                                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+                                  </filter>
                                 </defs>
                                 {(() => {
                                   const wallT = wallThickness
@@ -1618,9 +1797,9 @@ function InsulationCalculatorPage() {
                                     <>
                                       {insulationPosition === 'internal' ? (
                                         <>
-                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
-                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
-                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
+                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" filter="url(#shadow)" />
+                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" filter="url(#shadow)" />
+                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="url(#fluidGradient)" />
                                           <circle cx={centerX} cy={centerY} r={pipeOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
                                           <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
                                           <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
@@ -1636,9 +1815,9 @@ function InsulationCalculatorPage() {
                                         </>
                                       ) : (
                                         <>
-                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" />
-                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" />
-                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="#2c3e50" />
+                                          <circle cx={centerX} cy={centerY} r={insulationOuterRadius} fill="url(#insulationGradient)" filter="url(#shadow)" />
+                                          <circle cx={centerX} cy={centerY} r={pipeOuterRadius} fill="url(#pipeGradient)" filter="url(#shadow)" />
+                                          <circle cx={centerX} cy={centerY} r={fluidRadius} fill="url(#fluidGradient)" />
                                           <circle cx={centerX} cy={centerY} r={insulationOuterRadius + 5} fill="none" stroke="#3498db" strokeWidth="2" />
                                           <rect x="30" y="20" width="100" height="24" rx="4" fill="white" fillOpacity="0.95" stroke="#e5e7eb" strokeWidth="1" />
                                           <text x="80" y="36" textAnchor="middle" className="text-[10px] fill-[#2c3e50] font-medium">{fluidLabel}</text>
