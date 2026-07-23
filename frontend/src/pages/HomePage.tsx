@@ -84,11 +84,8 @@ const features: Feature[] = [
     description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M9 12h6" />
-        <path d="M12 9l-3 3 3 3" />
-        <path d="M9 12h6" />
-        <path d="M12 15l3-3-3-3" />
+        <path d="M6 9l6-3 6 3" />
+        <path d="M6 15l6 3 6-3" />
       </svg>
     ),
     to: '/unit-converter',
@@ -356,7 +353,7 @@ export default function HomePage() {
                       </div>
                       <span className="text-xs text-blue-200">Flow Calculations</span>
                     </div>
-                    <span className="text-xs font-mono text-emerald-400">+12%</span>
+                    <span className="text-xs font-mono text-blue-300">156</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -365,7 +362,7 @@ export default function HomePage() {
                       </div>
                       <span className="text-xs text-blue-200">Thermal Analysis</span>
                     </div>
-                    <span className="text-xs font-mono text-emerald-400">+8%</span>
+                    <span className="text-xs font-mono text-blue-300">89</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -374,15 +371,8 @@ export default function HomePage() {
                       </div>
                       <span className="text-xs text-blue-200">Emission Reports</span>
                     </div>
-                    <span className="text-xs font-mono text-emerald-400">+15%</span>
+                    <span className="text-xs font-mono text-blue-300">42</span>
                   </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-white/10">
-                  <button className="w-full flex items-center justify-center gap-2 text-xs text-blue-300 hover:text-white transition-colors py-2">
-                    View Full Dashboard
-                    <ChevronDown className="rotate-[-90deg]" size={14} />
-                  </button>
                 </div>
               </div>
 
