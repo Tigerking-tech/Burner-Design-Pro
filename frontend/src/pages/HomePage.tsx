@@ -432,20 +432,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <section className="py-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <div className="inline-flex items-center gap-2 mb-4">
-                <span className="w-10 h-px bg-blue-400" />
-                <span className="text-xs font-semibold text-blue-400 tracking-[0.25em] uppercase">
+                <span className="w-10 h-px bg-blue-600 dark:bg-blue-400" />
+                <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-[0.25em] uppercase">
                   Why Choose Us
                 </span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">
                 Built for Precision, Trusted by Engineers
               </h2>
-              <p className="text-slate-300 mb-8 leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
                 Stop juggling spreadsheets and reference manuals. Everything from fuel selection
                 to compliance reporting in one place — with calculations you can verify.
               </p>
@@ -482,12 +482,12 @@ export default function HomePage() {
                   }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
-                      {item.icon}
+                    <div className="flex-shrink-0 w-12 h-12 bg-blue-500/10 dark:bg-white/5 rounded-xl flex items-center justify-center border border-blue-100 dark:border-white/10">
+                      <span className="text-blue-600 dark:text-blue-400">{item.icon}</span>
                     </div>
                     <div>
-                      <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-                      <p className="text-sm text-slate-400">{item.desc}</p>
+                      <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{item.title}</h3>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -495,10 +495,10 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+              <div className="bg-slate-50 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-xs font-mono text-slate-400">Standards Certification</span>
+                  <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">Standards Certification</span>
                 </div>
 
                 <div className="space-y-4">
@@ -508,30 +508,30 @@ export default function HomePage() {
                     { name: 'EPA Method 29', desc: 'Emission testing protocol', status: 'verified' },
                     { name: 'EU IED', desc: 'Industrial emissions directive', status: 'verified' }
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
-                      <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                    <div key={i} className="flex items-center gap-4 p-3 bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5">
+                      <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-white">{item.name}</p>
-                        <p className="text-xs text-slate-400">{item.desc}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
                       </div>
-                      <span className="text-xs font-mono text-emerald-400">✓</span>
+                      <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">✓</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/10">
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-400">Last Verification</span>
-                    <span className="text-xs font-mono text-slate-500">Q2 2026</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Last Verification</span>
+                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500">Q2 2026</span>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -bottom-4 -right-4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10" />
+              <div className="absolute -bottom-4 -right-4 w-64 h-64 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl -z-10" />
             </div>
           </div>
         </div>
