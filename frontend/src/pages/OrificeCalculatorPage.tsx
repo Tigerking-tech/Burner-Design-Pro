@@ -866,10 +866,10 @@ export default function OrificeCalculatorPage() {
       description="Professional orifice plate calculator for restricting and measuring applications according to ISO 5167 and DIN standards."
       icon={<Gauge size={40} />}
     >
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
         <Navbar />
 
-        <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 px-6 text-center">
+        <section className="bg-slate-900 dark:bg-slate-800 text-white py-12 px-6 text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-semibold mb-4">
               Determining the Orifices
@@ -880,75 +880,74 @@ export default function OrificeCalculatorPage() {
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-8">
-          {/* Inline Disclaimer */}
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3">
-            <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8 space-y-6">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex items-start gap-3">
+            <AlertTriangle className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" size={20} />
             <div className="text-sm">
-              <p className="font-semibold text-yellow-800">⚠️ Professional Engineering Judgment Required</p>
-              <p className="text-yellow-700 mt-1">
+              <p className="font-semibold text-amber-800 dark:text-amber-400">Professional Engineering Judgment Required</p>
+              <p className="text-amber-700 dark:text-amber-300 mt-1">
                 Results are for reference only. All calculations should be reviewed and validated by a qualified 
                 professional engineer before application to any real-world project.
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded shadow overflow-hidden border border-gray-200">
-            <div className="bg-[#2B6BA0] text-white px-6 py-3">
-              <h2 className="text-base font-normal">
+          <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm overflow-hidden border border-slate-200 dark:border-white/10 transition-colors duration-200">
+            <div className="bg-blue-600 text-white px-6 py-4">
+              <h2 className="text-base font-semibold">
                 Determining the {calculationMode === 'restricting' ? 'restricting' : 'measuring'} orifice
               </h2>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 sm:p-8">
               <div className="mb-6">
-                <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => setFeatureMode('basic')}
-                    className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-colors ${
                       featureMode === 'basic'
-                        ? 'bg-[#27ae60] text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
                     }`}
                   >
                     Basic Mode
                   </button>
                   <button
                     onClick={() => setFeatureMode('advanced')}
-                    className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-colors ${
                       featureMode === 'advanced'
-                        ? 'bg-[#27ae60] text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
                     }`}
                   >
                     Advanced Mode
                   </button>
                 </div>
                 {featureMode === 'advanced' && (
-                  <div className="mt-2 text-xs text-gray-600">
+                  <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                     Advanced mode includes pressure, temperature, compressibility, and isentropic exponent calculations.
                   </div>
                 )}
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
                 <div className="space-y-4">
-                  <div className="flex flex-col md:flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setCalculationMode('restricting')}
-                      className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-colors ${
                         calculationMode === 'restricting'
-                          ? 'bg-[#2B6BA0] text-white shadow-md'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
                       }`}
                     >
                       Restricting Orifice
                     </button>
                     <button
                       onClick={() => setCalculationMode('measuring')}
-                      className={`flex-1 py-2.5 px-4 rounded text-sm font-medium transition-all ${
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-colors ${
                         calculationMode === 'measuring'
-                          ? 'bg-[#2B6BA0] text-white shadow-md'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
                       }`}
                     >
                       Measuring Orifice
@@ -956,7 +955,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Gas type
                     </label>
                     <select
@@ -970,7 +969,7 @@ export default function OrificeCalculatorPage() {
                           }
                         }
                       }}
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                     >
                       {gasTypes.map((gas) => (
                         <option key={gas.name} value={gas.name}>
@@ -981,7 +980,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Density (kg/m³)
                     </label>
                     <input
@@ -989,14 +988,14 @@ export default function OrificeCalculatorPage() {
                       value={customDensity}
                       onChange={(e) => setCustomDensity(e.target.value)}
                       step="0.01"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                     />
                   </div>
 
                   {featureMode === 'advanced' && (
                     <>
                       <div>
-                        <label className="block text-sm font-normal text-black mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Operating Pressure
                         </label>
                         <div className="flex gap-2 mb-2">
@@ -1005,12 +1004,12 @@ export default function OrificeCalculatorPage() {
                             value={operatingPressure}
                             onChange={(e) => setOperatingPressure(e.target.value)}
                             step="0.001"
-                            className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                            className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                           />
                           <select
                             value={pressureUnit}
                             onChange={(e) => setPressureUnit(e.target.value as PressureUnit)}
-                            className="px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                            className="px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                           >
                             {pressureUnits.map(unit => (
                               <option key={unit.value} value={unit.value}>
@@ -1020,14 +1019,14 @@ export default function OrificeCalculatorPage() {
                           </select>
                         </div>
                         <div className="flex gap-2">
-                          <div className="flex border border-gray-300 rounded overflow-hidden">
+                          <div className="flex border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden">
                             <button
                               type="button"
                               onClick={() => setPressureType('gauge')}
-                              className={`px-3 py-2 text-xs font-medium transition-colors ${
+                              className={`px-4 py-2 text-xs font-semibold transition-colors ${
                                 pressureType === 'gauge'
-                                  ? 'bg-[#2B6BA0] text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10'
                               }`}
                             >
                               Gauge
@@ -1035,17 +1034,17 @@ export default function OrificeCalculatorPage() {
                             <button
                               type="button"
                               onClick={() => setPressureType('absolute')}
-                              className={`px-3 py-2 text-xs font-medium transition-colors ${
+                              className={`px-4 py-2 text-xs font-semibold transition-colors ${
                                 pressureType === 'absolute'
-                                  ? 'bg-[#2B6BA0] text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10'
                               }`}
                             >
                               Absolute
                             </button>
                           </div>
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                           {pressureType === 'gauge' 
                             ? 'Gauge pressure (relative to atmospheric pressure)' 
                             : 'Absolute pressure (total pressure including atmosphere)'}
@@ -1053,7 +1052,7 @@ export default function OrificeCalculatorPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-normal text-black mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Operating Temperature
                         </label>
                         <div className="flex gap-2">
@@ -1062,12 +1061,12 @@ export default function OrificeCalculatorPage() {
                             value={operatingTemperature}
                             onChange={(e) => setOperatingTemperature(e.target.value)}
                             step="0.1"
-                            className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                            className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                           />
                           <select
                             value={temperatureUnit}
                             onChange={(e) => setTemperatureUnit(e.target.value as TemperatureUnit)}
-                            className="px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                            className="px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                           >
                             {temperatureUnits.map(unit => (
                               <option key={unit.value} value={unit.value}>
@@ -1076,13 +1075,13 @@ export default function OrificeCalculatorPage() {
                             ))}
                           </select>
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                           Select temperature unit: Celsius, Kelvin, or Fahrenheit
                         </p>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-normal text-black mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Compressibility Factor Z
                         </label>
                         <input
@@ -1090,12 +1089,12 @@ export default function OrificeCalculatorPage() {
                           value={compressibilityZ}
                           onChange={(e) => setCompressibilityZ(e.target.value)}
                           step="0.001"
-                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-normal text-black mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Isentropic Exponent κ
                         </label>
                         <input
@@ -1103,20 +1102,20 @@ export default function OrificeCalculatorPage() {
                           value={isentropicExponentK}
                           onChange={(e) => setIsentropicExponentK(e.target.value)}
                           step="0.01"
-                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                          className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                         />
                       </div>
                     </>
                   )}
 
                   <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Nominal size DN
                     </label>
                     <select
                       value={selectedPipeDN}
                       onChange={(e) => setSelectedPipeDN(parseFloat(e.target.value))}
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                     >
                       {pipeSizes.map((pipe) => (
                         <option key={pipe.dn} value={pipe.dn}>
@@ -1127,7 +1126,7 @@ export default function OrificeCalculatorPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-normal text-black mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Tube internal diameter D (mm, max 325)
                     </label>
                     <input
@@ -1135,13 +1134,13 @@ export default function OrificeCalculatorPage() {
                       value={internalDiameter}
                       onChange={(e) => setInternalDiameter(e.target.value)}
                       max="325"
-                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                     />
                   </div>
 
                   {(outputMode === 'orifice' || outputMode === 'pressure') && (
                     <div>
-                      <label className="block text-sm font-normal text-black mb-1.5">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Max. flow rate Q (m³/h, max 10000)
                       </label>
                       <input
@@ -1149,14 +1148,14 @@ export default function OrificeCalculatorPage() {
                         value={maxFlowRate}
                         onChange={(e) => setMaxFlowRate(e.target.value)}
                         max="10000"
-                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                       />
                     </div>
                   )}
 
                   {(outputMode === 'orifice' || outputMode === 'flowrate') && (
                     <div>
-                      <label className="block text-sm font-normal text-black mb-1.5">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         {calculationMode === 'restricting' 
                           ? 'Pressure loss Δp (mbar, max 100)' 
                           : 'Differential pressure Δp (mbar, max 100)'}
@@ -1166,14 +1165,14 @@ export default function OrificeCalculatorPage() {
                         value={pressureDrop}
                         onChange={(e) => setPressureDrop(e.target.value)}
                         max="100"
-                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                       />
                     </div>
                   )}
 
                   {(outputMode === 'pressure' || outputMode === 'flowrate') && (
                     <div>
-                      <label className="block text-sm font-normal text-black mb-1.5">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Orifice diameter d (mm, max 325)
                       </label>
                       <input
@@ -1181,13 +1180,13 @@ export default function OrificeCalculatorPage() {
                         value={orificeDiameterInput}
                         onChange={(e) => setOrificeDiameterInput(e.target.value)}
                         max="325"
-                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded focus:ring-1 focus:ring-[#2B6BA0] focus:border-transparent text-sm text-gray-900"
+                        className="w-full px-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-slate-900 dark:text-white transition-colors duration-200"
                       />
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-start justify-center bg-white p-4 rounded border border-gray-200">
+                <div className="flex items-start justify-center bg-slate-50 dark:bg-white/5 p-6 rounded-xl border border-slate-200 dark:border-white/10">
                   {calculationMode === 'restricting' ? (
                     <RestrictingOrificeDiagram />
                   ) : (
@@ -1196,16 +1195,16 @@ export default function OrificeCalculatorPage() {
                 </div>
               </div>
 
-              <div className="border-t pt-5 mt-5">
-                <h3 className="text-base font-semibold text-gray-800 mb-3">Output</h3>
+              <div className="border-t border-slate-200 dark:border-white/10 pt-6 mt-6">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Output</h3>
                 
-                <div className="flex gap-3 mb-5">
+                <div className="flex flex-wrap gap-3 mb-5">
                   <button
                     onClick={() => setOutputMode('orifice')}
-                    className={`px-5 py-2 rounded text-sm font-medium transition-all ${
+                    className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       outputMode === 'orifice'
-                        ? 'bg-[#2B6BA0] text-white'
-                        : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
                     }`}
                   >
                     Orifice diameter d
@@ -1213,10 +1212,10 @@ export default function OrificeCalculatorPage() {
                   
                   <button
                     onClick={() => setOutputMode('pressure')}
-                    className={`px-5 py-2 rounded text-sm font-medium transition-all ${
+                    className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       outputMode === 'pressure'
-                        ? 'bg-[#2B6BA0] text-white'
-                        : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
                     }`}
                   >
                     {calculationMode === 'restricting' ? 'Pressure loss Δp' : 'Differential pressure Δp'}
@@ -1225,10 +1224,10 @@ export default function OrificeCalculatorPage() {
                   {calculationMode === 'restricting' && (
                     <button
                       onClick={() => setOutputMode('flowrate')}
-                      className={`px-5 py-2 rounded text-sm font-medium transition-all ${
+                      className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                         outputMode === 'flowrate'
-                          ? 'bg-[#2B6BA0] text-white'
-                          : 'bg-white border-2 border-[#2B6BA0] text-[#2B6BA0]'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
                       }`}
                     >
                       Max. flow rate Q
@@ -1239,13 +1238,13 @@ export default function OrificeCalculatorPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleProAction(calculateOrifice)}
-                    className="flex-1 bg-[#2B6BA0] hover:bg-[#1e4d73] text-white py-2.5 rounded text-base font-medium transition-all shadow-md"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
                   >
                     Calculate
                   </button>
                   <button
                     onClick={resetForm}
-                    className="px-5 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2.5 rounded text-base font-medium transition-all"
+                    className="px-6 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 py-3 rounded-xl font-semibold transition-colors text-sm"
                   >
                     Reset
                   </button>
@@ -1254,35 +1253,50 @@ export default function OrificeCalculatorPage() {
                 <div className="mt-4">
                   <button
                     onClick={exportToPDF}
-                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+                    className="w-full py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
                   >
-                    <Download size={20} />
+                    <Download size={18} />
                     Export PDF Report
                   </button>
                 </div>
 
                 {showResults && results && (
-                  <div className="mt-5 p-4 bg-gray-50 rounded border border-gray-200">
-                    <div className="text-3xl font-bold text-[#2B6BA0] mb-1">
+                  <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl">
+                    <div className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                       {outputMode === 'orifice' && `${results.orificeDiameter} mm`}
                       {outputMode === 'pressure' && `${results.pressureDrop} mbar`}
                       {outputMode === 'flowrate' && `${(results.massFlowRate / getDensity() * 3600).toFixed(2)} m³/h`}
                     </div>
                     
-                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                      <div><span className="font-medium">Beta Ratio:</span> {results.betaRatio}</div>
-                      <div><span className="font-medium">Cd:</span> {results.dischargeCoef}</div>
-                      <div><span className="font-medium">Re:</span> {results.reynoldsNum.toLocaleString()}</div>
-                      <div><span className="font-medium">Velocity:</span> {results.velocity.toFixed(2)} m/s</div>
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div className="py-2 border-b border-blue-100 dark:border-blue-500/20">
+                        <span className="text-blue-700 dark:text-blue-300">Beta Ratio:</span>
+                        <span className="text-blue-900 dark:text-blue-100 font-medium ml-1">{results.betaRatio}</span>
+                      </div>
+                      <div className="py-2 border-b border-blue-100 dark:border-blue-500/20">
+                        <span className="text-blue-700 dark:text-blue-300">Cd:</span>
+                        <span className="text-blue-900 dark:text-blue-100 font-medium ml-1">{results.dischargeCoef}</span>
+                      </div>
+                      <div className="py-2 border-b border-blue-100 dark:border-blue-500/20">
+                        <span className="text-blue-700 dark:text-blue-300">Re:</span>
+                        <span className="text-blue-900 dark:text-blue-100 font-medium ml-1">{results.reynoldsNum.toLocaleString()}</span>
+                      </div>
+                      <div className="py-2 border-b border-blue-100 dark:border-blue-500/20">
+                        <span className="text-blue-700 dark:text-blue-300">Velocity:</span>
+                        <span className="text-blue-900 dark:text-blue-100 font-medium ml-1">{results.velocity.toFixed(2)} m/s</span>
+                      </div>
                     </div>
-                    <div className="mt-2 text-xs">
-                      <div><span className="font-medium">Permanent Pressure Loss:</span> {results.permanentPressureLoss} mbar</div>
+                    <div className="mt-2 text-sm">
+                      <div>
+                        <span className="text-blue-700 dark:text-blue-300">Permanent Pressure Loss:</span>
+                        <span className="text-blue-900 dark:text-blue-100 font-medium ml-1">{results.permanentPressureLoss} mbar</span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {calculationMode === 'restricting' && (
-                  <div className="mt-3 text-sm text-gray-600">
+                  <div className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                     {featureMode === 'basic' 
                       ? 'Standard conditions: 1 atm (1.01325 bar), 20°C'
                       : 'Using operating conditions with specified pressure and temperature'}
@@ -1290,8 +1304,8 @@ export default function OrificeCalculatorPage() {
                 )}
 
                 {calculationMode === 'measuring' && (
-                  <div className="mt-3 p-2.5 bg-blue-50 rounded border-l-3 border-[#2B6BA0]">
-                    <a href="#" className="text-[#2B6BA0] hover:underline text-sm font-medium">
+                  <div className="mt-3 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20">
+                    <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
                       To calculate the measuring orifice VMO, please use the app 'Nominal size DN'.
                     </a>
                   </div>
@@ -1301,49 +1315,56 @@ export default function OrificeCalculatorPage() {
           </div>
 
           {showResults && curveData.length > 0 && (
-            <div className="bg-white rounded p-4 sm:p-6 shadow border border-gray-200">
-              <h2 className="text-lg font-semibold text-[#2c3e50] mb-4">
+            <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-200 dark:border-white/10 transition-colors duration-200">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                 Pressure Drop vs Flow Rate
               </h2>
               <div className="orifice-chart-container w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={curveData} margin={{ top: 40, right: 45, left: 55, bottom: 50 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis
                       dataKey="pressureDrop"
                       tickCount={5}
                       minTickGap={20}
-                      label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 11, fill: '#555' } }}
-                      tick={{ fontSize: 10 }}
+                      label={{ value: 'Pressure Drop dp (mbar)', position: 'bottom', offset: 30, style: { fontSize: 11, fill: '#64748b' } }}
+                      tick={{ fontSize: 10, fill: '#64748b' }}
                     />
                     <YAxis
                       tickCount={5}
                       width={45}
-                      label={{ value: 'Flow Rate Q (m³/h)', angle: -90, position: 'left', offset: 15, style: { fontSize: 11, fill: '#555' } }}
-                      tick={{ fontSize: 10 }}
+                      label={{ value: 'Flow Rate Q (m³/h)', angle: -90, position: 'left', offset: 15, style: { fontSize: 11, fill: '#64748b' } }}
+                      tick={{ fontSize: 10, fill: '#64748b' }}
                     />
-                    <Tooltip />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                      }}
+                    />
                     <Legend verticalAlign="top" align="right" height={28} wrapperStyle={{ top: 0, right: 0, fontSize: 11 }} />
                     {results && (
                       <ReferenceLine
                         x={results.pressureDrop}
-                        stroke="#e74c3c"
+                        stroke="#ef4444"
                         strokeWidth={2}
-                        label={{ value: `dp=${results.pressureDrop}`, position: 'top', fontSize: 10, fill: '#e74c3c' }}
+                        label={{ value: `dp=${results.pressureDrop}`, position: 'top', fontSize: 10, fill: '#ef4444' }}
                       />
                     )}
                     {results && (
                       <ReferenceLine
                         y={parseFloat(maxFlowRate) || (results.massFlowRate / getDensity() * 3600)}
-                        stroke="#27ae60"
+                        stroke="#22c55e"
                         strokeWidth={2}
-                        label={{ value: `Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))}`, position: 'right', fontSize: 10, fill: '#27ae60' }}
+                        label={{ value: `Q=${maxFlowRate || ((results.massFlowRate / getDensity() * 3600).toFixed(2))}`, position: 'right', fontSize: 10, fill: '#22c55e' }}
                       />
                     )}
                     <Line
                       type="monotone"
                       dataKey="flowRate"
-                      stroke="#2B6BA0"
+                      stroke="#3b82f6"
                       strokeWidth={2}
                       dot={false}
                       name="Q (m³/h)"
@@ -1355,59 +1376,60 @@ export default function OrificeCalculatorPage() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded p-6 shadow border border-gray-200">
-              <h3 className="text-base font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
-                <Info className="text-[#2B6BA0]" />
+            <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm p-6 border border-slate-200 dark:border-white/10 transition-colors duration-200">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <Info className="text-blue-600 dark:text-blue-400" size={18} />
                 Standards & References
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-[#27ae60] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium text-gray-800">ISO 5167-1:2003</div>
-                    <div className="text-gray-600">Measurement of fluid flow by means of orifice plates</div>
+                    <div className="font-medium text-slate-900 dark:text-white">ISO 5167-1:2003</div>
+                    <div className="text-slate-600 dark:text-slate-400">Measurement of fluid flow by means of orifice plates</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-[#27ae60] rounded-full mt-2"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium text-gray-800">DIN EN ISO 5167</div>
-                    <div className="text-gray-600">German standard for orifice plate measurements</div>
+                    <div className="font-medium text-slate-900 dark:text-white">DIN EN ISO 5167</div>
+                    <div className="text-slate-600 dark:text-slate-400">German standard for orifice plate measurements</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded p-6 shadow border border-gray-200">
-              <h3 className="text-base font-semibold text-[#2c3e50] mb-4 flex items-center gap-2">
-                <AlertCircle className="text-[#e67e22]" />
+            <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm p-6 border border-slate-200 dark:border-white/10 transition-colors duration-200">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <AlertCircle className="text-amber-500 dark:text-amber-400" size={18} />
                 Application Notes
               </h3>
               <div className="space-y-3 text-sm">
-                <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                  <div className="font-medium text-blue-800">Flow Limits</div>
-                  <div className="text-blue-700">Maximum flow rate: 10,000 m³/h<br/> Maximum pressure drop: 100 mbar<br/> Maximum pipe diameter: 325 mm</div>
+                <div className="p-4 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20">
+                  <div className="font-medium text-blue-900 dark:text-blue-100 mb-1">Flow Limits</div>
+                  <div className="text-blue-700 dark:text-blue-300 text-sm">
+                    Maximum flow rate: 10,000 m³/h<br/>
+                    Maximum pressure drop: 100 mbar<br/>
+                    Maximum pipe diameter: 325 mm
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="text-xs text-gray-500 text-center pb-4">
           </div>
         </div>
       </div>
 
       {showSubscriptionModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gauge className="w-8 h-8 text-amber-600" />
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Gauge className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                 {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-slate-600 dark:text-slate-300">
                 {isLoggedIn
                   ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
                   : 'Please log in to use the orifice calculator and access all features.'}
@@ -1415,19 +1437,19 @@ export default function OrificeCalculatorPage() {
             </div>
 
             {!isLoggedIn && (
-              <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-2">Free account benefits:</h3>
-                <ul className="space-y-1.5 text-sm text-gray-700">
+              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Free account benefits:</h3>
+                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     Full access to basic calculators
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     Calculation history
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     Free forever - no credit card needed
                   </li>
                 </ul>
@@ -1435,23 +1457,23 @@ export default function OrificeCalculatorPage() {
             )}
 
             {isLoggedIn && (
-              <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-2">Pro Features:</h3>
-                <ul className="space-y-1.5 text-sm text-gray-700">
+              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Pro Features:</h3>
+                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     Orifice Plate Calculator
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     All Pro calculators
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     PDF report export
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-blue-500 font-bold">✓</span>
                     Priority support
                   </li>
                 </ul>
@@ -1461,13 +1483,13 @@ export default function OrificeCalculatorPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSubscriptionModal(false)}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                className="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
-                className="flex-1 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
               >
                 {isLoggedIn ? 'Upgrade Now' : 'Log In'}
               </button>

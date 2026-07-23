@@ -291,37 +291,37 @@ export default function AccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e] flex items-center justify-center">
-        <div className="text-[#2c3e50] dark:text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-slate-900 dark:text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       {/* Header */}
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-semibold text-[#2c3e50] dark:text-white mb-8">My Account</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">My Account</h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 dark:bg-red-500/20 border border-red-300 dark:border-red-500 rounded text-red-700 dark:text-red-300">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-100 dark:bg-green-500/20 border border-green-300 dark:border-green-500 rounded text-green-700 dark:text-green-300">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-2xl text-green-700 dark:text-green-300">
             {success}
           </div>
         )}
 
-        <div className="grid gap-8">
+        <div className="grid gap-6">
           {/* User Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Profile</h2>
-            <div className="space-y-2 text-[#555] dark:text-gray-300">
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Profile</h2>
+            <div className="space-y-2 text-slate-600 dark:text-slate-300">
               <p><strong>Email:</strong> {user?.email}</p>
               <p><strong>Current Plan:</strong> {subscription?.tier_name || "Free"}</p>
               {subscription?.tier && subscription.tier !== "free" && (
@@ -342,7 +342,7 @@ export default function AccountPage() {
                   {subscription.creem_status && (
                     <p><strong>Status:</strong> {subscription.creem_status.replace("_", " ").toUpperCase()}</p>
                   )}
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     {subscription.auto_renewal_active === false || 
                      subscription.creem_status?.toLowerCase() === "scheduled_cancel"
                       ? "Your subscription has been cancelled. Pro features will remain active until the date above."
@@ -355,7 +355,7 @@ export default function AccountPage() {
               <button
                 onClick={handleRefreshSubscription}
                 disabled={refreshingSubscription}
-                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1.5"
               >
                 {refreshingSubscription ? (
                   <>
@@ -373,7 +373,7 @@ export default function AccountPage() {
                 <button
                   onClick={handleManageBilling}
                   disabled={refreshingSubscription}
-                  className="px-3 py-1.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-white rounded-xl text-sm font-medium hover:bg-slate-300 dark:hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -384,7 +384,7 @@ export default function AccountPage() {
               {(!subscription?.tier || subscription.tier === "free") && (
                 <Link
                   to="/subscription"
-                  className="px-3 py-1.5 bg-[#f39c12] hover:bg-[#e67e22] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5"
                 >
                   Upgrade to Pro
                 </Link>
@@ -393,8 +393,8 @@ export default function AccountPage() {
           </div>
 
           {/* Change Password */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-4">Change Password</h2>
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Change Password</h2>
             <form onSubmit={handleChangePassword} className="space-y-4">
               <PasswordInput
                 label="Current Password"
@@ -411,7 +411,7 @@ export default function AccountPage() {
                   required
                   minLength={8}
                 />
-                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Must be at least 8 characters</p>
               </div>
               
               <PasswordInput
@@ -425,7 +425,7 @@ export default function AccountPage() {
               <button
                 type="submit"
                 disabled={changingPassword}
-                className="px-4 py-2 bg-[#2B6BA0] text-white rounded hover:bg-[#1e4d73] disabled:opacity-50 transition-colors"
+                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
               >
                 {changingPassword ? "Changing..." : "Change Password"}
               </button>
@@ -433,15 +433,15 @@ export default function AccountPage() {
           </div>
 
           {/* Data Export */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-2">Export My Data</h2>
-            <p className="text-sm text-[#555] dark:text-gray-400 mb-4">
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Export My Data</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Download all your personal data in JSON format (GDPR right to data portability).
             </p>
             <button
               onClick={handleExportData}
               disabled={exportingData}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 font-medium"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -451,22 +451,22 @@ export default function AccountPage() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border-2 border-red-200 dark:border-red-900">
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border-2 border-red-200 dark:border-red-500/30">
             <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-2">Danger Zone</h2>
-            <p className="text-sm text-[#555] dark:text-gray-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Permanently delete your account and all associated data. This action cannot be undone.
             </p>
             
             {!showDeleteConfirm ? (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium"
               >
                 Delete My Account
               </button>
             ) : (
               <div className="space-y-4">
-                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="bg-red-50 dark:bg-red-500/10 p-4 rounded-xl border border-red-200 dark:border-red-500/30">
                   <p className="text-sm text-red-700 dark:text-red-300 font-medium mb-2">
                     ⚠️ This action is irreversible!
                   </p>
@@ -476,7 +476,7 @@ export default function AccountPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Enter your password to confirm:
                   </label>
                   <input
@@ -484,7 +484,7 @@ export default function AccountPage() {
                     value={deletePassword}
                     onChange={(e) => setDeletePassword(e.target.value)}
                     placeholder="Your password"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 transition-colors"
                   />
                 </div>
                 
@@ -492,7 +492,7 @@ export default function AccountPage() {
                   <button
                     onClick={handleDeleteAccount}
                     disabled={deletingAccount}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50"
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors disabled:opacity-50 font-medium"
                   >
                     {deletingAccount ? "Deleting..." : "Permanently Delete Account"}
                   </button>
@@ -501,7 +501,7 @@ export default function AccountPage() {
                       setShowDeleteConfirm(false)
                       setDeletePassword("")
                     }}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+                    className="px-4 py-2 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-xl transition-colors font-medium"
                   >
                     Cancel
                   </button>
@@ -511,25 +511,25 @@ export default function AccountPage() {
           </div>
 
           {/* Subscription Management */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white mb-6">Subscription</h2>
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Subscription</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {pricingTiers.map((tier) => (
                 <div
                   key={tier.id}
-                  className={`p-4 rounded-lg border ${
+                  className={`p-5 rounded-2xl border ${
                     subscription?.tier === tier.id
-                      ? "border-[#f39c12] bg-[#f39c12]/5"
-                      : "border-gray-200 dark:border-gray-700"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
+                      : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5"
                   }`}
                 >
-                  <h3 className="text-lg font-semibold text-[#2c3e50] dark:text-white">{tier.name}</h3>
-                  <p className="text-lg md:text-2xl font-bold text-[#2c3e50] dark:text-white my-2">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{tier.name}</h3>
+                  <p className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white my-2">
                     {tier.price_display}
-                    <span className="text-sm font-normal text-[#7f8c8d] dark:text-gray-400">{tier.period}</span>
+                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400">{tier.period}</span>
                   </p>
-                  <ul className="text-sm text-[#555] dark:text-gray-300 mb-4 space-y-1">
+                  <ul className="text-sm text-slate-600 dark:text-slate-300 mb-4 space-y-1">
                     {tier.features.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <span className="text-green-600 dark:text-green-400">✓</span> {feature}
@@ -537,17 +537,17 @@ export default function AccountPage() {
                     ))}
                   </ul>
                   {subscription?.tier === tier.id ? (
-                    <div className="text-center text-[#7f8c8d] dark:text-gray-400 text-sm py-2">
+                    <div className="text-center text-slate-500 dark:text-slate-400 text-sm py-2">
                       Current Plan
                     </div>
                   ) : (
                     <button
                       onClick={() => handleSubscribe(tier.id)}
                       disabled={processingPayment || tier.id === "free"}
-                      className={`w-full py-2 rounded-md font-semibold text-sm transition-colors ${
+                      className={`w-full py-2 rounded-xl font-semibold text-sm transition-colors ${
                         tier.id === "free"
-                          ? "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-                          : "bg-[#f39c12] hover:bg-[#e67e22] text-white disabled:opacity-50"
+                          ? "bg-slate-200 dark:bg-white/10 text-slate-400 dark:text-slate-500 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                       }`}
                     >
                       {processingPayment ? "Processing..." : "Upgrade"}
@@ -558,24 +558,24 @@ export default function AccountPage() {
             </div>
 
             {subscription && subscription.tier !== "free" && (
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+              <div className="border-t border-slate-200 dark:border-white/10 pt-4 mt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  <span className={`px-2 py-1 rounded-xl text-xs font-medium ${
                     subscription.auto_renewal_active === false
-                      ? "bg-green-100 text-green-700"
-                      : "bg-orange-100 text-orange-700"
+                      ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                      : "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
                   }`}>
                     {subscription.auto_renewal_active === false ? "Auto-Renewal: OFF" : "Auto-Renewal: ON"}
                   </span>
                   {subscription.creem_status && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       ({subscription.creem_status.replace("_", " ").toUpperCase()})
                     </span>
                   )}
                 </div>
                 
                 {subscription.auto_renewal_active === false && (
-                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium mb-2">
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
                     <strong>Pro Access Until:</strong>{' '}
                     {subscription.current_period_end
                       ? new Date(subscription.current_period_end).toLocaleDateString()
@@ -585,7 +585,7 @@ export default function AccountPage() {
                   </p>
                 )}
                 
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                   {subscription.auto_renewal_active === false
                     ? "Your subscription will not renew. Pro access remains active until the expiration date above."
                     : "Cancelling will stop auto-renewal. Your Pro access remains active until the expiration date."}
@@ -604,10 +604,10 @@ export default function AccountPage() {
                     <button
                       onClick={() => handleSubscribe('pro')}
                       disabled={processingPayment}
-                      className={`px-4 py-2 rounded-md font-semibold text-sm transition-colors ${
+                      className={`px-4 py-2 rounded-xl font-semibold text-sm transition-colors ${
                         processingPayment
                           ? "opacity-50 cursor-not-allowed"
-                          : "bg-[#f39c12] hover:bg-[#e67e22] text-white"
+                          : "bg-blue-600 hover:bg-blue-700 text-white"
                       }`}
                     >
                       {processingPayment ? "Processing..." : "Resubscribe"}
@@ -616,7 +616,7 @@ export default function AccountPage() {
                   <button
                     onClick={handleManageBilling}
                     disabled={refreshingSubscription}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -630,15 +630,15 @@ export default function AccountPage() {
 
           {/* Order History */}
           {orders.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+            <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-[#2c3e50] dark:text-white">Order History</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Order History</h2>
                 {subscription?.billing_portal_url && (
                   <a
                     href={subscription.billing_portal_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-[#f39c12] hover:text-[#e67e22] font-medium flex items-center gap-1"
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -649,38 +649,38 @@ export default function AccountPage() {
               </div>
               {/* Desktop: Table */}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm text-[#555] dark:text-gray-300">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                <table className="w-full text-sm text-slate-600 dark:text-slate-300">
+                  <thead className="bg-slate-50 dark:bg-white/5">
                     <tr>
-                      <th className="px-4 py-2 text-left">Date</th>
-                      <th className="px-4 py-2 text-left">Plan</th>
-                      <th className="px-4 py-2 text-left">Amount</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Invoice</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Date</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Plan</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Amount</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Status</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Invoice</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map((order) => (
-                      <tr key={order.id} className="border-t border-gray-100 dark:border-gray-700">
-                        <td className="px-4 py-2">{new Date(order.created_at).toLocaleDateString()}</td>
-                        <td className="px-4 py-2 capitalize">{order.tier}</td>
-                        <td className="px-4 py-2">${(order.amount / 100).toFixed(2)}</td>
-                        <td className="px-4 py-2">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      <tr key={order.id} className="border-t border-slate-100 dark:border-white/5">
+                        <td className="px-4 py-3">{new Date(order.created_at).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 capitalize">{order.tier}</td>
+                        <td className="px-4 py-3">${(order.amount / 100).toFixed(2)}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium ${
                             order.status === "succeeded" 
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" 
-                              : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                              ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300" 
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300"
                           }`}>
                             {order.status === "succeeded" ? "Paid" : order.status}
                           </span>
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-3">
                           {order.status === "succeeded" && subscription?.billing_portal_url ? (
                             <a
                               href={subscription.billing_portal_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#f39c12] hover:text-[#e67e22] font-medium text-xs flex items-center gap-1"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-xs flex items-center gap-1"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -688,7 +688,7 @@ export default function AccountPage() {
                               View
                             </a>
                           ) : (
-                            <span className="text-gray-400 text-xs">—</span>
+                            <span className="text-slate-400 dark:text-slate-500 text-xs">—</span>
                           )}
                         </td>
                       </tr>
@@ -699,21 +699,21 @@ export default function AccountPage() {
               {/* Mobile: Cards */}
               <div className="md:hidden space-y-3">
                 {orders.map((order) => (
-                  <div key={order.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                  <div key={order.id} className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm text-slate-500 dark:text-slate-400">
                         {new Date(order.created_at).toLocaleDateString()}
                       </span>
-                      <span className="text-lg font-semibold text-[#f39c12]">
+                      <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                         ${(order.amount / 100).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="capitalize text-sm text-[#555] dark:text-gray-300">{order.tier}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                      <span className="capitalize text-sm text-slate-600 dark:text-slate-300">{order.tier}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-xl ${
                         order.status === "succeeded" 
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" 
-                          : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                          ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300" 
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300"
                       }`}>
                         {order.status === "succeeded" ? "Paid" : order.status}
                       </span>
@@ -723,7 +723,7 @@ export default function AccountPage() {
                         href={subscription.billing_portal_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-[#f39c12] hover:text-[#e67e22] font-medium flex items-center gap-1"
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

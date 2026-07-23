@@ -95,22 +95,22 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-slate-900 dark:text-white text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2c3e50] to-[#34495e]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       {/* Header */}
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-semibold text-white mb-8">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Admin Dashboard</h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500 rounded text-blue-300">
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl text-blue-700 dark:text-blue-300">
           {error}
         </div>
       )}
@@ -125,10 +125,10 @@ export default function AdminPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-6 py-2.5 rounded-xl font-medium transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
-                  ? "bg-[#f39c12] text-white"
-                  : "bg-white/10 text-[#bdc3c7] hover:bg-white/20"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10"
               }`}
             >
               {tab.label}
@@ -137,26 +137,26 @@ export default function AdminPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6">
+        <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 p-6">
           {activeTab === "users" && (
             <div>
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">User Management</h2>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">User Management</h2>
               
               {/* Password Change Form */}
               {selectedUserId && (
-                <div className="mb-6 bg-white rounded-lg p-6 shadow-xl border border-gray-300">
-                  <h3 className="text-lg font-semibold text-[#2c3e50] mb-4">
+                <div className="mb-6 bg-slate-50 dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                     Change Password for {users.find(u => u.id === selectedUserId)?.email}
                   </h3>
 
                   {passwordError && (
-                    <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded text-red-700">
+                    <div className="mb-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-red-700 dark:text-red-300">
                       {passwordError}
                     </div>
                   )}
 
                   {passwordSuccess && (
-                    <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded text-green-700">
+                    <div className="mb-4 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-2xl text-green-700 dark:text-green-300">
                       {passwordSuccess}
                     </div>
                   )}
@@ -170,7 +170,7 @@ export default function AdminPage() {
                         required
                         minLength={8}
                       />
-                      <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Must be at least 8 characters</p>
                     </div>
                     
                     <PasswordInput
@@ -185,7 +185,7 @@ export default function AdminPage() {
                       <button
                         type="submit"
                         disabled={changingUserPassword}
-                        className="px-4 py-2 bg-[#2B6BA0] text-white rounded hover:bg-[#1e4d73] disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
                       >
                         {changingUserPassword ? "Changing..." : "Change Password"}
                       </button>
@@ -198,7 +198,7 @@ export default function AdminPage() {
                           setPasswordError("")
                           setPasswordSuccess("")
                         }}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                        className="px-4 py-2 bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-white rounded-xl hover:bg-slate-300 dark:hover:bg-white/20 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -209,46 +209,46 @@ export default function AdminPage() {
               
               {/* Desktop: Table */}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm text-[#555]">
-                  <thead className="bg-gray-50">
+                <table className="w-full text-sm text-slate-600 dark:text-slate-300">
+                  <thead className="bg-slate-50 dark:bg-white/5">
                     <tr>
-                      <th className="px-4 py-2 text-left">Email</th>
-                      <th className="px-4 py-2 text-left">Plan</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Expires At</th>
-                      <th className="px-4 py-2 text-left">Creem Customer</th>
-                      <th className="px-4 py-2 text-left">Creem Sub</th>
-                      <th className="px-4 py-2 text-left">Actions</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Email</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Plan</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Status</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Expires At</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Creem Customer</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Creem Sub</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user) => (
-                    <tr key={user.id} className="border-t border-gray-100">
-                      <td className="px-4 py-2">{user.email}</td>
-                      <td className="px-4 py-2 capitalize">{user.subscription_tier}</td>
-                      <td className="px-4 py-2">
-                        <span className={user.is_active ? "text-green-600" : "text-red-600"}>
+                    <tr key={user.id} className="border-t border-slate-100 dark:border-white/5">
+                      <td className="px-4 py-3">{user.email}</td>
+                      <td className="px-4 py-3 capitalize">{user.subscription_tier}</td>
+                      <td className="px-4 py-3">
+                        <span className={user.is_active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         {user.subscription_expires_at
                           ? new Date(user.subscription_expires_at).toLocaleDateString()
                           : "-"}
                       </td>
-                      <td className="px-4 py-2 text-xs text-gray-500 font-mono">
+                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
                         {user.creem_customer_id
                           ? user.creem_customer_id.substring(0, 12) + "..."
                           : "-"}
                       </td>
-                      <td className="px-4 py-2 text-xs text-gray-500 font-mono">
+                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
                         {user.creem_subscription_id
                           ? user.creem_subscription_id.substring(0, 12) + "..."
                           : "-"}
                       </td>
-                      <td className="px-4 py-2 flex flex-col sm:flex-row gap-2">
+                      <td className="px-4 py-3 flex flex-col sm:flex-row gap-2">
                         <select
-                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          className="px-3 py-2 border border-slate-200 dark:border-white/10 rounded-xl text-sm bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
                           value={user.subscription_tier}
                           onChange={(e) => handleUpdateUserSubscription(user.id, e.target.value)}
                         >
@@ -261,7 +261,7 @@ export default function AdminPage() {
                             setNewUserPassword("")
                             setConfirmNewPassword("")
                           }}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors"
+                          className="px-3 py-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-white/10 transition-colors font-medium"
                         >
                           Change Password
                         </button>
@@ -275,28 +275,28 @@ export default function AdminPage() {
               {/* Mobile: Cards */}
               <div className="md:hidden space-y-4">
                 {users.map((user) => (
-                  <div key={user.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div className="font-medium text-[#2c3e50] mb-3 break-all">{user.email}</div>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-[#555] mb-3">
+                  <div key={user.id} className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
+                    <div className="font-medium text-slate-900 dark:text-white mb-3 break-all">{user.email}</div>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300 mb-3">
                       <div>
-                        <span className="text-gray-400">Plan:</span>{" "}
+                        <span className="text-slate-400 dark:text-slate-500">Plan:</span>{" "}
                         <span className="capitalize">{user.subscription_tier}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Status:</span>{" "}
-                        <span className={user.is_active ? "text-green-600" : "text-red-600"}>
+                        <span className="text-slate-400 dark:text-slate-500">Status:</span>{" "}
+                        <span className={user.is_active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
                           {user.is_active ? "Active" : "Inactive"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Expires:</span>{" "}
+                        <span className="text-slate-400 dark:text-slate-500">Expires:</span>{" "}
                         {user.subscription_expires_at
                           ? new Date(user.subscription_expires_at).toLocaleDateString()
                           : "-"}
                       </div>
                     </div>
                     {(user.creem_customer_id || user.creem_subscription_id) && (
-                      <div className="text-xs text-gray-400 font-mono mb-3 space-y-1">
+                      <div className="text-xs text-slate-400 dark:text-slate-500 font-mono mb-3 space-y-1">
                         {user.creem_customer_id && (
                           <div>Cust: {user.creem_customer_id.substring(0, 12)}...</div>
                         )}
@@ -307,7 +307,7 @@ export default function AdminPage() {
                     )}
                     <div className="flex flex-col gap-2">
                       <select
-                        className="px-3 py-2 border border-gray-300 rounded text-sm w-full"
+                        className="px-3 py-2 border border-slate-200 dark:border-white/10 rounded-xl text-sm w-full bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
                         value={user.subscription_tier}
                         onChange={(e) => handleUpdateUserSubscription(user.id, e.target.value)}
                       >
@@ -320,7 +320,7 @@ export default function AdminPage() {
                           setNewUserPassword("")
                           setConfirmNewPassword("")
                         }}
-                        className="px-3 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors w-full"
+                        className="px-3 py-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-white/10 transition-colors font-medium w-full"
                       >
                         Change Password
                       </button>
@@ -334,7 +334,7 @@ export default function AdminPage() {
           {activeTab === "orders" && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-[#2c3e50]">Order Management</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Order Management</h2>
                 <button
                   onClick={async () => {
                     if (!confirm("Are you sure you want to clean up duplicate succeeded orders? This will keep only one succeeded order per user per day.")) return
@@ -346,34 +346,34 @@ export default function AdminPage() {
                       setError(err instanceof Error ? err.message : "Failed to cleanup")
                     }
                   }}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 text-sm font-medium transition-colors"
                 >
                   Cleanup Duplicates
                 </button>
               </div>
               {/* Desktop: Table */}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm text-[#555]">
-                  <thead className="bg-gray-50">
+                <table className="w-full text-sm text-slate-600 dark:text-slate-300">
+                  <thead className="bg-slate-50 dark:bg-white/5">
                     <tr>
-                      <th className="px-4 py-2 text-left">Date</th>
-                      <th className="px-4 py-2 text-left">User</th>
-                      <th className="px-4 py-2 text-left">Plan</th>
-                      <th className="px-4 py-2 text-left">Amount</th>
-                      <th className="px-4 py-2 text-left">Status</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Date</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">User</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Plan</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Amount</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-900 dark:text-white">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map((order) => (
-                      <tr key={order.id} className="border-t border-gray-100">
-                        <td className="px-4 py-2">{new Date(order.created_at).toLocaleDateString()}</td>
-                        <td className="px-4 py-2">{order.user_email}</td>
-                        <td className="px-4 py-2 capitalize">{order.tier}</td>
-                        <td className="px-4 py-2">${(order.amount / 100).toFixed(2)}</td>
-                        <td className="px-4 py-2 capitalize">
+                      <tr key={order.id} className="border-t border-slate-100 dark:border-white/5">
+                        <td className="px-4 py-3">{new Date(order.created_at).toLocaleDateString()}</td>
+                        <td className="px-4 py-3">{order.user_email}</td>
+                        <td className="px-4 py-3 capitalize">{order.tier}</td>
+                        <td className="px-4 py-3">${(order.amount / 100).toFixed(2)}</td>
+                        <td className="px-4 py-3 capitalize">
                           <span
                             className={
-                              order.status === "succeeded" ? "text-green-600" : "text-orange-600"
+                              order.status === "succeeded" ? "text-green-600 dark:text-green-400" : "text-blue-600 dark:text-blue-400"
                             }
                           >
                             {order.status}
@@ -388,28 +388,28 @@ export default function AdminPage() {
               {/* Mobile: Cards */}
               <div className="md:hidden space-y-4">
                 {orders.map((order) => (
-                  <div key={order.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div key={order.id} className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/10">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
                         {new Date(order.created_at).toLocaleDateString()}
                       </div>
                       <div
                         className={`text-sm font-medium capitalize ${
-                          order.status === "succeeded" ? "text-green-600" : "text-orange-600"
+                          order.status === "succeeded" ? "text-green-600 dark:text-green-400" : "text-blue-600 dark:text-blue-400"
                         }`}
                       >
                         {order.status}
                       </div>
                     </div>
-                    <div className="font-medium text-[#2c3e50] break-all mb-2">
+                    <div className="font-medium text-slate-900 dark:text-white break-all mb-2">
                       {order.user_email}
                     </div>
                     <div className="flex justify-between items-center">
-                      <div className="text-sm text-[#555]">
-                        <span className="text-gray-400">Plan:</span>{" "}
+                      <div className="text-sm text-slate-600 dark:text-slate-300">
+                        <span className="text-slate-400 dark:text-slate-500">Plan:</span>{" "}
                         <span className="capitalize">{order.tier}</span>
                       </div>
-                      <div className="text-lg font-semibold text-[#f39c12]">
+                      <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                         ${(order.amount / 100).toFixed(2)}
                       </div>
                     </div>
@@ -421,30 +421,30 @@ export default function AdminPage() {
 
           {activeTab === "revenue" && (
             <div>
-              <h2 className="text-xl font-semibold text-[#2c3e50] mb-6">Revenue Overview</h2>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Revenue Overview</h2>
               {revenue && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-[#f39c12]">{revenue.total_revenue_display}</div>
-                    <div className="text-sm text-[#7f8c8d]">Total Revenue</div>
-                    <div className="text-xs text-gray-400 mt-1">From Creem</div>
+                  <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-center">
+                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{revenue.total_revenue_display}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Revenue</div>
+                    <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">From Creem</div>
                   </div>
-                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-[#2c3e50]">{revenue.creem_transaction_count || revenue.total_orders}</div>
-                    <div className="text-sm text-[#7f8c8d]">Transactions</div>
+                  <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-center">
+                    <div className="text-3xl font-bold text-slate-900 dark:text-white">{revenue.creem_transaction_count || revenue.total_orders}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Transactions</div>
                   </div>
-                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-green-600">{revenue.active_subscriptions || revenue.successful_orders || 0}</div>
-                    <div className="text-sm text-[#7f8c8d]">Active Subscriptions</div>
+                  <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-center">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">{revenue.active_subscriptions || revenue.successful_orders || 0}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Active Subscriptions</div>
                   </div>
-                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <div className="text-3xl font-bold text-[#555]">{users.length}</div>
-                    <div className="text-sm text-[#7f8c8d]">Total Users</div>
+                  <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-center">
+                    <div className="text-3xl font-bold text-slate-900 dark:text-white">{users.length}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Total Users</div>
                   </div>
                 </div>
               )}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-2xl border border-blue-200 dark:border-blue-500/30">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
                   <strong>Note:</strong> Revenue data is pulled from Creem. To request withdrawal, please log in to your Creem dashboard directly.
                 </p>
               </div>

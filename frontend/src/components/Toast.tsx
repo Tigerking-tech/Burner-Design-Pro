@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext, useCallback, ReactNode } from 'react'
+import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react'
 
 interface Toast {
   id: number
@@ -34,6 +35,10 @@ export function ToastProvider({ children }: ToastProviderProps) {
     setToasts(prev => [...prev, { id, message, type }])
   }, [toastId])
 
+  const removeToast = useCallback((id: number) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }, [])
+
   useEffect(() => {
     if (toasts.length > 0) {
       const timer = setTimeout(() => {
@@ -44,38 +49,22 @@ export function ToastProvider({ children }: ToastProviderProps) {
   }, [toasts])
 
   const getToastStyles = (type: Toast['type']) => {
-    const base = 'px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[280px] max-w-md transform transition-all duration-300'
+    const base = 'flex items-center gap-3 min-w-[320px] max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden'
     const typeStyles = {
-      success: 'bg-green-600 text-white border border-green-500',
-      error: 'bg-red-600 text-white border border-red-500',
-      warning: 'bg-yellow-600 text-white border border-yellow-500',
-      info: 'bg-blue-600 text-white border border-blue-500',
+      success: 'border-l-4 border-l-emerald-500',
+      error: 'border-l-4 border-l-red-500',
+      warning: 'border-l-4 border-l-amber-500',
+      info: 'border-l-4 border-l-blue-500',
     }
     return `${base} ${typeStyles[type]}`
   }
 
   const getIcon = (type: Toast['type']) => {
     const icons = {
-      success: (
-        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-      error: (
-        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      ),
-      warning: (
-        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      ),
-      info: (
-        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      success: <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />,
+      error: <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />,
+      warning: <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />,
+      info: <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />,
     }
     return icons[type]
   }
@@ -83,7 +72,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
+      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3">
         {toasts.map((toast, index) => (
           <div
             key={toast.id}
@@ -92,8 +81,16 @@ export function ToastProvider({ children }: ToastProviderProps) {
               animation: 'slideIn 0.3s ease-out',
             }}
           >
-            {getIcon(toast.type)}
-            <span className="flex-1">{toast.message}</span>
+            <div className="px-4 py-3 flex-1 flex items-center gap-3">
+              {getIcon(toast.type)}
+              <span className="flex-1 text-sm text-slate-900 dark:text-slate-100 font-medium">{toast.message}</span>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors flex-shrink-0"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
         ))}
       </div>

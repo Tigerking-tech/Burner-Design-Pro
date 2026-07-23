@@ -1,118 +1,118 @@
 import { Link } from 'react-router-dom'
-import { Flame, Mail, Shield, FileText } from 'lucide-react'
+import { Flame, Mail, Shield, FileText, Users } from 'lucide-react'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-[#2c3e50] dark:bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 text-xl font-semibold mb-4">
-              <Flame className="w-6 h-6 text-[#f39c12]" />
-              <span>Burner-Design-Pro</span>
+    <footer className="bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+          <div className="lg:col-span-2">
+            <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+              <Flame className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <span>Burner<span className="text-blue-600 dark:text-blue-400">Design</span>Pro</span>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-4 max-w-sm leading-relaxed">
               Professional thermal design and engineering calculation software for burner engineers.
               Deterministic, formula-based — not AI.
             </p>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
+            <div className="flex items-center gap-2 mt-4 text-slate-600 dark:text-slate-400">
               <Mail className="w-4 h-4" />
-              <a href="mailto:support@burnerdesignpro.com" className="hover:text-white transition-colors">
+              <a href="mailto:support@burnerdesignpro.com" className="text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 support@burnerdesignpro.com
               </a>
             </div>
+            <div className="flex items-center gap-4 mt-6">
+              <Users className="text-slate-400" size={16} />
+              <span className="text-xs text-slate-500 dark:text-slate-500">Trusted by engineers worldwide</span>
+            </div>
           </div>
 
-          {/* Product */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Product</h3>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500 mb-4">Product</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/fuel-manager" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/fuel-manager" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Fuel Manager
                 </Link>
               </li>
               <li>
-                <Link to="/emission" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/emission" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Emission Analysis
                 </Link>
               </li>
               <li>
-                <Link to="/unit-converter" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/unit-converter" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Unit Converter
                 </Link>
               </li>
               <li>
-                <Link to="/orifice-calculator" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/orifice-calculator" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Orifice Calculator
                 </Link>
               </li>
               <li>
-                <Link to="/flame-temperature" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/flame-temperature" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Flame Temperature
                 </Link>
               </li>
               <li>
-                <Link to="/insulation-calculator" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/insulation-calculator" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Insulation Calculator
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Resources</h3>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500 mb-4">Resources</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/faq" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/faq" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link to="/changelog" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/changelog" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Changelog
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/about" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/contact" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link to="/subscription" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/subscription" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Pricing
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500 mb-4">Legal</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                <Link to="/terms" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                <Link to="/privacy-policy" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
                   <Shield className="w-4 h-4" />
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/refund-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/refund-policy" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   Refund Policy
                 </Link>
               </li>
@@ -120,13 +120,14 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-700 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">
-            © {currentYear} Burner Design Pro. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4 text-gray-500 text-xs">
-            <span>Made with 🔥 for engineers</span>
+        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-slate-500 dark:text-slate-500">
+              © {currentYear} Burner-Design-Pro. Professional tools for burner engineers.
+            </p>
+            <div className="flex items-center gap-6">
+              <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ASTM C680 · EPA Standards</span>
+            </div>
           </div>
         </div>
       </div>

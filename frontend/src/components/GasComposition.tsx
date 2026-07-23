@@ -94,21 +94,23 @@ export default function GasComposition({
   const isTotalValid = Math.abs(getTotalPercentage() - 100) < 0.01
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-300 dark:border-gray-700 shadow-lg overflow-hidden">
-      <h2 className="text-xl sm:text-2xl font-bold text-[#2c3e50] dark:text-white mb-4 sm:mb-6 flex items-center">
-        <span className="w-7 h-7 sm:w-8 sm:h-8 bg-[#f39c12] rounded-full flex items-center justify-center text-white text-sm mr-2 sm:mr-3 flex-shrink-0">1</span>
-        {title}
-      </h2>
+    <div className="bg-white dark:bg-white/5 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-white/10 overflow-hidden">
+      {title && (
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+          <span className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs mr-2 flex-shrink-0">1</span>
+          {title}
+        </h2>
+      )}
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-[#555] dark:text-gray-300 mb-2">{presetLabel}</label>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">{presetLabel}</label>
         <select
           value={selectedPreset}
           onChange={(e) => {
             setSelectedPreset(e.target.value)
             if (e.target.value) applyPreset(e.target.value)
           }}
-          className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f39c12]/20 focus:border-[#f39c12] text-gray-900 dark:text-white"
+          className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors duration-200"
         >
           <option value="">Select gas type...</option>
           <option value="__enter__">Enter %-by-vol.</option>
@@ -118,26 +120,26 @@ export default function GasComposition({
         </select>
       </div>
 
-      <div className="overflow-x-auto mb-6">
-        <table className="w-full text-xs border-collapse">
+      <div className="overflow-x-auto mb-4">
+        <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="bg-[#2c3e50] text-white">
-              <th className="text-left py-1.5 px-2 font-medium">Single Gas</th>
-              <th className="text-left py-1.5 px-2 font-medium hidden sm:table-cell">Symbol</th>
-              <th className="text-right py-1.5 px-2 font-medium w-16">Vol.-%</th>
+            <tr className="bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white">
+              <th className="text-left py-2 px-3 font-semibold border-b border-slate-200 dark:border-white/10">Single Gas</th>
+              <th className="text-left py-2 px-3 font-semibold border-b border-slate-200 dark:border-white/10 hidden sm:table-cell">Symbol</th>
+              <th className="text-right py-2 px-3 font-semibold w-20 border-b border-slate-200 dark:border-white/10">Vol.-%</th>
             </tr>
           </thead>
           <tbody>
             {components.map((component, idx) => (
-              <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700/50'}>
-                <td className="py-1 px-2 text-gray-700 dark:text-gray-300 text-xs">{component.name}</td>
-                <td className="py-1 px-2 text-gray-500 dark:text-gray-400 text-xs hidden sm:table-cell">{component.symbol}</td>
-                <td className="py-1 px-2 text-right">
+              <tr key={component.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
+                <td className="py-2 px-3 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-white/10">{component.name}</td>
+                <td className="py-2 px-3 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10 hidden sm:table-cell">{component.symbol}</td>
+                <td className="py-2 px-3 text-right border-b border-slate-200 dark:border-white/10">
                   <input
                     type="text"
                     value={component.percentage}
                     onChange={(e) => handleComponentChange(component.symbol, e.target.value)}
-                    className="w-14 sm:w-16 px-1.5 py-0.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded text-xs text-right text-gray-900 dark:text-white focus:outline-none focus:border-[#f39c12]"
+                    className="w-16 sm:w-20 px-2 py-1.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg text-sm text-right text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                     placeholder="0"
                   />
                 </td>
@@ -147,8 +149,8 @@ export default function GasComposition({
         </table>
       </div>
 
-      <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-700/50 rounded">
-        <span className="text-sm font-medium text-[#555] dark:text-gray-300">Total Percentage:</span>
+      <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Percentage:</span>
         <span className={`text-lg font-bold ${isTotalValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
           {getTotalPercentage().toFixed(2)}%
         </span>

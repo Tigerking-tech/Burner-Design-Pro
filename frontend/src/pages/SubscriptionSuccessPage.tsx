@@ -127,20 +127,20 @@ const SubscriptionSuccessPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-[#2c3e50] dark:to-[#34495e]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-4 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-gray-200 dark:border-gray-700">
+      <div className="max-w-2xl mx-auto px-6 py-16">
+        <div className="bg-white dark:bg-white/5 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-slate-200 dark:border-white/10 backdrop-blur-xl">
           {status === 'loading' && (
             <>
-              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Loader className="w-10 h-10 text-blue-600 dark:text-blue-400 animate-spin" />
               </div>
-              <h1 className="text-2xl font-bold text-[#2c3e50] dark:text-white mb-3">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
                 Processing Your Payment
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-slate-600 dark:text-slate-400">
                 Please wait while we confirm your subscription...
               </p>
             </>
@@ -148,39 +148,49 @@ const SubscriptionSuccessPage: React.FC = () => {
 
           {status === 'success' && (
             <>
-              <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+              <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h1 className="text-3xl font-bold text-[#2c3e50] dark:text-white mb-4">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
                 Welcome to Pro!
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+              <p className="text-slate-600 dark:text-slate-400 mb-8 text-lg">
                 {message}
               </p>
 
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 mb-8">
-                <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-3 text-left">
+              <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-6 mb-8 border border-slate-200 dark:border-white/5">
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-left">
                   You now have access to:
                 </h3>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                <ul className="space-y-3 text-left">
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Flame Temperature Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Insulation Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Orifice Plate Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     PDF Report Export
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Unlimited Calculations
                   </li>
                 </ul>
@@ -189,14 +199,14 @@ const SubscriptionSuccessPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => navigate('/')}
-                  className="px-6 py-3 bg-[#2c3e50] dark:bg-amber-500 text-white rounded-lg font-semibold hover:bg-[#34495e] dark:hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                 >
                   Start Using Pro Features
                   <ArrowRight size={18} />
                 </button>
                 <button
                   onClick={() => navigate('/subscription')}
-                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="px-6 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                 >
                   View Subscription
                 </button>
@@ -206,13 +216,13 @@ const SubscriptionSuccessPage: React.FC = () => {
 
           {status === 'pending' && (
             <>
-              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Loader className="w-10 h-10 text-blue-600 dark:text-blue-400 animate-spin" />
               </div>
-              <h1 className="text-3xl font-bold text-[#2c3e50] dark:text-white mb-4">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
                 Payment Received
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+              <p className="text-slate-600 dark:text-slate-400 mb-8 text-lg">
                 {message}
               </p>
 
@@ -220,7 +230,7 @@ const SubscriptionSuccessPage: React.FC = () => {
                 <button
                   onClick={refreshSubscriptionStatus}
                   disabled={isRefreshing}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                 >
                   {isRefreshing ? (
                     <>
@@ -236,29 +246,39 @@ const SubscriptionSuccessPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
-                <h3 className="font-semibold text-[#2c3e50] dark:text-white mb-3 text-left">
+              <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/5">
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-left">
                   You will soon have access to:
                 </h3>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                <ul className="space-y-3 text-left">
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Flame Temperature Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Insulation Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Orifice Plate Calculator
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     PDF Report Export
                   </li>
-                  <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-green-500">✓</span>
+                  <li className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle size={12} strokeWidth={3} />
+                    </span>
                     Unlimited Calculations
                   </li>
                 </ul>
@@ -267,14 +287,14 @@ const SubscriptionSuccessPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
                 <button
                   onClick={() => navigate('/')}
-                  className="px-6 py-3 bg-[#2c3e50] dark:bg-amber-500 text-white rounded-lg font-semibold hover:bg-[#34495e] dark:hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                 >
                   Continue to App
                   <ArrowRight size={18} />
                 </button>
                 <button
                   onClick={() => navigate('/subscription')}
-                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="px-6 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                 >
                   View Subscription
                 </button>

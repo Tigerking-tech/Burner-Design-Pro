@@ -363,13 +363,13 @@ export default function UnitConverterPage() {
   const result = isNaN(numValue) ? 0 : convert(numValue, fromUnit, toUnit, category);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
       <Navbar />
 
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 px-6 text-center">
+      <section className="bg-slate-900 dark:bg-slate-800 text-white py-12 px-6 text-center border-b border-slate-800">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-semibold mb-4">Unit Converter</h1>
-          <p className="text-[#bdc3c7] max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4">Unit Converter</h1>
+          <p className="text-slate-300 max-w-2xl mx-auto">
             Comprehensive unit converter for flow rate, pressure, temperature, and emissions.
           </p>
         </div>
@@ -377,22 +377,22 @@ export default function UnitConverterPage() {
 
       <div className="max-w-5xl mx-auto px-5 py-10">
         {/* Inline Disclaimer */}
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 flex items-start gap-3 mb-6">
-          <AlertTriangle className="text-yellow-600 mt-0.5 flex-shrink-0" size={20} />
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex items-start gap-3 mb-6">
+          <AlertTriangle className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" size={20} />
           <div className="text-sm">
-            <p className="font-semibold text-yellow-800">⚠️ Reference Only</p>
-            <p className="text-yellow-700 mt-1">
+            <p className="font-semibold text-amber-800 dark:text-amber-400">Reference Only</p>
+            <p className="text-amber-700 dark:text-amber-300 mt-1">
               Unit conversions are provided for convenience. Always verify critical values with authoritative sources
               and engineering standards before use in professional applications.
             </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden">
+        <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden">
           <div className="flex flex-col lg:flex-row">
-            <div className="w-full lg:w-64 bg-gray-100 border-b lg:border-b-0 lg:border-r border-gray-300">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-[#2c3e50]">Categories</h2>
+            <div className="w-full lg:w-64 bg-slate-50 dark:bg-white/5 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/10">
+              <div className="p-4 border-b border-slate-200 dark:border-white/10">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Categories</h2>
               </div>
               <div className="p-2 overflow-y-auto max-h-64 lg:max-h-[calc(100vh-320px)]">
                 {CATEGORIES.map((cat) => (
@@ -408,10 +408,10 @@ export default function UnitConverterPage() {
                       setValue("1");
                       updateConversions(1, newUnits[0], cat);
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors mb-1 ${
+                    className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors mb-1 ${
                       category === cat 
-                        ? "bg-[#f39c12] text-[#2c3e50] font-semibold" 
-                        : "text-[#34495e] hover:bg-gray-200"
+                        ? "bg-blue-600 text-white font-semibold" 
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10"
                     }`}
                   >
                     {cat}
@@ -422,29 +422,29 @@ export default function UnitConverterPage() {
 
             <div className="flex-1 p-6">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-[#2c3e50] mb-1">{category} Converter</h2>
-                <p className="text-[#7f8c8d]">Convert between units in the {category.toLowerCase()} category</p>
+                <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-1">{category} Converter</h2>
+                <p className="text-slate-500 dark:text-slate-400">Convert between units in the {category.toLowerCase()} category</p>
               </div>
 
-              <div className="bg-gray-100 rounded-lg p-6 mb-6 border border-gray-200">
+              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-6 mb-6 border border-slate-200 dark:border-white/10">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-[#34495e] mb-2">Value</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Value</label>
                     <input
                       type="text"
                       value={value}
                       onChange={handleValueChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50] text-lg"
+                      className="w-full px-4 py-3 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-white/5 text-slate-900 dark:text-white text-lg transition-colors duration-200"
                       placeholder="Enter value"
                     />
                   </div>
 
                   <div className="md:col-span-1">
-                    <label className="block text-sm font-semibold text-[#34495e] mb-2">From</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">From</label>
                     <select
                       value={fromUnit}
                       onChange={handleFromUnitChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
+                      className="w-full px-4 py-3 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-white/5 text-slate-900 dark:text-white transition-colors duration-200"
                     >
                       {units.map((unit) => (
                         <option key={unit} value={unit}>{unit}</option>
@@ -455,21 +455,21 @@ export default function UnitConverterPage() {
                   <div className="md:col-span-1 flex items-end justify-center">
                     <button
                       onClick={swapUnits}
-                      className="p-3 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
+                      className="p-3 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 rounded-full transition-colors"
                       title="Swap units"
                     >
-                      <svg className="w-6 h-6 text-[#2c3e50]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                       </svg>
                     </button>
                   </div>
 
                   <div className="md:col-span-1">
-                    <label className="block text-sm font-semibold text-[#34495e] mb-2">To</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">To</label>
                     <select
                       value={toUnit}
                       onChange={handleToUnitChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f39c12] bg-white text-[#2c3e50]"
+                      className="w-full px-4 py-3 border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-white/5 text-slate-900 dark:text-white transition-colors duration-200"
                     >
                       {units.map((unit) => (
                         <option key={unit} value={unit}>{unit}</option>
@@ -478,17 +478,17 @@ export default function UnitConverterPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-300">
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-[#7f8c8d] mb-1">Result</p>
-                      <p className="text-3xl font-bold text-[#2c3e50]">
-                        {formatNumber(result)} <span className="text-lg font-normal text-[#7f8c8d]">{toUnit}</span>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Result</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                        {formatNumber(result)} <span className="text-lg font-normal text-slate-500 dark:text-slate-400">{toUnit}</span>
                       </p>
                     </div>
                     <button
                       onClick={() => copyToClipboard(formatNumber(result))}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] rounded-lg transition-colors font-semibold"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors font-semibold"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -500,21 +500,21 @@ export default function UnitConverterPage() {
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold text-[#2c3e50] mb-4">All Conversions</h2>
-                <div className="bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">All Conversions</h2>
+                <div className="bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-gray-200 border-b border-gray-300">
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-[#2c3e50]">Unit</th>
-                          <th className="px-4 py-3 text-right text-sm font-semibold text-[#2c3e50]">Value</th>
+                        <tr className="bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-white">Unit</th>
+                          <th className="px-4 py-3 text-right text-sm font-semibold text-slate-900 dark:text-white">Value</th>
                         </tr>
                       </thead>
                       <tbody>
                         {Object.entries(allResults).map(([unit, val]) => (
-                          <tr key={unit} className="border-b border-gray-200 hover:bg-gray-50">
-                            <td className="px-4 py-3 text-sm text-[#34495e]">{unit}</td>
-                            <td className="px-4 py-3 text-right text-sm font-mono text-[#2c3e50]">
+                          <tr key={unit} className="border-b border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                            <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{unit}</td>
+                            <td className="px-4 py-3 text-right text-sm font-mono text-slate-900 dark:text-white">
                               {formatNumber(val)}
                             </td>
                           </tr>
@@ -529,15 +529,7 @@ export default function UnitConverterPage() {
         </div>
       </div>
 
-      <footer className="bg-[#2c3e50] text-[#bdc3c7] text-center py-10 px-6 mt-16">
-        <div className="flex justify-center gap-8 mb-5 flex-wrap">
-          <Link to="/" className="text-sm hover:text-white transition-colors">Home</Link>
-          <Link to="/emission" className="text-sm hover:text-white transition-colors">Emissions</Link>
-          <a href="#privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#terms" className="text-sm hover:text-white transition-colors">Terms of Service</a>
-        </div>
-        <p className="text-sm text-[#7f8c8d]">© 2026 Burner-Design-Pro. Professional tools for burner engineers.</p>
-      </footer>
+
     </div>
   );
 }

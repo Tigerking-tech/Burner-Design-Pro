@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { HelpCircle, ArrowLeft, MessageCircle, Mail, ChevronDown, ChevronUp, CreditCard, User, Settings, Zap } from 'lucide-react'
+import { HelpCircle, ArrowLeft, MessageCircle, Mail, ChevronDown, ChevronUp, CreditCard, User, Settings, Zap, ArrowRight } from 'lucide-react'
 import { Navbar } from '../components/Navbar'
 import { useSEO } from '../hooks/useSEO'
 
@@ -111,39 +111,41 @@ export default function FAQPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       <Navbar />
 
-      <section className="bg-gradient-to-br from-[#2c3e50] to-[#34495e] dark:from-gray-800 dark:to-gray-900 text-white py-12 px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-[#f39c12]/20 rounded-full flex items-center justify-center">
-              <HelpCircle className="text-[#f39c12]" size={32} />
-            </div>
-          </div>
-          <h1 className="text-4xl font-semibold mb-4">Help & FAQ</h1>
-          <p className="text-[#bdc3c7] max-w-2xl mx-auto">
-            Find answers to common questions. Can not find what you are looking for? Contact us.
-          </p>
-        </div>
-      </section>
-
-      <div className="max-w-4xl mx-auto px-5 py-10">
-        <Link to="/" className="inline-flex items-center gap-2 text-[#f39c12] hover:text-[#e67e22] mb-6 transition-colors">
-          <ArrowLeft size={18} />
+      <div className="max-w-4xl mx-auto px-6 py-16 md:py-20">
+        <Link to="/" className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-8 transition-colors text-sm font-medium">
+          <ArrowLeft size={16} />
           Back to Home
         </Link>
 
-        <div className="space-y-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="w-10 h-px bg-blue-600 dark:bg-blue-400" />
+            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-[0.25em] uppercase">
+              FAQ & Help
+            </span>
+            <span className="w-10 h-px bg-blue-600 dark:bg-blue-400" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">
+            Help & FAQ
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
+            Find answers to common questions. Can't find what you're looking for? Contact us.
+          </p>
+        </div>
+
+        <div className="space-y-6">
           {faqCategories.map((category) => {
             const Icon = category.icon
             return (
               <div
                 key={category.title}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-6"
+                className="bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-6 md:p-8"
               >
-                <h2 className="text-xl font-bold text-[#2c3e50] dark:text-white mb-4 flex items-center gap-2">
-                  <Icon className="text-[#f39c12]" size={22} />
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Icon className="text-blue-600 dark:text-blue-400" size={22} />
                   {category.title}
                 </h2>
                 <div className="space-y-2">
@@ -153,24 +155,24 @@ export default function FAQPage() {
                     return (
                       <div
                         key={index}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                        className="border border-slate-200 dark:border-white/5 rounded-xl overflow-hidden"
                       >
                         <button
                           onClick={() => toggleItem(category.title, index)}
-                          className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                         >
-                          <span className="font-medium text-[#2c3e50] dark:text-white text-sm">
+                          <span className="font-medium text-slate-900 dark:text-white text-sm">
                             {faq.question}
                           </span>
                           {isOpen ? (
-                            <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                            <ChevronUp className="w-5 h-5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                            <ChevronDown className="w-5 h-5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
                           )}
                         </button>
                         {isOpen && (
                           <div className="px-4 pb-4 pt-0">
-                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
                               {faq.answer}
                             </p>
                           </div>
@@ -185,19 +187,22 @@ export default function FAQPage() {
         </div>
 
         {/* Contact CTA */}
-        <div className="mt-10 bg-gradient-to-r from-[#2c3e50] to-[#34495e] rounded-lg p-8 text-center text-white">
-          <MessageCircle className="w-10 h-10 mx-auto mb-4 text-[#f39c12]" />
-          <h2 className="text-2xl font-semibold mb-2">Still have questions?</h2>
-          <p className="text-[#bdc3c7] mb-6 max-w-xl mx-auto">
-            Our support team is here to help. Send us an email and we'll get back to you as soon as possible.
-          </p>
-          <a
-            href="mailto:support@burnerdesignpro.com"
-            className="inline-flex items-center gap-2 bg-[#f39c12] hover:bg-[#e67e22] text-white px-6 py-3 rounded-md font-semibold transition-colors"
-          >
-            <Mail size={20} />
-            Contact Support
-          </a>
+        <div className="mt-10 bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 rounded-2xl p-8 text-center text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.3),transparent_50%)]" />
+          <div className="relative">
+            <MessageCircle className="w-10 h-10 mx-auto mb-4 text-blue-300" />
+            <h2 className="text-2xl font-bold mb-2">Still have questions?</h2>
+            <p className="text-blue-100/80 mb-6 max-w-xl mx-auto">
+              Our support team is here to help. Send us an email and we'll get back to you as soon as possible.
+            </p>
+            <a
+              href="mailto:support@burnerdesignpro.com"
+              className="inline-flex items-center gap-2 bg-white text-blue-900 px-6 py-3 rounded-xl font-semibold transition-all hover:bg-blue-50 hover:shadow-xl hover:shadow-blue-500/20 text-sm"
+            >
+              <Mail size={18} />
+              Contact Support
+            </a>
+          </div>
         </div>
       </div>
     </div>
