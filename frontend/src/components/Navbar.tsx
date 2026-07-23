@@ -30,12 +30,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 md:px-8 py-3 flex justify-between items-center">
       <Link to="/" className="text-lg md:text-xl font-bold tracking-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0 flex items-center gap-2">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 12h8" />
-          <path d="M12 8v8" />
-          <path d="M15 9l3 3-3 3" />
-          <path d="M9 15l-3-3 3-3" />
-          <circle cx="12" cy="12" r="3" />
+          <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-.5.083-1.033.25-1.5" />
         </svg>
         <span className="text-slate-900 dark:text-white">Burner<span className="text-blue-600 dark:text-blue-400">Design</span>Pro</span>
       </Link>

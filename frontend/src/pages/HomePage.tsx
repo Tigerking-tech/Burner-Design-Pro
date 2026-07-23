@@ -54,8 +54,14 @@ const features: Feature[] = [
     description: 'Calculate gas properties, Wobbe index, and manage fuel mixtures for optimal combustion.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-.5.083-1.033.25-1.5" />
-        <path d="M5 16.5c.5 2 2 3.5 4 3.5s3.5-1.5 4-3.5" />
+        <path d="M12 2C9 5 7 8 7 12a5 5 0 0 0 10 0c0-2-1-4-2-5.5C13.5 8 13 9.5 12 10c0-2 .5-4-0-5.5C12.5 4 13 3 12 2z" opacity="0" />
+        <path d="M9 3h6l1 4-2 1.5L12 7l-2 1.5L8 7z" />
+        <path d="M8 7l-1.5 5L9 13l1.5-2" />
+        <path d="M16 7l1.5 5L15 13l-1.5-2" />
+        <path d="M10 14l-1 4" />
+        <path d="M14 14l1 4" />
+        <path d="M9 18h6" />
+        <path d="M12 7v3" />
       </svg>
     ),
     to: '/fuel-manager',
@@ -723,12 +729,7 @@ export default function HomePage() {
             <div className="lg:col-span-2">
               <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M8 12h8" />
-                  <path d="M12 8v8" />
-                  <path d="M15 9l3 3-3 3" />
-                  <path d="M9 15l-3-3 3-3" />
-                  <circle cx="12" cy="12" r="3" />
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-.5.083-1.033.25-1.5" />
                 </svg>
                 Burner<span className="text-blue-600 dark:text-blue-400">Design</span>Pro
               </Link>
