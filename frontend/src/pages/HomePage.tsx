@@ -8,11 +8,9 @@ import {
   RefreshCw,
   Gauge,
   Thermometer,
-  BrickWall,
   ArrowRight,
   Check,
   ChevronRight,
-  Activity,
   Shield,
   Zap,
   BarChart3,
@@ -20,7 +18,13 @@ import {
   Layers,
   Building2,
   Award,
-  Users
+  Users,
+  Cpu,
+  FileOutput,
+  Sparkles,
+  Crosshair,
+  Target,
+  ChevronDown
 } from 'lucide-react'
 
 interface Feature {
@@ -49,7 +53,12 @@ const features: Feature[] = [
     id: 'fuel',
     title: 'Fuel Manager',
     description: 'Calculate gas properties, Wobbe index, and manage fuel mixtures for optimal combustion.',
-    icon: <Flame size={24} />,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-.5.083-1.033.25-1.5" />
+        <path d="M5 16.5c.5 2 2 3.5 4 3.5s3.5-1.5 4-3.5" />
+      </svg>
+    ),
     to: '/fuel-manager',
     category: 'Combustion'
   },
@@ -65,7 +74,15 @@ const features: Feature[] = [
     id: 'conversion',
     title: 'Unit Conversion',
     description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
-    icon: <RefreshCw size={24} />,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 21V3" />
+        <path d="M17 5l-5 5-5-5" />
+        <path d="M7 19l5-5 5 5" />
+        <circle cx="6" cy="9" r="1" />
+        <circle cx="18" cy="15" r="1" />
+      </svg>
+    ),
     to: '/unit-converter',
     category: 'Utility'
   },
@@ -73,7 +90,16 @@ const features: Feature[] = [
     id: 'orifice',
     title: 'Orifice Calculator',
     description: 'Design restricting or measuring orifice plates with ISO 5167 standard support.',
-    icon: <Gauge size={24} />,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="6" width="18" height="12" rx="2" />
+        <circle cx="12" cy="12" r="3" />
+        <line x1="3" y1="12" x2="9" y2="12" />
+        <line x1="15" y1="12" x2="21" y2="12" />
+        <path d="M6 9l0 6" />
+        <path d="M18 9l0 6" />
+      </svg>
+    ),
     pro: true,
     to: '/orifice-calculator',
     category: 'Flow'
@@ -91,7 +117,7 @@ const features: Feature[] = [
     id: 'insulation',
     title: 'Insulation Calculator',
     description: 'Calculate optimal insulation thickness for pipes and flat surfaces with ISO 12241 & ASTM C680.',
-    icon: <BrickWall size={24} />,
+    icon: <Layers size={24} />,
     pro: true,
     to: '/insulation-calculator',
     category: 'Thermal'
@@ -263,49 +289,65 @@ export default function HomePage() {
                   <div className="w-3 h-3 rounded-full bg-red-500/80" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                   <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 text-xs font-mono text-blue-300/60">Burner Design Pro v2.4</span>
+                  <span className="ml-2 text-xs font-mono text-blue-300/60">Dashboard</span>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <Gauge className="text-blue-400" size={20} />
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-white/5 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <Cpu className="text-blue-400" size={14} />
                       </div>
-                      <span className="text-sm text-blue-200">Orifice Calculator</span>
+                      <span className="text-xs text-blue-300/80">Active Tools</span>
                     </div>
-                    <span className="text-emerald-400 text-sm font-medium">Active</span>
+                    <p className="text-2xl font-bold text-white">6</p>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                        <Thermometer className="text-orange-400" size={20} />
+                  <div className="bg-white/5 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                        <FileOutput className="text-emerald-400" size={14} />
                       </div>
-                      <span className="text-sm text-blue-200">Flame Temperature</span>
+                      <span className="text-xs text-blue-300/80">Reports Generated</span>
                     </div>
-                    <span className="text-blue-400 text-sm font-medium">Pro</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                        <BrickWall className="text-purple-400" size={20} />
-                      </div>
-                      <span className="text-sm text-blue-200">Insulation Calculator</span>
-                    </div>
-                    <span className="text-blue-400 text-sm font-medium">Pro</span>
+                    <p className="text-2xl font-bold text-white">28</p>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-white/10">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="text-blue-400/60" size={16} />
-                      <span className="text-xs text-blue-300/60">Calculations: 12/20</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <Gauge className="text-blue-400" size={16} />
+                      </div>
+                      <span className="text-xs text-blue-200">Flow Calculations</span>
                     </div>
-                    <span className="text-xs font-mono text-blue-400">v2.4.1</span>
+                    <span className="text-xs font-mono text-emerald-400">+12%</span>
                   </div>
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <Thermometer className="text-orange-400" size={16} />
+                      </div>
+                      <span className="text-xs text-blue-200">Thermal Analysis</span>
+                    </div>
+                    <span className="text-xs font-mono text-emerald-400">+8%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <Leaf className="text-purple-400" size={16} />
+                      </div>
+                      <span className="text-xs text-blue-200">Emission Reports</span>
+                    </div>
+                    <span className="text-xs font-mono text-emerald-400">+15%</span>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  <button className="w-full flex items-center justify-center gap-2 text-xs text-blue-300 hover:text-white transition-colors py-2">
+                    View Full Dashboard
+                    <ChevronDown className="rotate-[-90deg]" size={14} />
+                  </button>
                 </div>
               </div>
 
@@ -322,10 +364,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: '6+', label: 'Engineering Tools', icon: <Layers className="text-blue-600 dark:text-blue-400" size={28} /> },
+              { value: '6+', label: 'Engineering Tools', icon: <Cpu className="text-blue-600 dark:text-blue-400" size={28} /> },
               { value: 'ISO/ASTM', label: 'Industry Standards', icon: <Shield className="text-emerald-600 dark:text-emerald-400" size={28} /> },
-              { value: '< 0.1%', label: 'Calculation Accuracy', icon: <Activity className="text-orange-600 dark:text-orange-400" size={28} /> },
-              { value: 'PDF', label: 'Professional Reports', icon: <FileText className="text-violet-600 dark:text-violet-400" size={28} /> }
+              { value: 'Compliant', label: 'Standards Verified', icon: <Target className="text-orange-600 dark:text-orange-400" size={28} /> },
+              { value: 'PDF', label: 'Professional Reports', icon: <FileOutput className="text-violet-600 dark:text-violet-400" size={28} /> }
             ].map((stat, i) => (
               <div key={i} className="text-center group">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl mb-4 shadow-lg shadow-slate-200/50 dark:shadow-slate-800/50 group-hover:scale-105 transition-transform">
@@ -411,17 +453,30 @@ export default function HomePage() {
               <div className="space-y-6">
                 {[
                   {
-                    icon: <Activity className="text-blue-400" size={20} />,
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                    ),
                     title: 'Deterministic Calculations',
                     desc: 'Every result is formula-based and traceable to established engineering standards.'
                   },
                   {
-                    icon: <Shield className="text-emerald-400" size={20} />,
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                      </svg>
+                    ),
                     title: 'Standards Compliant',
                     desc: 'ISO 5167, ISO 12241, EPA, and EU IED — built according to industry specifications.'
                   },
                   {
-                    icon: <Zap className="text-orange-400" size={20} />,
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                      </svg>
+                    ),
                     title: 'Instant Results',
                     desc: 'No waiting, no server round-trips. All calculations run locally in your browser.'
                   }
@@ -443,30 +498,35 @@ export default function HomePage() {
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-xs font-mono text-slate-400">System Status: Online</span>
+                  <span className="text-xs font-mono text-slate-400">Standards Certification</span>
                 </div>
 
-                <div className="space-y-0">
+                <div className="space-y-4">
                   {[
-                    { label: 'Orifice Diameter', value: '52.3 mm', sub: 'β = 0.523' },
-                    { label: 'Pressure Drop', value: '2.4 kPa', sub: 'ΔP design' },
-                    { label: 'Discharge Coeff', value: '0.6048', sub: 'ISO 5167-2:2024' },
-                    { label: 'Uncertainty', value: '± 0.85%', sub: 'k = 2, 95% conf.' }
-                  ].map((row, i) => (
-                    <div key={i} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
-                      <span className="text-sm text-slate-400">{row.label}</span>
-                      <div className="text-right">
-                        <p className="text-lg font-semibold text-blue-400">{row.value}</p>
-                        <p className="text-xs text-slate-500">{row.sub}</p>
+                    { name: 'ISO 5167', desc: 'Flow measurement standard', status: 'verified' },
+                    { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
+                    { name: 'EPA Method 29', desc: 'Emission testing protocol', status: 'verified' },
+                    { name: 'EU IED', desc: 'Industrial emissions directive', status: 'verified' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
+                      <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
                       </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-white">{item.name}</p>
+                        <p className="text-xs text-slate-400">{item.desc}</p>
+                      </div>
+                      <span className="text-xs font-mono text-emerald-400">✓</span>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-400">Last Calculation</span>
-                    <span className="text-xs font-mono text-slate-500">2026-07-23 14:32:18</span>
+                    <span className="text-xs text-slate-400">Last Verification</span>
+                    <span className="text-xs font-mono text-slate-500">Q2 2026</span>
                   </div>
                 </div>
               </div>
