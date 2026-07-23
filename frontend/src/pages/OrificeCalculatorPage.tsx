@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import ProGuard from '../components/ProGuard'
+import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
@@ -288,6 +288,11 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
+  const { requirePro, modal } = useProAccess(
+    'Orifice Calculator',
+    'Subscribe to Pro to run orifice calculations and export PDF reports.',
+    <Gauge size={40} />
+  )
   const [calculationMode, setCalculationMode] = usePersistentState<'restricting' | 'measuring'>('orifice_calculationMode', 'restricting')
   const [featureMode, setFeatureMode] = usePersistentState<'basic' | 'advanced'>('orifice_featureMode', 'basic')
   const [selectedGasType, setSelectedGasType] = usePersistentState('orifice_selectedGasType', gasTypes[0])
@@ -1214,7 +1219,7 @@ export default function OrificeCalculatorPage() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={calculateOrifice}
+                    onClick={requirePro(calculateOrifice)}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
                   >
                     Calculate
@@ -1229,7 +1234,7 @@ export default function OrificeCalculatorPage() {
 
                 <div className="mt-4">
                   <button
-                    onClick={exportToPDF}
+                    onClick={requirePro(exportToPDF)}
                     className="w-full py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <Download size={18} />
@@ -1396,6 +1401,7 @@ export default function OrificeCalculatorPage() {
         </div>
       </div>
 
+      {modal}
     </ProGuard>
   )
 }

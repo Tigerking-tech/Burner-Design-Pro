@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import { Download } from 'lucide-react'
 
-import ProGuard from '../components/ProGuard'
+import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 
 import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Flame, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
@@ -135,6 +135,11 @@ const pipeWallThicknessStd: Record<string, number> = {
 }
 
 function InsulationCalculatorPage() {
+  const { requirePro, modal } = useProAccess(
+    'Insulation Thickness Calculator',
+    'Subscribe to Pro to calculate insulation thickness and export PDF reports.',
+    <BrickWall size={40} />
+  )
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
   const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
   const [mode, setMode] = useState<Mode>('surface')
@@ -1612,7 +1617,7 @@ function InsulationCalculatorPage() {
               {/* Calculate Button */}
               <div className="mt-8">
                 <button
-                  onClick={handleCalculate}
+                  onClick={requirePro(handleCalculate)}
                   className="w-full py-3 md:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm md:text-base flex items-center justify-center gap-2"
                 >
                   <Calculator size={18} />
@@ -1623,7 +1628,7 @@ function InsulationCalculatorPage() {
               {/* Export PDF Button */}
               <div className="mt-3">
                 <button
-                  onClick={exportToPDF}
+                  onClick={requirePro(exportToPDF)}
                   className="w-full py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                 >
                   <Download size={18} />
@@ -1879,6 +1884,7 @@ function InsulationCalculatorPage() {
         </div>
       </div>
 
+      {modal}
     </ProGuard>
   )
 }

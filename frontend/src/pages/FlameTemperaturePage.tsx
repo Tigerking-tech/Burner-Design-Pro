@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import ProGuard from '../components/ProGuard'
+import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
 
@@ -474,6 +474,11 @@ function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0, P: nu
 }
 
 export default function FlameTemperaturePage() {
+  const { requirePro, modal } = useProAccess(
+    'Flame Temperature Calculator',
+    'Subscribe to Pro to calculate flame temperatures and export PDF reports.',
+    <Thermometer size={40} />
+  )
   const [gasComponents, setGasComponents] = usePersistentState<GasComponent[]>(
     'flametemp_gasComponents',
     defaultGasComponents.map(c => ({ ...c }))
@@ -1015,7 +1020,7 @@ export default function FlameTemperaturePage() {
               ) : null}
 
               <button
-                onClick={() => setShowResults(!showResults)}
+                onClick={requirePro(() => setShowResults(!showResults))}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
               >
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
@@ -1024,7 +1029,7 @@ export default function FlameTemperaturePage() {
               {showResults && results && (
                 <div className="mt-3">
                   <button
-                    onClick={exportToPDF}
+                    onClick={requirePro(exportToPDF)}
                     className="w-full py-3 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <Download size={18} />
@@ -1037,6 +1042,7 @@ export default function FlameTemperaturePage() {
         </div>
       </div>
 
+      {modal}
     </ProGuard>
   )
 }
