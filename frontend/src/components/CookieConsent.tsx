@@ -48,24 +48,24 @@ export default function CookieConsent() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d0d0d] border-t border-[#2a2a2a] shadow-[0_-4px_30px_rgba(0,0,0,0.5)]">
-      <div className="max-w-6xl mx-auto px-6 py-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_30px_rgba(0,0,0,0.1)]">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1 flex items-start gap-3">
-            <div className="flex-shrink-0 w-9 h-9 bg-[#ff5722]/10 border border-[#ff5722]/30 flex items-center justify-center">
-              <Cookie size={18} className="text-[#ff5722]" />
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-500/10 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
+              <Cookie size={18} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white mb-1 uppercase tracking-tight">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                 Cookie Consent
               </h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 We use cookies to enhance your browsing experience, serve personalized ads or content,
                 and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.
                 {' '}
                 <Link
                   to="/privacy-policy"
-                  className="text-[#ff5722] hover:text-[#f4511e] underline underline-offset-2"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
                 >
                   Learn more
                 </Link>
@@ -76,19 +76,19 @@ export default function CookieConsent() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={acceptNecessary}
-              className="px-4 py-2 text-xs font-bold text-gray-400 bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] hover:border-[#444] transition-all uppercase tracking-wide"
+              className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all"
             >
               Necessary Only
             </button>
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="px-4 py-2 text-xs font-bold text-gray-400 bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] hover:border-[#444] transition-all uppercase tracking-wide"
+              className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-xl transition-all"
             >
               {showDetails ? 'Hide Details' : 'Customize'}
             </button>
             <button
               onClick={acceptAll}
-              className="px-4 py-2 text-sm font-black text-white bg-[#ff5722] hover:bg-[#f4511e] transition-all uppercase tracking-wider border-b-2 border-[#bf360c] active:border-b-0 active:mt-0.5"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-500/20"
             >
               Accept All
             </button>
@@ -96,29 +96,29 @@ export default function CookieConsent() {
         </div>
 
         {showDetails && (
-          <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-gray-500">
-              <div className="bg-[#111] border border-[#2a2a2a] p-4">
-                <h4 className="font-black text-white mb-2 text-xs uppercase tracking-tight">Necessary</h4>
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs text-slate-600 dark:text-slate-400">
+              <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-2 text-xs">Necessary</h4>
                 <p className="leading-relaxed">Required for basic site functionality. Always active. Examples: login state, session management, security tokens.</p>
               </div>
-              <div className="bg-[#111] border border-[#2a2a2a] p-4">
-                <h4 className="font-black text-white mb-2 text-xs uppercase tracking-tight">Analytics</h4>
+              <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-2 text-xs">Analytics</h4>
                 <p className="leading-relaxed">Help us understand how visitors interact with our website. Used to improve the product experience.</p>
               </div>
-              <div className="bg-[#111] border border-[#2a2a2a] p-4">
-                <h4 className="font-black text-white mb-2 text-xs uppercase tracking-tight">Functional</h4>
+              <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-2 text-xs">Functional</h4>
                 <p className="leading-relaxed">Enable enhanced functionality like personalization and remembering your preferences.</p>
               </div>
-              <div className="bg-[#111] border border-[#2a2a2a] p-4">
-                <h4 className="font-black text-white mb-2 text-xs uppercase tracking-tight">Marketing</h4>
+              <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-2 text-xs">Marketing</h4>
                 <p className="leading-relaxed">Used to track visitors across websites for targeted advertising campaigns.</p>
               </div>
             </div>
-            <p className="mt-4 text-[11px] text-gray-600">
+            <p className="mt-4 text-[11px] text-slate-500 dark:text-slate-500">
               You can change your cookie preferences at any time by clearing your browser data.
               For more information, see our{' '}
-              <Link to="/privacy-policy" className="text-[#ff5722] hover:text-[#f4511e] underline underline-offset-2">
+              <Link to="/privacy-policy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2">
                 Privacy Policy
               </Link>.
             </p>
