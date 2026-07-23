@@ -84,25 +84,11 @@ const features: Feature[] = [
     description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="6" />
-        <path d="M9 12l3-3 3 3" />
-        <path d="M15 12l-3 3-3-3" />
-        <path d="M4 8l0 8" />
-        <path d="M4 8l2 0" />
-        <path d="M4 16l2 0" />
-        <path d="M4 12l1.5 0" />
-        <path d="M20 8l0 8" />
-        <path d="M20 8l-2 0" />
-        <path d="M20 16l-2 0" />
-        <path d="M20 12l-1.5 0" />
-        <rect x="5" y="5" width="3" height="5" rx="0.5" />
-        <path d="M5 6l3 0" />
-        <path d="M5 8l2.5 0" />
-        <path d="M5 10l2 0" />
-        <rect x="16" y="14" width="3" height="5" rx="0.5" />
-        <path d="M16 15l3 0" />
-        <path d="M16 17l2.5 0" />
-        <path d="M16 19l2 0" />
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9 12h6" />
+        <path d="M12 9l-3 3 3 3" />
+        <path d="M9 12h6" />
+        <path d="M12 15l3-3-3-3" />
       </svg>
     ),
     to: '/unit-converter',
@@ -114,25 +100,12 @@ const features: Feature[] = [
     description: 'Design restricting or measuring orifice plates with ISO 5167 standard support.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="11" r="8" />
-        <circle cx="12" cy="11" r="6" />
-        <circle cx="12" cy="11" r="2" />
-        <path d="M12 4v2" />
-        <path d="M12 19v2" />
-        <path d="M4 11h2" />
-        <path d="M18 11h2" />
-        <path d="M6 6l1.41 1.41" />
-        <path d="M16.59 16.59l1.41 1.41" />
-        <path d="M18 6l-1.41 1.41" />
-        <path d="M7.41 16.59l-1.41 1.41" />
-        <path d="M12 4v1" />
-        <path d="M12 19v1" />
-        <path d="M4 11h1" />
-        <path d="M19 11h1" />
-        <path d="M12 3l2 4" />
-        <circle cx="14" cy="6" r="0.5" />
-        <rect x="10" y="20" width="4" height="2" rx="0.5" />
-        <rect x="7" y="20" width="10" height="1" rx="0.5" />
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="4" />
+        <line x1="2" y1="12" x2="8" y2="12" />
+        <line x1="16" y1="12" x2="22" y2="12" />
+        <line x1="12" y1="2" x2="12" y2="8" />
+        <line x1="12" y1="16" x2="12" y2="22" />
       </svg>
     ),
     pro: true,
