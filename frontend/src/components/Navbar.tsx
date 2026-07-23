@@ -27,19 +27,19 @@ export function Navbar() {
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#2c3e50] dark:bg-gray-900 text-white px-4 md:px-12 py-3.5 flex justify-between items-center shadow-md border-b border-white/5">
-      <Link to="/" className="font-display text-xl md:text-2xl font-bold tracking-wide text-white hover:text-[#f39c12] transition-colors flex-shrink-0 uppercase">
-        <span className="text-[#f39c12] mr-1">🔥</span> Burner-Design-Pro
+    <nav className="sticky top-0 z-50 bg-[#0d0d0d]/95 backdrop-blur-md border-b border-[#2a2a2a] px-4 md:px-12 py-3 flex justify-between items-center">
+      <Link to="/" className="text-lg md:text-xl font-black tracking-tight hover:text-[#ff5722] transition-colors flex-shrink-0 text-white uppercase">
+        Burner<span className="text-[#ff5722]">Design</span>Pro
       </Link>
 
       {/* Desktop Menu */}
       <div className="hidden md:flex gap-8 items-center">
-        <Link to="/" className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Home</Link>
-        <a href="/#features" className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Features</a>
-        <a href="/#pricing" className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Pricing</a>
+        <Link to="/" className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Home</Link>
+        <a href="/#features" className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Features</a>
+        <a href="/#pricing" className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Pricing</a>
         <button
           onClick={toggleTheme}
-          className="text-[#bdc3c7] hover:text-[#f39c12] transition-colors p-2 rounded-sm hover:bg-white/5"
+          className="text-gray-500 hover:text-[#ff5722] transition-colors p-2 bg-[#1a1a1a] border border-[#333] hover:border-[#ff5722]/40"
           aria-label="Toggle dark mode"
         >
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -47,14 +47,14 @@ export function Navbar() {
         {isLoggedIn ? (
           <>
             {isAdmin && (
-              <Link to="/admin" className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Admin</Link>
+              <Link to="/admin" className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Admin</Link>
             )}
-            <span className="text-[#f39c12] text-sm font-medium max-w-[180px] truncate font-mono-tech">{authAPI.getCurrentUserSync()?.email}</span>
-            <Link to="/account" className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Account</Link>
-            <button onClick={handleLogout} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Logout</button>
+            <span className="text-sm font-bold text-[#ff5722] max-w-[180px] truncate">{authAPI.getCurrentUserSync()?.email}</span>
+            <Link to="/account" className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Account</Link>
+            <button onClick={handleLogout} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Logout</button>
           </>
         ) : (
-          <Link to="/login" className="font-display bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded-sm font-semibold text-sm transition-all shadow-md hover:shadow-[0_4px_15px_rgba(243,156,18,0.3)] tracking-wide uppercase">
+          <Link to="/login" className="bg-[#ff5722] hover:bg-[#f4511e] text-white px-5 py-2 text-sm font-black uppercase tracking-wider transition-all border-b-4 border-[#bf360c] hover:border-[#e64a19] active:border-b-0 active:mt-1">
             Get Started
           </Link>
         )}
@@ -64,7 +64,7 @@ export function Navbar() {
       <div className="flex items-center gap-2 md:hidden">
         <button
           onClick={toggleTheme}
-          className="text-[#bdc3c7] hover:text-white transition-colors p-2 rounded-sm"
+          className="text-gray-400 hover:text-[#ff5722] transition-colors p-2 bg-[#1a1a1a] border border-[#333]"
           aria-label="Toggle dark mode"
         >
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -80,21 +80,21 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-[#2c3e50] dark:bg-gray-900 flex flex-col gap-4 px-4 py-6 shadow-md border-b border-white/5 md:hidden">
-          <Link to="/" onClick={closeMobileMenu} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Home</Link>
-          <a href="/#features" onClick={closeMobileMenu} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Features</a>
-          <a href="/#pricing" onClick={closeMobileMenu} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Pricing</a>
+        <div className="absolute top-full left-0 right-0 bg-[#0d0d0d] flex flex-col gap-4 px-4 py-6 shadow-lg border-b border-[#2a2a2a] md:hidden">
+          <Link to="/" onClick={closeMobileMenu} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Home</Link>
+          <a href="/#features" onClick={closeMobileMenu} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Features</a>
+          <a href="/#pricing" onClick={closeMobileMenu} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Pricing</a>
           {isLoggedIn ? (
             <>
               {isAdmin && (
-                <Link to="/admin" onClick={closeMobileMenu} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Admin</Link>
+                <Link to="/admin" onClick={closeMobileMenu} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Admin</Link>
               )}
-              <span className="text-[#f39c12] text-sm font-medium break-all font-mono-tech">{authAPI.getCurrentUserSync()?.email}</span>
-              <Link to="/account" onClick={closeMobileMenu} className="font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Account</Link>
-              <button onClick={handleLogout} className="text-left font-mono-tech text-[11px] text-[#bdc3c7] hover:text-white transition-colors tracking-wider uppercase">Logout</button>
+              <span className="text-sm font-bold text-[#ff5722] break-all">{authAPI.getCurrentUserSync()?.email}</span>
+              <Link to="/account" onClick={closeMobileMenu} className="text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Account</Link>
+              <button onClick={handleLogout} className="text-left text-sm text-gray-400 hover:text-[#ff5722] transition-colors uppercase tracking-wide font-bold">Logout</button>
             </>
           ) : (
-            <Link to="/login" onClick={closeMobileMenu} className="font-display bg-[#f39c12] hover:bg-[#e67e22] text-[#2c3e50] px-5 py-2 rounded-sm font-semibold text-sm transition-all shadow-md text-center tracking-wide uppercase">
+            <Link to="/login" onClick={closeMobileMenu} className="bg-[#ff5722] hover:bg-[#f4511e] text-white px-5 py-2.5 text-sm font-black uppercase tracking-wider transition-all text-center border-b-4 border-[#bf360c]">
               Get Started
             </Link>
           )}
