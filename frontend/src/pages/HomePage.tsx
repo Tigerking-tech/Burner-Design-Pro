@@ -629,10 +629,10 @@ export default function HomePage() {
               <span className="w-10 h-px bg-blue-600 dark:bg-blue-400" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-              Trusted by Engineers
+              Engineer Insights
             </h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-              Used by process engineers, environmental specialists, and consultants worldwide.
+              Real-world feedback from engineers who use our tools every day.
             </p>
           </div>
 
