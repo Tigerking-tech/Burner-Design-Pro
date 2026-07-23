@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Menu, X, Sun, Moon, Building2 } from 'lucide-react'
+import { Menu, X, Sun, Moon } from 'lucide-react'
 import { authAPI } from '../services/api'
 import { useTheme } from './ThemeProvider'
 
@@ -29,7 +29,14 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 md:px-8 py-3 flex justify-between items-center">
       <Link to="/" className="text-lg md:text-xl font-bold tracking-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0 flex items-center gap-2">
-        <Building2 size={24} className="text-blue-600 dark:text-blue-400" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M8 12h8" />
+          <path d="M12 8v8" />
+          <path d="M15 9l3 3-3 3" />
+          <path d="M9 15l-3-3 3-3" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
         <span className="text-slate-900 dark:text-white">Burner<span className="text-blue-600 dark:text-blue-400">Design</span>Pro</span>
       </Link>
 
