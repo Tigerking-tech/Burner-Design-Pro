@@ -84,7 +84,7 @@ const features: Feature[] = [
     description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 9l6-3 6 3" />
+        <path d="M18 9l-6-3-6 3" />
         <path d="M6 15l6 3 6-3" />
       </svg>
     ),
