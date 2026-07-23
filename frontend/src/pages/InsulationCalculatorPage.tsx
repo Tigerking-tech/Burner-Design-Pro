@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import { Download } from 'lucide-react'
 
-import ProFeaturePreview from '../components/ProFeaturePreview'
+import ProGuard from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
-import { authAPI } from '../services/api'
+
 import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Flame, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
 import {
   PAGE_WIDTH,
@@ -183,7 +183,6 @@ function InsulationCalculatorPage() {
   
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [showResults, setShowResults] = useState(false)
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     equipment: true,
     dimensions: false,
@@ -195,27 +194,6 @@ function InsulationCalculatorPage() {
     environment: false,
     operatingHours: false
   })
-
-  const isLoggedIn = authAPI.isAuthenticated()
-  const isProUser = true
-
-  const handleProAction = (action: () => void) => {
-    if (!isProUser) {
-      setShowSubscriptionModal(true)
-    } else {
-      action()
-    }
-  }
-
-  const handleLoginClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/login'
-  }
-
-  const handleUpgradeClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/subscription'
-  }
 
   const getEmittance = () => {
     if (surfaceFinish === 'custom') return customEmittance
@@ -662,7 +640,12 @@ function InsulationCalculatorPage() {
     const epsilon = getEmittance()
     const v = windSpeedMetric
 
-    let newResult: CalculationResult
+    let newResult: CalculationResult = {
+      thickness: 0,
+      surfaceTemp: 0,
+      heatFlux: 0,
+      warnings: []
+    }
     // Solver performs Ts↔h self-consistent iteration internally, returns converged hc/hr/h
     let hcOut = 0, hrOut = 0, hOut = 0
     let interfaceTempOut: number | undefined = undefined
@@ -1000,7 +983,7 @@ function InsulationCalculatorPage() {
   }, [pipeSize, unitSystem])
 
   return (
-    <ProFeaturePreview
+    <ProGuard
       title="Insulation Thickness Calculator"
       description="ISO 12241 & ASTM C680 Standards | Pipe & Flat Surface | Anti-Condensation"
       icon={<BrickWall size={40} />}
@@ -1629,7 +1612,7 @@ function InsulationCalculatorPage() {
               {/* Calculate Button */}
               <div className="mt-8">
                 <button
-                  onClick={() => handleProAction(handleCalculate)}
+                  onClick={handleCalculate}
                   className="w-full py-3 md:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm md:text-base flex items-center justify-center gap-2"
                 >
                   <Calculator size={18} />
@@ -1896,85 +1879,7 @@ function InsulationCalculatorPage() {
         </div>
       </div>
 
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-8 shadow-2xl border border-slate-200 dark:border-white/10">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Cylinder className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400">
-                {isLoggedIn
-                  ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
-                  : 'Please log in to use the insulation calculator and access all features.'}
-              </p>
-            </div>
-
-            {!isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6 border border-slate-200 dark:border-white/10">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Free account benefits:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    Full access to basic calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    Calculation history
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    Free forever - no credit card needed
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6 border border-slate-200 dark:border-white/10">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Pro Features:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    Insulation Calculator
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    All Pro calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    PDF report export
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500 font-bold">✓</span>
-                    Priority support
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSubscriptionModal(false)}
-                className="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-              >
-                {isLoggedIn ? 'Upgrade Now' : 'Log In'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </ProFeaturePreview>
+    </ProGuard>
   )
 }
 

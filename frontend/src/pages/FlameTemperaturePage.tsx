@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
-import ProFeaturePreview from '../components/ProFeaturePreview'
+import ProGuard from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
-import { authAPI } from '../services/api'
+
 import { Thermometer, AlertTriangle, Download, Zap, Flame } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { usePersistentState } from '../hooks/usePersistentState'
@@ -489,24 +489,6 @@ export default function FlameTemperaturePage() {
   const [pressure, setPressure] = usePersistentState('flametemp_pressure', '1')
 
   const [showResults, setShowResults] = useState(false)
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
-  
-  const isLoggedIn = authAPI.isAuthenticated()
-  const isProUser = isLoggedIn && authAPI.getSubscriptionTier() !== 'free'
-
-  const handleProAction = (action: () => void) => {
-    action()
-  }
-
-  const handleLoginClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/login'
-  }
-
-  const handleUpgradeClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/subscription'
-  }
 
   const getTotalPercentage = () => {
     return gasComponents.reduce((sum, c) => sum + (parseFloat(c.percentage) || 0), 0)
@@ -782,7 +764,7 @@ export default function FlameTemperaturePage() {
     .sort((a, b) => b[1] - a[1])
 
   return (
-    <ProFeaturePreview
+    <ProGuard
       title="Flame Temperature Calculator"
       description="Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations."
       icon={<Thermometer size={40} />}
@@ -1033,7 +1015,7 @@ export default function FlameTemperaturePage() {
               ) : null}
 
               <button
-                onClick={() => handleProAction(() => setShowResults(!showResults))}
+                onClick={() => setShowResults(!showResults)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
               >
                 {showResults ? 'Hide Results' : 'Calculate Flame Temperature'}
@@ -1055,84 +1037,6 @@ export default function FlameTemperaturePage() {
         </div>
       </div>
 
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Thermometer className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300">
-                {isLoggedIn
-                  ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
-                  : 'Please log in to use the flame temperature calculator and access all features.'}
-              </p>
-            </div>
-
-            {!isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Free account benefits:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Full access to basic calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Calculation history
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Free forever - no credit card needed
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Pro Features:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Flame Temperature Calculator
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    All Pro calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    PDF report export
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Priority support
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSubscriptionModal(false)}
-                className="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-              >
-                {isLoggedIn ? 'Upgrade Now' : 'Log In'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </ProFeaturePreview>
+    </ProGuard>
   )
 }

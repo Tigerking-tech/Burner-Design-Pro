@@ -21,21 +21,10 @@ import {
   formatNumber as pdfFormatNumber,
 } from '../utils/pdfUtils'
 
-interface GasComponent {
-  name: string
-  symbol: string
-  percentage: string
-}
-
 interface OilElement {
   name: string
   symbol: string
   percentage: string
-}
-
-interface GasPreset {
-  name: string
-  composition: Record<string, string>
 }
 
 const gasPresets: GasPreset[] = [

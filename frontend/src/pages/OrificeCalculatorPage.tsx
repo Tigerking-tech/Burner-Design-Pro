@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import ProFeaturePreview from '../components/ProFeaturePreview'
-import { authAPI } from '../services/api'
+import ProGuard from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
@@ -303,7 +302,6 @@ export default function OrificeCalculatorPage() {
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [curveData, setCurveData] = useState<CurvePoint[]>([])
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   const [operatingPressure, setOperatingPressure] = usePersistentState('orifice_operatingPressure', '1.013')
   const [operatingTemperature, setOperatingTemperature] = usePersistentState('orifice_operatingTemperature', '20')
@@ -313,33 +311,12 @@ export default function OrificeCalculatorPage() {
   const [pressureUnit, setPressureUnit] = usePersistentState<PressureUnit>('orifice_pressureUnit', 'bar')
   const [temperatureUnit, setTemperatureUnit] = usePersistentState<TemperatureUnit>('orifice_temperatureUnit', 'C')
 
-  const isLoggedIn = authAPI.isAuthenticated()
-  const isProUser = import.meta.env.DEV || (isLoggedIn && authAPI.getSubscriptionTier() !== 'free')
-
   useEffect(() => {
     const pipe = pipeSizes.find(p => p.dn === selectedPipeDN)
     if (pipe) {
       setInternalDiameter(pipe.internalDiameter.toString())
     }
   }, [selectedPipeDN])
-
-  const handleProAction = (action: () => void) => {
-    if (!isProUser) {
-      setShowSubscriptionModal(true)
-    } else {
-      action()
-    }
-  }
-
-  const handleLoginClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/login'
-  }
-
-  const handleUpgradeClick = () => {
-    setShowSubscriptionModal(false)
-    window.location.href = '/subscription'
-  }
 
   const getDensity = () => {
     if (featureMode === 'basic') {
@@ -861,7 +838,7 @@ export default function OrificeCalculatorPage() {
   }
 
   return (
-    <ProFeaturePreview
+    <ProGuard
       title="Orifice Calculator"
       description="Professional orifice plate calculator for restricting and measuring applications according to ISO 5167 and DIN standards."
       icon={<Gauge size={40} />}
@@ -1237,7 +1214,7 @@ export default function OrificeCalculatorPage() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleProAction(calculateOrifice)}
+                    onClick={calculateOrifice}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-sm"
                   >
                     Calculate
@@ -1419,84 +1396,6 @@ export default function OrificeCalculatorPage() {
         </div>
       </div>
 
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gauge className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                {isLoggedIn ? 'Pro Feature Required' : 'Login Required'}
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300">
-                {isLoggedIn
-                  ? 'Upgrade to Pro to use this calculator and unlock all premium features.'
-                  : 'Please log in to use the orifice calculator and access all features.'}
-              </p>
-            </div>
-
-            {!isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Free account benefits:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Full access to basic calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Calculation history
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Free forever - no credit card needed
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {isLoggedIn && (
-              <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Pro Features:</h3>
-                <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Orifice Plate Calculator
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    All Pro calculators
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    PDF report export
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">✓</span>
-                    Priority support
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSubscriptionModal(false)}
-                className="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={isLoggedIn ? handleUpgradeClick : handleLoginClick}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-              >
-                {isLoggedIn ? 'Upgrade Now' : 'Log In'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </ProFeaturePreview>
+    </ProGuard>
   )
 }
