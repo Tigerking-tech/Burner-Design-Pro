@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTheme } from './ThemeProvider'
 
 interface PasswordInputProps {
   value: string
@@ -26,11 +27,12 @@ export default function PasswordInput({
   errorMessage,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false)
+  const { theme } = useTheme()
 
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-[#555] mb-1">
+        <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
           {label}
         </label>
       )}
@@ -43,16 +45,24 @@ export default function PasswordInput({
           required={required}
           minLength={minLength}
           disabled={disabled}
-          className={`w-full px-4 py-2.5 pr-12 border rounded-md focus:outline-none focus:ring-2 transition-colors text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed ${
+          className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 transition-colors disabled:cursor-not-allowed ${
+            theme === 'dark'
+              ? 'bg-white/5 border-white/10 text-white placeholder-white/40 disabled:bg-white/3'
+              : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 disabled:bg-slate-100'
+          } ${
             error
-              ? 'border-red-500 focus:ring-red-200'
-              : 'border-gray-300 focus:ring-[#f39c12]/20 focus:border-[#f39c12]'
+              ? 'border-red-500 focus:ring-red-500/50'
+              : theme === 'dark'
+              ? 'focus:ring-blue-500/50 focus:border-blue-500'
+              : 'focus:ring-blue-500/20 focus:border-blue-500'
           }`}
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          className={`absolute right-3 top-1/2 -translate-y-1/2 focus:outline-none disabled:opacity-50 ${
+            theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700'
+          }`}
           disabled={disabled}
         >
           {showPassword ? (
@@ -93,7 +103,7 @@ export default function PasswordInput({
         </button>
       </div>
       {errorMessage && (
-        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+        <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>{errorMessage}</p>
       )}
     </div>
   )
