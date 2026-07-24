@@ -1,107 +1,234 @@
 from typing import Dict, List, Tuple
 
 # Define all units and their conversion factors to base units
-# Base units: Pa (pressure), °C (temperature), m³/s (flow), J (energy), W (power), 
-#             kJ/Nm³ (heat content), m (length), kg (mass), m³ (volume), kg/m³ (density),
-#             m/s (velocity), kW (burner capacity)
+# Base units: Pa (pressure), Radian (angle), mm² (area), g/cm³ (density), cal (energy),
+#             g force (force), Cal/cm³ (heat content volume), MJ/nm³ (heat content nm³),
+#             Cal/g (heat content mass), µm (length), N*m/sec (power), cal/(cm²*sec) (heat flux),
+#             Kcal/(m²*h*°C) (heat transfer coefficient), mg (mass), cal/(g*°C) (specific heat),
+#             nm³ (standard volume), kcal/(m*h*°C) (thermal conductivity), N*m (torque),
+#             cm/s (velocity), Pa*s (viscosity absolute), m²/sec (viscosity kinematic),
+#             cm³ (volume), cm³/s (flow rate), kW (Hu) (burner capacity)
 
 UNITS = {
     "Pressure": {
         "Pa": 1.0,
         "kPa": 1000.0,
-        "MPa": 1000000.0,
+        "mm H₂O": 9.800001568,
+        "mm Hg": 133.299990562,
+        "kg/cm²": 98069.9827397,
         "bar": 100000.0,
         "mbar": 100.0,
-        "atm": 101325.0,
-        "psi": 6894.76,
-        "mmHg": 133.322,
-        "inHg": 3386.39,
-        "mmH2O": 9.80665,
-        "inH2O": 249.089,
-        "kg/cm2": 98066.5
+        "atm": 101300.003201,
+        "g/cm²": 98.0699827397,
+        "in. H₂O": 248.799975518,
+        "in. Hg": 3386.00031083,
+        "psi = lb/in.²": 6895.00153759,
+        "oz/in.²": 430.92233
     },
-    "Temperature": {
-        "Celsius": 0.0,  # Special handling
-        "Fahrenheit": 0.0,  # Special handling
-        "Kelvin": 0.0  # Special handling
+    "Angle": {
+        "Radian": 1.0,
+        "Degree": 0.0174550532379
     },
-    "Flow Rate": {
-        "m3/s": 1.0,
-        "m3/h": 1.0 / 3600.0,
-        "L/s": 0.001,
-        "L/h": 0.001 / 3600.0,
-        "Nm3/h": 1.0 / 3600.0,
-        "Sm3/h": 1.0 / 3600.0,
-        "cfm": 0.000471947,
-        "gpm": 0.0000630902,
-        "kg/h": 1.0 / 3600.0
-    },
-    "Energy": {
-        "J": 1.0,
-        "kJ": 1000.0,
-        "MJ": 1000000.0,
-        "kWh": 3600000.0,
-        "BTU": 1055.06,
-        "kcal": 4184.0
-    },
-    "Power": {
-        "W": 1.0,
-        "kW": 1000.0,
-        "MW": 1000000.0,
-        "BTU/h": 0.293071,
-        "kcal/h": 1.163
-    },
-    "Heat Content": {
-        "kJ/Nm3": 1.0,
-        "MJ/Nm3": 1000.0,
-        "BTU/scf": 37.2589,
-        "kJ/kg": 1.0,
-        "BTU/lb": 2.326,
-        "kcal/kg": 4.184
-    },
-    "Length": {
-        "m": 1.0,
-        "cm": 0.01,
-        "mm": 0.001,
-        "km": 1000.0,
-        "in": 0.0254,
-        "ft": 0.3048,
-        "yd": 0.9144,
-        "mi": 1609.34
-    },
-    "Mass": {
-        "kg": 1.0,
-        "g": 0.001,
-        "mg": 0.000001,
-        "lb": 0.453592,
-        "oz": 0.0283495,
-        "ton": 1000.0
-    },
-    "Volume": {
-        "m3": 1.0,
-        "L": 0.001,
-        "mL": 0.000001,
-        "ft3": 0.0283168,
-        "gal": 0.00378541,
-        "in3": 0.0000163871
+    "Area": {
+        "mm²": 1.0,
+        "cm²": 100.0,
+        "m²": 1000000.0,
+        "in²": 645.159930393,
+        "ft²": 92903.10762158
     },
     "Density": {
-        "kg/m3": 1.0,
-        "g/cm3": 1000.0,
-        "lb/ft3": 16.0185
+        "g/cm³": 1.0,
+        "kg/m³": 0.001,
+        "lb/in³": 27.6778300581,
+        "lb/ft³": 0.0160179400929,
+        "kg/Litre": 1.0,
+        "lb/Gal(US)": 0.119832234871
+    },
+    "Energy": {
+        "cal": 1.0,
+        "Kcal": 1000.0,
+        "Joule": 0.2388344877,
+        "GigaJoule": 238834487.7,
+        "Btu": 252.016129032,
+        "Million Btu": 252016129.032,
+        "W*h": 859.845227859,
+        "Horsepower*h": 641025.641026,
+        "kg*m": 2.34230435903,
+        "lb*ft": 0.323834196891,
+        "N*m": 0.2388344877,
+        "MJ": 238834.4877
+    },
+    "Force": {
+        "g force": 1.0,
+        "kg force": 1000.0,
+        "Poundal": 14.0980888631,
+        "N": 101.967982054,
+        "lb force": 453.576450311,
+        "Dyne": 0.00101971621298
+    },
+    "Heat Content (Volume)": {
+        "Cal/cm³": 1.0,
+        "Kcal/m³": 0.001,
+        "Btu/ft³": 0.00889679715302,
+        "J/m³": 2.388344877e-7
+    },
+    "Heat Content (nm³, scf)": {
+        "MJ/nm³": 1.0,
+        "kcal/nm³": 0.00418699978437,
+        "MJ/sm³": 1.05699999302,
+        "kcal/sm³": 0.00442565997654,
+        "Btu/scf": 0.0393823741034,
+        "kW-hr/nm³": 3.599999712
+    },
+    "Heat Content (Mass)": {
+        "Cal/g": 1.0,
+        "Kcal/kg": 1.0,
+        "Btu/lb": 0.555555555556,
+        "J/kg": 0.0002388344877,
+        "kW*h/kg": 854.830175163
+    },
+    "Length": {
+        "µm": 1.0,
+        "mm": 1000.0,
+        "cm": 10000.0,
+        "m": 1000000.0,
+        "inch": 25400.0508001,
+        "ft": 304799.918464,
+        "mile": 1609343245.415,
+        "km": 1000000000.0
+    },
+    "Power": {
+        "N*m/sec": 1.0,
+        "Kcal/hr": 1.16300003768,
+        "kW": 1000.0,
+        "W": 1.0,
+        "MegaWatt": 1000000.0,
+        "Joules/sec": 1.0,
+        "GigaJoule/hr": 277777.777778,
+        "Horsepower": 745.712155108,
+        "Btu/hr": 0.293094746394,
+        "Million Btu/hr": 293094.746394,
+        "MJ/hr": 277.777777778,
+        "ft*lb/sec": 1.3557483731
+    },
+    "Heat Flux": {
+        "cal/(cm²*sec)": 1.0,
+        "Kcal/(m²*h)": 2.77777777778e-5,
+        "W/m²": 2.388344877e-5,
+        "kW/m²": 0.02388344877,
+        "Btu/(ft²*h)": 7.53611305375e-5,
+        "Btu/(in²*h)": 0.0108520003112
+    },
+    "Heat Transfer Coefficient": {
+        "Kcal/(m²*h*°C)": 1.0,
+        "W/(m²*K)": 0.859845227859,
+        "Btu/(ft²*h*°F)": 4.8800007808,
+        "Btu/(in²*h*°F)": 702.71994783
+    },
+    "Mass": {
+        "mg": 1.0,
+        "g": 1000.0,
+        "kg": 1000000.0,
+        "ton (metric)": 1000000000.0,
+        "lbs": 453592.370755,
+        "oz": 28349.5231722,
+        "ton (imperial)": 1016046908.8,
+        "ton (US)": 907184740.0
+    },
+    "Specific Heat": {
+        "cal/(g*°C)": 1.0,
+        "kcal/(kg*°C)": 1.0,
+        "Joule/(kg*K)": 0.0002388344877,
+        "Btu/(lb*°F)": 1.0
+    },
+    "Standard/Normal Volume": {
+        "nm³ (0°C, 1013 mbar)": 1.0,
+        "sm³ (15 °C, 1013 mbar)": 0.943396226,
+        "scf (60 °F, 14.696 psi)": 0.0267881057
+    },
+    "Thermal Conductivity": {
+        "kcal/(m*h*°C)": 1.0,
+        "W/(m*°C)": 0.859845227859,
+        "Btu*ft/(ft²*h*°F)": 1.4880952381,
+        "Btu*in/(ft²*h*°F)": 0.124000001984
+    },
+    "Torque": {
+        "N*m": 1.0,
+        "N*cm": 0.01,
+        "N*mm": 0.001,
+        "dyn*m": 0.00001,
+        "dyn*cm": 0.0000001,
+        "dyn*mm": 0.00000001,
+        "kg-force*m": 9.80673059191188,
+        "kg-force*cm": 0.09806730592,
+        "lb-force*ft": 1.35581794833,
+        "lb-force*in.": 0.112984829027
     },
     "Velocity": {
-        "m/s": 1.0,
-        "km/h": 1.0 / 3.6,
-        "ft/s": 0.3048,
-        "mph": 0.44704
+        "cm/s": 1.0,
+        "m/s": 100.0,
+        "km/s": 100000.0,
+        "km/h": 27.7777777778,
+        "in./s": 2.54000508001,
+        "ft/s": 30.4785126486,
+        "miles/h": 44.7019275471
     },
-    "Burner Capacity": {
-        "kW": 1.0,
-        "MW": 1000.0,
-        "kcal/h": 1.0 / 1.163,
-        "BTU/h": 1.0 / 3.41214,
-        "Nm3/h (gas)": 1.0 / 10.0  # Approximate based on natural gas (~10 kW/Nm3/h)
+    "Viscosity Absolute": {
+        "Pa*s": 1.0,
+        "Poise": 0.1,
+        "kg/(m*h)": 0.0002777777778,
+        "centipoise": 0.001,
+        "lb/(ft*h)": 0.0004130524577
+    },
+    "Viscosity Kinematic": {
+        "m²/sec": 1.0,
+        "ft²/sec": 0.092936803,
+        "ft²/h": 0.0000258157786,
+        "centistoke": 0.000001,
+        "stoke": 0.0001
+    },
+    "Fuel oil kinematic viscosity": {
+        "Centistokes": 1.0,
+        "SSU (Saybolt Univers.)": 1.0,
+        "SSF (Saybolt Furol)": 1.0,
+        "SR1 (Redwood Standard)": 1.0,
+        "Degrees Engler": 1.0,
+        "ft²/sec": 1.0
+    },
+    "Volume": {
+        "cm³": 1.0,
+        "m³": 1000000.0,
+        "dm³": 1000.0,
+        "Liter": 1000.0,
+        "US gal": 3784.996215,
+        "in.³": 16.387064,
+        "ft³": 28320.589068,
+        "quart": 946.073794,
+        "pint": 473.260767
+    },
+    "Flow rate": {
+        "cm³/s": 1.0,
+        "m³/s": 1000000.0,
+        "m³/h": 277.777777778,
+        "Liter/h": 0.2777777778,
+        "ft³/s": 28320.589068,
+        "ft³/min": 472.009818,
+        "ft³/h": 7.866782,
+        "m³/min": 16666.6666667,
+        "US gal/s": 3784.996215,
+        "US gal/min": 63.083522,
+        "US gal/h": 1.051392
+    },
+    "Burner capacity": {
+        "kW (Hu)": 1.0,
+        "10³ BTU/h (Ho), Natural gas NG (Ho/Hu = 1.108)": 0.2644104,
+        "10³ BTU/h (Ho), Propane/Butane LPG (Ho/Hu = 1.084)": 0.2700513,
+        "10³ BTU/h (Ho), Coke oven gas COG (Ho/Hu = 1.13)": 0.2592689
+    },
+    "Temperature": {
+        "Fahrenheit": 0.0,
+        "Celsius": 0.0,
+        "Kelvin": 0.0
     }
 }
 
