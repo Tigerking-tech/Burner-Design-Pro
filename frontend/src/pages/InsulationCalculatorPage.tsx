@@ -6,7 +6,7 @@ import { Download } from 'lucide-react'
 import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
 
-import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Flame, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
+import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
 import {
   PAGE_WIDTH,
   PAGE_HEIGHT,
@@ -138,7 +138,7 @@ function InsulationCalculatorPage() {
   const { requirePro, modal } = useProAccess(
     'Insulation Thickness Calculator',
     'Subscribe to Pro to calculate insulation thickness and export PDF reports.',
-    <BrickWall size={40} />
+    <Layers size={40} />
   )
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric')
   const [equipmentType, setEquipmentType] = useState<EquipmentType>('pipe')
@@ -991,7 +991,7 @@ function InsulationCalculatorPage() {
     <ProGuard
       title="Insulation Thickness Calculator"
       description="ISO 12241 & ASTM C680 Standards | Pipe & Flat Surface | Anti-Condensation"
-      icon={<BrickWall size={40} />}
+      icon={<Layers size={40} />}
     >
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
         <Navbar />
@@ -1032,7 +1032,12 @@ function InsulationCalculatorPage() {
                 className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 text-xs sm:text-sm font-semibold transition-all duration-200 relative ${mode === 'heatloss' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
                 onClick={() => setMode('heatloss')}
               >
-                <Flame size={16} />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 19c0-1.5 1.5-2.5 1.5-4S7 13 7 11.5 8.5 9 8.5 9 10 10.5 10 11.5 8.5 13.5 8.5 15 10 16.5 10 19" />
+                  <path d="M12 19c0-1.5 1.5-2.5 1.5-4S12 13 12 11.5 13.5 9 13.5 9 15 10.5 15 11.5 13.5 13.5 13.5 15 15 16.5 15 19" />
+                  <path d="M17 19c0-1.5 1.5-2.5 1.5-4S17 13 17 11.5 18.5 9 18.5 9 20 10.5 20 11.5 18.5 13.5 18.5 15 20 16.5 20 19" />
+                  <rect x="2" y="19" width="20" height="3" rx="1" />
+                </svg>
                 <span>Heat Loss</span>
               </button>
               <button

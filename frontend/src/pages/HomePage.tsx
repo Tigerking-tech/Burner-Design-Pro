@@ -97,16 +97,7 @@ const features: Feature[] = [
     id: 'orifice',
     title: 'Orifice Calculator',
     description: 'Design restricting or measuring orifice plates with ISO 5167 standard support.',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="4" />
-        <line x1="2" y1="12" x2="8" y2="12" />
-        <line x1="16" y1="12" x2="22" y2="12" />
-        <line x1="12" y1="2" x2="12" y2="8" />
-        <line x1="12" y1="16" x2="12" y2="22" />
-      </svg>
-    ),
+    icon: <Gauge size={24} />,
     pro: true,
     to: '/orifice-calculator',
     category: 'Flow'
