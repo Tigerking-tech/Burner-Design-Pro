@@ -21,40 +21,40 @@ import {
 
 const gasPresets: GasPreset[] = [
   {
-    name: 'North sea natural gas H',
-    composition: { 'CH₄': '92.0', 'C₂H₆': '3.5', 'C₃H₈': '1.5', 'C₄H₁₀': '0.5', 'N₂': '1.5', 'CO₂': '1.0' }
+    name: 'North Sea Natural Gas H',
+    composition: { 'CH₄': '88.79', 'C₂H₆': '6.88', 'C₃H₈': '1.23', 'C₄H₁₀': '0.27', 'C₅H₁₂': '0.05', 'C₆H₁₄': '0.02', 'N₂': '0.82', 'CO₂': '1.93', 'O₂': '0.01' }
   },
   {
-    name: 'Russian natural gas H',
-    composition: { 'CH₄': '98.0', 'C₂H₆': '0.7', 'C₃H₈': '0.3', 'N₂': '0.8', 'CO₂': '0.2' }
+    name: 'Russian Natural Gas H',
+    composition: { 'CH₄': '96.97', 'C₂H₆': '1.36', 'C₃H₈': '0.44', 'C₄H₁₀': '0.15', 'C₅H₁₂': '0.02', 'C₆H₁₄': '0.01', 'N₂': '0.86', 'CO₂': '0.18', 'O₂': '0.01' }
   },
   {
-    name: 'Dutch natural gas L',
-    composition: { 'CH₄': '81.0', 'C₂H₆': '3.0', 'C₃H₈': '0.8', 'N₂': '13.2', 'CO₂': '2.0' }
+    name: 'Dutch Natural Gas L',
+    composition: { 'CH₄': '83.67', 'C₂H₆': '3.53', 'C₃H₈': '0.60', 'C₄H₁₀': '0.19', 'C₅H₁₂': '0.04', 'C₆H₁₄': '0.06', 'N₂': '10.23', 'CO₂': '1.67', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas L (Low Calorific)',
-    composition: { 'CH₄': '86.0', 'C₂H₆': '4.0', 'C₃H₈': '1.0', 'N₂': '7.0', 'CO₂': '2.0' }
+    composition: { 'CH₄': '81.4', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.2', 'CO₂': '0.89', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas H (High Calorific)',
-    composition: { 'CH₄': '95.0', 'C₂H₆': '2.5', 'C₃H₈': '0.8', 'N₂': '1.2', 'CO₂': '0.5' }
+    composition: { 'CH₄': '93.3', 'C₂H₆': '3.38', 'C₃H₈': '0.94', 'C₄H₁₀': '0.71', 'N₂': '0.78', 'CO₂': '0.89' }
   },
   {
-    name: 'Coke oven gas',
-    composition: { 'H₂': '58.0', 'CH₄': '27.0', 'CO': '6.0', 'N₂': '5.0', 'CO₂': '2.0', 'C₂H₄': '2.0' }
+    name: 'Coke Oven Gas',
+    composition: { 'H₂': '57.9', 'CO': '4.5', 'CH₄': '30.3', 'C₄H₁₀': '3.3', 'N₂': '2.2', 'CO₂': '1.8' }
   },
   {
-    name: 'Blast furnace gas (BFG)',
-    composition: { 'N₂': '55.0', 'CO': '25.0', 'CO₂': '18.0', 'H₂': '2.0' }
+    name: 'Blast Furnace Gas',
+    composition: { 'H₂': '1.65', 'CO': '25.1', 'N₂': '57.5', 'CO₂': '15.4', 'O₂': '0.35' }
   },
   {
-    name: 'Mixed natural gas H',
-    composition: { 'CH₄': '94.0', 'C₂H₆': '3.0', 'C₃H₈': '1.0', 'N₂': '1.5', 'CO₂': '0.5' }
+    name: 'Mixed Gas',
+    composition: { 'H₂': '23.8', 'CO': '17.4', 'CH₄': '10.0', 'C₂H₆': '0.8', 'N₂': '35.2', 'CO₂': '12.8' }
   },
   {
     name: 'Biogas',
-    composition: { 'CH₄': '60.0', 'CO₂': '40.0' }
+    composition: { 'CH₄': '60.0', 'N₂': '1.0', 'CO₂': '38.7', 'O₂': '0.3' }
   },
   {
     name: 'Hydrogen',
@@ -70,7 +70,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Propane, Commercial',
-    composition: { 'C₃H₈': '95.0', 'C₄H₁₀': '5.0' }
+    composition: { 'C₂H₆': '2.2', 'C₃H₈': '97.3', 'C₄H₁₀': '0.5' }
   },
   {
     name: 'Butane',
@@ -78,39 +78,39 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Average Natural Gas',
-    composition: { 'CH₄': '90.0', 'C₂H₆': '5.0', 'C₃H₈': '1.5', 'N₂': '2.5', 'CO₂': '1.0' }
+    composition: { 'CH₄': '89.45', 'C₂H₆': '5.08', 'C₃H₈': '1.44', 'C₄H₁₀': '0.31', 'N₂': '2.99', 'CO₂': '0.73' }
   },
   {
     name: 'Landfill, Cagistrio 81',
-    composition: { 'CH₄': '50.0', 'CO₂': '45.0', 'N₂': '5.0' }
+    composition: { 'CH₄': '53.4', 'N₂': '12.25', 'CO₂': '34.3', 'O₂': '0.05' }
   },
   {
-    name: 'N.Gas Birmingham',
-    composition: { 'CH₄': '92.5', 'C₂H₆': '3.0', 'C₃H₈': '0.5', 'N₂': '3.0', 'CO₂': '1.0' }
+    name: 'Natural Gas Birmingham',
+    composition: { 'CH₄': '93.34', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.11', 'CO₂': '1.06' }
   },
   {
-    name: 'N.Gas East Ohio',
-    composition: { 'CH₄': '94.0', 'C₂H₆': '2.5', 'C₃H₈': '0.8', 'N₂': '1.7', 'CO₂': '1.0' }
+    name: 'Natural Gas East Ohio',
+    composition: { 'CH₄': '94.25', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'H₂': '0.01', 'N₂': '0.25', 'CO₂': '0.68', 'O₂': '0.1' }
   },
   {
-    name: 'N.Gas Pittsburgh',
-    composition: { 'CH₄': '93.0', 'C₂H₆': '3.0', 'C₃H₈': '0.5', 'N₂': '2.5', 'CO₂': '1.0' }
+    name: 'Natural Gas Pittsburgh',
+    composition: { 'CH₄': '94.13', 'C₂H₆': '3.58', 'C₃H₈': '0.79', 'C₄H₁₀': '0.28', 'N₂': '0.4', 'CO₂': '0.8', 'O₂': '0.01' }
   },
   {
-    name: 'N.Gas UGI',
-    composition: { 'CH₄': '91.0', 'C₂H₆': '3.5', 'C₃H₈': '0.8', 'N₂': '3.7', 'CO₂': '1.0' }
+    name: 'Natural Gas UGI',
+    composition: { 'CH₄': '95.68', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.28', 'CO₂': '0.92', 'O₂': '0.1' }
   },
   {
-    name: 'Producer, Koppers-Totzek',
-    composition: { 'CO': '30.0', 'H₂': '14.0', 'N₂': '52.0', 'CO₂': '4.0' }
+    name: 'Producer Gas, Koppers-Totzek',
+    composition: { 'CO': '58.7', 'H₂': '32.9', 'N₂': '1.4', 'CO₂': '7.0' }
   },
   {
-    name: 'Producer, Lurgi',
-    composition: { 'CO': '28.0', 'H₂': '12.0', 'N₂': '54.0', 'CO₂': '6.0' }
+    name: 'Producer Gas, Lurgi',
+    composition: { 'CH₄': '10.2', 'CO': '17.1', 'H₂': '40.2', 'N₂': '1.1', 'CO₂': '31.4' }
   },
   {
     name: 'UGI Gas',
-    composition: { 'CO': '25.0', 'H₂': '15.0', 'CH₄': '10.0', 'N₂': '45.0', 'CO₂': '5.0' }
+    composition: { 'CH₄': '95.84', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.0' }
   },
 ]
 
