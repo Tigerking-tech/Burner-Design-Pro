@@ -35,6 +35,18 @@ const MOLECULAR_WEIGHTS = {
   'SOx': 64.06
 };
 
+const FD_FACTORS: Record<string, number> = {
+  'natural_gas': 8710,
+  'natural_gas_low': 8710,
+  'natural_gas_high': 8710,
+  'diesel': 9190,
+  'diesel_low': 9190,
+  'heavy_oil': 9190,
+  'heavy_oil_low': 9190,
+  'coal': 9780,
+  'solid': 9780
+};
+
 const EPA_LIMITS = {
   'natural_gas_low': { 'NOx': 130, 'CO': 100, 'O2': 3.0 },
   'natural_gas_high': { 'NOx': 260, 'CO': 100, 'O2': 3.0 },
@@ -69,8 +81,18 @@ const o2Correction = (measuredValue: number, o2Measured: number, o2Reference: nu
   return measuredValue * (20.9 - o2Reference) / (20.9 - o2Measured);
 };
 
-const mgM3ToLbMMBtu = (mg: number, o2Ref: number, co2Max: number) => {
-  return mg * 1.80e-7 / (co2Max / 100) * (20.9 - o2Ref) / 20.9;
+const mgM3ToLbMMBtu = (mg: number, o2Ref: number, fuelType: string, mw: number) => {
+  const fd = FD_FACTORS[fuelType] || 8710;
+  const ppm = mgM3ToPpm(mg, mw);
+  const k = mw / (385.3 * 1e6);
+  return ppm * k * fd * (20.9 / (20.9 - o2Ref));
+};
+
+const lbMMBtuToMgM3 = (lbMMBtu: number, o2Ref: number, fuelType: string, mw: number) => {
+  const fd = FD_FACTORS[fuelType] || 8710;
+  const k = mw / (385.3 * 1e6);
+  const ppm = lbMMBtu / (k * fd * (20.9 / (20.9 - o2Ref)));
+  return ppmToMgM3(ppm, mw);
 };
 
 const convertToAllUnits = (
@@ -82,21 +104,20 @@ const convertToAllUnits = (
   fuelType: string
 ) => {
   const mw = MOLECULAR_WEIGHTS[pollutant as keyof typeof MOLECULAR_WEIGHTS] || 46.01;
-  const co2Max = CO2_MAX_VALUES[fuelType as keyof typeof CO2_MAX_VALUES] || 12.0;
   
   let ppm: number, mgM3: number, lbMMBtu: number;
   
   if (fromUnit === 'ppm') {
     ppm = o2Correction(value, o2Measured, o2Reference);
     mgM3 = ppmToMgM3(ppm, mw);
-    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, co2Max);
+    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw);
   } else if (fromUnit === 'mg_m3') {
     mgM3 = o2Correction(value, o2Measured, o2Reference);
     ppm = mgM3ToPpm(mgM3, mw);
-    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, co2Max);
+    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw);
   } else {
     lbMMBtu = value;
-    mgM3 = value / 1.80e-7 * (co2Max / 100) * 20.9 / (20.9 - o2Reference);
+    mgM3 = lbMMBtuToMgM3(value, o2Reference, fuelType, mw);
     ppm = mgM3ToPpm(mgM3, mw);
   }
   
@@ -139,7 +160,7 @@ const calculateAnnualEmissions = (
   annualHours: number,
   loadFactor: number
 ) => {
-  const hourlyKg = concentrationMgM3 * flueGasFlow * 1e-3;
+  const hourlyKg = concentrationMgM3 * flueGasFlow * 1e-6;
   const annualTons = hourlyKg * annualHours * loadFactor * 1e-3;
   const monthlyTons = annualTons / 12;
   
