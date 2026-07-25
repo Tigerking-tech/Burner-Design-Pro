@@ -38,6 +38,11 @@ FD_FACTORS = {
     "solid": 9780,
 }
 
+K_FACTORS = {
+    "NOx": 1.194e-7,
+    "SOx": 1.660e-7,
+}
+
 EPA_LIMITS = {
     "natural_gas_low": {"NOx": 130, "CO": 100, "O2": 3.0},
     "natural_gas_high": {"NOx": 260, "CO": 100, "O2": 3.0},
@@ -75,15 +80,15 @@ def o2_correction(measured_value: float, o2_measured: float, o2_reference: float
         return measured_value
     return measured_value * (20.9 - o2_reference) / (20.9 - o2_measured)
 
-def mg_m3_to_lb_MMBtu(mg_m3: float, o2_reference: float, fuel_type: str, molecular_weight: float) -> float:
+def mg_m3_to_lb_MMBtu(mg_m3: float, o2_reference: float, fuel_type: str, molecular_weight: float, pollutant: str) -> float:
     fd = FD_FACTORS.get(fuel_type, 8710)
     ppm = mg_m3_to_ppm(mg_m3, molecular_weight)
-    k = molecular_weight / (385.3 * 1e6)
+    k = K_FACTORS.get(pollutant, molecular_weight / (385.3 * 1e6))
     return ppm * k * fd * (20.9 / (20.9 - o2_reference))
 
-def lb_MMBtu_to_mg_m3(lb_mmbtu: float, o2_reference: float, fuel_type: str, molecular_weight: float) -> float:
+def lb_MMBtu_to_mg_m3(lb_mmbtu: float, o2_reference: float, fuel_type: str, molecular_weight: float, pollutant: str) -> float:
     fd = FD_FACTORS.get(fuel_type, 8710)
-    k = molecular_weight / (385.3 * 1e6)
+    k = K_FACTORS.get(pollutant, molecular_weight / (385.3 * 1e6))
     ppm = lb_mmbtu / (k * fd * (20.9 / (20.9 - o2_reference)))
     return ppm_to_mg_m3(ppm, molecular_weight)
 
@@ -112,18 +117,18 @@ def convert_emission(
     elif from_unit == "ppm" and to_unit == "lb_MMBtu":
         corrected_ppm = o2_correction(value, o2_measured, o2_reference)
         mg_m3 = ppm_to_mg_m3(corrected_ppm, mw)
-        return mg_m3_to_lb_MMBtu(mg_m3, o2_reference, fuel_type, mw)
+        return mg_m3_to_lb_MMBtu(mg_m3, o2_reference, fuel_type, mw, pollutant)
     
     elif from_unit == "mg_m3" and to_unit == "lb_MMBtu":
         corrected_mg = o2_correction(value, o2_measured, o2_reference)
-        return mg_m3_to_lb_MMBtu(corrected_mg, o2_reference, fuel_type, mw)
+        return mg_m3_to_lb_MMBtu(corrected_mg, o2_reference, fuel_type, mw, pollutant)
     
     elif from_unit == "lb_MMBtu" and to_unit == "ppm":
-        mg_m3 = lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw)
+        mg_m3 = lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw, pollutant)
         return mg_m3_to_ppm(mg_m3, mw)
     
     elif from_unit == "lb_MMBtu" and to_unit == "mg_m3":
-        return lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw)
+        return lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw, pollutant)
     
     return value
 
@@ -142,14 +147,14 @@ def convert_all_units(
     if from_unit == "ppm":
         ppm_val = corrected_value
         mg_m3_val = ppm_to_mg_m3(corrected_value, mw)
-        lb_MMBtu_val = mg_m3_to_lb_MMBtu(mg_m3_val, o2_reference, fuel_type, mw)
+        lb_MMBtu_val = mg_m3_to_lb_MMBtu(mg_m3_val, o2_reference, fuel_type, mw, pollutant)
     elif from_unit == "mg_m3":
         mg_m3_val = corrected_value
         ppm_val = mg_m3_to_ppm(corrected_value, mw)
-        lb_MMBtu_val = mg_m3_to_lb_MMBtu(corrected_value, o2_reference, fuel_type, mw)
+        lb_MMBtu_val = mg_m3_to_lb_MMBtu(corrected_value, o2_reference, fuel_type, mw, pollutant)
     else:
         lb_MMBtu_val = value
-        mg_m3_val = lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw)
+        mg_m3_val = lb_MMBtu_to_mg_m3(value, o2_reference, fuel_type, mw, pollutant)
         ppm_val = mg_m3_to_ppm(mg_m3_val, mw)
     
     return {

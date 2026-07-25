@@ -47,6 +47,11 @@ const FD_FACTORS: Record<string, number> = {
   'solid': 9780
 };
 
+const K_FACTORS: Record<string, number> = {
+  'NOx': 1.194e-7,
+  'SOx': 1.660e-7
+};
+
 const EPA_LIMITS = {
   'natural_gas_low': { 'NOx': 130, 'CO': 100, 'O2': 3.0 },
   'natural_gas_high': { 'NOx': 260, 'CO': 100, 'O2': 3.0 },
@@ -81,16 +86,16 @@ const o2Correction = (measuredValue: number, o2Measured: number, o2Reference: nu
   return measuredValue * (20.9 - o2Reference) / (20.9 - o2Measured);
 };
 
-const mgM3ToLbMMBtu = (mg: number, o2Ref: number, fuelType: string, mw: number) => {
+const mgM3ToLbMMBtu = (mg: number, o2Ref: number, fuelType: string, mw: number, pollutant: string) => {
   const fd = FD_FACTORS[fuelType] || 8710;
   const ppm = mgM3ToPpm(mg, mw);
-  const k = mw / (385.3 * 1e6);
+  const k = K_FACTORS[pollutant] || (mw / (385.3 * 1e6));
   return ppm * k * fd * (20.9 / (20.9 - o2Ref));
 };
 
-const lbMMBtuToMgM3 = (lbMMBtu: number, o2Ref: number, fuelType: string, mw: number) => {
+const lbMMBtuToMgM3 = (lbMMBtu: number, o2Ref: number, fuelType: string, mw: number, pollutant: string) => {
   const fd = FD_FACTORS[fuelType] || 8710;
-  const k = mw / (385.3 * 1e6);
+  const k = K_FACTORS[pollutant] || (mw / (385.3 * 1e6));
   const ppm = lbMMBtu / (k * fd * (20.9 / (20.9 - o2Ref)));
   return ppmToMgM3(ppm, mw);
 };
@@ -110,14 +115,14 @@ const convertToAllUnits = (
   if (fromUnit === 'ppm') {
     ppm = o2Correction(value, o2Measured, o2Reference);
     mgM3 = ppmToMgM3(ppm, mw);
-    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw);
+    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw, pollutant);
   } else if (fromUnit === 'mg_m3') {
     mgM3 = o2Correction(value, o2Measured, o2Reference);
     ppm = mgM3ToPpm(mgM3, mw);
-    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw);
+    lbMMBtu = mgM3ToLbMMBtu(mgM3, o2Reference, fuelType, mw, pollutant);
   } else {
     lbMMBtu = value;
-    mgM3 = lbMMBtuToMgM3(value, o2Reference, fuelType, mw);
+    mgM3 = lbMMBtuToMgM3(value, o2Reference, fuelType, mw, pollutant);
     ppm = mgM3ToPpm(mgM3, mw);
   }
   
