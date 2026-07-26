@@ -332,6 +332,8 @@ export default function FuelManagerPage() {
   const [oilElements, setOilElements] = usePersistentState<OilElement[]>('fuelmanager_oilElements', defaultOilElements)
   const [showOilResults, setShowOilResults] = usePersistentState('fuelmanager_showOilResults', false)
 
+  const [oilMixturePercentages, setOilMixturePercentages] = usePersistentState<number[]>('fuelmanager_oilMixturePercentages', [0, 0, 0, 0, 0])
+
   const [gasMode, setGasMode] = usePersistentState<'mixture' | 'combustion'>('fuelmanager_gasMode', 'mixture')
   const [burnerCapacity, setBurnerCapacity] = usePersistentState('fuelmanager_burnerCapacity', '100')
   const [lambda, setLambda] = usePersistentState('fuelmanager_lambda', '1.1')
@@ -411,6 +413,61 @@ const LATENT_HEAT_WATER = 2.442
     const N = parseFloat(oilElements.find(el => el.symbol === 'N')?.percentage || '') || 0
     const Ash = parseFloat(oilElements.find(el => el.symbol === 'Ash')?.percentage || '') || 0
     const Moisture = parseFloat(oilElements.find(el => el.symbol === 'Moist')?.percentage || '') || 0
+
+    const isCustomMix = selectedOil === 5
+    const isCustomOil = selectedOil === 6
+
+    if (isCustomMix) {
+      let hs = 0, hi = 0, gravity = 0
+      let flashPoint = 0
+      for (let i = 0; i < 5; i++) {
+        const fraction = oilMixturePercentages[i] / 100
+        hs += oilPresets[i].hs * fraction
+        hi += oilPresets[i].hi * fraction
+        gravity += oilPresets[i].gravity * fraction
+        flashPoint += oilPresets[i].flashPoint * fraction
+      }
+      const hsMJ = +(gravity * hs / 1000).toFixed(2)
+      const hiMJ = +(gravity * hi / 1000).toFixed(2)
+      return {
+        density: gravity,
+        gravity: +gravity.toFixed(2),
+        hs: +hs.toFixed(2),
+        hi: +hi.toFixed(2),
+        hsMJ,
+        hiMJ,
+        viscositySSU: 'Calculated',
+        viscosityCS: 'Calculated',
+        flashPoint: Math.round(flashPoint),
+        pourPoint: '---',
+        apiGravity: '---',
+        dryMass: 100 - Moisture,
+        wetMass: 100 - Moisture,
+      }
+    }
+
+    if (isCustomOil) {
+      const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
+      const hi = hs - LATENT_HEAT_WATER * (H / 100) * (1 - Moisture / 100)
+      const gravity = 0.83
+      const hsMJ = +(gravity * hs / 1000).toFixed(2)
+      const hiMJ = +(gravity * hi / 1000).toFixed(2)
+      return {
+        density: gravity,
+        gravity,
+        hs: +hs.toFixed(2),
+        hi: +hi.toFixed(2),
+        hsMJ,
+        hiMJ,
+        viscositySSU: '---',
+        viscosityCS: '---',
+        flashPoint: 0,
+        pourPoint: '---',
+        apiGravity: '---',
+        dryMass: 100 - Moisture,
+        wetMass: 100 - Moisture,
+      }
+    }
 
     const preset = oilPresets[selectedOil]
     const elementsMatchPreset = preset &&
@@ -617,17 +674,61 @@ const LATENT_HEAT_WATER = 2.442
 
   const handleOilTypeChange = (index: number) => {
     setSelectedOil(index)
-    const preset = oilPresets[index]
-    const newElements = [
-      { name: 'C', symbol: 'C', percentage: preset.C.toString() },
-      { name: 'H', symbol: 'H', percentage: preset.H.toString() },
-      { name: 'S', symbol: 'S', percentage: preset.S.toString() },
-      { name: 'O', symbol: 'O', percentage: preset.O.toString() },
-      { name: 'N', symbol: 'N', percentage: preset.N.toString() },
-      { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
-      { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
-    ]
-    setOilElements(newElements)
+    if (index === 5) {
+      const blended = calculateOilMixtureElements()
+      setOilElements(blended)
+    } else if (index === 6) {
+      const emptyElements = [
+        { name: 'C', symbol: 'C', percentage: '0' },
+        { name: 'H', symbol: 'H', percentage: '0' },
+        { name: 'S', symbol: 'S', percentage: '0' },
+        { name: 'O', symbol: 'O', percentage: '0' },
+        { name: 'N', symbol: 'N', percentage: '0' },
+        { name: 'Ash', symbol: 'Ash', percentage: '0' },
+        { name: 'Moist', symbol: 'Moist', percentage: '0' },
+      ]
+      setOilElements(emptyElements)
+    } else {
+      const preset = oilPresets[index]
+      const newElements = [
+        { name: 'C', symbol: 'C', percentage: preset.C.toString() },
+        { name: 'H', symbol: 'H', percentage: preset.H.toString() },
+        { name: 'S', symbol: 'S', percentage: preset.S.toString() },
+        { name: 'O', symbol: 'O', percentage: preset.O.toString() },
+        { name: 'N', symbol: 'N', percentage: preset.N.toString() },
+        { name: 'Ash', symbol: 'Ash', percentage: preset.Ash.toString() },
+        { name: 'Moist', symbol: 'Moist', percentage: preset.Moisture.toString() },
+      ]
+      setOilElements(newElements)
+    }
+  }
+
+  const calculateOilMixtureElements = () => {
+    const elements = ['C', 'H', 'S', 'O', 'N', 'Ash', 'Moist']
+    const keys = ['C', 'H', 'S', 'O', 'N', 'Ash', 'Moisture']
+    return elements.map((el, i) => {
+      let sum = 0
+      for (let j = 0; j < 5; j++) {
+        const fraction = oilMixturePercentages[j] / 100
+        sum += oilPresets[j][keys[i]] * fraction
+      }
+      return { name: el === 'Moist' ? 'Moist' : el, symbol: el === 'Moist' ? 'Moist' : el, percentage: sum.toFixed(2) }
+    })
+  }
+
+  const handleOilMixturePercentageChange = (oilIndex: number, value: string) => {
+    const numValue = parseFloat(value) || 0
+    const newPercentages = [...oilMixturePercentages]
+    newPercentages[oilIndex] = numValue
+    setOilMixturePercentages(newPercentages)
+    if (selectedOil === 5) {
+      const blended = calculateOilMixtureElements()
+      setOilElements(blended)
+    }
+  }
+
+  const getOilMixtureTotal = () => {
+    return oilMixturePercentages.reduce((sum, v) => sum + v, 0)
   }
 
   const getTotalPercentage = (components: GasComponent[]) => {
@@ -1228,6 +1329,46 @@ const LATENT_HEAT_WATER = 2.442
               </select>
             </div>
 
+            {selectedOil === 5 && (
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Oil Mixture Composition</h3>
+                <div className="overflow-x-auto mb-4">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-900 dark:bg-slate-800 text-white">
+                        <th className="text-left py-1.5 px-2 font-medium">Oil Type</th>
+                        <th className="text-right py-1.5 px-2 font-medium w-24">Vol.-%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {oilPresets.slice(0, 5).map((oil, idx) => (
+                        <tr key={oil.name} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
+                          <td className="py-1 px-2 text-slate-700 dark:text-slate-300">{oil.name}</td>
+                          <td className="py-1 px-2 text-right">
+                            <input
+                              type="number"
+                              value={oilMixturePercentages[idx]}
+                              onChange={(e) => handleOilMixturePercentageChange(idx, e.target.value)}
+                              className="w-20 px-2 py-0.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg text-xs text-right text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/5 rounded-xl">
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Mixture Total:</span>
+                  <span className={`text-lg font-bold ${Math.abs(getOilMixtureTotal() - 100) < 0.01 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {getOilMixtureTotal().toFixed(2)}%
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="mb-4 sm:mb-6">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Elemental Analysis</h3>
               <div className="overflow-x-auto mb-4">
@@ -1247,7 +1388,12 @@ const LATENT_HEAT_WATER = 2.442
                             type="text"
                             value={element.percentage}
                             onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                            className="w-16 px-1.5 py-0.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg text-xs text-right text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                            disabled={selectedOil === 5}
+                            className={`w-16 px-1.5 py-0.5 border border-slate-200 dark:border-white/10 rounded-lg text-xs text-right focus:outline-none ${
+                              selectedOil === 5
+                                ? 'bg-slate-100 dark:bg-white/10 text-slate-500 cursor-not-allowed'
+                                : 'bg-white dark:bg-white/5 text-slate-900 dark:text-white focus:border-blue-500'
+                            }`}
                             placeholder="0"
                           />
                         </td>
@@ -1274,7 +1420,9 @@ const LATENT_HEAT_WATER = 2.442
 
             {showOilResults && calculateOilKeyData() && (
               <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-slate-900 dark:bg-slate-800 rounded-xl">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Oil Key Data ({oilPresets[selectedOil].name})</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">
+                  Oil Key Data ({selectedOil === 5 ? 'Customized Oil Mixture' : selectedOil === 6 ? 'Custom Oil' : oilPresets[selectedOil].name})
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
                     <div className="text-sm text-slate-300">Density Ratio</div>
