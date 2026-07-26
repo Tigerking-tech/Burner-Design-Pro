@@ -234,7 +234,7 @@ interface OilPreset {
 const oilPresets: OilPreset[] = [
   {
     name: 'Oil #1',
-    C: 86.56, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
+    C: 86.6, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.83,
     hs: 45.76, hi: 42.94,
     viscositySSU: '----', viscosityCS: '1.4 - 2.2',
@@ -244,7 +244,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #2',
-    C: 87.29, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
+    C: 87.3, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.87,
     hs: 45.13, hi: 42.42,
     viscositySSU: '32.6 - 37.9', viscosityCS: '2.0 - 3.6',
@@ -254,7 +254,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #4',
-    C: 86.19, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
+    C: 86.4, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
     gravity: 0.92,
     hs: 44.44, hi: 41.88,
     viscositySSU: '45 - 125', viscosityCS: '5.8 - 26.4',
@@ -264,7 +264,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #5',
-    C: 88.31, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
+    C: 88.7, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
     gravity: 0.96,
     hs: 43.72, hi: 41.48,
     viscositySSU: '300 - 900', viscosityCS: '65 - 194',
@@ -274,7 +274,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #6',
-    C: 88.61, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
+    C: 88.3, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
     gravity: 1.02,
     hs: 42.93, hi: 40.45,
     viscositySSU: '900 - 9000', viscosityCS: '92 - 638',
@@ -427,11 +427,11 @@ const LATENT_HEAT_WATER = 2.442
         gravity += oilPresets[i].gravity * fraction
         flashPoint += oilPresets[i].flashPoint * fraction
       }
-      const hsMJ = +(gravity * hs / 1000).toFixed(2)
-      const hiMJ = +(gravity * hi / 1000).toFixed(2)
+      const hsMJ = +(gravity * hs).toFixed(2)
+      const hiMJ = +(gravity * hi).toFixed(2)
       return {
         density: gravity,
-        gravity: +gravity.toFixed(2),
+        gravity: +gravity.toFixed(4),
         hs: +hs.toFixed(2),
         hi: +hi.toFixed(2),
         hsMJ,
@@ -450,8 +450,8 @@ const LATENT_HEAT_WATER = 2.442
       const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
       const hi = hs - LATENT_HEAT_WATER * (H / 100) * (1 - Moisture / 100)
       const gravity = 0.83
-      const hsMJ = +(gravity * hs / 1000).toFixed(2)
-      const hiMJ = +(gravity * hi / 1000).toFixed(2)
+      const hsMJ = +(gravity * hs).toFixed(2)
+      const hiMJ = +(gravity * hi).toFixed(2)
       return {
         density: gravity,
         gravity,
@@ -493,8 +493,8 @@ const LATENT_HEAT_WATER = 2.442
     const viscositySSU = elementsMatchPreset ? preset.viscositySSU : '--'
     const viscosityCS = elementsMatchPreset ? preset.viscosityCS : '--'
     const apiGravity = elementsMatchPreset ? preset.apiGravity : '--'
-    const hsMJ = elementsMatchPreset ? preset.hsMJ : +(gravity * hs / 1000).toFixed(2)
-    const hiMJ = elementsMatchPreset ? preset.hiMJ : +(gravity * hi / 1000).toFixed(2)
+    const hsMJ = elementsMatchPreset ? preset.hsMJ : +(gravity * hs).toFixed(2)
+    const hiMJ = elementsMatchPreset ? preset.hiMJ : +(gravity * hi).toFixed(2)
 
     return {
       density: gravity,
@@ -703,16 +703,23 @@ const LATENT_HEAT_WATER = 2.442
     }
   }
 
-  const calculateOilMixtureElements = () => {
-    const elements = ['C', 'H', 'S', 'O', 'N', 'Ash', 'Moist']
-    const keys = ['C', 'H', 'S', 'O', 'N', 'Ash', 'Moisture']
-    return elements.map((el, i) => {
+  const calculateOilMixtureElements = (percentages: number[] = oilMixturePercentages) => {
+    const elements: Array<{ name: string; symbol: string; key: keyof OilPreset }> = [
+      { name: 'C', symbol: 'C', key: 'C' },
+      { name: 'H', symbol: 'H', key: 'H' },
+      { name: 'S', symbol: 'S', key: 'S' },
+      { name: 'O', symbol: 'O', key: 'O' },
+      { name: 'N', symbol: 'N', key: 'N' },
+      { name: 'Ash', symbol: 'Ash', key: 'Ash' },
+      { name: 'Moist', symbol: 'Moist', key: 'Moisture' },
+    ]
+    return elements.map((el) => {
       let sum = 0
       for (let j = 0; j < 5; j++) {
-        const fraction = oilMixturePercentages[j] / 100
-        sum += oilPresets[j][keys[i]] * fraction
+        const fraction = percentages[j] / 100
+        sum += (oilPresets[j][el.key] as number) * fraction
       }
-      return { name: el === 'Moist' ? 'Moist' : el, symbol: el === 'Moist' ? 'Moist' : el, percentage: sum.toFixed(2) }
+      return { name: el.name, symbol: el.symbol, percentage: sum.toFixed(2) }
     })
   }
 
@@ -722,7 +729,7 @@ const LATENT_HEAT_WATER = 2.442
     newPercentages[oilIndex] = numValue
     setOilMixturePercentages(newPercentages)
     if (selectedOil === 5) {
-      const blended = calculateOilMixtureElements()
+      const blended = calculateOilMixtureElements(newPercentages)
       setOilElements(blended)
     }
   }
@@ -1316,12 +1323,12 @@ const LATENT_HEAT_WATER = 2.442
           <div className="bg-white dark:bg-white/5 rounded-2xl px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-slate-200 dark:border-white/10 shadow-sm">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">Oil Fuel Data</h2>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Select Oil Type</label>
+            <div className="mb-4 sm:mb-6 flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">Oil</span>
               <select
                 value={selectedOil}
                 onChange={(e) => handleOilTypeChange(parseInt(e.target.value))}
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200"
+                className="flex-1 max-w-xs px-3 py-2 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200 text-sm"
               >
                 {oilPresets.map((oil, index) => (
                   <option key={index} value={index}>{oil.name}</option>
@@ -1329,146 +1336,195 @@ const LATENT_HEAT_WATER = 2.442
               </select>
             </div>
 
-            {selectedOil === 5 && (
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Oil Mixture Composition</h3>
-                <div className="overflow-x-auto mb-4">
-                  <table className="w-full text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-900 dark:bg-slate-800 text-white">
-                        <th className="text-left py-1.5 px-2 font-medium">Oil Type</th>
-                        <th className="text-right py-1.5 px-2 font-medium w-24">Vol.-%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {oilPresets.slice(0, 5).map((oil, idx) => (
-                        <tr key={oil.name} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
-                          <td className="py-1 px-2 text-slate-700 dark:text-slate-300">{oil.name}</td>
-                          <td className="py-1 px-2 text-right">
-                            <input
-                              type="number"
-                              value={oilMixturePercentages[idx]}
-                              onChange={(e) => handleOilMixturePercentageChange(idx, e.target.value)}
-                              className="w-20 px-2 py-0.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg text-xs text-right text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
-                              min="0"
-                              max="100"
-                              step="0.1"
-                            />
+            <div className="flex flex-col lg:flex-row gap-6 mb-4">
+              <div className="flex-1">
+                {selectedOil === 5 && (
+                  <div className="mb-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border-collapse table-fixed">
+                        <thead>
+                          <tr className="bg-slate-900 dark:bg-slate-800 text-white">
+                            <th className="text-left py-1.5 px-2 font-medium w-1/2">Oil</th>
+                            <th className="text-left py-1.5 px-2 font-medium w-1/2">Vol.-%</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {oilPresets.slice(0, 5).map((oil, idx) => (
+                            <tr key={oil.name} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
+                              <td className="py-1 px-2 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">{oil.name}</td>
+                              <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                                <input
+                                  type="number"
+                                  value={oilMixturePercentages[idx]}
+                                  onChange={(e) => handleOilMixturePercentageChange(idx, e.target.value)}
+                                  className="w-full px-2 py-0.5 border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                                  min="0"
+                                  max="100"
+                                  step="0.1"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                          <tr className="bg-slate-200 dark:bg-white/10">
+                            <td className="py-1 px-2 font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">Total</td>
+                            <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                              <span className={`text-xs font-bold ${Math.abs(getOilMixtureTotal() - 100) < 0.01 ? 'text-slate-700 dark:text-slate-300' : 'text-red-600 dark:text-red-400'}`}>
+                                {getOilMixtureTotal().toFixed(0)}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse table-fixed">
+                      <thead>
+                        <tr className="bg-slate-900 dark:bg-slate-800 text-white">
+                          <th className="text-left py-1.5 px-2 font-medium w-1/2">Element</th>
+                          <th className="text-left py-1.5 px-2 font-medium w-1/2">Wt.-%</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {oilElements.map((element, idx) => (
+                          <tr key={element.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
+                            <td className="py-1 px-2 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+                              {element.symbol === 'C' ? 'C, Available' : element.symbol === 'H' ? 'H, Available' : element.symbol === 'Moist' ? 'Moisture' : element.name}
+                            </td>
+                            <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                              {selectedOil === 5 ? (
+                                <span className="block w-full px-2 py-0.5 text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 rounded">
+                                  {element.percentage}
+                                </span>
+                              ) : (
+                                <input
+                                  type="text"
+                                  value={element.percentage}
+                                  onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
+                                  className="w-full px-2 py-0.5 border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                                  placeholder="0"
+                                />
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-slate-200 dark:bg-white/10">
+                          <td className="py-1 px-2 font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">Total</td>
+                          <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                            <span className={`text-xs font-bold ${Math.abs(getOilElementTotal() - 100) < 0.01 ? 'text-slate-700 dark:text-slate-300' : 'text-red-600 dark:text-red-400'}`}>
+                              {getOilElementTotal().toFixed(2)}
+                            </span>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/5 rounded-xl">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Mixture Total:</span>
-                  <span className={`text-lg font-bold ${Math.abs(getOilMixtureTotal() - 100) < 0.01 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {getOilMixtureTotal().toFixed(2)}%
-                  </span>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            )}
 
-            <div className="mb-4 sm:mb-6">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Elemental Analysis</h3>
-              <div className="overflow-x-auto mb-4">
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-900 dark:bg-slate-800 text-white">
-                      <th className="text-left py-1.5 px-2 font-medium">Element</th>
-                      <th className="text-right py-1.5 px-2 font-medium w-20">Vol.-%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {oilElements.map((element, idx) => (
-                      <tr key={element.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
-                        <td className="py-1 px-2 text-slate-700 dark:text-slate-300">{element.name}</td>
-                        <td className="py-1 px-2 text-right">
-                          <input
-                            type="text"
-                            value={element.percentage}
-                            onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                            disabled={selectedOil === 5}
-                            className={`w-16 px-1.5 py-0.5 border border-slate-200 dark:border-white/10 rounded-lg text-xs text-right focus:outline-none ${
-                              selectedOil === 5
-                                ? 'bg-slate-100 dark:bg-white/10 text-slate-500 cursor-not-allowed'
-                                : 'bg-white dark:bg-white/5 text-slate-900 dark:text-white focus:border-blue-500'
-                            }`}
-                            placeholder="0"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <div className="lg:w-64 flex-shrink-0">
+                {calculateOilKeyData() && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32">Density ratio</span>
+                      <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                        {calculateOilKeyData()!.gravity.toFixed(selectedOil === 5 ? 4 : 2)}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32 pt-1">
+                        Higher heating value H<sub>s</sub> (H<sub>o</sub>)
+                      </span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.hs.toFixed(2)}
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">MJ/kg</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32 pt-1">
+                        Lower heating value H<sub>i</sub> (H<sub>u</sub>)
+                      </span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.hi.toFixed(2)}
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">MJ/kg</span>
+                      </div>
+                    </div>
 
-              <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/5 rounded-xl">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Percentage:</span>
-                <span className={`text-lg font-bold ${Math.abs(getOilElementTotal() - 100) < 0.01 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {getOilElementTotal().toFixed(2)}%
-                </span>
+                    <div className="pt-2 border-t border-slate-200 dark:border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-600 dark:text-slate-400 w-32">Viscosity (SSU) at 37.8°C</span>
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.viscositySSU}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32">Viscosity (cSt) at 37.8°C</span>
+                      <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                        {calculateOilKeyData()!.viscosityCS}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32">Flash Temperature max</span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.flashPoint}
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">°C</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32">Pour Temperature Point min</span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.pourPoint}
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">°C</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32">API Gravity</span>
+                      <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                        {calculateOilKeyData()!.apiGravity}
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 dark:border-white/10">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-slate-600 dark:text-slate-400 w-32 pt-1">
+                          Higher heating value H<sub>s</sub> (H<sub>o</sub>)
+                        </span>
+                        <div className="flex-1 flex items-center gap-1">
+                          <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                            {calculateOilKeyData()!.hsMJ.toFixed(2)}
+                          </div>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">MJ/l</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 w-32 pt-1">
+                        Lower heating value H<sub>i</sub> (H<sub>u</sub>)
+                      </span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 px-2 py-1 border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white font-medium">
+                          {calculateOilKeyData()!.hiMJ.toFixed(2)}
+                        </div>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">MJ/l</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            <button
-              onClick={() => setShowOilResults(!showOilResults)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors"
-            >
-              {showOilResults ? 'Hide' : 'Show'} Oil Key Data
-            </button>
-
-            {showOilResults && calculateOilKeyData() && (
-              <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-slate-900 dark:bg-slate-800 rounded-xl">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">
-                  Oil Key Data ({selectedOil === 5 ? 'Customized Oil Mixture' : selectedOil === 6 ? 'Custom Oil' : oilPresets[selectedOil].name})
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Density Ratio</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.gravity.toFixed(2)}</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Higher Heating Value Hs</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hs.toFixed(2)} MJ/kg</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Lower Heating Value Hi</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hi.toFixed(2)} MJ/kg</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Viscosity (SSU) at 37.8°C</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.viscositySSU}</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Viscosity (cSt) at 37.8°C</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.viscosityCS}</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Flash Point</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.flashPoint} °C</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Pour Point</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.pourPoint} °C</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">API Gravity</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.apiGravity}</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Hs (Ho)</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hsMJ.toFixed(2)} MJ/l</div>
-                  </div>
-                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Hi (Hu)</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hiMJ.toFixed(2)} MJ/l</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 sm:mt-6">
+            <div className="mt-6">
               <button
                 onClick={exportToPDF}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
