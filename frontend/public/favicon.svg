@@ -1,22 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#f39c12;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f1c40f;stop-opacity:1" />
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="20" fill="#2c3e50"/>
-  <path d="M50 15 
-           C40 30, 30 40, 30 55 
-           C30 70, 40 80, 50 80 
-           C60 80, 70 70, 70 55 
-           C70 40, 60 30, 50 15 Z" 
-        fill="url(#flameGrad)"/>
-  <path d="M50 35 
-           C45 45, 42 50, 42 58 
-           C42 65, 45 70, 50 70 
-           C55 70, 58 65, 58 58 
-           C58 50, 55 45, 50 35 Z" 
-        fill="#fff8e7" opacity="0.9"/>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <path d="M22.67 38.67A6.67 6.67 0 0 0 29.33 32c0-3.68-1.33-5.33-2.67-8-2.86-5.71-.6-10.81 5.33-16 1.33 6.67 5.33 13.07 10.67 17.33 5.33 4.27 8 9.07 8 14.67a18.67 18.67 0 1 1-37.33 0c0-1.33.22-2.75.67-4" 
+        fill="none" 
+        stroke="white" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
 </svg>

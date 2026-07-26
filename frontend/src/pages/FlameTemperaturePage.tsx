@@ -34,7 +34,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Erdgas L (Low Calorific)',
-    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '81.4', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.3', 'CO₂': '0.89', 'O₂': '0.01' }
+    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '81.31', 'C₂H₆': '2.85', 'C₃H₈': '0.42', 'C₄H₁₀': '0.23', 'N₂': '14.29', 'CO₂': '0.89', 'O₂': '0.01' }
   },
   {
     name: 'Erdgas H (High Calorific)',
@@ -46,7 +46,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'Coke Oven Gas',
-    composition: { 'H₂': '57.9', 'CO': '4.5', 'CH₄': '30.3', 'C₄H₁₀': '3.3', 'N₂': '2.2', 'CO₂': '1.8', 'O₂': '0.2' }
+    composition: { 'H₂': '57.78', 'CO': '4.49', 'CH₄': '30.24', 'C₄H₁₀': '3.29', 'N₂': '2.2', 'CO₂': '1.8', 'O₂': '0.2' }
   },
   {
     name: 'Blast furnace gas (BFG)',
@@ -94,19 +94,19 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'N.Gas Birmingham',
-    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '93.34', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.14', 'CO₂': '1.06' }
+    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '93.31', 'C₂H₆': '2.5', 'C₃H₈': '0.67', 'C₄H₁₀': '0.32', 'N₂': '2.14', 'CO₂': '1.06' }
   },
   {
     name: 'N.Gas East Ohio',
-    composition: { 'H₂': '0.01', 'CO': '0', 'CH₄': '94.25', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'N₂': '0.3', 'CO₂': '0.68', 'O₂': '0.1' }
+    composition: { 'H₂': '0.01', 'CO': '0', 'CH₄': '94.2', 'C₂H₆': '3.98', 'C₃H₈': '0.57', 'C₄H₁₀': '0.16', 'N₂': '0.3', 'CO₂': '0.68', 'O₂': '0.1' }
   },
   {
     name: 'N.Gas Pittsburgh',
-    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '94.13', 'C₂H₆': '3.58', 'C₃H₈': '0.79', 'C₄H₁₀': '0.28', 'N₂': '0.4', 'CO₂': '0.8', 'O₂': '0.01' }
+    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '94.14', 'C₂H₆': '3.58', 'C₃H₈': '0.79', 'C₄H₁₀': '0.28', 'N₂': '0.4', 'CO₂': '0.8', 'O₂': '0.01' }
   },
   {
     name: 'N.Gas UGI',
-    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '95.68', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.41', 'CO₂': '0.92', 'O₂': '0.1' }
+    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '95.55', 'C₂H₆': '2.44', 'C₃H₈': '0.51', 'C₄H₁₀': '0.07', 'N₂': '0.41', 'CO₂': '0.92', 'O₂': '0.1' }
   },
   {
     name: 'Producer, Koppers-Totzek',
@@ -118,7 +118,7 @@ const gasPresets: GasPreset[] = [
   },
   {
     name: 'UGI Gas',
-    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '95.84', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.1' }
+    composition: { 'H₂': '0', 'CO': '0', 'CH₄': '95.74', 'C₂H₆': '2.24', 'C₃H₈': '0.51', 'C₄H₁₀': '0.41', 'N₂': '1.1' }
   },
 ]
 
