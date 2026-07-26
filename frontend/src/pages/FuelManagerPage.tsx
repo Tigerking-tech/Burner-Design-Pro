@@ -210,31 +210,97 @@ const gasCombustionProps: Record<string, GasCombustionProps> = {
   'Air': { nC: 0, nH: 0, nO: 0.2095, nN: 0.7808, nS: 0 },
 }
 
-const oilPresets = [
-  { 
-    name: 'Oil #1', 
-    C: 86.2, H: 13.2, S: 0.1, O: 0.1, N: 0.1, Ash: 0.1, Moisture: 0.2,
-    density: 0.82, viscosity: 5.0, flashPoint: 38, pourPoint: -18 
+interface OilPreset {
+  name: string
+  C: number
+  H: number
+  S: number
+  O: number
+  N: number
+  Ash: number
+  Moisture: number
+  gravity: number
+  hs: number
+  hi: number
+  viscositySSU: string
+  viscosityCS: string
+  flashPoint: number
+  pourPoint: string
+  apiGravity: string
+  hsMJ: number
+  hiMJ: number
+}
+
+const oilPresets: OilPreset[] = [
+  {
+    name: 'Oil #1',
+    C: 86.6, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
+    gravity: 0.83,
+    hs: 45.76, hi: 42.94,
+    viscositySSU: '----', viscosityCS: '1.4 - 2.2',
+    flashPoint: 38, pourPoint: '-18',
+    apiGravity: '35 min',
+    hsMJ: 38, hiMJ: 35.65,
   },
-  { 
-    name: 'Oil #2', 
-    C: 86.0, H: 12.7, S: 0.8, O: 0.1, N: 0.2, Ash: 0.1, Moisture: 0.1,
-    density: 0.84, viscosity: 10.0, flashPoint: 52, pourPoint: -6 
+  {
+    name: 'Oil #2',
+    C: 87.3, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
+    gravity: 0.87,
+    hs: 45.13, hi: 42.42,
+    viscositySSU: '32.6 - 37.9', viscosityCS: '2.0 - 3.6',
+    flashPoint: 38, pourPoint: '-6',
+    apiGravity: '30 min',
+    hsMJ: 39.34, hiMJ: 36.99,
   },
-  { 
-    name: 'Oil #4', 
-    C: 85.5, H: 12.0, S: 1.8, O: 0.2, N: 0.3, Ash: 0.1, Moisture: 0.1,
-    density: 0.88, viscosity: 20.0, flashPoint: 66, pourPoint: 10 
+  {
+    name: 'Oil #4',
+    C: 86.4, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
+    gravity: 0.92,
+    hs: 44.44, hi: 41.88,
+    viscositySSU: '45 - 125', viscosityCS: '5.8 - 26.4',
+    flashPoint: 55, pourPoint: '-----',
+    apiGravity: '-----',
+    hsMJ: 40.72, hiMJ: 38.37,
   },
-  { 
-    name: 'Oil #5', 
-    C: 85.0, H: 11.0, S: 2.8, O: 0.3, N: 0.5, Ash: 0.3, Moisture: 0.1,
-    density: 0.90, viscosity: 50.0, flashPoint: 80, pourPoint: 25 
+  {
+    name: 'Oil #5',
+    C: 88.7, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
+    gravity: 0.96,
+    hs: 43.72, hi: 41.48,
+    viscositySSU: '300 - 900', viscosityCS: '65 - 194',
+    flashPoint: 55, pourPoint: '------',
+    apiGravity: '-----',
+    hsMJ: 41.78, hiMJ: 38.37,
   },
-  { 
-    name: 'Oil #6', 
-    C: 84.0, H: 10.0, S: 3.5, O: 0.5, N: 0.8, Ash: 1.0, Moisture: 0.2,
-    density: 0.92, viscosity: 100.0, flashPoint: 95, pourPoint: 38 
+  {
+    name: 'Oil #6',
+    C: 88.3, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
+    gravity: 1.02,
+    hs: 42.93, hi: 40.45,
+    viscositySSU: '900 - 9000', viscosityCS: '92 - 638',
+    flashPoint: 60, pourPoint: '-------',
+    apiGravity: '-----',
+    hsMJ: 43.8, hiMJ: 41.27,
+  },
+  {
+    name: 'Customized Oil Mixture',
+    C: 0, H: 0, S: 0, O: 0, N: 0, Ash: 0, Moisture: 0,
+    gravity: 0,
+    hs: 0, hi: 0,
+    viscositySSU: '----', viscosityCS: '----',
+    flashPoint: 0, pourPoint: '----',
+    apiGravity: '----',
+    hsMJ: 0, hiMJ: 0,
+  },
+  {
+    name: 'Custom Oil',
+    C: 0, H: 0, S: 0, O: 0, N: 0, Ash: 0, Moisture: 0,
+    gravity: 0,
+    hs: 0, hi: 0,
+    viscositySSU: '----', viscosityCS: '----',
+    flashPoint: 0, pourPoint: '----',
+    apiGravity: '----',
+    hsMJ: 0, hiMJ: 0,
   },
 ]
 
@@ -334,6 +400,9 @@ export default function FuelManagerPage() {
     return { density, hs, hi, ws, wi }
   }
 
+  const KROSCHROEDER_HS_COEFF = { C: 0.3544, H: 1.1293, S: 0.3625 }
+const LATENT_HEAT_WATER = 2.442
+
   const calculateOilKeyData = () => {
     const C = parseFloat(oilElements.find(el => el.symbol === 'C')?.percentage || '') || 0
     const H = parseFloat(oilElements.find(el => el.symbol === 'H')?.percentage || '') || 0
@@ -343,28 +412,47 @@ export default function FuelManagerPage() {
     const Ash = parseFloat(oilElements.find(el => el.symbol === 'Ash')?.percentage || '') || 0
     const Moisture = parseFloat(oilElements.find(el => el.symbol === 'Moist')?.percentage || '') || 0
 
-    const dryMass = 100 - Moisture
-    
-    const Hs_kJ_kg = 339 * C + 1030 * H + 109 * S - 103 * O - 25 * N
-    const Hi_kJ_kg = 339 * C + 1030 * (H - 9 * H / 100 * Moisture / (100 - Moisture)) + 109 * S - 103 * O - 25 * N
-    
-    const hs = Hs_kJ_kg / 3600
-    const hi = Hi_kJ_kg / 3600
+    const preset = oilPresets[selectedOil]
+    const elementsMatchPreset = preset &&
+      Math.abs(C - preset.C) < 0.01 &&
+      Math.abs(H - preset.H) < 0.01 &&
+      Math.abs(S - preset.S) < 0.01 &&
+      Math.abs(O - preset.O) < 0.01 &&
+      Math.abs(N - preset.N) < 0.01 &&
+      Math.abs(Ash - preset.Ash) < 0.01 &&
+      Math.abs(Moisture - preset.Moisture) < 0.01
 
-    const density = oilPresets[selectedOil].density
-    const viscosity = oilPresets[selectedOil].viscosity
-    const flashPoint = oilPresets[selectedOil].flashPoint
-    const pourPoint = oilPresets[selectedOil].pourPoint
+    const hs = elementsMatchPreset
+      ? preset.hs
+      : KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
+
+    const hi = elementsMatchPreset
+      ? preset.hi
+      : hs - LATENT_HEAT_WATER * (H / 100) * (1 - Moisture / 100)
+
+    const gravity = elementsMatchPreset ? preset.gravity : 0.83 + (selectedOil - 1) * 0.05
+    const flashPoint = elementsMatchPreset ? preset.flashPoint : 38
+    const pourPoint = elementsMatchPreset ? preset.pourPoint : '--'
+    const viscositySSU = elementsMatchPreset ? preset.viscositySSU : '--'
+    const viscosityCS = elementsMatchPreset ? preset.viscosityCS : '--'
+    const apiGravity = elementsMatchPreset ? preset.apiGravity : '--'
+    const hsMJ = elementsMatchPreset ? preset.hsMJ : +(gravity * hs / 1000).toFixed(2)
+    const hiMJ = elementsMatchPreset ? preset.hiMJ : +(gravity * hi / 1000).toFixed(2)
 
     return {
-      density,
+      density: gravity,
+      gravity,
       hs,
       hi,
-      viscosity,
+      hsMJ,
+      hiMJ,
+      viscositySSU,
+      viscosityCS,
       flashPoint,
       pourPoint,
-      dryMass,
-      wetMass: 100 - Moisture
+      apiGravity,
+      dryMass: 100 - Moisture,
+      wetMass: 100 - Moisture,
     }
   }
 
@@ -703,13 +791,17 @@ export default function FuelManagerPage() {
         y = checkPageBreak(doc, y, 100, 'Fuel Analysis Report', 'Oil Properties');
         y = drawSubSectionTitle(doc, 'Key Properties', y);
         const cardWidth = (CONTENT_WIDTH - 8) / 3;
-        drawResultCard(doc, { label: 'Density', value: pdfFormatNumber(oilData.density, 3) + ' kg/L', x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hs (kWh/kg)', value: pdfFormatNumber(oilData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
-        drawResultCard(doc, { label: 'Hi (kWh/kg)', value: pdfFormatNumber(oilData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Density Ratio', value: pdfFormatNumber(oilData.gravity, 2), x: MARGIN_LEFT, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hs (MJ/kg)', value: pdfFormatNumber(oilData.hs, 2), x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, highlight: true });
+        drawResultCard(doc, { label: 'Hi (MJ/kg)', value: pdfFormatNumber(oilData.hi, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, highlight: true });
         y += 37;
-        drawResultCard(doc, { label: 'Viscosity', value: pdfFormatNumber(oilData.viscosity, 1) + ' cSt', x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
-        drawResultCard(doc, { label: 'Flash Point', value: pdfFormatNumber(oilData.flashPoint, 0) + ' deg C', x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
-        drawResultCard(doc, { label: 'Pour Point', value: pdfFormatNumber(oilData.pourPoint, 0) + ' deg C', x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Viscosity (SSU)', value: oilData.viscositySSU, x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Viscosity (cSt)', value: oilData.viscosityCS, x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Flash Point', value: String(oilData.flashPoint) + ' deg C', x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, status: 'info' });
+        y += 37;
+        drawResultCard(doc, { label: 'Pour Point', value: String(oilData.pourPoint) + ' deg C', x: MARGIN_LEFT, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'API Gravity', value: oilData.apiGravity, x: MARGIN_LEFT + cardWidth + 4, y, width: cardWidth, status: 'info' });
+        drawResultCard(doc, { label: 'Hs (MJ/l)', value: pdfFormatNumber(oilData.hsMJ, 2), x: MARGIN_LEFT + (cardWidth + 4) * 2, y, width: cardWidth, status: 'info' });
         y += 37;
       }
     }
@@ -1185,28 +1277,44 @@ export default function FuelManagerPage() {
                 <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Oil Key Data ({oilPresets[selectedOil].name})</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Density</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.density.toFixed(3)} kg/L</div>
+                    <div className="text-sm text-slate-300">Density Ratio</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.gravity.toFixed(2)}</div>
                   </div>
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Higher Heating Value (Hs)</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hs.toFixed(2)} kWh/kg</div>
+                    <div className="text-sm text-slate-300">Higher Heating Value Hs</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hs.toFixed(2)} MJ/kg</div>
                   </div>
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Lower Heating Value (Hi)</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hi.toFixed(2)} kWh/kg</div>
+                    <div className="text-sm text-slate-300">Lower Heating Value Hi</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hi.toFixed(2)} MJ/kg</div>
                   </div>
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
-                    <div className="text-sm text-slate-300">Viscosity</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.viscosity.toFixed(1)} cSt</div>
+                    <div className="text-sm text-slate-300">Viscosity (SSU) at 37.8°C</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.viscositySSU}</div>
+                  </div>
+                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
+                    <div className="text-sm text-slate-300">Viscosity (cSt) at 37.8°C</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.viscosityCS}</div>
                   </div>
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
                     <div className="text-sm text-slate-300">Flash Point</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.flashPoint.toFixed(0)} °C</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.flashPoint} °C</div>
                   </div>
                   <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
                     <div className="text-sm text-slate-300">Pour Point</div>
-                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.pourPoint.toFixed(0)} °C</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.pourPoint} °C</div>
+                  </div>
+                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
+                    <div className="text-sm text-slate-300">API Gravity</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.apiGravity}</div>
+                  </div>
+                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
+                    <div className="text-sm text-slate-300">Hs (Ho)</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hsMJ.toFixed(2)} MJ/l</div>
+                  </div>
+                  <div className="bg-white/10 p-3 sm:p-4 rounded-lg">
+                    <div className="text-sm text-slate-300">Hi (Hu)</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-400">{calculateOilKeyData()!.hiMJ.toFixed(2)} MJ/l</div>
                   </div>
                 </div>
               </div>
