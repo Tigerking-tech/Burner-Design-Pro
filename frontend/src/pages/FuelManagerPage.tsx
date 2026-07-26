@@ -234,7 +234,7 @@ interface OilPreset {
 const oilPresets: OilPreset[] = [
   {
     name: 'Oil #1',
-    C: 86.6, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
+    C: 86.56, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.83,
     hs: 45.76, hi: 42.94,
     viscositySSU: '----', viscosityCS: '1.4 - 2.2',
@@ -244,7 +244,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #2',
-    C: 87.3, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
+    C: 87.29, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.87,
     hs: 45.13, hi: 42.42,
     viscositySSU: '32.6 - 37.9', viscosityCS: '2.0 - 3.6',
@@ -254,7 +254,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #4',
-    C: 86.4, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
+    C: 86.19, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
     gravity: 0.92,
     hs: 44.44, hi: 41.88,
     viscositySSU: '45 - 125', viscosityCS: '5.8 - 26.4',
@@ -264,7 +264,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #5',
-    C: 88.7, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
+    C: 88.31, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
     gravity: 0.96,
     hs: 43.72, hi: 41.48,
     viscositySSU: '300 - 900', viscosityCS: '65 - 194',
@@ -274,7 +274,7 @@ const oilPresets: OilPreset[] = [
   },
   {
     name: 'Oil #6',
-    C: 88.3, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
+    C: 88.61, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
     gravity: 1.02,
     hs: 42.93, hi: 40.45,
     viscositySSU: '900 - 9000', viscosityCS: '92 - 638',
