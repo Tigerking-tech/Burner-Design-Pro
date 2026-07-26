@@ -427,6 +427,8 @@ const LATENT_HEAT_WATER = 2.442
         gravity += oilPresets[i].gravity * fraction
         flashPoint += oilPresets[i].flashPoint * fraction
       }
+      hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
+      hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
       const hsMJ = +(gravity * hs).toFixed(2)
       const hiMJ = +(gravity * hi).toFixed(2)
       return {
@@ -960,7 +962,7 @@ const LATENT_HEAT_WATER = 2.442
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
       <Navbar />
 
-      <section className="bg-slate-900 dark:bg-slate-800 text-white py-16 px-6 text-center border-b border-slate-800">
+      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 text-white py-16 px-6 text-center border-b border-slate-800 relative overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-4 leading-tight">
             Fuel Manager
@@ -988,9 +990,9 @@ const LATENT_HEAT_WATER = 2.442
         <div className="flex mb-8 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
           <button
             onClick={() => setActiveTab('gas')}
-            className={`flex-1 py-4 font-semibold transition-colors ${
+            className={`flex-1 py-4 font-semibold transition-all ${
               activeTab === 'gas' 
-                ? 'bg-white dark:bg-white/10 border-b-4 border-blue-600 text-slate-900 dark:text-white' 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
                 : 'bg-slate-50 dark:bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
             }`}
           >
@@ -998,9 +1000,9 @@ const LATENT_HEAT_WATER = 2.442
           </button>
           <button
             onClick={() => setActiveTab('oil')}
-            className={`flex-1 py-4 font-semibold transition-colors ${
+            className={`flex-1 py-4 font-semibold transition-all ${
               activeTab === 'oil' 
-                ? 'bg-white dark:bg-white/10 border-b-4 border-blue-600 text-slate-900 dark:text-white' 
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
                 : 'bg-slate-50 dark:bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
             }`}
           >
@@ -1015,7 +1017,7 @@ const LATENT_HEAT_WATER = 2.442
                 onClick={() => setGasMode('mixture')}
                 className={`flex-1 py-3 px-4 font-semibold transition-colors text-sm sm:text-base ${
                   gasMode === 'mixture' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md' 
                     : 'bg-slate-50 dark:bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
                 }`}
               >
@@ -1025,7 +1027,7 @@ const LATENT_HEAT_WATER = 2.442
                 onClick={() => setGasMode('combustion')}
                 className={`flex-1 py-3 px-4 font-semibold transition-colors text-sm sm:text-base ${
                   gasMode === 'combustion' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md' 
                     : 'bg-slate-50 dark:bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
                 }`}
               >
@@ -1036,7 +1038,7 @@ const LATENT_HEAT_WATER = 2.442
             {gasMode === 'mixture' ? (
               <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-sm">
+              <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">Gas 1</h2>
                   <div className="flex items-center gap-2">
@@ -1063,7 +1065,7 @@ const LATENT_HEAT_WATER = 2.442
 
                 <button
                   onClick={() => setShowGas1Results(!showGas1Results)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition-colors text-sm mt-4"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 rounded-xl font-semibold transition-all text-sm mt-4 shadow-md hover:shadow-lg"
                 >
                   {showGas1Results ? 'Hide' : 'Calculate'} Gas 1 Key Data
                 </button>
@@ -1097,7 +1099,7 @@ const LATENT_HEAT_WATER = 2.442
                 )}
               </div>
 
-              <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-sm">
+              <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">Gas 2</h2>
                   <div className="flex items-center gap-2">
@@ -1124,7 +1126,7 @@ const LATENT_HEAT_WATER = 2.442
 
                 <button
                   onClick={() => setShowGas2Results(!showGas2Results)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition-colors text-sm mt-4"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 rounded-xl font-semibold transition-all text-sm mt-4 shadow-md hover:shadow-lg"
                 >
                   {showGas2Results ? 'Hide' : 'Calculate'} Gas 2 Key Data
                 </button>
@@ -1159,7 +1161,7 @@ const LATENT_HEAT_WATER = 2.442
               </div>
             </div>
 
-            <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-sm mb-6">
+            <div className="bg-white dark:bg-white/5 rounded-2xl px-3 py-4 border border-slate-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow mb-6">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-center">
                 <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs mr-2">3</span>
                 Gas Mixture
@@ -1204,7 +1206,7 @@ const LATENT_HEAT_WATER = 2.442
             <div className="mt-4 sm:mt-6">
               <button
                 onClick={exportToPDF}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg hover:shadow-xl"
               >
                 <Download size={20} />
                 Export PDF Report
@@ -1353,7 +1355,7 @@ const LATENT_HEAT_WATER = 2.442
             )}
           </>
         ) : (
-          <div className="bg-white dark:bg-white/5 rounded-2xl px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-slate-200 dark:border-white/10 shadow-sm">
+          <div className="bg-white dark:bg-white/5 rounded-2xl px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 border border-slate-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">Oil Fuel Data</h2>
 
             <div className="mb-4 sm:mb-6 flex items-center gap-3">
@@ -1560,7 +1562,7 @@ const LATENT_HEAT_WATER = 2.442
             <div className="mt-6">
               <button
                 onClick={exportToPDF}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg hover:shadow-xl"
               >
                 <Download size={20} />
                 Export PDF Report
