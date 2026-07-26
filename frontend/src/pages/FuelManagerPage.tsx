@@ -427,8 +427,6 @@ const LATENT_HEAT_WATER = 2.442
         gravity += oilPresets[i].gravity * fraction
         flashPoint += oilPresets[i].flashPoint * fraction
       }
-      hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
-      hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
       const hsMJ = +(gravity * hs).toFixed(2)
       const hiMJ = +(gravity * hi).toFixed(2)
       return {
