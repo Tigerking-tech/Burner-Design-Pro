@@ -852,7 +852,7 @@ const LATENT_HEAT_WATER = 2.442
     if (totalMix === 0) {
       return elements.map(el => ({ name: el.name, symbol: el.symbol, percentage: '0.00' }))
     }
-    return elements.map((el) => {
+    const raw = elements.map((el) => {
       let sum = 0
       for (let j = 0; j < 5; j++) {
         const volumeFraction = percentages[j] / totalMix
@@ -860,11 +860,36 @@ const LATENT_HEAT_WATER = 2.442
       }
       return { name: el.name, symbol: el.symbol, percentage: roundToStr(sum, 2) }
     })
+    const rawTotal = raw.reduce((s, el) => s + (parseFloat(el.percentage) || 0), 0)
+    const diff = roundToStr(100 - rawTotal, 2)
+    if (parseFloat(diff) !== 0) {
+      let maxIdx = 0
+      let maxVal = -1
+      raw.forEach((el, idx) => {
+        const val = parseFloat(el.percentage)
+        if (val > maxVal) {
+          maxVal = val
+          maxIdx = idx
+        }
+      })
+      raw[maxIdx] = {
+        ...raw[maxIdx],
+        percentage: roundToStr(parseFloat(raw[maxIdx].percentage) + parseFloat(diff), 2)
+      }
+    }
+    return raw
   }
 
   const handleOilMixturePercentageChange = (oilIndex: number, value: string) => {
-    const numValue = parseFloat(value) || 0
     const newPercentages = [...oilMixturePercentages]
+
+    if (value === '' || value === '-' || value === '.') {
+      newPercentages[oilIndex] = 0
+      setOilMixturePercentages(newPercentages)
+      return
+    }
+
+    const numValue = parseFloat(value) || 0
     const oldValue = newPercentages[oilIndex]
     const diff = numValue - oldValue
 
@@ -1533,8 +1558,19 @@ const LATENT_HEAT_WATER = 2.442
                               <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
                                 <input
                                   type="number"
-                                  value={oilMixturePercentages[idx]}
+                                  value={oilMixturePercentages[idx] || ''}
                                   onChange={(e) => handleOilMixturePercentageChange(idx, e.target.value)}
+                                  onFocus={(e) => e.target.select()}
+                                  onBlur={(e) => {
+                                    if (e.target.value === '') {
+                                      const newPercents = [...oilMixturePercentages]
+                                      newPercents[idx] = 0
+                                      setOilMixturePercentages(newPercents)
+                                      if (selectedOil === 5) {
+                                        setOilElements(calculateOilMixtureElements(newPercents))
+                                      }
+                                    }
+                                  }}
                                   className="w-full px-2 py-0.5 border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
                                   min="0"
                                   max="100"
