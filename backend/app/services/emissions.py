@@ -225,3 +225,48 @@ def calculate_annual_emissions(
         "annual_tons": annual_tons,
         "monthly_tons": monthly_tons
     }
+
+POLLUTANT_LABELS = {
+    "NOx": "NOx",
+    "CO": "CO",
+    "CO2": "CO₂",
+    "SOx": "SO₂",
+}
+
+def calculate_all_annual_emissions(
+    nox_mg_m3: float,
+    co_mg_m3: float,
+    co2_mg_m3: float,
+    so2_mg_m3: float,
+    flue_gas_flow_m3h: float,
+    annual_hours: float,
+    load_factor: float
+) -> Dict:
+    pollutants = [
+        ("NOx", nox_mg_m3),
+        ("CO", co_mg_m3),
+        ("CO2", co2_mg_m3),
+        ("SOx", so2_mg_m3),
+    ]
+    
+    results = {}
+    for key, conc in pollutants:
+        results[key] = calculate_annual_emissions(
+            conc, flue_gas_flow_m3h, annual_hours, load_factor
+        )
+    
+    total_annual_tons = sum(r["annual_tons"] for r in results.values())
+    
+    return {
+        "pollutants": {
+            key: {
+                "label": POLLUTANT_LABELS[key],
+                "concentration_mg_m3": conc,
+                **results[key]
+            }
+            for key, conc in pollutants
+        },
+        "total_annual_tons": total_annual_tons,
+        "method": "EPA Method 19 / IPCC Guidelines — each pollutant calculated independently",
+        "formula": "Emission (kg/h) = Concentration (mg/m³) × Flow (m³/h) × 10⁻⁶"
+    }

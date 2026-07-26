@@ -6,6 +6,7 @@ from app.services.emissions import (
     convert_all_units,
     check_compliance,
     calculate_annual_emissions,
+    calculate_all_annual_emissions,
     POLLUTANT_MOLECULAR_WEIGHTS,
     EPA_LIMITS,
     EU_LIMITS
@@ -218,6 +219,67 @@ def calculate_annual(request: AnnualRequest) -> Dict:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid annual emission calculation request")
+
+class AnnualBatchRequest(BaseModel):
+    nox_mg_m3: float
+    co_mg_m3: float
+    co2_mg_m3: float
+    so2_mg_m3: float
+    flue_gas_flow_m3h: float
+    annual_hours: float
+    load_factor: float
+    
+    @field_validator('nox_mg_m3', 'co_mg_m3', 'co2_mg_m3', 'so2_mg_m3')
+    @classmethod
+    def validate_concentration(cls, v):
+        if v < 0:
+            raise ValueError('Concentration must be non-negative')
+        if v > 1e7:
+            raise ValueError('Concentration exceeds reasonable range')
+        return v
+    
+    @field_validator('flue_gas_flow_m3h')
+    @classmethod
+    def validate_flow(cls, v):
+        if v < 0:
+            raise ValueError('Flow rate must be non-negative')
+        if v > 1e9:
+            raise ValueError('Flow rate exceeds reasonable range')
+        return v
+    
+    @field_validator('annual_hours')
+    @classmethod
+    def validate_hours(cls, v):
+        return InputValidator.validate_annual_hours(v)
+    
+    @field_validator('load_factor')
+    @classmethod
+    def validate_load_factor(cls, v):
+        return InputValidator.validate_load_factor(v)
+
+@router.post("/annual-batch")
+def calculate_annual_batch(request: AnnualBatchRequest) -> Dict:
+    try:
+        result = calculate_all_annual_emissions(
+            request.nox_mg_m3,
+            request.co_mg_m3,
+            request.co2_mg_m3,
+            request.so2_mg_m3,
+            request.flue_gas_flow_m3h,
+            request.annual_hours,
+            request.load_factor
+        )
+        
+        return {
+            "flue_gas_flow_m3h": request.flue_gas_flow_m3h,
+            "annual_hours": request.annual_hours,
+            "load_factor": request.load_factor,
+            **result
+        }
+    except ValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid annual batch emission calculation request")
 
 @router.get("/limits")
 def get_emission_limits() -> Dict:

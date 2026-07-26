@@ -187,14 +187,22 @@ export default function EmissionPage() {
   const [euFuelType, setEuFuelType] = useState('natural_gas')
   const [noxValue, setNoxValue] = useState('100')
   const [coValue, setCoValue] = useState('80')
+  const [co2Value, setCo2Value] = useState('120000')
+  const [so2Value, setSo2Value] = useState('30')
   const [flueGasFlow, setFlueGasFlow] = useState('1000')
   const [annualHours, setAnnualHours] = useState('8000')
-  const [_loadFactor] = useState('0.8');
+  const [loadFactor, setLoadFactor] = useState('0.8');
   
   const [results, setResults] = useState({ ppm: 0, mgM3: 0, lbMMBtu: 0 });
   const [epaCompliance, setEpaCompliance] = useState<any>(null);
   const [euCompliance, setEuCompliance] = useState<any>(null);
-  const [annualEmissions, setAnnualEmissions] = useState({ hourlyKg: 0, annualTons: 0, monthlyTons: 0 });
+  const [annualEmissions, setAnnualEmissions] = useState<Record<string, any>>({
+    NOx: { hourlyKg: 0, annualTons: 0, monthlyTons: 0 },
+    CO: { hourlyKg: 0, annualTons: 0, monthlyTons: 0 },
+    CO2: { hourlyKg: 0, annualTons: 0, monthlyTons: 0 },
+    SOx: { hourlyKg: 0, annualTons: 0, monthlyTons: 0 },
+    totalAnnualTons: 0,
+  });
 
   useEffect(() => {
     const numValue = parseFloat(value) || 0;
@@ -212,11 +220,24 @@ export default function EmissionPage() {
     
     const flow = parseFloat(flueGasFlow) || 0;
     const hours = parseFloat(annualHours) || 0;
-    const factor = parseFloat(_loadFactor) || 0;
-    const conc = converted.mgM3;
+    const factor = parseFloat(loadFactor) || 0;
+    const co2 = parseFloat(co2Value) || 0;
+    const so2 = parseFloat(so2Value) || 0;
     
-    setAnnualEmissions(calculateAnnualEmissions(conc, flow, hours, factor));
-  }, [value, fromUnit, pollutant, o2Measured, o2Reference, fuelType, euFuelType, noxValue, coValue, flueGasFlow, annualHours, _loadFactor]);
+    const noxResult = calculateAnnualEmissions(nox, flow, hours, factor);
+    const coResult = calculateAnnualEmissions(co, flow, hours, factor);
+    const co2Result = calculateAnnualEmissions(co2, flow, hours, factor);
+    const so2Result = calculateAnnualEmissions(so2, flow, hours, factor);
+    const totalAnnual = noxResult.annualTons + coResult.annualTons + co2Result.annualTons + so2Result.annualTons;
+    
+    setAnnualEmissions({
+      NOx: noxResult,
+      CO: coResult,
+      CO2: co2Result,
+      SOx: so2Result,
+      totalAnnualTons: totalAnnual,
+    });
+  }, [value, fromUnit, pollutant, o2Measured, o2Reference, fuelType, euFuelType, noxValue, coValue, co2Value, so2Value, flueGasFlow, annualHours, loadFactor]);
 
   const handleValueChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
     if (value === '') {
@@ -330,41 +351,42 @@ export default function EmissionPage() {
     }
 
     y = checkPageBreak(doc, y, 100, 'Emission Analysis Report', 'Annual Emissions');
-    y = drawSectionTitle(doc, 'Annual Emissions Estimation', y, 'Based on flue gas flow and operating hours');
+    y = drawSectionTitle(doc, 'Annual Emissions Estimation', y, 'Each pollutant calculated independently per EPA Method 19 / IPCC Guidelines');
 
-    const flowCardWidth = (CONTENT_WIDTH - 16) / 3;
-    drawResultCard(doc, {
-      label: 'Hourly (kg)',
-      value: pdfFormatNumber(annualEmissions.hourlyKg),
-      x: MARGIN_LEFT,
-      y: y,
-      width: flowCardWidth,
-      status: 'info',
+    const annualRows: [string, string][] = [];
+    const pollutantLabels: Record<string, string> = {
+      NOx: 'NOx', CO: 'CO', CO2: 'CO2', SOx: 'SO2'
+    };
+    for (const key of ['NOx', 'CO', 'CO2', 'SOx'] as const) {
+      const d = annualEmissions[key];
+      const concVal = key === 'CO2' ? co2Value : key === 'SOx' ? so2Value : key === 'NOx' ? noxValue : coValue;
+      annualRows.push([
+        `${pollutantLabels[key]} (${pdfFormatNumber(parseFloat(concVal) || 0)} mg/m3)`,
+        `Hourly: ${pdfFormatNumber(d.hourlyKg)} kg/h  |  Annual: ${pdfFormatNumber(d.annualTons)} tons  |  Monthly: ${pdfFormatNumber(d.monthlyTons)} tons`
+      ]);
+    }
+    annualRows.push([
+      'Total (reference sum)',
+      `${pdfFormatNumber(annualEmissions.totalAnnualTons)} tons/year (not used for compliance)`
+    ]);
+    y = drawInfoTable(doc, annualRows, MARGIN_LEFT, y, CONTENT_WIDTH, {
+      title: 'Multi-Pollutant Emission Summary',
+      labelWidthRatio: 0.38,
     });
-    drawResultCard(doc, {
-      label: 'Annual (tons)',
-      value: pdfFormatNumber(annualEmissions.annualTons),
-      x: MARGIN_LEFT + flowCardWidth + 8,
-      y: y,
-      width: flowCardWidth,
-      status: 'info',
-    });
-    drawResultCard(doc, {
-      label: 'Monthly (tons)',
-      value: pdfFormatNumber(annualEmissions.monthlyTons),
-      x: MARGIN_LEFT + (flowCardWidth + 8) * 2,
-      y: y,
-      width: flowCardWidth,
-      status: 'info',
-    });
-    y += 37;
+    y += 4;
+
+    y = drawBulletList(doc, [
+      'Formula: Emission (kg/h) = Concentration (mg/m3) x Flow (m3/h) x 10^-6',
+      'Each pollutant calculated independently. Sum is for reference only.',
+    ], MARGIN_LEFT, y, CONTENT_WIDTH);
+    y += 6;
 
     y = checkPageBreak(doc, y, 50, 'Emission Analysis Report', 'Operating Parameters');
     y = drawSubSectionTitle(doc, 'Operating Parameters', y);
     y = drawInfoTable(doc, [
       ['Flue Gas Flow', `${flueGasFlow} m3/h`],
       ['Annual Operating Hours', `${annualHours} h`],
-      ['Load Factor', '80%'],
+      ['Load Factor', `${Math.round(parseFloat(loadFactor) * 100)}%`],
     ], MARGIN_LEFT, y, CONTENT_WIDTH / 2 - 4);
 
     addDisclaimerPage(doc, {
@@ -616,60 +638,145 @@ export default function EmissionPage() {
           </div>
 
           <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-5 border border-slate-200 dark:border-white/10">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Annual Emissions Estimation</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Annual Emissions Estimation</h3>
+              <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/10 px-2.5 py-1 rounded-full">EPA Method 19 · IPCC</span>
+            </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div className="mb-5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                Each pollutant is calculated independently following EPA Method 19 and IPCC Guidelines. 
+                Concentrations use measured (not O₂-corrected) values for mass emission accounting.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">NOx (mg/m³)</label>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">NOx (mg/m³)</label>
                 <input
                   type="text"
                   value={noxValue}
                   onChange={(e) => handleValueChange(setNoxValue, e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">CO (mg/m³)</label>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">CO (mg/m³)</label>
                 <input
                   type="text"
                   value={coValue}
                   onChange={(e) => handleValueChange(setCoValue, e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Flue Gas Flow (m³/h)</label>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">CO₂ (mg/m³)</label>
                 <input
                   type="text"
-                  value={flueGasFlow}
-                  onChange={(e) => handleValueChange(setFlueGasFlow, e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200"
+                  value={co2Value}
+                  onChange={(e) => handleValueChange(setCo2Value, e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 dark:text-white text-sm transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Annual Hours</label>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">SO₂ (mg/m³)</label>
                 <input
                   type="text"
-                  value={annualHours}
-                  onChange={(e) => handleValueChange(setAnnualHours, e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white transition-colors duration-200"
+                  value={so2Value}
+                  onChange={(e) => handleValueChange(setSo2Value, e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 dark:text-white text-sm transition-colors"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-              <div className="bg-white dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Hourly (kg)</p>
-                <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{formatNumber(annualEmissions.hourlyKg)}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Flue Gas Flow (m³/h)</label>
+                <input
+                  type="text"
+                  value={flueGasFlow}
+                  onChange={(e) => handleValueChange(setFlueGasFlow, e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors"
+                />
               </div>
-              <div className="bg-white dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Annual (tons)</p>
-                <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{formatNumber(annualEmissions.annualTons)}</p>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Annual Operating Hours</label>
+                <input
+                  type="text"
+                  value={annualHours}
+                  onChange={(e) => handleValueChange(setAnnualHours, e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors"
+                />
               </div>
-              <div className="bg-white dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Monthly (tons)</p>
-                <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{formatNumber(annualEmissions.monthlyTons)}</p>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Load Factor</label>
+                <input
+                  type="text"
+                  value={loadFactor}
+                  onChange={(e) => handleValueChange(setLoadFactor, e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white text-sm transition-colors"
+                />
               </div>
+            </div>
+
+            <div className="bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-white/5">
+                      <th className="text-left px-4 py-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">Pollutant</th>
+                      <th className="text-right px-4 py-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">Concentration</th>
+                      <th className="text-right px-4 py-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">Hourly</th>
+                      <th className="text-right px-4 py-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">Annual</th>
+                      <th className="text-right px-4 py-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">Monthly</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                    {[
+                      { key: 'NOx', label: 'NOx', conc: noxValue, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+                      { key: 'CO', label: 'CO', conc: coValue, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-50 dark:bg-violet-500/10' },
+                      { key: 'CO2', label: 'CO₂', conc: co2Value, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+                      { key: 'SOx', label: 'SO₂', conc: so2Value, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10' },
+                    ].map((p) => {
+                      const data = annualEmissions[p.key];
+                      return (
+                        <tr key={p.key} className={`${p.bg} transition-colors`}>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full ${p.bg.replace('50', '400')}`} style={{ backgroundColor: 'currentColor' }} />
+                              <span className={`font-semibold ${p.color}`}>{p.label}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300 tabular-nums">{formatNumber(parseFloat(p.conc) || 0)} <span className="text-xs text-slate-400">mg/m³</span></td>
+                          <td className="px-4 py-3 text-right text-slate-900 dark:text-white font-medium tabular-nums">{formatNumber(data.hourlyKg)} <span className="text-xs text-slate-400">kg/h</span></td>
+                          <td className="px-4 py-3 text-right text-slate-900 dark:text-white font-bold tabular-nums">{formatNumber(data.annualTons)} <span className="text-xs text-slate-400">tons</span></td>
+                          <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300 tabular-nums">{formatNumber(data.monthlyTons)} <span className="text-xs text-slate-400">tons</span></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-slate-100 dark:bg-white/5 border-t-2 border-slate-200 dark:border-white/10">
+                      <td colSpan={3} className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 text-right italic">
+                        Sum of all pollutants (reference only — not used for compliance)
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white tabular-nums">
+                        {formatNumber(annualEmissions.totalAnnualTons)} <span className="text-xs text-slate-400">tons</span>
+                      </td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-slate-100 dark:bg-white/5 rounded-lg border border-slate-200 dark:border-white/10">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Formula:</span> 
+                Hourly Emission (kg/h) = Concentration (mg/m³) × Flue Gas Flow (m³/h) × 10⁻⁶<br/>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Annual:</span> 
+                Annual Emission (tons) = Hourly × Operating Hours × Load Factor × 10⁻³
+              </p>
             </div>
           </div>
 
