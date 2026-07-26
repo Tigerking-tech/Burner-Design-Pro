@@ -486,15 +486,14 @@ const LATENT_HEAT_WATER = 2.442
           }
         }
       }
-      let hs = 0, hi = 0, gravity = 0
+      let gravity = 0
       let flashPoint = 0
       for (let i = 0; i < 5; i++) {
-        const fraction = oilMixturePercentages[i] / totalMix
-        hs += oilPresets[i].hs * fraction
-        hi += oilPresets[i].hi * fraction
-        gravity += oilPresets[i].gravity * fraction
-        flashPoint += oilPresets[i].flashPoint * fraction
+        gravity += oilPresets[i].gravity * (oilMixturePercentages[i] / totalMix)
+        flashPoint += oilPresets[i].flashPoint * (oilMixturePercentages[i] / totalMix)
       }
+      const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
+      const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
       const hsMJ = +(gravity * hs).toFixed(2)
       const hiMJ = +(gravity * hi).toFixed(2)
       return {
@@ -829,11 +828,15 @@ const LATENT_HEAT_WATER = 2.442
       { name: 'Moist', symbol: 'Moist', key: 'Moisture' },
     ]
     const totalMix = percentages.reduce((s, v) => s + v, 0)
+    if (totalMix === 0) {
+      return elements.map(el => ({ name: el.name, symbol: el.symbol, percentage: '0.00' }))
+    }
+    const totalMass = oilPresets.slice(0, 5).reduce((s, p, i) => s + p.gravity * percentages[i], 0)
     return elements.map((el) => {
       let sum = 0
       for (let j = 0; j < 5; j++) {
-        const fraction = totalMix > 0 ? percentages[j] / totalMix : 0
-        sum += (oilPresets[j][el.key] as number) * fraction
+        const massFraction = totalMass > 0 ? oilPresets[j].gravity * percentages[j] / totalMass : 0
+        sum += (oilPresets[j][el.key] as number) * massFraction
       }
       return { name: el.name, symbol: el.symbol, percentage: sum.toFixed(2) }
     })
