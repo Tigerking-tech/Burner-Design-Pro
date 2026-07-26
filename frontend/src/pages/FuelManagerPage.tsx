@@ -447,9 +447,42 @@ const LATENT_HEAT_WATER = 2.442
     }
 
     if (isCustomOil) {
+      const matchedPreset = oilPresets.find(p =>
+        Math.abs(C - p.C) < 0.01 &&
+        Math.abs(H - p.H) < 0.01 &&
+        Math.abs(S - p.S) < 0.01 &&
+        Math.abs(O - p.O) < 0.01 &&
+        Math.abs(N - p.N) < 0.01 &&
+        Math.abs(Ash - p.Ash) < 0.01 &&
+        Math.abs(Moisture - p.Moisture) < 0.01
+      )
+
+      if (matchedPreset) {
+        const hs = matchedPreset.hs
+        const hi = matchedPreset.hi
+        const gravity = matchedPreset.gravity
+        const hsMJ = matchedPreset.hsMJ
+        const hiMJ = matchedPreset.hiMJ
+        return {
+          density: gravity,
+          gravity,
+          hs,
+          hi,
+          hsMJ,
+          hiMJ,
+          viscositySSU: matchedPreset.viscositySSU,
+          viscosityCS: matchedPreset.viscosityCS,
+          flashPoint: matchedPreset.flashPoint,
+          pourPoint: matchedPreset.pourPoint,
+          apiGravity: matchedPreset.apiGravity,
+          dryMass: 100 - Moisture,
+          wetMass: 100 - Moisture,
+        }
+      }
+
       const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
-      const hi = hs - LATENT_HEAT_WATER * (H / 100) * (1 - Moisture / 100)
-      const gravity = 0.83
+      const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
+      const gravity = +Math.min(1.02, Math.max(0.80, 1.06 - 0.015 * H)).toFixed(4)
       const hsMJ = +(gravity * hs).toFixed(2)
       const hiMJ = +(gravity * hi).toFixed(2)
       return {
@@ -485,7 +518,7 @@ const LATENT_HEAT_WATER = 2.442
 
     const hi = elementsMatchPreset
       ? preset.hi
-      : hs - LATENT_HEAT_WATER * (H / 100) * (1 - Moisture / 100)
+      : hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
 
     const gravity = elementsMatchPreset ? preset.gravity : 0.83 + (selectedOil - 1) * 0.05
     const flashPoint = elementsMatchPreset ? preset.flashPoint : 38
