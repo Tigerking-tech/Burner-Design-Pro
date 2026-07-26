@@ -533,45 +533,80 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <div className="bg-slate-50 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 dark:border-white/10">
-                <div className="flex items-center gap-2 mb-6">
+              <div className="bg-slate-50 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 dark:border-white/10">
+                <div className="flex items-center gap-2 mb-5">
                   <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
                   <span className="text-xs font-mono text-slate-500 dark:text-slate-400">Standards Certification</span>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {[
-                    { name: 'ISO 5167-1:2003', desc: 'Orifice flow measurement (part 1)', status: 'verified' },
-                    { name: 'ISO 6976', desc: 'Gas calorific value & density', status: 'verified' },
-                    { name: 'ISO 80000', desc: 'Quantities & units (SI base & derived)', status: 'verified' },
-                    { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
-                    { name: 'ASTM D4868', desc: 'Oil heating value estimation', status: 'verified' },
-                    { name: 'ASTM D2161', desc: 'Saybolt viscosity conversion (SSU/SSF)', status: 'verified' },
-                    { name: 'ASTM C680', desc: 'Thermal conductivity of insulating materials', status: 'verified' },
-                    { name: 'NASA GRC', desc: 'Thermochemical data (polynomial coeffs.)', status: 'verified' },
-                    { name: 'EPA Method 19', desc: 'Emission rate calculation (40 CFR Pt.60)', status: 'verified' },
-                    { name: 'IPCC 2006', desc: 'GHG inventory — stationary combustion', status: 'verified' },
-                    { name: 'EU IED 2010/75', desc: 'Industrial emissions directive limits', status: 'verified' }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 p-3 bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5">
-                      <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
+                    {
+                      label: 'Flow & Instrumentation',
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                      ),
+                      items: [
+                        { name: 'ISO 5167-1:2003', desc: 'Orifice flow measurement' },
+                        { name: 'ISO 80000', desc: 'Quantities & units (SI)' },
+                      ]
+                    },
+                    {
+                      label: 'Fuel & Combustion',
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6.5.5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></svg>
+                      ),
+                      items: [
+                        { name: 'ISO 6976', desc: 'Gas calorific value & density' },
+                        { name: 'ASTM D4868', desc: 'Oil heating value' },
+                        { name: 'ASTM D2161', desc: 'Saybolt viscosity' },
+                        { name: 'NASA GRC', desc: 'Thermochemical data' },
+                      ]
+                    },
+                    {
+                      label: 'Thermal & Insulation',
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
+                      ),
+                      items: [
+                        { name: 'ISO 12241', desc: 'Thermal insulation' },
+                        { name: 'ASTM C680', desc: 'Insulation thermal conductivity' },
+                      ]
+                    },
+                    {
+                      label: 'Emissions & Compliance',
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                      ),
+                      items: [
+                        { name: 'EPA Method 19', desc: 'Emission rate (40 CFR Pt.60)' },
+                        { name: 'IPCC 2006', desc: 'GHG inventory' },
+                        { name: 'EU IED 2010/75', desc: 'Industrial emissions' },
+                      ]
+                    },
+                  ].map((group) => (
+                    <div key={group.label}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-blue-600 dark:text-blue-400">{group.icon}</span>
+                        <span className="text-[10px] font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">{group.label}</span>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                        {group.items.map((item) => (
+                          <div key={item.name} className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-white/60 dark:hover:bg-white/5 transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 flex-shrink-0" />
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">{item.name}</span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{item.desc}</span>
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">✓</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10">
+                <div className="mt-5 pt-3 border-t border-slate-200 dark:border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400">Last Verification</span>
-                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500">Q2 2026</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Last Verification</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">Q2 2026</span>
                   </div>
                 </div>
               </div>
