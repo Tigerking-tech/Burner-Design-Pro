@@ -51,7 +51,7 @@ const features: Feature[] = [
   {
     id: 'fuel',
     title: 'Fuel Manager',
-    description: 'Calculate gas properties, Wobbe index, and manage fuel mixtures for optimal combustion.',
+    description: 'Calculate gas & oil properties, Wobbe index, and fuel mixtures per ISO 6976 & ASTM D4868.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="8" y="8" width="8" height="10" rx="1" />
@@ -285,6 +285,26 @@ export default function HomePage() {
                         <polyline points="12 22 12 12 15 9" />
                       </svg>
                     ), 
+                    text: 'ISO 6976 Gas' 
+                  },
+                  { 
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <polyline points="12 22 12 12 9 9" />
+                        <polyline points="12 22 12 12 15 9" />
+                      </svg>
+                    ), 
+                    text: 'ASTM D4868 Oil' 
+                  },
+                  { 
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <polyline points="12 22 12 12 9 9" />
+                        <polyline points="12 22 12 12 15 9" />
+                      </svg>
+                    ), 
                     text: 'ASTM C680 Standards' 
                   },
                   { 
@@ -487,7 +507,7 @@ export default function HomePage() {
                       </svg>
                     ),
                     title: 'Standards Compliant',
-                    desc: 'ISO 5167, ISO 12241, EPA, and EU IED — built according to industry specifications.'
+                    desc: 'ISO 5167, ISO 6976, ASTM D4868, ISO 12241, EPA, and EU IED — built according to industry specifications.'
                   },
                   {
                     icon: (
@@ -522,6 +542,8 @@ export default function HomePage() {
                 <div className="space-y-4">
                   {[
                     { name: 'ISO 5167', desc: 'Flow measurement standard', status: 'verified' },
+                    { name: 'ISO 6976', desc: 'Gas calorific value & density', status: 'verified' },
+                    { name: 'ASTM D4868', desc: 'Oil heating value estimation', status: 'verified' },
                     { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
                     { name: 'EPA Method 29', desc: 'Emission testing protocol', status: 'verified' },
                     { name: 'EU IED', desc: 'Industrial emissions directive', status: 'verified' }
@@ -760,7 +782,7 @@ export default function HomePage() {
                 © 2026 Burner-Design-Pro. Professional tools for burner engineers.
               </p>
               <div className="flex items-center gap-6">
-                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ASTM C680 · EPA Standards</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ASTM D4868 · EPA Standards</span>
               </div>
             </div>
           </div>

@@ -126,7 +126,7 @@ export function Footer() {
               © {currentYear} Burner-Design-Pro. Professional tools for burner engineers.
             </p>
             <div className="flex items-center gap-6">
-              <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ASTM C680 · EPA Standards</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ASTM D4868 · EPA Standards</span>
             </div>
           </div>
         </div>
