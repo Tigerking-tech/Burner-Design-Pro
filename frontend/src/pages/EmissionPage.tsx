@@ -262,9 +262,9 @@ export default function EmissionPage() {
 
     addCoverPage(doc, {
       title: 'Emission Analysis Report',
-      subtitle: 'NOx, CO, SO2 emission calculations with EPA and EU IED compliance checking',
+      subtitle: 'NOx, CO, CO2, SO2 emission calculations per EPA Method 19, IPCC 2006 & EU IED',
       reportType: 'Emission Analysis',
-      standard: 'EPA & EU IED',
+      standard: 'EPA Method 19 · IPCC 2006 · EU IED',
     });
 
     let y = drawPageHeader(doc, 'Emission Analysis Report', 'Calculation Results');
@@ -325,7 +325,7 @@ export default function EmissionPage() {
     y += 37;
 
     y = checkPageBreak(doc, y, 120, 'Emission Analysis Report', 'Compliance Status');
-    y = drawSectionTitle(doc, 'Compliance Status', y, 'EPA and EU IED standard compliance check');
+    y = drawSectionTitle(doc, 'Compliance Status', y, 'EPA 40 CFR Part 60 & EU IED 2010/75 compliance check');
 
     if (epaCompliance && euCompliance) {
       y = drawTwoColumnTables(
@@ -420,7 +420,7 @@ export default function EmissionPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Emission Analysis</h1>
           <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto">
-            NOx, CO, SO₂ emission calculations with EPA and EU IED compliance checking.
+            NOx, CO, CO₂, SO₂ emission calculations per EPA Method 19, IPCC 2006 & EU IED compliance.
           </p>
         </div>
       </section>

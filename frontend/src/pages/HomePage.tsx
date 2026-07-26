@@ -73,7 +73,7 @@ const features: Feature[] = [
   {
     id: 'emission',
     title: 'Emission Analysis',
-    description: 'NOx, CO, SO₂ emission calculations with EPA and EU IED compliance checking.',
+    description: 'NOx, CO, CO₂, SO₂ emission calculations per EPA Method 19, IPCC 2006 & EU IED compliance.',
     icon: <Leaf size={24} />,
     to: '/emission',
     category: 'Compliance'
@@ -507,7 +507,7 @@ export default function HomePage() {
                       </svg>
                     ),
                     title: 'Standards Compliant',
-                    desc: 'ISO 5167, ISO 6976, ASTM D4868, ISO 12241, EPA, and EU IED — built according to industry specifications.'
+                    desc: 'ISO 5167, ISO 6976, ASTM D4868, ISO 12241, EPA Method 19, IPCC 2006 & EU IED — built per industry specs.'
                   },
                   {
                     icon: (
@@ -545,8 +545,9 @@ export default function HomePage() {
                     { name: 'ISO 6976', desc: 'Gas calorific value & density', status: 'verified' },
                     { name: 'ASTM D4868', desc: 'Oil heating value estimation', status: 'verified' },
                     { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
-                    { name: 'EPA Method 29', desc: 'Emission testing protocol', status: 'verified' },
-                    { name: 'EU IED', desc: 'Industrial emissions directive', status: 'verified' }
+                    { name: 'EPA Method 19', desc: 'Emission rate calculation (40 CFR Pt.60)', status: 'verified' },
+                    { name: 'IPCC 2006', desc: 'GHG inventory — stationary combustion', status: 'verified' },
+                    { name: 'EU IED 2010/75', desc: 'Industrial emissions directive limits', status: 'verified' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-4 p-3 bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5">
                       <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center">
@@ -782,7 +783,7 @@ export default function HomePage() {
                 © 2026 Burner-Design-Pro. Professional tools for burner engineers.
               </p>
               <div className="flex items-center gap-6">
-                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ASTM D4868 · EPA Standards</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ASTM D4868 · EPA Method 19 · IPCC 2006 · EU IED</span>
               </div>
             </div>
           </div>
