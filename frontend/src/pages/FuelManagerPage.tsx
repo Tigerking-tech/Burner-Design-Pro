@@ -236,51 +236,51 @@ const oilPresets: OilPreset[] = [
     name: 'Oil #1',
     C: 86.6, H: 13.3, S: 0.14, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.83,
-    hs: 45.76, hi: 42.94,
+    hs: 45.81, hi: 42.95,
     viscositySSU: '----', viscosityCS: '1.4 - 2.2',
     flashPoint: 38, pourPoint: '-18',
     apiGravity: '35 min',
-    hsMJ: 38, hiMJ: 35.65,
+    hsMJ: 38.02, hiMJ: 35.65,
   },
   {
     name: 'Oil #2',
     C: 87.3, H: 12.5, S: 0.21, O: 0, N: 0, Ash: 0, Moisture: 0,
     gravity: 0.87,
-    hs: 45.13, hi: 42.42,
+    hs: 45.19, hi: 42.46,
     viscositySSU: '32.6 - 37.9', viscosityCS: '2.0 - 3.6',
     flashPoint: 38, pourPoint: '-6',
     apiGravity: '30 min',
-    hsMJ: 39.34, hiMJ: 36.99,
+    hsMJ: 39.32, hiMJ: 36.94,
   },
   {
     name: 'Oil #4',
     C: 86.4, H: 11.6, S: 1.99, O: 0, N: 0, Ash: 0.02, Moisture: 0.2,
     gravity: 0.92,
-    hs: 44.44, hi: 41.88,
+    hs: 43.77, hi: 41.24,
     viscositySSU: '45 - 125', viscosityCS: '5.8 - 26.4',
     flashPoint: 55, pourPoint: '-----',
     apiGravity: '-----',
-    hsMJ: 40.72, hiMJ: 38.37,
+    hsMJ: 40.27, hiMJ: 37.94,
   },
   {
     name: 'Oil #5',
     C: 88.7, H: 10.7, S: 0.57, O: 0, N: 0, Ash: 0.02, Moisture: 0.4,
     gravity: 0.96,
-    hs: 43.72, hi: 41.48,
+    hs: 43.43, hi: 41.00,
     viscositySSU: '300 - 900', viscosityCS: '65 - 194',
     flashPoint: 55, pourPoint: '------',
     apiGravity: '-----',
-    hsMJ: 41.78, hiMJ: 38.37,
+    hsMJ: 41.69, hiMJ: 39.36,
   },
   {
     name: 'Oil #6',
     C: 88.3, H: 9.3, S: 0.85, O: 0.7, N: 0.3, Ash: 0.04, Moisture: 0.2,
     gravity: 1.02,
-    hs: 42.93, hi: 40.45,
+    hs: 42.38, hi: 40.14,
     viscositySSU: '900 - 9000', viscosityCS: '92 - 638',
     flashPoint: 60, pourPoint: '-------',
     apiGravity: '-----',
-    hsMJ: 43.8, hiMJ: 41.27,
+    hsMJ: 43.23, hiMJ: 40.94,
   },
   {
     name: 'Customized Oil Mixture',
@@ -405,6 +405,24 @@ export default function FuelManagerPage() {
   const KROSCHROEDER_HS_COEFF = { C: 0.3544, H: 1.1293, S: 0.3625 }
 const LATENT_HEAT_WATER = 2.442
 
+  const calcASTMD4868 = (density_g_cm3: number, S_pct: number, Ash_pct: number, Moisture_pct: number) => {
+    const d = density_g_cm3 * 1000
+    const x = Moisture_pct / 100
+    const y = Ash_pct / 100
+    const s = S_pct / 100
+    const qv_base = 51.916 - 8.792e-6 * d * d
+    const Hs = qv_base * (1 - x - y - s) + 9.420 * s
+    const qp_base = 46.423 - 8.792e-6 * d * d + 3.170e-3 * d
+    const Hi = qp_base * (1 - x - y - s) + 9.420 * s - 2.449 * x
+    return { Hs: roundTo(Hs, 2), Hi: roundTo(Hi, 2) }
+  }
+
+  const calcKromschroeder = (C: number, H: number, S: number, Moisture_pct: number) => {
+    const Hs = roundTo(KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S, 2)
+    const Hi = roundTo(Hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture_pct / 100), 2)
+    return { Hs, Hi }
+  }
+
   const roundToStr = (num: number, decimals: number) => {
     const factor = Math.pow(10, decimals)
     return (Math.round(num * factor) / factor).toFixed(decimals)
@@ -504,17 +522,14 @@ const LATENT_HEAT_WATER = 2.442
         gravity += oilPresets[i].gravity * (oilMixturePercentages[i] / totalMix)
         flashPoint += oilPresets[i].flashPoint * (oilMixturePercentages[i] / totalMix)
       }
-      const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
-      const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
-      const hsMJ = roundTo(gravity * hs, 2)
-      const hiMJ = roundTo(gravity * hi, 2)
+      const astmResult = calcASTMD4868(gravity, S, Ash, Moisture)
       return {
         density: gravity,
         gravity: roundTo(gravity, 4),
-        hs: roundTo(hs, 2),
-        hi: roundTo(hi, 2),
-        hsMJ,
-        hiMJ,
+        hs: astmResult.Hs,
+        hi: astmResult.Hi,
+        hsMJ: roundTo(gravity * astmResult.Hs, 2),
+        hiMJ: roundTo(gravity * astmResult.Hi, 2),
         viscositySSU: 'Calculated',
         viscosityCS: 'Calculated',
         flashPoint: Math.round(flashPoint),
@@ -559,18 +574,15 @@ const LATENT_HEAT_WATER = 2.442
         }
       }
 
-      const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
-      const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
       const gravity = roundTo(Math.min(1.02, Math.max(0.80, 1.06 - 0.015 * H)), 4)
-      const hsMJ = roundTo(gravity * hs, 2)
-      const hiMJ = roundTo(gravity * hi, 2)
+      const astmResult = calcASTMD4868(gravity, S, Ash, Moisture)
       return {
         density: gravity,
         gravity,
-        hs: roundTo(hs, 2),
-        hi: roundTo(hi, 2),
-        hsMJ,
-        hiMJ,
+        hs: astmResult.Hs,
+        hi: astmResult.Hi,
+        hsMJ: roundTo(gravity * astmResult.Hs, 2),
+        hiMJ: roundTo(gravity * astmResult.Hi, 2),
         viscositySSU: '---',
         viscosityCS: '---',
         flashPoint: 0,
@@ -591,22 +603,19 @@ const LATENT_HEAT_WATER = 2.442
       Math.abs(Ash - preset.Ash) < 0.01 &&
       Math.abs(Moisture - preset.Moisture) < 0.01
 
-    const hs = elementsMatchPreset
-      ? preset.hs
-      : KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
-
-    const hi = elementsMatchPreset
-      ? preset.hi
-      : hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
-
     const gravity = elementsMatchPreset ? preset.gravity : 0.83 + (selectedOil - 1) * 0.05
     const flashPoint = elementsMatchPreset ? preset.flashPoint : 38
     const pourPoint = elementsMatchPreset ? preset.pourPoint : '--'
     const viscositySSU = elementsMatchPreset ? preset.viscositySSU : '--'
     const viscosityCS = elementsMatchPreset ? preset.viscosityCS : '--'
     const apiGravity = elementsMatchPreset ? preset.apiGravity : '--'
-    const hsMJ = elementsMatchPreset ? preset.hsMJ : roundTo(gravity * hs, 2)
-    const hiMJ = elementsMatchPreset ? preset.hiMJ : roundTo(gravity * hi, 2)
+    const astmResult = elementsMatchPreset
+      ? { Hs: preset.hs, Hi: preset.hi }
+      : calcASTMD4868(gravity, S, Ash, Moisture)
+    const hs = astmResult.Hs
+    const hi = astmResult.Hi
+    const hsMJ = roundTo(gravity * hs, 2)
+    const hiMJ = roundTo(gravity * hi, 2)
 
     return {
       density: gravity,
