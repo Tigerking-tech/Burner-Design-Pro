@@ -405,6 +405,36 @@ export default function FuelManagerPage() {
   const KROSCHROEDER_HS_COEFF = { C: 0.3544, H: 1.1293, S: 0.3625 }
 const LATENT_HEAT_WATER = 2.442
 
+  const getNormalizedElements = () => {
+    if (selectedOil === 6) return oilElements
+    const total = oilElements.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
+    if (Math.abs(total - 100) < 0.005) return oilElements
+    const factor = 100 / total
+    const normalized = oilElements.map(el => ({
+      ...el,
+      percentage: (parseFloat(el.percentage) * factor).toFixed(2)
+    }))
+    const normTotal = normalized.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
+    const diff = 100 - normTotal
+    if (Math.abs(diff) > 0.001) {
+      let maxIdx = 0
+      let maxVal = 0
+      normalized.forEach((el, idx) => {
+        const val = parseFloat(el.percentage)
+        if (val > maxVal) {
+          maxVal = val
+          maxIdx = idx
+        }
+      })
+      const adjusted = parseFloat(normalized[maxIdx].percentage) + diff
+      normalized[maxIdx] = {
+        ...normalized[maxIdx],
+        percentage: adjusted.toFixed(2)
+      }
+    }
+    return normalized
+  }
+
   const calculateOilKeyData = () => {
     const C = parseFloat(oilElements.find(el => el.symbol === 'C')?.percentage || '') || 0
     const H = parseFloat(oilElements.find(el => el.symbol === 'H')?.percentage || '') || 0
@@ -418,10 +448,48 @@ const LATENT_HEAT_WATER = 2.442
     const isCustomOil = selectedOil === 6
 
     if (isCustomMix) {
+      const totalMix = oilMixturePercentages.reduce((s, v) => s + v, 0)
+      if (totalMix === 0) {
+        return {
+          density: 0,
+          gravity: 0,
+          hs: 0,
+          hi: 0,
+          hsMJ: 0,
+          hiMJ: 0,
+          viscositySSU: '----',
+          viscosityCS: '----',
+          flashPoint: 0,
+          pourPoint: '----',
+          apiGravity: '----',
+          dryMass: 100,
+          wetMass: 100,
+        }
+      }
+      for (let i = 0; i < 5; i++) {
+        if (oilMixturePercentages[i] === 100) {
+          const preset = oilPresets[i]
+          return {
+            density: preset.gravity,
+            gravity: preset.gravity,
+            hs: preset.hs,
+            hi: preset.hi,
+            hsMJ: preset.hsMJ,
+            hiMJ: preset.hiMJ,
+            viscositySSU: preset.viscositySSU,
+            viscosityCS: preset.viscosityCS,
+            flashPoint: preset.flashPoint,
+            pourPoint: preset.pourPoint,
+            apiGravity: preset.apiGravity,
+            dryMass: 100 - Moisture,
+            wetMass: 100 - Moisture,
+          }
+        }
+      }
       let hs = 0, hi = 0, gravity = 0
       let flashPoint = 0
       for (let i = 0; i < 5; i++) {
-        const fraction = oilMixturePercentages[i] / 100
+        const fraction = oilMixturePercentages[i] / totalMix
         hs += oilPresets[i].hs * fraction
         hi += oilPresets[i].hi * fraction
         gravity += oilPresets[i].gravity * fraction
@@ -708,7 +776,21 @@ const LATENT_HEAT_WATER = 2.442
   const handleOilTypeChange = (index: number) => {
     setSelectedOil(index)
     if (index === 5) {
-      const blended = calculateOilMixtureElements()
+      let percentages = [...oilMixturePercentages]
+      const totalMix = percentages.reduce((s, v) => s + v, 0)
+      if (totalMix !== 100 && totalMix > 0) {
+        percentages = percentages.map(v => +(v * 100 / totalMix).toFixed(1))
+        const newTotal = percentages.reduce((s, v) => s + v, 0)
+        if (Math.abs(newTotal - 100) > 0.01) {
+          const maxIdx = percentages.reduce((a, b) => percentages[a] > percentages[b] ? a : b)
+          percentages[maxIdx] = +(percentages[maxIdx] + 100 - newTotal).toFixed(1)
+        }
+        setOilMixturePercentages(percentages)
+      } else if (totalMix === 0) {
+        percentages = [100, 0, 0, 0, 0]
+        setOilMixturePercentages(percentages)
+      }
+      const blended = calculateOilMixtureElements(percentages)
       setOilElements(blended)
     } else if (index === 6) {
       const emptyElements = [
@@ -746,10 +828,11 @@ const LATENT_HEAT_WATER = 2.442
       { name: 'Ash', symbol: 'Ash', key: 'Ash' },
       { name: 'Moist', symbol: 'Moist', key: 'Moisture' },
     ]
+    const totalMix = percentages.reduce((s, v) => s + v, 0)
     return elements.map((el) => {
       let sum = 0
       for (let j = 0; j < 5; j++) {
-        const fraction = percentages[j] / 100
+        const fraction = totalMix > 0 ? percentages[j] / totalMix : 0
         sum += (oilPresets[j][el.key] as number) * fraction
       }
       return { name: el.name, symbol: el.symbol, percentage: sum.toFixed(2) }
@@ -759,7 +842,46 @@ const LATENT_HEAT_WATER = 2.442
   const handleOilMixturePercentageChange = (oilIndex: number, value: string) => {
     const numValue = parseFloat(value) || 0
     const newPercentages = [...oilMixturePercentages]
-    newPercentages[oilIndex] = numValue
+    const oldValue = newPercentages[oilIndex]
+    const diff = numValue - oldValue
+
+    if (diff === 0) return
+
+    if (numValue >= 100) {
+      for (let i = 0; i < 5; i++) {
+        newPercentages[i] = i === oilIndex ? 100 : 0
+      }
+    } else if (numValue === 0) {
+      newPercentages[oilIndex] = 0
+      const others = [0, 1, 2, 3, 4].filter(i => i !== oilIndex)
+      const otherTotal = others.reduce((s, i) => s + newPercentages[i], 0)
+      if (otherTotal > 0) {
+        const remaining = 100 - newPercentages[oilIndex]
+        others.forEach(i => {
+          newPercentages[i] = +(newPercentages[i] * remaining / otherTotal).toFixed(1)
+        })
+        const assigned = others.reduce((s, i) => s + newPercentages[i], 0)
+        if (Math.abs(assigned - remaining) > 0.01) {
+          const maxIdx = others.reduce((a, b) => newPercentages[a] > newPercentages[b] ? a : b)
+          newPercentages[maxIdx] = +(newPercentages[maxIdx] + remaining - assigned).toFixed(1)
+        }
+      }
+    } else {
+      newPercentages[oilIndex] = numValue
+      const others = [0, 1, 2, 3, 4].filter(i => i !== oilIndex)
+      const otherTotal = others.reduce((s, i) => s + newPercentages[i], 0)
+      if (otherTotal > 0 && Math.abs(diff) > 0) {
+        others.forEach(i => {
+          newPercentages[i] = +(newPercentages[i] - diff * newPercentages[i] / otherTotal).toFixed(1)
+        })
+      }
+      const total = newPercentages.reduce((s, v) => s + v, 0)
+      if (Math.abs(total - 100) > 0.01) {
+        const maxIdx = newPercentages.reduce((a, b) => newPercentages[a] > newPercentages[b] ? a : b)
+        newPercentages[maxIdx] = +(newPercentages[maxIdx] + 100 - total).toFixed(1)
+      }
+    }
+
     setOilMixturePercentages(newPercentages)
     if (selectedOil === 5) {
       const blended = calculateOilMixtureElements(newPercentages)
@@ -921,7 +1043,7 @@ const LATENT_HEAT_WATER = 2.442
       y = drawSectionTitle(doc, 'Oil Fuel Analysis', y, oilName);
 
       y = drawSubSectionTitle(doc, 'Elemental Analysis', y);
-      const oilRows = oilElements
+      const oilRows = getNormalizedElements()
         .filter(el => parseFloat(el.percentage) > 0)
         .map(el => [el.name + ' (' + el.symbol + ')', el.percentage + '%'] as [string, string]);
       if (oilRows.length > 0) {
@@ -1422,36 +1544,45 @@ const LATENT_HEAT_WATER = 2.442
                         </tr>
                       </thead>
                       <tbody>
-                        {oilElements.map((element, idx) => (
-                          <tr key={element.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
-                            <td className="py-1 px-2 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
-                              {element.symbol === 'C' ? 'C, Available' : element.symbol === 'H' ? 'H, Available' : element.symbol === 'Moist' ? 'Moisture' : element.name}
-                            </td>
-                            <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
-                              {selectedOil === 5 ? (
-                                <span className="block w-full px-2 py-0.5 text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 rounded">
-                                  {element.percentage}
+                        {getNormalizedElements().map((element, idx) => {
+                          const isEditable = selectedOil === 6
+                          return (
+                            <tr key={element.symbol} className={idx % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50 dark:bg-white/5'}>
+                              <td className="py-1 px-2 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+                                {element.symbol === 'C' ? 'C, Available' : element.symbol === 'H' ? 'H, Available' : element.symbol === 'Moist' ? 'Moisture' : element.name}
+                              </td>
+                              <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                                {isEditable ? (
+                                  <input
+                                    type="text"
+                                    value={element.percentage}
+                                    onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
+                                    className="w-full px-2 py-0.5 border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                                    placeholder="0"
+                                  />
+                                ) : (
+                                  <span className="block w-full px-2 py-0.5 text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 rounded">
+                                    {element.percentage}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                        {(() => {
+                          const normTotal = getNormalizedElements().reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
+                          const isOK = Math.abs(normTotal - 100) < 0.05
+                          return (
+                            <tr className="bg-slate-200 dark:bg-white/10">
+                              <td className="py-1 px-2 font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">Total</td>
+                              <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
+                                <span className={`text-xs font-bold ${isOK ? 'text-slate-700 dark:text-slate-300' : 'text-red-600 dark:text-red-400'}`}>
+                                  {normTotal.toFixed(2)}
                                 </span>
-                              ) : (
-                                <input
-                                  type="text"
-                                  value={element.percentage}
-                                  onChange={(e) => handleOilElementChange(element.symbol, e.target.value)}
-                                  className="w-full px-2 py-0.5 border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
-                                  placeholder="0"
-                                />
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                        <tr className="bg-slate-200 dark:bg-white/10">
-                          <td className="py-1 px-2 font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">Total</td>
-                          <td className="py-1 px-2 border border-slate-200 dark:border-white/10">
-                            <span className={`text-xs font-bold ${Math.abs(getOilElementTotal() - 100) < 0.01 ? 'text-slate-700 dark:text-slate-300' : 'text-red-600 dark:text-red-400'}`}>
-                              {getOilElementTotal().toFixed(2)}
-                            </span>
-                          </td>
-                        </tr>
+                              </td>
+                            </tr>
+                          )
+                        })()}
                       </tbody>
                     </table>
                   </div>
