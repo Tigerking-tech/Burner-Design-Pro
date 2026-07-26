@@ -405,14 +405,26 @@ export default function FuelManagerPage() {
   const KROSCHROEDER_HS_COEFF = { C: 0.3544, H: 1.1293, S: 0.3625 }
 const LATENT_HEAT_WATER = 2.442
 
+  const roundToStr = (num: number, decimals: number) => {
+    const factor = Math.pow(10, decimals)
+    return (Math.round(num * factor) / factor).toFixed(decimals)
+  }
+
+  const roundTo = (num: number, decimals: number) => {
+    const factor = Math.pow(10, decimals)
+    return Math.round(num * factor) / factor
+  }
+
   const getNormalizedElements = () => {
     if (selectedOil === 6) return oilElements
     const total = oilElements.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
-    if (Math.abs(total - 100) < 0.005) return oilElements
+    const isMixture = selectedOil === 5
+    const tolerance = isMixture ? 0.05 : 0.005
+    if (Math.abs(total - 100) < tolerance) return oilElements
     const factor = 100 / total
     const normalized = oilElements.map(el => ({
       ...el,
-      percentage: (parseFloat(el.percentage) * factor).toFixed(2)
+      percentage: roundToStr(parseFloat(el.percentage) * factor, 2)
     }))
     const normTotal = normalized.reduce((sum, el) => sum + (parseFloat(el.percentage) || 0), 0)
     const diff = 100 - normTotal
@@ -429,7 +441,7 @@ const LATENT_HEAT_WATER = 2.442
       const adjusted = parseFloat(normalized[maxIdx].percentage) + diff
       normalized[maxIdx] = {
         ...normalized[maxIdx],
-        percentage: adjusted.toFixed(2)
+        percentage: roundToStr(adjusted, 2)
       }
     }
     return normalized
@@ -494,13 +506,13 @@ const LATENT_HEAT_WATER = 2.442
       }
       const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
       const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
-      const hsMJ = +(gravity * hs).toFixed(2)
-      const hiMJ = +(gravity * hi).toFixed(2)
+      const hsMJ = roundTo(gravity * hs, 2)
+      const hiMJ = roundTo(gravity * hi, 2)
       return {
         density: gravity,
-        gravity: +gravity.toFixed(4),
-        hs: +hs.toFixed(2),
-        hi: +hi.toFixed(2),
+        gravity: roundTo(gravity, 4),
+        hs: roundTo(hs, 2),
+        hi: roundTo(hi, 2),
         hsMJ,
         hiMJ,
         viscositySSU: 'Calculated',
@@ -549,14 +561,14 @@ const LATENT_HEAT_WATER = 2.442
 
       const hs = KROSCHROEDER_HS_COEFF.C * C + KROSCHROEDER_HS_COEFF.H * H + KROSCHROEDER_HS_COEFF.S * S
       const hi = hs - LATENT_HEAT_WATER * (9 * H / 100 + Moisture / 100)
-      const gravity = +Math.min(1.02, Math.max(0.80, 1.06 - 0.015 * H)).toFixed(4)
-      const hsMJ = +(gravity * hs).toFixed(2)
-      const hiMJ = +(gravity * hi).toFixed(2)
+      const gravity = roundTo(Math.min(1.02, Math.max(0.80, 1.06 - 0.015 * H)), 4)
+      const hsMJ = roundTo(gravity * hs, 2)
+      const hiMJ = roundTo(gravity * hi, 2)
       return {
         density: gravity,
         gravity,
-        hs: +hs.toFixed(2),
-        hi: +hi.toFixed(2),
+        hs: roundTo(hs, 2),
+        hi: roundTo(hi, 2),
         hsMJ,
         hiMJ,
         viscositySSU: '---',
@@ -593,8 +605,8 @@ const LATENT_HEAT_WATER = 2.442
     const viscositySSU = elementsMatchPreset ? preset.viscositySSU : '--'
     const viscosityCS = elementsMatchPreset ? preset.viscosityCS : '--'
     const apiGravity = elementsMatchPreset ? preset.apiGravity : '--'
-    const hsMJ = elementsMatchPreset ? preset.hsMJ : +(gravity * hs).toFixed(2)
-    const hiMJ = elementsMatchPreset ? preset.hiMJ : +(gravity * hi).toFixed(2)
+    const hsMJ = elementsMatchPreset ? preset.hsMJ : roundTo(gravity * hs, 2)
+    const hiMJ = elementsMatchPreset ? preset.hiMJ : roundTo(gravity * hi, 2)
 
     return {
       density: gravity,
@@ -778,11 +790,11 @@ const LATENT_HEAT_WATER = 2.442
       let percentages = [...oilMixturePercentages]
       const totalMix = percentages.reduce((s, v) => s + v, 0)
       if (totalMix !== 100 && totalMix > 0) {
-        percentages = percentages.map(v => +(v * 100 / totalMix).toFixed(1))
+        percentages = percentages.map(v => roundTo(v * 100 / totalMix, 1))
         const newTotal = percentages.reduce((s, v) => s + v, 0)
         if (Math.abs(newTotal - 100) > 0.01) {
           const maxIdx = percentages.reduce((a, b) => percentages[a] > percentages[b] ? a : b)
-          percentages[maxIdx] = +(percentages[maxIdx] + 100 - newTotal).toFixed(1)
+          percentages[maxIdx] = roundTo(percentages[maxIdx] + 100 - newTotal, 1)
         }
         setOilMixturePercentages(percentages)
       } else if (totalMix === 0) {
@@ -831,14 +843,13 @@ const LATENT_HEAT_WATER = 2.442
     if (totalMix === 0) {
       return elements.map(el => ({ name: el.name, symbol: el.symbol, percentage: '0.00' }))
     }
-    const totalMass = oilPresets.slice(0, 5).reduce((s, p, i) => s + p.gravity * percentages[i], 0)
     return elements.map((el) => {
       let sum = 0
       for (let j = 0; j < 5; j++) {
-        const massFraction = totalMass > 0 ? oilPresets[j].gravity * percentages[j] / totalMass : 0
-        sum += (oilPresets[j][el.key] as number) * massFraction
+        const volumeFraction = percentages[j] / totalMix
+        sum += (oilPresets[j][el.key] as number) * volumeFraction
       }
-      return { name: el.name, symbol: el.symbol, percentage: sum.toFixed(2) }
+      return { name: el.name, symbol: el.symbol, percentage: roundToStr(sum, 2) }
     })
   }
 
@@ -861,12 +872,12 @@ const LATENT_HEAT_WATER = 2.442
       if (otherTotal > 0) {
         const remaining = 100 - newPercentages[oilIndex]
         others.forEach(i => {
-          newPercentages[i] = +(newPercentages[i] * remaining / otherTotal).toFixed(1)
+          newPercentages[i] = roundTo(newPercentages[i] * remaining / otherTotal, 1)
         })
         const assigned = others.reduce((s, i) => s + newPercentages[i], 0)
         if (Math.abs(assigned - remaining) > 0.01) {
           const maxIdx = others.reduce((a, b) => newPercentages[a] > newPercentages[b] ? a : b)
-          newPercentages[maxIdx] = +(newPercentages[maxIdx] + remaining - assigned).toFixed(1)
+          newPercentages[maxIdx] = roundTo(newPercentages[maxIdx] + remaining - assigned, 1)
         }
       }
     } else {
@@ -875,13 +886,13 @@ const LATENT_HEAT_WATER = 2.442
       const otherTotal = others.reduce((s, i) => s + newPercentages[i], 0)
       if (otherTotal > 0 && Math.abs(diff) > 0) {
         others.forEach(i => {
-          newPercentages[i] = +(newPercentages[i] - diff * newPercentages[i] / otherTotal).toFixed(1)
+          newPercentages[i] = roundTo(newPercentages[i] - diff * newPercentages[i] / otherTotal, 1)
         })
       }
       const total = newPercentages.reduce((s, v) => s + v, 0)
       if (Math.abs(total - 100) > 0.01) {
         const maxIdx = newPercentages.reduce((a, b) => newPercentages[a] > newPercentages[b] ? a : b)
-        newPercentages[maxIdx] = +(newPercentages[maxIdx] + 100 - total).toFixed(1)
+        newPercentages[maxIdx] = roundTo(newPercentages[maxIdx] + 100 - total, 1)
       }
     }
 
