@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
 import { Navbar } from '../components/Navbar'
 import {
-  Flame,
   Leaf,
   RefreshCw,
   Gauge,
@@ -270,7 +269,24 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
                 {[
                   { icon: <Gauge size={16} />, text: 'ISO 5167-1 Flow' },
-                  { icon: <Flame size={16} />, text: 'ISO 6976 Fuel' },
+                  {
+                    icon: (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="8" y="8" width="8" height="10" rx="1" />
+                        <rect x="10" y="10" width="4" height="4" rx="0.5" />
+                        <path d="M16 8v-2a2 2 0 0 0-2-2H6v2" />
+                        <path d="M18 8v-4a2 2 0 0 0-2-2h-1" />
+                        <path d="M18 10v2a2 2 0 0 1-2 2h-1" />
+                        <path d="M17 13l1 5" />
+                        <circle cx="12" cy="16" r="1.5" />
+                        <path d="M11 16l0-1" />
+                        <path d="M13 16l0-1" />
+                        <path d="M12 15l-1 1" />
+                        <path d="M12 15l1 1" />
+                      </svg>
+                    ),
+                    text: 'ISO 6976 Fuel'
+                  },
                   { icon: <Leaf size={16} />, text: 'EPA Method 19' },
                   { icon: <Layers size={16} />, text: 'ISO 12241 Insulation' },
                   { icon: <FileText size={16} />, text: 'PDF Export' }
