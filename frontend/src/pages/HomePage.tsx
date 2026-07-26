@@ -577,7 +577,13 @@ export default function HomePage() {
                 <div className="mt-5 pt-3 border-t border-slate-200 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-slate-500 dark:text-slate-400">Last Verification</span>
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">Q2 2026</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                      {(() => {
+                        const now = new Date();
+                        const q = Math.ceil((now.getMonth() + 1) / 3);
+                        return `Q${q} ${now.getFullYear()}`;
+                      })()}
+                    </span>
                   </div>
                 </div>
               </div>
