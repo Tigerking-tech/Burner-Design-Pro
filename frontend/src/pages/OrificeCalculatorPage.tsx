@@ -857,7 +857,7 @@ export default function OrificeCalculatorPage() {
               Determining the Orifices
             </h1>
             <p className="text-[#bdc3c7] max-w-2xl mx-auto">
-              Calculate restricting and measuring orifices according to ISO 5167 and DIN EN ISO 5167 standards.
+              Calculate restricting and measuring orifices per ISO 5167-1:2003 &amp; DIN EN ISO 5167 with discharge coefficients.
             </p>
           </div>
         </section>

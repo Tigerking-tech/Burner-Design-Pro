@@ -677,8 +677,9 @@ export default function FlameTemperaturePage() {
 
     addCoverPage(doc, {
       title: 'Flame Temperature Calculation Report',
-      subtitle: 'Theoretical flame temperature calculation with chemical equilibrium analysis',
+      subtitle: 'NASA GRC thermochemical data & Gibbs equilibrium minimization',
       reportType: 'Thermodynamic Analysis',
+      standard: 'NASA GRC',
     })
 
     let y = drawPageHeader(doc, 'Flame Temperature Calculation', 'Calculation Results')
@@ -791,7 +792,7 @@ export default function FlameTemperaturePage() {
               Flame Temperature Calculator
             </h1>
             <p className="text-sm sm:text-lg text-[#bdc3c7] max-w-2xl mx-auto">
-              Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations with chemical equilibrium.
+              Calculate theoretical and actual flame temperatures per NASA GRC thermochemical data &amp; Gibbs equilibrium minimization.
             </p>
           </div>
         </section>

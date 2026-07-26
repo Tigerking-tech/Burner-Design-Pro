@@ -96,7 +96,7 @@ const features: Feature[] = [
   {
     id: 'orifice',
     title: 'Orifice Calculator',
-    description: 'Design restricting or measuring orifice plates with ISO 5167 standard support.',
+    description: 'Design orifice plates per ISO 5167-1:2003 & DIN EN ISO 5167 with discharge coeffs.',
     icon: <Gauge size={24} />,
     pro: true,
     to: '/orifice-calculator',
@@ -105,7 +105,7 @@ const features: Feature[] = [
   {
     id: 'flame',
     title: 'Flame Temperature',
-    description: 'Calculate theoretical and actual flame temperatures for various fuel-oxidizer combinations.',
+    description: 'Calculate flame temps per NASA GRC thermochemical data & Gibbs equilibrium minimization.',
     icon: <Thermometer size={24} />,
     pro: true,
     to: '/flame-temperature',
@@ -275,7 +275,7 @@ export default function HomePage() {
                         <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
                       </svg>
                     ), 
-                    text: 'ISO 5167 Compliant' 
+                    text: 'ISO 5167-1 Compliant' 
                   },
                   { 
                     icon: (
@@ -305,7 +305,7 @@ export default function HomePage() {
                         <polyline points="12 22 12 12 15 9" />
                       </svg>
                     ), 
-                    text: 'ASTM C680 Standards' 
+                    text: 'NASA GRC Thermo' 
                   },
                   { 
                     icon: (
@@ -507,7 +507,7 @@ export default function HomePage() {
                       </svg>
                     ),
                     title: 'Standards Compliant',
-                    desc: 'ISO 5167, ISO 6976, ISO 80000, ASTM D4868, ASTM D2161, ISO 13443, EPA Method 19, IPCC 2006 & EU IED — built per industry specs.'
+                    desc: 'ISO 5167-1:2003, ISO 6976, ISO 80000, ISO 12241, ASTM D4868, ASTM D2161, ASTM C680, EPA Method 19, IPCC 2006, NASA GRC & EU IED — built per industry specs.'
                   },
                   {
                     icon: (
@@ -541,13 +541,14 @@ export default function HomePage() {
 
                 <div className="space-y-4">
                   {[
-                    { name: 'ISO 5167', desc: 'Flow measurement standard', status: 'verified' },
+                    { name: 'ISO 5167-1:2003', desc: 'Orifice flow measurement (part 1)', status: 'verified' },
                     { name: 'ISO 6976', desc: 'Gas calorific value & density', status: 'verified' },
                     { name: 'ISO 80000', desc: 'Quantities & units (SI base & derived)', status: 'verified' },
+                    { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
                     { name: 'ASTM D4868', desc: 'Oil heating value estimation', status: 'verified' },
                     { name: 'ASTM D2161', desc: 'Saybolt viscosity conversion (SSU/SSF)', status: 'verified' },
-                    { name: 'ISO 13443', desc: 'Standard reference conditions (Nm³/Sm³)', status: 'verified' },
-                    { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
+                    { name: 'ASTM C680', desc: 'Thermal conductivity of insulating materials', status: 'verified' },
+                    { name: 'NASA GRC', desc: 'Thermochemical data (polynomial coeffs.)', status: 'verified' },
                     { name: 'EPA Method 19', desc: 'Emission rate calculation (40 CFR Pt.60)', status: 'verified' },
                     { name: 'IPCC 2006', desc: 'GHG inventory — stationary combustion', status: 'verified' },
                     { name: 'EU IED 2010/75', desc: 'Industrial emissions directive limits', status: 'verified' }
@@ -786,7 +787,7 @@ export default function HomePage() {
                 © 2026 Burner-Design-Pro. Professional tools for burner engineers.
               </p>
               <div className="flex items-center gap-6">
-                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ISO 80000 · ASTM D2161 · ISO 13443 · EPA Method 19 · IPCC 2006 · EU IED</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167-1:2003 · ISO 6976 · ISO 12241 · ASTM C680 · NASA GRC · EPA Method 19 · IPCC 2006 · EU IED</span>
               </div>
             </div>
           </div>
