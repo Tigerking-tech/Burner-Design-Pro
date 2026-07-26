@@ -370,7 +370,7 @@ export default function UnitConverterPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">Unit Converter</h1>
           <p className="text-slate-300 max-w-2xl mx-auto">
-            Comprehensive unit converter for flow rate, pressure, temperature, and emissions.
+            Convert flow, pressure, temperature & viscosity units per ISO 80000, ASTM D2161 & ISO 13443.
           </p>
         </div>
       </section>
@@ -382,8 +382,9 @@ export default function UnitConverterPage() {
           <div className="text-sm">
             <p className="font-semibold text-amber-800 dark:text-amber-400">Reference Only</p>
             <p className="text-amber-700 dark:text-amber-300 mt-1">
-              Unit conversions are provided for convenience. Always verify critical values with authoritative sources
-              and engineering standards before use in professional applications.
+              Conversions follow ISO 80000 (quantities &amp; units), ISO 13443 (gas reference conditions), ASTM D2161
+              (Saybolt viscosity), and ITS-90 (temperature scale). Always verify critical values with authoritative
+              sources before use in professional applications.
             </p>
           </div>
         </div>

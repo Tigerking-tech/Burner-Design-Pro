@@ -81,7 +81,7 @@ const features: Feature[] = [
   {
     id: 'conversion',
     title: 'Unit Conversion',
-    description: 'Comprehensive unit converter for flow rate, pressure, temperature, and emissions.',
+    description: 'Convert flow, pressure, temperature & viscosity units per ISO 80000, ASTM D2161 & ISO 13443.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 8l10 0" />
@@ -507,7 +507,7 @@ export default function HomePage() {
                       </svg>
                     ),
                     title: 'Standards Compliant',
-                    desc: 'ISO 5167, ISO 6976, ASTM D4868, ISO 12241, EPA Method 19, IPCC 2006 & EU IED — built per industry specs.'
+                    desc: 'ISO 5167, ISO 6976, ISO 80000, ASTM D4868, ASTM D2161, ISO 13443, EPA Method 19, IPCC 2006 & EU IED — built per industry specs.'
                   },
                   {
                     icon: (
@@ -543,7 +543,10 @@ export default function HomePage() {
                   {[
                     { name: 'ISO 5167', desc: 'Flow measurement standard', status: 'verified' },
                     { name: 'ISO 6976', desc: 'Gas calorific value & density', status: 'verified' },
+                    { name: 'ISO 80000', desc: 'Quantities & units (SI base & derived)', status: 'verified' },
                     { name: 'ASTM D4868', desc: 'Oil heating value estimation', status: 'verified' },
+                    { name: 'ASTM D2161', desc: 'Saybolt viscosity conversion (SSU/SSF)', status: 'verified' },
+                    { name: 'ISO 13443', desc: 'Standard reference conditions (Nm³/Sm³)', status: 'verified' },
                     { name: 'ISO 12241', desc: 'Thermal insulation standard', status: 'verified' },
                     { name: 'EPA Method 19', desc: 'Emission rate calculation (40 CFR Pt.60)', status: 'verified' },
                     { name: 'IPCC 2006', desc: 'GHG inventory — stationary combustion', status: 'verified' },
@@ -783,7 +786,7 @@ export default function HomePage() {
                 © 2026 Burner-Design-Pro. Professional tools for burner engineers.
               </p>
               <div className="flex items-center gap-6">
-                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ASTM D4868 · EPA Method 19 · IPCC 2006 · EU IED</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">ISO 5167 · ISO 6976 · ISO 80000 · ASTM D2161 · ISO 13443 · EPA Method 19 · IPCC 2006 · EU IED</span>
               </div>
             </div>
           </div>
