@@ -487,6 +487,36 @@ async def get_login_activity(
     }
 
 
+@router.get("/trusted-devices")
+async def get_trusted_devices(
+    current_user: User = Depends(get_current_active_user),
+):
+    """Get all trusted devices for the current user."""
+    devices = get_user_trusted_devices(current_user.id)
+    return {
+        "success": True,
+        "devices": devices,
+    }
+
+
+@router.delete("/trusted-devices/{device_id}")
+async def remove_trusted_device_endpoint(
+    device_id: str,
+    current_user: User = Depends(get_current_active_user),
+):
+    """Remove a trusted device from the current user's list."""
+    deleted = remove_trusted_device(current_user.id, device_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Device not found or not owned by user",
+        )
+    return {
+        "success": True,
+        "message": "Device removed from trusted list. You will receive a notification if this device logs in again.",
+    }
+
+
 @router.post("/refresh", response_model=Token)
 async def refresh_token(data: RefreshTokenRequest):
     """Refresh access token using refresh token"""

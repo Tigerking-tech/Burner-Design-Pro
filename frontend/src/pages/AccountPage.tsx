@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, ApiError } from "../services/api"
+import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, TrustedDevice, ApiError } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
 import { RefreshCw } from "lucide-react"
@@ -24,6 +24,7 @@ export default function AccountPage() {
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([])
+  const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [processingPayment, setProcessingPayment] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
@@ -43,6 +44,7 @@ export default function AccountPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deletePassword, setDeletePassword] = useState("")
   const [deletingAccount, setDeletingAccount] = useState(false)
+  const [removingDevice, setRemovingDevice] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authAPI.isAuthenticated()) {
@@ -54,14 +56,16 @@ export default function AccountPage() {
 
   const loadData = async () => {
     try {
-      const [sub, orderList, tiers] = await Promise.all([
+      const [sub, orderList, tiers, devices] = await Promise.all([
         subscriptionAPI.getSubscription(),
         subscriptionAPI.getOrders(),
-        pricingAPI.getPricingTiers()
+        pricingAPI.getPricingTiers(),
+        authAPI.getTrustedDevices()
       ])
       setSubscription(sub)
       setOrders(orderList)
       setPricingTiers(tiers)
+      setTrustedDevices(devices.devices)
     } catch (err: any) {
       if (isAuthError(err)) {
         authAPI.logout()
@@ -289,6 +293,22 @@ export default function AccountPage() {
     }
   }
 
+  const handleRemoveDevice = async (deviceId: string) => {
+    if (!confirm("Are you sure you want to remove this device? You will receive an email notification if it logs in again.")) {
+      return
+    }
+    setRemovingDevice(deviceId)
+    try {
+      const result = await authAPI.removeTrustedDevice(deviceId)
+      setSuccess(result.message)
+      setTrustedDevices(trustedDevices.filter(d => d.id !== deviceId))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove device")
+    } finally {
+      setRemovingDevice(null)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -448,6 +468,55 @@ export default function AccountPage() {
               </svg>
               {exportingData ? "Exporting..." : "Export My Data"}
             </button>
+          </div>
+
+          {/* Trusted Devices */}
+          <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Trusted Devices</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              Manage devices that have access to your account. Removing a device will trigger an email notification if it attempts to log in again.
+            </p>
+            
+            {trustedDevices.length > 0 ? (
+              <div className="space-y-3">
+                {trustedDevices.map((device) => (
+                  <div
+                    key={device.id}
+                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900 dark:text-white">{device.device_name || 'Unknown Device'}</p>
+                        <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
+                          <span>IP: {device.ip_address || '-'}</span>
+                          <span>Created: {new Date(device.created_at).toLocaleDateString()}</span>
+                          <span>Last Used: {new Date(device.last_used_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveDevice(device.id)}
+                      disabled={removingDevice === device.id}
+                      className="px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-500/10 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      {removingDevice === device.id ? 'Removing...' : 'Remove'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <p>No trusted devices yet. Your devices will appear here as you log in.</p>
+              </div>
+            )}
           </div>
 
           {/* Danger Zone */}

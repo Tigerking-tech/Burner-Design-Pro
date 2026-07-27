@@ -300,6 +300,15 @@ export interface PaymentResult {
   message: string
 }
 
+export interface TrustedDevice {
+  id: string
+  device_fingerprint: string
+  device_name: string
+  last_used_at: string
+  created_at: string
+  ip_address: string
+}
+
 export interface Order {
   id: string
   user_id: string
@@ -439,6 +448,14 @@ export const authAPI = {
       })
     }
     return user
+  },
+
+  async getTrustedDevices(): Promise<{ success: boolean; devices: TrustedDevice[] }> {
+    return request('/auth/trusted-devices')
+  },
+
+  async removeTrustedDevice(deviceId: string): Promise<{ success: boolean; message: string }> {
+    return request(`/auth/trusted-devices/${deviceId}`, { method: 'DELETE' })
   },
 
   getCurrentUserSync(): User | null {
