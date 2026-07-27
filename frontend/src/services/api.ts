@@ -371,17 +371,31 @@ export const authAPI = {
 
     const fingerprint = await deviceFingerprintService.getFingerprint()
 
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Device-Fingerprint': fingerprint,
-      },
-      body: formData.toString(),
-    })
+    let response
+    try {
+      response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Device-Fingerprint': fingerprint,
+        },
+        body: formData.toString(),
+      })
+    } catch (err: any) {
+      throw new ApiError(
+        err.message || 'Network error. Please check your internet connection and try again.',
+        0,
+        err.message
+      )
+    }
 
     if (!response.ok) {
-      const data = await response.json().catch(() => ({}))
+      let data
+      try {
+        data = await response.json()
+      } catch {
+        throw new ApiError('Server error. Please try again later.', response.status)
+      }
       throw new ApiError(data.detail || 'Login failed', response.status, data.detail)
     }
 

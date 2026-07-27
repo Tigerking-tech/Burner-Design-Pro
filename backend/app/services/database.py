@@ -155,6 +155,11 @@ def init_db() -> None:
         """)
 
         cur.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_trusted_devices_user_fingerprint 
+            ON trusted_devices(user_id, device_fingerprint)
+        """)
+
+        cur.execute("""
             CREATE INDEX IF NOT EXISTS idx_trusted_devices_user_id 
             ON trusted_devices(user_id)
         """)
@@ -545,15 +550,21 @@ def add_trusted_device(user_id: str, device_fingerprint: str, device_name: str, 
     try:
         cur = conn.cursor()
         now = datetime.utcnow()
-        device_id = str(_uuid.uuid4())
+        
         cur.execute("""
-            INSERT INTO trusted_devices 
-            (id, user_id, device_fingerprint, device_name, last_used_at, created_at, ip_address)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (user_id, device_fingerprint) DO UPDATE SET
-                last_used_at = EXCLUDED.last_used_at,
-                ip_address = EXCLUDED.ip_address
-        """, (device_id, user_id, device_fingerprint, device_name, now, now, ip_address))
+            UPDATE trusted_devices 
+            SET last_used_at = %s, ip_address = %s
+            WHERE user_id = %s AND device_fingerprint = %s
+        """, (now, ip_address, user_id, device_fingerprint))
+        
+        if cur.rowcount == 0:
+            device_id = str(_uuid.uuid4())
+            cur.execute("""
+                INSERT INTO trusted_devices 
+                (id, user_id, device_fingerprint, device_name, last_used_at, created_at, ip_address)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (device_id, user_id, device_fingerprint, device_name, now, now, ip_address))
+        
         conn.commit()
         cur.close()
     finally:
