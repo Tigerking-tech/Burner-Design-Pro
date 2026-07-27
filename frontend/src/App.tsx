@@ -45,8 +45,18 @@ function SessionMonitor() {
   const { showToast } = useToast()
   const navigate = useNavigate()
   const [hasShownToast, setHasShownToast] = useState(false)
+  const location = useLocation()
+
+  const isAuthPage = () => {
+    const authPaths = ['/login', '/signup', '/verify-email', '/forgot-password', '/reset-password']
+    return authPaths.includes(location.pathname)
+  }
 
   useEffect(() => {
+    if (isAuthPage()) {
+      return
+    }
+
     const checkLocalExpiry = () => {
       const wasAuthenticated = tokenManager.getAccessToken() !== null
       const stillAuthenticated = tokenManager.isAuthenticated()
@@ -99,7 +109,7 @@ function SessionMonitor() {
       clearInterval(sessionInterval)
       window.removeEventListener('session-kicked', handleSessionKicked)
     }
-  }, [hasShownToast, navigate, showToast])
+  }, [hasShownToast, navigate, showToast, location])
 
   return null
 }
