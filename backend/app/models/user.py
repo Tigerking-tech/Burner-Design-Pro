@@ -22,6 +22,7 @@ class UserLogin(BaseModel):
     """Model for user login"""
     email: EmailStr
     password: str
+    device_fingerprint: Optional[str] = None
 
 
 class ChangePassword(BaseModel):

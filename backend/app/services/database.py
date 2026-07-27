@@ -142,6 +142,28 @@ def init_db() -> None:
             ON login_activities(created_at)
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS trusted_devices (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                device_fingerprint TEXT NOT NULL,
+                device_name TEXT,
+                last_used_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                ip_address TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_trusted_devices_user_id 
+            ON trusted_devices(user_id)
+        """)
+
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_trusted_devices_fingerprint 
+            ON trusted_devices(device_fingerprint)
+        """)
+
         conn.commit()
         cur.close()
         print("[INFO] Database tables initialized")
@@ -496,6 +518,106 @@ def get_last_login_activity(user_id: str) -> Optional[Dict[str, Any]]:
             "failure_reason": row["failure_reason"],
             "created_at": row["created_at"],
         }
+    finally:
+        conn.close()
+
+
+def is_trusted_device(user_id: str, device_fingerprint: str) -> bool:
+    """Check if a device fingerprint is in the user's trusted devices list."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id FROM trusted_devices 
+            WHERE user_id = %s AND device_fingerprint = %s
+        """, (user_id, device_fingerprint))
+        row = cur.fetchone()
+        cur.close()
+        return row is not None
+    finally:
+        conn.close()
+
+
+def add_trusted_device(user_id: str, device_fingerprint: str, device_name: str, ip_address: str) -> None:
+    """Add a device to the user's trusted devices list."""
+    import uuid as _uuid
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        now = datetime.utcnow()
+        device_id = str(_uuid.uuid4())
+        cur.execute("""
+            INSERT INTO trusted_devices 
+            (id, user_id, device_fingerprint, device_name, last_used_at, created_at, ip_address)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (user_id, device_fingerprint) DO UPDATE SET
+                last_used_at = EXCLUDED.last_used_at,
+                ip_address = EXCLUDED.ip_address
+        """, (device_id, user_id, device_fingerprint, device_name, now, now, ip_address))
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def update_trusted_device_last_used(user_id: str, device_fingerprint: str) -> None:
+    """Update the last_used_at timestamp for a trusted device."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        now = datetime.utcnow()
+        cur.execute("""
+            UPDATE trusted_devices 
+            SET last_used_at = %s 
+            WHERE user_id = %s AND device_fingerprint = %s
+        """, (now, user_id, device_fingerprint))
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def get_user_trusted_devices(user_id: str) -> List[Dict[str, Any]]:
+    """Get all trusted devices for a user."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, device_fingerprint, device_name, last_used_at, created_at, ip_address
+            FROM trusted_devices 
+            WHERE user_id = %s
+            ORDER BY last_used_at DESC
+        """, (user_id,))
+        rows = cur.fetchall()
+        cur.close()
+        return [
+            {
+                "id": r["id"],
+                "device_fingerprint": r["device_fingerprint"],
+                "device_name": r["device_name"],
+                "last_used_at": r["last_used_at"],
+                "created_at": r["created_at"],
+                "ip_address": r["ip_address"],
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
+def remove_trusted_device(user_id: str, device_id: str) -> bool:
+    """Remove a trusted device from the user's list."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            DELETE FROM trusted_devices 
+            WHERE id = %s AND user_id = %s
+        """, (device_id, user_id))
+        deleted = cur.rowcount > 0
+        conn.commit()
+        cur.close()
+        return deleted
     finally:
         conn.close()
 

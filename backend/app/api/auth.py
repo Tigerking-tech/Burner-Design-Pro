@@ -38,6 +38,7 @@ from app.services.database import (
     list_users, delete_user, get_user_orders,
     save_login_activity, get_user_login_activities,
     update_user_session_id, get_last_login_activity,
+    is_trusted_device, add_trusted_device, update_trusted_device_last_used,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -319,6 +320,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     email = form_data.username.strip().lower()
     client_ip = _get_client_ip(request)
     user_agent = request.headers.get("User-Agent", "")
+    device_fingerprint = request.headers.get("X-Device-Fingerprint", "")
 
     # Check if account is locked
     locked, lockout_until = is_account_locked(email)
@@ -407,19 +409,28 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     # Reset failed attempts on successful login
     reset_login_attempts(email)
 
-    # --- New device detection: compare with last login activity ---
-    last_activity = get_last_login_activity(user.id)
+    # --- New device detection: use device fingerprint and trusted devices list ---
     is_new_device = False
-    if last_activity:
-        last_ip = last_activity.get("ip_address") or ""
-        last_ua = last_activity.get("user_agent") or ""
-        if last_ip and last_ip != client_ip:
+    device_summary = _get_device_summary(user_agent)
+    
+    if device_fingerprint:
+        if is_trusted_device(user.id, device_fingerprint):
+            update_trusted_device_last_used(user.id, device_fingerprint)
+            is_new_device = False
+        else:
             is_new_device = True
-        elif last_ua and last_ua != user_agent:
-            is_new_device = True
+            add_trusted_device(user.id, device_fingerprint, device_summary, client_ip)
     else:
-        # First login — not a "new device", just a first login
-        is_new_device = False
+        last_activity = get_last_login_activity(user.id)
+        if last_activity:
+            last_ip = last_activity.get("ip_address") or ""
+            last_ua = last_activity.get("user_agent") or ""
+            if last_ip and last_ip != client_ip:
+                is_new_device = True
+            elif last_ua and last_ua != user_agent:
+                is_new_device = True
+        else:
+            is_new_device = False
 
     # Log successful login with IP and user_agent
     try:
@@ -435,7 +446,6 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
 
     # Send new-device notification email (non-blocking — don't fail login if email fails)
     if is_new_device:
-        device_summary = _get_device_summary(user_agent)
         login_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
         try:
             await send_new_device_login_email(
