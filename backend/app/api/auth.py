@@ -39,6 +39,7 @@ from app.services.database import (
     save_login_activity, get_user_login_activities,
     update_user_session_id, get_last_login_activity,
     is_trusted_device, add_trusted_device, update_trusted_device_last_used,
+    get_user_trusted_devices,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -414,12 +415,18 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     device_summary = _get_device_summary(user_agent)
     
     if device_fingerprint:
+        existing_devices = get_user_trusted_devices(user.id)
+        
         if is_trusted_device(user.id, device_fingerprint):
             update_trusted_device_last_used(user.id, device_fingerprint)
             is_new_device = False
         else:
-            is_new_device = True
             add_trusted_device(user.id, device_fingerprint, device_summary, client_ip)
+            
+            if len(existing_devices) == 0:
+                is_new_device = False
+            else:
+                is_new_device = True
     else:
         last_activity = get_last_login_activity(user.id)
         if last_activity:
