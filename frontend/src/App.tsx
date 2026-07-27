@@ -30,6 +30,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import { wakeUpService } from './services/wakeUpService'
 import { ToastProvider, useToast } from './components/Toast'
 import { tokenManager } from './services/tokenManager'
+import { authAPI } from './services/api'
 import CookieConsent from './components/CookieConsent'
 
 function ScrollToTop() {
@@ -46,7 +47,7 @@ function SessionMonitor() {
   const [hasShownToast, setHasShownToast] = useState(false)
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkLocalExpiry = () => {
       const wasAuthenticated = tokenManager.getAccessToken() !== null
       const stillAuthenticated = tokenManager.isAuthenticated()
 
@@ -61,10 +62,28 @@ function SessionMonitor() {
       }
     }
 
-    checkAuth()
-    const interval = setInterval(checkAuth, 5000)
+    const verifySession = async () => {
+      if (!tokenManager.isAuthenticated()) return
+      if (hasShownToast) return
+      try {
+        await authAPI.getCurrentUser()
+      } catch (err: any) {
+        const msg = err?.message || ''
+        if (msg.includes('Another device logged in')) {
+          tokenManager.clearTokens()
+          setHasShownToast(true)
+          showToast(msg, 'error')
+          setTimeout(() => {
+            navigate('/login')
+          }, 3000)
+        }
+      }
+    }
 
-    // Listen for session-kicked events (another device logged in)
+    checkLocalExpiry()
+    const localInterval = setInterval(checkLocalExpiry, 5000)
+    const sessionInterval = setInterval(verifySession, 15000)
+
     const handleSessionKicked = (e: Event) => {
       const detail = (e as CustomEvent).detail || 'Another device logged into this account.'
       setHasShownToast(true)
@@ -76,7 +95,8 @@ function SessionMonitor() {
     window.addEventListener('session-kicked', handleSessionKicked)
 
     return () => {
-      clearInterval(interval)
+      clearInterval(localInterval)
+      clearInterval(sessionInterval)
       window.removeEventListener('session-kicked', handleSessionKicked)
     }
   }, [hasShownToast, navigate, showToast])
