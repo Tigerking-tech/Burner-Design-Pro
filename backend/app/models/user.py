@@ -70,6 +70,7 @@ class RefreshTokenRequest(BaseModel):
 class TokenData(BaseModel):
     """Token data model for JWT verification"""
     email: Optional[str] = None
+    sid: Optional[str] = None  # session_id for concurrent session control
 
 
 # ============== Subscription / Pricing Models ==============

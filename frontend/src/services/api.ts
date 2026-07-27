@@ -112,6 +112,21 @@ async function request(
   }
 
   if (response.status === 401 && includeAuth) {
+    // Check if this is a session-kicked error (another device logged in)
+    // In that case, don't attempt token refresh — the session is intentionally invalidated
+    let errorDetail = ''
+    try {
+      const errorData = await response.clone().json()
+      errorDetail = errorData.detail || ''
+    } catch {}
+
+    if (errorDetail.includes('Another device logged in')) {
+      tokenManager.clearTokens()
+      // Dispatch a custom event so the app can show a user-friendly notification
+      window.dispatchEvent(new CustomEvent('session-kicked', { detail: errorDetail }))
+      throw new ApiError(errorDetail, 401, errorDetail)
+    }
+
     const refreshed = await refreshAccessToken()
     if (refreshed) {
       const newToken = tokenManager.getAccessToken()

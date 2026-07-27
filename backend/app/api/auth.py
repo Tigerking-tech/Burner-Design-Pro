@@ -2,11 +2,12 @@
 Authentication and User API endpoints
 """
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Optional
 import uuid
 import os
+import secrets
 
 from app.models.user import (
     User, UserCreate, UserLogin, Token, TokenData,
@@ -19,7 +20,11 @@ from app.security.auth import (
     create_refresh_token, REFRESH_TOKEN_EXPIRE_DAYS,
     needs_migration,
 )
-from app.services.email_service import send_verification_email, generate_verification_code, send_password_reset_email, send_password_changed_email
+from app.services.email_service import (
+    send_verification_email, generate_verification_code,
+    send_password_reset_email, send_password_changed_email,
+    send_new_device_login_email,
+)
 from app.services.verification_store import (
     store_verification_code, verify_code, delete_verification_code,
     get_verification_entry, store_password_reset, verify_password_reset,
@@ -32,11 +37,51 @@ from app.services.database import (
     update_user_refresh_token, get_user_by_refresh_token,
     list_users, delete_user, get_user_orders,
     save_login_activity, get_user_login_activities,
+    update_user_session_id, get_last_login_activity,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract the real client IP from the request, accounting for proxies."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _get_device_summary(user_agent: str) -> str:
+    """Create a short human-readable device summary from the User-Agent string."""
+    if not user_agent:
+        return "Unknown device"
+    ua_lower = user_agent.lower()
+    browser = "Unknown browser"
+    if "edg" in ua_lower:
+        browser = "Edge"
+    elif "chrome" in ua_lower:
+        browser = "Chrome"
+    elif "firefox" in ua_lower:
+        browser = "Firefox"
+    elif "safari" in ua_lower:
+        browser = "Safari"
+    os_name = "Unknown OS"
+    if "windows" in ua_lower:
+        os_name = "Windows"
+    elif "mac" in ua_lower or "darwin" in ua_lower:
+        os_name = "macOS"
+    elif "linux" in ua_lower:
+        os_name = "Linux"
+    elif "android" in ua_lower:
+        os_name = "Android"
+    elif "iphone" in ua_lower or "ipad" in ua_lower:
+        os_name = "iOS"
+    return f"{browser} on {os_name}"
 
 
 def _dict_to_user(user_dict: dict) -> User:
@@ -45,10 +90,17 @@ def _dict_to_user(user_dict: dict) -> User:
 
 
 def _create_token_response(user: User) -> Token:
-    """Create access + refresh token response for a user."""
+    """Create access + refresh token response for a user.
+
+    Generates a new session_id on each login/token-refresh, invalidating
+    any previous session (concurrent session control).
+    """
+    session_id = secrets.token_urlsafe(32)
+    update_user_session_id(user.id, session_id)
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email},
+        data={"sub": user.email, "sid": session_id},
         expires_delta=access_token_expires
     )
 
@@ -68,22 +120,37 @@ def _create_token_response(user: User) -> Token:
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
-    """Get current authenticated user from JWT token"""
+    """Get current authenticated user from JWT token.
+
+    Validates the session_id in the JWT against the database to enforce
+    single-session (concurrent login) control.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
+    session_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Session expired. Another device logged into this account.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
     token_data = decode_access_token(token)
     if token_data is None:
         raise credentials_exception
-    
+
     # Look up user by email in the database
     user_dict = get_user_by_email(token_data.email)
     if user_dict is None:
         raise credentials_exception
-    
+
+    # Verify session_id matches (concurrent session control)
+    db_session_id = user_dict.get("session_id")
+    if token_data.sid and db_session_id and token_data.sid != db_session_id:
+        raise session_exception
+
     return _dict_to_user(user_dict)
 
 
@@ -242,12 +309,17 @@ async def resend_verification(data: dict):
 
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """Login with OAuth2 password flow"""
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
+    """Login with OAuth2 password flow.
+
+    Implements concurrent session control and new-device email notification.
+    """
     print(f"[LOGIN DEBUG] Attempting login with email: '{form_data.username}'")
-    
+
     email = form_data.username.strip().lower()
-    
+    client_ip = _get_client_ip(request)
+    user_agent = request.headers.get("User-Agent", "")
+
     # Check if account is locked
     locked, lockout_until = is_account_locked(email)
     if locked:
@@ -258,7 +330,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail=f"Too many failed attempts. Account locked for {minutes_left} minutes. Try again later or reset your password.",
             headers={"Retry-After": str(max(60, minutes_left * 60))},
         )
-    
+
     user_dict = get_user_by_email(email)
     if user_dict is None:
         # Record failed attempt even for non-existent emails (prevents enumeration timing attacks)
@@ -270,6 +342,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                 email=email,
                 success=False,
                 failure_reason="User not found",
+                ip_address=client_ip,
+                user_agent=user_agent,
             )
         except Exception:
             pass
@@ -279,13 +353,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user = _dict_to_user(user_dict)
     print(f"[LOGIN DEBUG] Found user: id={user.id}, is_active={user.is_active}, is_admin={user.is_admin}")
-    
+
     hashed_password = get_user_password(user.id)
     print(f"[LOGIN DEBUG] Stored hash: '{hashed_password[:20]}...' (length: {len(hashed_password) if hashed_password else 0})")
-    
+
     if not hashed_password or not verify_password(form_data.password, hashed_password):
         failed_count, locked, lockout_until = record_failed_login(email)
         try:
@@ -294,6 +368,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                 email=email,
                 success=False,
                 failure_reason="Incorrect password",
+                ip_address=client_ip,
+                user_agent=user_agent,
             )
         except Exception:
             pass
@@ -309,7 +385,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     if not user.is_active:
         try:
             save_login_activity(
@@ -317,6 +393,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                 email=email,
                 success=False,
                 failure_reason="Account not active",
+                ip_address=client_ip,
+                user_agent=user_agent,
             )
         except Exception:
             pass
@@ -325,27 +403,57 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Please check your email for verification code.",
         )
-    
+
     # Reset failed attempts on successful login
     reset_login_attempts(email)
-    
-    # Log successful login
+
+    # --- New device detection: compare with last login activity ---
+    last_activity = get_last_login_activity(user.id)
+    is_new_device = False
+    if last_activity:
+        last_ip = last_activity.get("ip_address") or ""
+        last_ua = last_activity.get("user_agent") or ""
+        if last_ip and last_ip != client_ip:
+            is_new_device = True
+        elif last_ua and last_ua != user_agent:
+            is_new_device = True
+    else:
+        # First login — not a "new device", just a first login
+        is_new_device = False
+
+    # Log successful login with IP and user_agent
     try:
         save_login_activity(
             user_id=user.id,
             email=email,
             success=True,
+            ip_address=client_ip,
+            user_agent=user_agent,
         )
     except Exception:
         pass
-    
+
+    # Send new-device notification email (non-blocking — don't fail login if email fails)
+    if is_new_device:
+        device_summary = _get_device_summary(user_agent)
+        login_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+        try:
+            await send_new_device_login_email(
+                to_email=user.email,
+                ip_address=client_ip,
+                device_info=device_summary,
+                login_time=login_time,
+            )
+        except Exception as e:
+            print(f"[LOGIN DEBUG] Failed to send new device email: {e}")
+
     # Auto-migrate legacy SHA256 password hashes to bcrypt on successful login
     if needs_migration(hashed_password):
         print(f"[LOGIN DEBUG] Migrating password hash to bcrypt for user: {user.email}")
         new_hash = get_password_hash(form_data.password)
         update_user_password(user.id, new_hash)
-    
-    # Create access + refresh tokens
+
+    # Create access + refresh tokens (generates new session_id, invalidating old sessions)
     return _create_token_response(user)
 
 

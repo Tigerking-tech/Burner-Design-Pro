@@ -81,6 +81,14 @@ def init_db() -> None:
             print(f"[INFO] two_factor_secret column may already exist: {e}")
             conn.rollback()
 
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS session_id TEXT")
+            conn.commit()
+            print("[INFO] Added session_id column")
+        except Exception as e:
+            print(f"[INFO] session_id column may already exist: {e}")
+            conn.rollback()
+
         cur.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id TEXT PRIMARY KEY,
@@ -158,6 +166,7 @@ def _row_to_user(row) -> Dict[str, Any]:
         "creem_customer_id": row["creem_customer_id"],
         "creem_subscription_id": row["creem_subscription_id"],
         "two_factor_enabled": bool(row["two_factor_enabled"]) if "two_factor_enabled" in row else False,
+        "session_id": row.get("session_id") if "session_id" in row.keys() else None,
     }
 
 
@@ -441,6 +450,52 @@ def get_user_by_refresh_token(refresh_token: str) -> Optional[Dict[str, Any]]:
         row = cur.fetchone()
         cur.close()
         return _row_to_user(row) if row else None
+    finally:
+        conn.close()
+
+
+def update_user_session_id(user_id: str, session_id: Optional[str]) -> None:
+    """Update the session_id for a user (used for concurrent session control)."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        now = datetime.utcnow()
+        cur.execute(
+            "UPDATE users SET session_id = %s, updated_at = %s WHERE id = %s",
+            (session_id, now, user_id),
+        )
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+def get_last_login_activity(user_id: str) -> Optional[Dict[str, Any]]:
+    """Get the most recent successful login activity for a user."""
+    conn = _get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, user_id, email, success, ip_address, user_agent, failure_reason, created_at
+            FROM login_activities
+            WHERE user_id = %s AND success = 1
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (user_id,))
+        row = cur.fetchone()
+        cur.close()
+        if not row:
+            return None
+        return {
+            "id": row["id"],
+            "user_id": row["user_id"],
+            "email": row["email"],
+            "success": bool(row["success"]),
+            "ip_address": row["ip_address"],
+            "user_agent": row["user_agent"],
+            "failure_reason": row["failure_reason"],
+            "created_at": row["created_at"],
+        }
     finally:
         conn.close()
 

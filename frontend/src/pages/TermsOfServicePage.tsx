@@ -128,6 +128,27 @@ export default function TermsOfService() {
               <li>Ensure compliance with applicable local regulations and codes</li>
               <li>Accept full responsibility for any decisions made based on calculation results</li>
               <li>Not use the Service for safety-critical or life-threatening applications without proper professional oversight</li>
+              <li>Maintain the confidentiality of your account credentials and not share them with any other person</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">5a. Account Use and Per-Seat Licensing</h2>
+            <div className="bg-blue-500/10 dark:bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-r-xl mb-4">
+              <p className="text-blue-900 dark:text-blue-300 font-semibold mb-2">Per-Seat License</p>
+              <p className="text-blue-800 dark:text-blue-300/80 text-sm">
+                Each subscription is licensed to a single individual user (per-seat).
+                Account sharing, credential sharing, or concurrent use by multiple persons
+                is strictly prohibited.
+              </p>
+            </div>
+            <ul className="list-disc list-inside text-slate-600 dark:text-slate-300 space-y-2 ml-4">
+              <li>Each user account is intended for use by one individual only</li>
+              <li>Sharing, selling, or transferring account credentials to others is prohibited</li>
+              <li>Only one active session per account is allowed at any given time</li>
+              <li>Logging in from a new device will automatically sign out previous sessions</li>
+              <li>You will receive an email notification when a login from a new device or location is detected</li>
+              <li>Violation of these terms may result in account suspension without refund</li>
             </ul>
           </section>
 
@@ -152,8 +173,10 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">7. Subscription and Payment</h2>
             <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-              Subscription fees are charged for access to premium features. Refunds are not provided for partial 
-              months of service. Users may cancel their subscription at any time through their account settings.
+              Subscription fees are charged for access to premium features on a per-seat basis (one license per individual user).
+              Refunds are not provided for partial months of service. Users may cancel their subscription at any time
+              through their account settings. Account sharing to avoid subscription fees is a violation of these Terms
+              and may result in immediate account termination.
             </p>
           </section>
 

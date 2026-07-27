@@ -116,6 +116,7 @@ def decode_access_token(token: str) -> Optional[TokenData]:
         email: str = payload.get("sub")
         if email is None:
             return None
-        return TokenData(email=email)
+        sid: Optional[str] = payload.get("sid")
+        return TokenData(email=email, sid=sid)
     except JWTError:
         return None

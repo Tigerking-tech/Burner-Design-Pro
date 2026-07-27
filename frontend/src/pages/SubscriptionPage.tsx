@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { subscriptionAPI, authAPI, ApiError } from '../services/api'
 import { Navbar } from '../components/Navbar'
 import { useSEO } from '../hooks/useSEO'
-import { Crown, Check, X, ArrowRight, RefreshCw, ExternalLink } from 'lucide-react'
+import { Crown, Check, X, ArrowRight, RefreshCw, ExternalLink, ShieldCheck } from 'lucide-react'
 
 function isAuthError(err: any): boolean {
   if (err instanceof ApiError && err.status === 401) return true
@@ -182,6 +182,12 @@ const SubscriptionPage: React.FC = () => {
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Start free and upgrade when you need more. No hidden fees, cancel anytime.
           </p>
+          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-full">
+            <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              Per-seat licensing — one account per user, no sharing
+            </span>
+          </div>
         </div>
 
         {error && (
@@ -457,8 +463,18 @@ const SubscriptionPage: React.FC = () => {
                 Do you offer refunds?
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                We offer a 14-day money-back guarantee. If you're not satisfied with Pro, 
+                We offer a 14-day money-back guarantee. If you're not satisfied with Pro,
                 contact us within 14 days for a full refund.
+              </p>
+            </div>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
+                Can I share my account with my team?
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                No. Each subscription is licensed per-seat (per individual user).
+                Account sharing is prohibited and only one active session is allowed at a time.
+                For team needs, each member should have their own account.
               </p>
             </div>
           </div>

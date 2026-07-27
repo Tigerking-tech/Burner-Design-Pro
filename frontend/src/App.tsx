@@ -63,7 +63,22 @@ function SessionMonitor() {
 
     checkAuth()
     const interval = setInterval(checkAuth, 5000)
-    return () => clearInterval(interval)
+
+    // Listen for session-kicked events (another device logged in)
+    const handleSessionKicked = (e: Event) => {
+      const detail = (e as CustomEvent).detail || 'Another device logged into this account.'
+      setHasShownToast(true)
+      showToast(detail, 'error')
+      setTimeout(() => {
+        navigate('/login')
+      }, 3000)
+    }
+    window.addEventListener('session-kicked', handleSessionKicked)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('session-kicked', handleSessionKicked)
+    }
   }, [hasShownToast, navigate, showToast])
 
   return null

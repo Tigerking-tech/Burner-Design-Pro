@@ -186,18 +186,18 @@ async def send_password_changed_email(to_email: str) -> bool:
         <h2 style="color: #27ae60;">Password Changed</h2>
         <p>Hi there,</p>
         <p>Your password has been changed successfully.</p>
-        
+
         <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #155724;">
                 <strong>✅</strong> If you made this change, you're all set.
             </p>
         </div>
-        
+
         <p style="color: #e74c3c;">
-            <strong>If you didn't change your password</strong>, please contact us immediately at 
+            <strong>If you didn't change your password</strong>, please contact us immediately at
             <a href="mailto:support@burnerdesignpro.com">support@burnerdesignpro.com</a>
         </p>
-        
+
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
         <p style="color: #95a5a6; font-size: 12px;">
             Burner Design Pro - Professional tools for burner engineers
@@ -229,6 +229,81 @@ async def send_password_changed_email(to_email: str) -> bool:
                 return False
     except Exception as e:
         print(f"[email] Error sending changed email: {e}")
+        return False
+
+
+async def send_new_device_login_email(
+    to_email: str,
+    ip_address: str,
+    device_info: str,
+    login_time: str,
+) -> bool:
+    """Send a security notification when a login from a new device/IP is detected."""
+    if not RESEND_API_KEY:
+        print(f"[email] WARNING: RESEND_API_KEY not set. New device login for {to_email}: {ip_address} / {device_info}")
+        return True
+
+    subject = "New device login detected - Burner Design Pro"
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+        <h2 style="color: #2c3e50;">New Device Login Detected</h2>
+        <p>Hi there,</p>
+        <p>We detected a login to your Burner Design Pro account from a new device or location.</p>
+
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffeaa7;">
+            <p style="margin: 5px 0; color: #856404;"><strong>Time:</strong> {login_time}</p>
+            <p style="margin: 5px 0; color: #856404;"><strong>IP Address:</strong> {ip_address}</p>
+            <p style="margin: 5px 0; color: #856404;"><strong>Device:</strong> {device_info}</p>
+        </div>
+
+        <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; color: #155724;">
+                <strong>✅</strong> If this was you, no action is needed.
+            </p>
+        </div>
+
+        <p style="color: #e74c3c;">
+            <strong>If you didn't log in</strong>, your account credentials may have been compromised.
+            Please reset your password immediately and contact us at
+            <a href="mailto:support@burnerdesignpro.com">support@burnerdesignpro.com</a>
+        </p>
+
+        <p style="color: #7f8c8d; font-size: 14px;">
+            For security reasons, only one active session is allowed per account.
+            If another device logs in, your current session will be signed out.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #95a5a6; font-size: 12px;">
+            Burner Design Pro - Professional tools for burner engineers
+        </p>
+    </div>
+    """
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                RESEND_API_URL,
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": f"Burner Design Pro <{RESEND_FROM_EMAIL}>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_body,
+                },
+                timeout=30.0,
+            )
+            if response.status_code == 200:
+                print(f"[email] New device login email sent to {to_email}")
+                return True
+            else:
+                print(f"[email] Failed to send new device email: {response.status_code} {response.text}")
+                return False
+    except Exception as e:
+        print(f"[email] Error sending new device email: {e}")
         return False
 
 
