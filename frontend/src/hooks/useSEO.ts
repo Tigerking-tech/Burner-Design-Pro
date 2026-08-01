@@ -32,7 +32,7 @@ interface SEOProps {
 }
 
 const SITE_ORIGIN = 'https://burnerdesignpro.com'
-const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/og-image.jpg`
+const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/og-image.png`
 
 const DEFAULT_TITLE = 'BurnerDesignPro — Free Thermal Engineering Calculator | ISO & EPA Compliant'
 const DEFAULT_DESCRIPTION =
