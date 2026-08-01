@@ -39,7 +39,7 @@ from app.services.database import (
     save_login_activity, get_user_login_activities,
     update_user_session_id, get_last_login_activity,
     is_trusted_device, add_trusted_device, update_trusted_device_last_used,
-    get_user_trusted_devices,
+    get_user_trusted_devices, remove_trusted_device,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
