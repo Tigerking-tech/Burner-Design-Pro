@@ -33,6 +33,20 @@ import { tokenManager } from './services/tokenManager'
 import { authAPI } from './services/api'
 import CookieConsent from './components/CookieConsent'
 
+function GATracker() {
+  const location = useLocation()
+  useEffect(() => {
+    const gtag = (window as any).gtag
+    if (gtag) {
+      gtag('event', 'page_view', {
+        page_path: location.pathname + location.search,
+        page_title: document.title
+      })
+    }
+  }, [location.pathname, location.search])
+  return null
+}
+
 function ScrollToTop() {
   const location = useLocation()
   useEffect(() => {
@@ -122,6 +136,7 @@ function AppRoutes() {
   return (
     <>
       <SessionMonitor />
+      <GATracker />
       <ScrollToTop />
       <CookieConsent />
       <Routes>

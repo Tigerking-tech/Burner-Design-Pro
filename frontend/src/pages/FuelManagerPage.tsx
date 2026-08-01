@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { usePersistentState } from '../hooks/usePersistentState'
+import { useSEO } from '../hooks/useSEO'
 import { AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { Navbar } from '../components/Navbar'
+import SeoContentSection from '../components/SeoContentSection'
 import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
 import {
   addCoverPage,
@@ -318,6 +320,23 @@ const defaultOilElements: OilElement[] = (() => {
 })()
 
 export default function FuelManagerPage() {
+  useSEO({
+    title: 'Fuel Gas Properties Calculator | ISO 6976 & ASTM D4868',
+    description:
+      'Calculate gas calorific value, Wobbe index, and fuel mixtures per ISO 6976 & ASTM D4868. Free online tool for engineers.',
+    canonicalPath: '/fuel-manager',
+    ogTitle: 'Fuel Gas Properties Calculator | ISO 6976',
+    ogDescription:
+      'Calculate gas calorific value, Wobbe index per ISO 6976 & ASTM D4868. Free online tool for engineers.',
+    jsonLd: {
+      name: 'Fuel Manager — Gas & Oil Properties Calculator',
+      url: 'https://burnerdesignpro.com/fuel-manager',
+      description:
+        'Calculate gas calorific value, Wobbe index, density, and fuel mixtures per ISO 6976 & ASTM D4868.',
+      offers: { price: '0', priceCurrency: 'USD' },
+    },
+  })
+
   const [activeTab, setActiveTab] = usePersistentState<'gas' | 'oil'>('fuelmanager_activeTab', 'gas')
   const [gas1Components, setGas1Components] = usePersistentState<GasComponent[]>('fuelmanager_gas1Components', defaultGasComponents.map(c => ({ ...c })))
   const [gas2Components, setGas2Components] = usePersistentState<GasComponent[]>('fuelmanager_gas2Components', defaultGasComponents.map(c => ({ ...c })))
@@ -1759,6 +1778,31 @@ const LATENT_HEAT_WATER = 2.442
           </div>
         )}
       </div>
+
+      <SeoContentSection
+        ariaLabel="About Fuel Manager"
+        title="Fuel Gas Properties Calculator"
+        intro="The Fuel Manager tool calculates thermodynamic properties of fuel gases and oils according to ISO 6976 (natural gas — calculation of calorific values, density, relative density and Wobbe index) and ASTM D4868 (standard test method for estimation of net and gross heat of combustion of burner and diesel fuels). This free online calculator is designed for combustion engineers, process engineers, and energy analysts who need accurate fuel property data for burner design and emission calculations."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'What You Can Calculate',
+            items: [
+              'Gross and net calorific value (heating value) of natural gas mixtures',
+              'Wobbe index — critical for fuel interchangeability assessment',
+              'Gas density and relative density per ISO 6976',
+              'Gas compressibility factor at reference conditions',
+              'Fuel mixture properties for blended gases',
+              'Oil heating value per ASTM D4868',
+            ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Standards & Compliance',
+            text: 'All calculations follow the formulas and methods specified in ISO 6976:2016 and ASTM D4868-17. Results are deterministic and traceable to the standard\'s equations, making them suitable for engineering documentation and compliance reporting.',
+          },
+        ]}
+      />
     </div>
   )
 }

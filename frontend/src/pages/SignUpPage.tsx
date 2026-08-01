@@ -6,7 +6,15 @@ import { useSEO } from '../hooks/useSEO'
 import { useTheme } from '../components/ThemeProvider'
 
 export default function SignUpPage() {
-  useSEO({ title: 'Sign Up', description: 'Create a free account to access Burner Design Pro - professional burner design tools, flame temperature calculators, and thermal engineering resources.', keywords: 'burner design sign up, free thermal engineering account, register burner tools' })
+  useSEO({
+    title: 'Sign Up Free | Engineering Calculator',
+    description:
+      'Create your free BurnerDesignPro account. 20 calculations per month at no cost. No credit card required.',
+    canonicalPath: '/signup',
+    ogTitle: 'Sign Up Free | BurnerDesignPro',
+    ogDescription: 'Create your free BurnerDesignPro account. 20 calculations per month at no cost.',
+    keywords: 'burner design sign up, free thermal engineering account, register burner tools',
+  })
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [confirmEmail, setConfirmEmail] = useState('')
