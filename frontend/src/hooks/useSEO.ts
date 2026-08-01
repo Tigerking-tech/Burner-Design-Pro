@@ -28,7 +28,7 @@ interface SEOProps {
   ogType?: string
   ogUrl?: string
   ogImage?: string
-  jsonLd?: WebApplicationSchema | WebApplicationSchema[]
+  jsonLd?: WebApplicationSchema | WebApplicationSchema[] | Record<string, any> | Record<string, any>[]
 }
 
 const SITE_ORIGIN = 'https://burnerdesignpro.com'
@@ -130,11 +130,16 @@ export function useSEO({
     }
     if (jsonLd) {
       const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd]
-      const payload = schemas.length === 1 ? buildWebApplicationSchema(schemas[0]) : schemas.map(buildWebApplicationSchema)
+      const payload = schemas.map((schema) => {
+        if ('@type' in (schema as Record<string, any>)) {
+          return schema
+        }
+        return buildWebApplicationSchema(schema as WebApplicationSchema)
+      })
       const script = document.createElement('script')
       script.type = 'application/ld+json'
       script.id = JSONLD_SCRIPT_ID
-      script.textContent = JSON.stringify(payload)
+      script.textContent = JSON.stringify(payload.length === 1 ? payload[0] : payload)
       document.head.appendChild(script)
     }
 

@@ -92,9 +92,26 @@ const faqCategories = [
 ]
 
 export default function FAQPage() {
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqCategories.flatMap(cat =>
+      cat.faqs.map(faq => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer
+        }
+      }))
+    )
+  }
+
   useSEO({
     title: 'FAQ & Help',
     description: 'Frequently asked questions about Burner Design Pro. Find answers to common questions about accounts, billing, features, and more.',
+    canonicalPath: '/faq',
+    jsonLd: faqJsonLd,
   })
   
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())

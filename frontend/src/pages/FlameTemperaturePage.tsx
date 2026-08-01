@@ -1072,22 +1072,43 @@ export default function FlameTemperaturePage() {
       <SeoContentSection
         ariaLabel="About Flame Temperature Calculator"
         title="Adiabatic Flame Temperature Calculator"
-        intro="The Flame Temperature tool calculates adiabatic flame temperature using NASA GRC thermochemical data and Gibbs free energy minimization for equilibrium composition. This Pro tool is essential for combustion engineers designing burners, furnaces, and gas turbines who need to predict peak flame temperatures for material selection and NOx formation analysis."
+        intro="The Flame Temperature tool calculates adiabatic flame temperature using NASA GRC thermochemical data and Gibbs free energy minimization for equilibrium composition. This Pro tool is essential for combustion engineers designing burners, furnaces, and gas turbines who need to predict peak flame temperatures for material selection and NOx formation analysis. The tool supports air, pure oxygen, and custom oxidizer mixtures, and provides both frozen (no dissociation) and equilibrium (with dissociation) temperature calculations to show the effect of chemical equilibrium on peak flame temperatures."
         blocks={[
           {
             type: 'list',
             heading: 'What You Can Calculate',
             items: [
-              'Adiabatic flame temperature for various fuels (natural gas, oil, hydrogen, etc.)',
-              'Equilibrium combustion product composition',
-              'Effect of excess air / equivalence ratio on flame temperature',
-              'Dissociation effects at high temperatures',
+              'Adiabatic flame temperature for various fuels (natural gas, oil, hydrogen, propane, methane, biogas, etc.)',
+              'Equilibrium combustion product composition (CO₂, H₂O, CO, H₂, O₂, N₂, NO, OH, O, H, NO₂)',
+              'Effect of excess air / equivalence ratio / lambda on flame temperature',
+              'Dissociation effects at high temperatures (above 1500°C)',
+              'Frozen temperature vs equilibrium temperature comparison',
+              'Stoichiometric oxygen requirement for complete combustion',
+              'Thermodynamic properties: Gibbs free energy (ΔG), heat capacity (Cp), isentropic index (γ)',
+              'Effect of fuel and oxidizer preheating on flame temperature',
+              'Pressure effects on equilibrium composition and temperature',
+              'Laminar flame speed and detonation velocity estimation',
             ],
           },
           {
             type: 'paragraph',
-            heading: 'Data Source',
-            text: 'Thermodynamic properties are based on NASA Glenn Research Center polynomial coefficients, the same data used by NASA CEA (Chemical Equilibrium with Applications).',
+            heading: 'NASA GRC Thermochemical Data and Calculation Methodology',
+            text: 'Thermodynamic properties are based on NASA Glenn Research Center polynomial coefficients, the same data used by NASA CEA (Chemical Equilibrium with Applications). The calculation employs the method of Gibbs free energy minimization to determine the equilibrium composition of combustion products at a given temperature and pressure. For each chemical species, the thermodynamic properties (enthalpy, entropy, and Gibbs free energy) are calculated using NASA\'s Shomate polynomial coefficients valid for temperatures from 298K to 6000K. The equilibrium solver uses a Lagrange multiplier approach to minimize the total Gibbs free energy subject to element conservation constraints (C, H, O, N balance). The calculation handles 20+ chemical species including stable molecules (CO₂, H₂O, N₂, O₂) and radical species (OH, O, H, NO, NO₂) that become significant at high temperatures.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Frozen vs Equilibrium Temperature',
+            text: 'The tool calculates two temperature values: (1) Frozen temperature: assumes no chemical dissociation — combustion products remain as CO₂, H₂O, N₂, and excess O₂ only. This represents the maximum possible temperature if no dissociation occurred. (2) Equilibrium temperature: accounts for thermal dissociation of combustion products into radicals (OH, O, H, NO) and partial products (CO, H₂). At temperatures above 1800°C, significant dissociation occurs, reducing the actual flame temperature by 100-400°C compared to the frozen calculation. The difference between these two values indicates the degree of dissociation and is critical for accurate NOx formation prediction since thermal NOx (Zeldovich mechanism) is highly temperature-dependent, increasing exponentially above 1500°C. This information helps engineers design staged combustion systems (primary zone rich, secondary zone lean) to control peak temperatures and minimize NOx emissions.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Applications in Combustion Engineering',
+            text: 'Flame temperature prediction is fundamental to multiple areas of combustion engineering: (1) Burner design: determines the required material temperature rating for combustion chamber liners, flame tubes, and nozzle rings. (2) Gas turbine design: the adiabatic flame temperature sets the upper limit for turbine inlet temperature (TIT), which directly affects engine efficiency and power output. Modern gas turbines operate at 1400-1600°C TIT, requiring advanced cooling techniques and thermal barrier coatings. (3) Furnace design: peak flame temperatures determine the selection of refractory materials for different furnace zones. (4) NOx control: thermal NOx formation rates can be estimated from peak flame temperature using the Zeldovich mechanism, enabling engineers to design low-NOx burners with staged combustion or flue gas recirculation (FGR). (5) Hydrogen combustion: the tool supports pure hydrogen fuel (100% H₂) for analyzing high-flame-temperature applications in emerging clean energy technologies. (6) Oxy-fuel combustion: the pure oxygen oxidizer mode supports calculations for oxy-fuel carbon capture and storage (CCS) processes.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Limitations and Engineering Considerations',
+            text: 'Results represent adiabatic flame temperature — the maximum theoretical temperature assuming no heat loss to surroundings. In real combustion systems, actual flame temperatures are 50-200°C lower due to radiation, convection, and conduction heat losses to the combustion chamber walls and heat exchangers. The tool does not model flame dynamics, mixing effects, or soot formation. For high-accuracy NOx prediction, computational fluid dynamics (CFD) simulation is recommended. Results should be validated against experimental data or manufacturer specifications before final engineering decisions. The calculation assumes ideal gas behavior and negligible pressure-volume work, which are valid assumptions for most combustion systems near atmospheric pressure.',
           },
         ]}
       />

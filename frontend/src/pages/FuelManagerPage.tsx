@@ -1782,24 +1782,51 @@ const LATENT_HEAT_WATER = 2.442
       <SeoContentSection
         ariaLabel="About Fuel Manager"
         title="Fuel Gas Properties Calculator"
-        intro="The Fuel Manager tool calculates thermodynamic properties of fuel gases and oils according to ISO 6976 (natural gas — calculation of calorific values, density, relative density and Wobbe index) and ASTM D4868 (standard test method for estimation of net and gross heat of combustion of burner and diesel fuels). This free online calculator is designed for combustion engineers, process engineers, and energy analysts who need accurate fuel property data for burner design and emission calculations."
+        intro="The Fuel Manager tool calculates thermodynamic properties of fuel gases and oils according to ISO 6976 (natural gas — calculation of calorific values, density, relative density and Wobbe index) and ASTM D4868 (standard test method for estimation of net and gross heat of combustion of burner and diesel fuels). This free online calculator is designed for combustion engineers, process engineers, and energy analysts who need accurate fuel property data for burner design and emission calculations. The tool supports 25+ gas presets from around the world including North Sea, Russian, Dutch natural gases, as well as coke oven gas, blast furnace gas, biogas, hydrogen, and common hydrocarbons. The combustion calculation mode determines flue gas composition, air requirements, and energy output for burner capacity sizing."
         blocks={[
           {
             type: 'list',
             heading: 'What You Can Calculate',
             items: [
-              'Gross and net calorific value (heating value) of natural gas mixtures',
-              'Wobbe index — critical for fuel interchangeability assessment',
-              'Gas density and relative density per ISO 6976',
-              'Gas compressibility factor at reference conditions',
-              'Fuel mixture properties for blended gases',
-              'Oil heating value per ASTM D4868',
+              'Gross and net calorific value (heating value) of natural gas mixtures per ISO 6976',
+              'Wobbe index — critical for fuel interchangeability and burner compatibility assessment',
+              'Gas density and relative density referenced to air per ISO 6976:2016',
+              'Gas compressibility factor at standard and reference conditions',
+              'Fuel mixture properties for blended gases (e.g., LNG + pipeline gas)',
+              'Oil heating value per ASTM D4868 using Kroschroeder and ASTM D4868 formulas',
+              'Combustion stoichiometry: minimum air requirement, flue gas volume, and composition',
+              'Burner capacity sizing from fuel consumption and lambda (excess air ratio)',
+              'Flue gas analysis including CO2, H2O, O2, N2 volume percentages',
+              'Annual fuel consumption estimation based on operating hours and load factor',
+            ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Fuel Property Calculation Methodology',
+            text: 'Calculations use the ISO 6976:2016 standard method for natural gas, which employs the summation of component properties mole-fraction weighted approach. Each gas component (CH4, C2H6, C3H8, N2, CO2, H2, CO, O2, etc.) contributes to the mixture properties based on its mole fraction. The gross calorific value (Hs) and net calorific value (Hi) are calculated from component contributions using the formula H = Σ(xi × Hi), where xi is the mole fraction of component i. Density follows the same additive principle: ρ = Σ(xi × ρi). The Wobbe index (Ws and Wi) is derived by dividing calorific value by the square root of relative density, providing a measure of fuel interchangeability for burner design. For liquid fuels, the ASTM D4868-17 method is used, which correlates heating value with density and elemental analysis (C, H, S, O, N, ash, moisture content). The Kroschroeder formula provides an alternative calculation based on carbon, hydrogen, and sulfur content percentages.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Combustion and Flue Gas Analysis',
+            text: 'The combustion calculation mode performs complete stoichiometric analysis of fuel oxidation. Based on the fuel composition and specified lambda (excess air ratio), the tool calculates the minimum stoichiometric air requirement (Lmin), actual air flow, and resulting flue gas composition. The flue gas analysis includes both dry-basis and wet-basis volume percentages of CO2, H2O, O2, and N2, as well as the total wet and dry flue gas volumes per unit of fuel. This is essential for heat exchanger design, stack sizing, and emission estimation. The density of the wet flue gas is also calculated for fan sizing and duct design. Results can be exported as a professional PDF report for engineering documentation and project handover.',
+          },
+          {
+            type: 'list',
+            heading: 'Industry Applications',
+            items: [
+              'Burner design and combustion chamber sizing for industrial furnaces and boilers',
+              'Fuel interchangeability studies when switching between gas suppliers or blending fuels',
+              'Pipeline gas quality assessment and Wobbe index compliance verification',
+              'LNG terminal operations and vaporization facility design',
+              'Emission reporting preparation by providing accurate fuel property data',
+              'Energy audit and efficiency studies for process heating systems',
+              'LPG/propane/butane system design and conversion projects',
             ],
           },
           {
             type: 'paragraph',
             heading: 'Standards & Compliance',
-            text: 'All calculations follow the formulas and methods specified in ISO 6976:2016 and ASTM D4868-17. Results are deterministic and traceable to the standard\'s equations, making them suitable for engineering documentation and compliance reporting.',
+            text: 'All calculations follow the formulas and methods specified in ISO 6976:2016 and ASTM D4868-17. Results are deterministic and traceable to the standards\' equations, making them suitable for engineering documentation and compliance reporting. The tool provides volume data in normal cubic meters (Nm³) at 0°C and 1.01325 bar per ISO 13443 reference conditions. For oil fuels, both gross (higher) and net (lower) heating values are provided in MJ/kg and MJ/m³, along with viscosity estimates in both Saybolt Seconds Universal (SSU) and centistokes (cSt) units. Professional engineering judgment should be applied when interpreting results for critical applications.',
           },
         ]}
       />

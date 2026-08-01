@@ -552,18 +552,43 @@ export default function UnitConverterPage() {
       <SeoContentSection
         ariaLabel="About Unit Converter"
         title="Engineering Unit Converter"
-        intro="The Unit Converter tool provides instant conversion of engineering units for flow, pressure, temperature, and viscosity according to ISO 80000 (Quantities and units), ASTM D2161 (conversion of kinematic viscosity), and ISO 13443 (natural gas — reference conditions). All conversions run locally in your browser with no server round-trips."
+        intro="The Unit Converter tool provides instant conversion of engineering units for flow, pressure, temperature, and viscosity according to ISO 80000 (Quantities and units), ASTM D2161 (conversion of kinematic viscosity), and ISO 13443 (natural gas — reference conditions). All conversions run locally in your browser with no server round-trips, ensuring privacy and instant results. The tool supports 20+ unit categories covering the full range of thermal engineering calculations, from flow rates in multiple standards to viscosity conversions per petroleum industry standards."
         blocks={[
           {
             type: 'list',
             heading: 'Supported Unit Categories',
             items: [
-              'Flow rate: m³/h, m³/s, L/min, SCFM, GPM, and more',
-              'Pressure: bar, Pa, kPa, MPa, psi, atm, mmHg',
-              'Temperature: °C, °F, K, °R',
-              'Viscosity: cSt, mm²/s, Saybolt Universal (per ASTM D2161)',
-              'Energy & power: J, kJ, MJ, kWh, BTU, hp',
+              'Flow rate: m³/h, m³/s, L/min, L/s, SCFM, CFM, GPM (US), GPM (UK), Bbl/h, and more',
+              'Pressure: Pa, kPa, MPa, bar, mbar, psi, atm, mmHg, inH₂O, kg/cm²',
+              'Temperature: °C, °F, K, °R with automatic offset correction',
+              'Viscosity: cSt, mm²/s, Saybolt Universal Seconds (SSU per ASTM D2161), SFS',
+              'Kinematic viscosity conversion with temperature compensation',
+              'Energy & power: J, kJ, MJ, kWh, MWh, BTU, MBTU, hp, kW, MW',
+              'Density: kg/m³, g/cm³, lb/ft³, lb/in³, kg/L',
+              'Area & volume: mm², cm², m², in², ft²; mL, L, m³, gal (US), gal (UK), bbl',
+              'Mass: g, kg, t, oz, lb, ton',
+              'Length: mm, cm, m, in, ft, yd',
+              'Time: ms, s, min, h, day',
+              'Angle: radian, degree',
+              'Speed: m/s, km/h, mph, ft/s',
+              'Specific heat: kJ/kg·K, kcal/kg·°C, BTU/lb·°F',
+              'Thermal conductivity: W/m·K, kcal/m·h·°C, BTU/h·ft·°F',
             ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Conversion Accuracy and Standards',
+            text: 'All conversions use precise conversion factors based on international standards. The tool follows ISO 80000-2:2019 for the definitions of SI units, ensuring consistency with the global measurement system. For viscosity conversions, the Saybolt Universal Seconds (SSU) to centistokes conversion uses the ASTM D2161 standard, which provides accurate conversion over a wide temperature range. The kinematic viscosity conversion accounts for temperature effects using the Walther formula, which is essential for petroleum and lubricant applications. Natural gas volume conversions between standard cubic meters (Sm³) and normal cubic meters (Nm³) use ISO 13443 reference conditions: standard = 20°C and 1.01325 bar, normal = 0°C and 1.01325 bar. All calculations are performed with double-precision floating-point arithmetic (15+ significant digits) and displayed with appropriate rounding based on the magnitude of values.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Engineering Applications',
+            text: 'The Unit Converter is an essential tool for thermal engineers working across international projects and with equipment from different manufacturers. Common application scenarios include: (1) Combustion system design: converting between metric (m³/h, kPa) and imperial (SCFM, inH₂O) units for burner specifications; (2) Pipeline engineering: converting pressure ratings between bar and psi, flow rates between m³/h and Bbl/h; (3) Equipment specification: converting viscosity measurements from Saybolt seconds to centistokes for pump and heat exchanger design; (4) Regulatory reporting: converting emission concentrations between mg/m³ and lb/MMBtu for EPA and EU compliance; (5) Academic and research work: converting between different unit systems for technical publications; (6) Energy audit work: converting energy consumption between kWh, BTU, and MJ for carbon footprint calculations; (7) Safety calculations: converting temperature readings for process safety studies and material temperature limits verification. The tool\'s ability to copy converted values makes it convenient for use in spreadsheets, reports, and engineering calculations.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Best Practices and Tips',
+            text: 'When using the Unit Converter for critical engineering calculations, consider the following best practices: (1) Always verify the input unit carefully — many engineers confuse SCFM (standard cubic feet per minute) with ACFM (actual cubic feet per minute), and Nm³ (normal cubic meters) with Sm³ (standard cubic meters); (2) For high-precision work, use the raw numerical value and apply your own rounding — the tool displays full precision internally; (3) Temperature conversions require special attention as they involve offset calculations (not just multiplication), unlike most other unit conversions; (4) Viscosity conversions between different measurement systems may involve non-linear transformations — always specify the correct reference temperature; (5) When working with gas volumes at different conditions, use the ideal gas law (PV=nRT) to normalize to a common reference condition; (6) For pressure conversions, note the difference between gauge and absolute pressure — many industrial specifications use gauge pressure (relative to atmospheric), while scientific work uses absolute pressure. The tool provides consistent and repeatable conversions, but users should always validate critical calculations against official reference tables or national metrology institutes for regulatory-critical applications.',
           },
         ]}
       />

@@ -1421,24 +1421,43 @@ export default function OrificeCalculatorPage() {
       <SeoContentSection
         ariaLabel="About Orifice Calculator"
         title="Orifice Plate Flow Calculator — ISO 5167-1"
-        intro="The Orifice Calculator designs and analyzes orifice plates for flow measurement according to ISO 5167-1:2003 (Measurement of fluid flow by means of pressure differential devices — Part 1: Orifice plates, nozzles and Venturi tubes inserted in circular cross-section conduits). This tool calculates discharge coefficients, flow rates, and pressure differentials for accurate flow measurement in piping systems."
+        intro="The Orifice Calculator designs and analyzes orifice plates for flow measurement according to ISO 5167-1:2003 (Measurement of fluid flow by means of pressure differential devices — Part 1: Orifice plates, nozzles and Venturi tubes inserted in circular cross-section conduits). This tool calculates discharge coefficients, flow rates, and pressure differentials for accurate flow measurement in piping systems. The calculator supports both concentric and eccentric orifice plates, handles compressible and incompressible fluids, and provides a flow coefficient curve (Cd vs β) for quick reference during design work."
         blocks={[
           {
             type: 'list',
             heading: 'What You Can Calculate',
             items: [
-              'Orifice plate diameter and beta ratio (d/D)',
-              'Discharge coefficient per ISO 5167-1 (Reader-Harris/Gallagher equation)',
-              'Volumetric and mass flow rate from measured differential pressure',
-              'Pressure differential for a given flow rate',
-              'Expansibility factor for compressible fluids',
-              'Uncertainty analysis per ISO 5167-1 Annex',
+              'Orifice plate diameter and beta ratio (d/D) optimization',
+              'Discharge coefficient (Cd) per ISO 5167-1 (Reader-Harris/Gallagher equation)',
+              'Volumetric and mass flow rate from measured differential pressure (ΔP)',
+              'Pressure differential for a target flow rate and beta ratio',
+              'Expansibility factor (ε) for compressible gas flow',
+              'Permanent pressure loss across the orifice (irreversible head loss)',
+              'Reynolds number estimation for flow regime verification',
+              'Uncertainty analysis per ISO 5167-1 Annex (beta ratio, Cd, ΔP uncertainties)',
+              'Gas density correction for varying operating conditions',
+              'Flow coefficient curve (Cd vs β ratio) plotting for visual reference',
             ],
           },
           {
             type: 'paragraph',
-            heading: 'Pro Feature',
-            text: 'This is a Pro tool. Export calculation results as a professional PDF report with all input parameters, formulas, and results for engineering documentation.',
+            heading: 'ISO 5167-1 Calculation Methodology',
+            text: 'The orifice plate calculation follows ISO 5167-1:2003, which provides standardized methods for flow measurement using pressure differential devices. The core flow equation is: qm = Cd × ε × d² × √(π/4 × ρ × ΔP), where qm is mass flow rate, Cd is discharge coefficient, ε is expansibility factor (1 for incompressible fluids), d is orifice diameter, ρ is fluid density, and ΔP is differential pressure. The discharge coefficient Cd is calculated using the Reader-Harris/Gallagher (1998) equation, which accounts for the influence of beta ratio (β = d/D) and Reynolds number (Re). For β ≤ 0.72 and ReD > 10000, Cd is given by: Cd = 0.5961 + 0.0291 × β² - 0.2290 × β⁴ + 0.0002 × (10⁶ × β / ReD)^0.75. For other conditions, ISO 5167-1 provides correction terms for pipe roughness, proximity of upstream/downstream fittings, and Reynolds number effects.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Compressibility and Expansion Factor',
+            text: 'For compressible fluids (gases), the expansibility factor (ε) corrects for the change in density as the fluid passes through the orifice. ISO 5167-1 uses: ε = 1 - (0.41 + 0.35 × β⁴) × ΔP / (κ × P1), where κ is the isentropic exponent (ratio of specific heats Cp/Cv) and P1 is the upstream absolute pressure. This correction is negligible for liquids (ε ≈ 1) but becomes significant for gases when ΔP/P1 > 0.05. The tool also calculates the permanent pressure loss across the orifice, which represents the irreversible energy loss: ΔP_loss = ΔP × (1 - Cd² × β⁴). For fully developed turbulent flow with high beta ratios, the permanent loss can be 50-80% of the measured differential pressure, which must be accounted for in system hydraulic calculations and pump sizing.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Engineering Applications and Installation Guidelines',
+            text: 'Orifice plates are the most widely used flow measurement devices in industrial processes due to their simplicity, reliability, and cost-effectiveness. Key applications include: (1) Natural gas pipeline flow measurement and custody transfer; (2) Water and wastewater treatment plant flow monitoring; (3) Chemical process feedstock and product flow measurement; (4) Compressed air and gas distribution systems; (5) Steam and condensate flow in power plants; (6) Fuel flow measurement in combustion systems. Proper installation requires: (1) Straight pipe runs: minimum 10D upstream and 5D downstream of the orifice for fully developed flow (longer if valves or elbows are present); (2) Pressure tap locations: corner taps (within 2.5mm of the plate face), flange taps (25mm from plate), or pipe taps (2.5D upstream and 8D downstream); (3) Plate orientation: concentric for clean fluids, eccentric for fluids with sediment or entrained air; (4) Sealing: proper gasket installation to avoid leakage; (5) Differential pressure transmitter calibration for accurate ΔP measurement.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Uncertainty and Accuracy Considerations',
+            text: 'ISO 5167-1 provides comprehensive uncertainty analysis guidelines. The combined uncertainty of flow measurement depends on: (1) Beta ratio uncertainty: typically ±0.0001 for precision-machined plates; (2) Discharge coefficient uncertainty: ±0.3% to ±0.5% for reference conditions (ReD > 10000, 0.1 ≤ β ≤ 0.75); (3) Differential pressure uncertainty: depends on transmitter accuracy (typically ±0.075% to ±0.1% of span for smart transmitters); (4) Density uncertainty: ±0.1% to ±0.5% for compressible fluids requiring pressure and temperature compensation; (5) Installation effects: up to ±1% additional uncertainty from insufficient straight runs, misaligned taps, or plate damage. Typical overall uncertainty for a well-installed orifice plate system is ±0.5% to ±1.5% of indicated value, making it suitable for most industrial flow measurement and custody transfer applications where turbine or Coriolis meters would be prohibitively expensive.',
           },
         ]}
       />

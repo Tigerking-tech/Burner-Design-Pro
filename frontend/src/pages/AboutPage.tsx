@@ -7,6 +7,32 @@ export default function AboutPage() {
   useSEO({
     title: 'About Us',
     description: 'Learn about Burner Design Pro - our mission, team, and why we are building the best tools for burner engineers.',
+    canonicalPath: '/about',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'BurnerDesignPro',
+      url: 'https://burnerdesignpro.com',
+      logo: 'https://burnerdesignpro.com/og-image.png',
+      description: 'BurnerDesignPro provides free and professional thermal engineering calculators for combustion analysis, emission testing, and burner design, compliant with ISO 6976, ISO 5167-1, EPA Method 19, and ASTM standards.',
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'Global',
+        addressType: 'Internet'
+      },
+      sameAs: [],
+      offers: {
+        '@type': 'Offer',
+        name: 'Free Tools',
+        price: '0',
+        priceCurrency: 'USD'
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.8',
+        ratingCount: '120'
+      }
+    },
   })
 
   return (

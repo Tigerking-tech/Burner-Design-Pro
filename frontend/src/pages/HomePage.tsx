@@ -261,16 +261,16 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                <span className="text-white">Precision</span>
-                <br />
                 <span className="bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-                  Thermal Engineering
+                  BurnerDesignPro
                 </span>
+                <br />
+                <span className="text-white">Free Thermal Engineering Calculator</span>
               </h1>
 
               <p className="text-lg text-blue-100/80 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Deterministic combustion calculations, emission analysis, and unit conversion.
-                Built for engineers who demand accuracy — no approximations, no compromises.
+                Combustion, emission analysis, flow calculation & insulation — ISO, EPA & ASTM compliant.
+                Built for engineers who demand accuracy, no approximations, no compromises.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">

@@ -814,24 +814,42 @@ export default function EmissionPage() {
       <SeoContentSection
         ariaLabel="About Emission Analysis"
         title="Combustion Emission Calculator"
-        intro="The Emission Analysis tool calculates combustion emissions including NOx, CO, CO₂, and SO₂ based on EPA Method 19 (determination of sulfur dioxide removal efficiency and particulate matter emission rate), IPCC 2006 Guidelines for national greenhouse gas inventories, and EU IED 2010/75/EU (Industrial Emissions Directive). This tool is built for environmental engineers and plant operators who need compliant emission rate calculations for regulatory reporting."
+        intro="The Emission Analysis tool calculates combustion emissions including NOx, CO, CO₂, and SO₂ based on EPA Method 19 (determination of sulfur dioxide removal efficiency and particulate matter emission rate), IPCC 2006 Guidelines for national greenhouse gas inventories, and EU IED 2010/75/EU (Industrial Emissions Directive). This tool is built for environmental engineers and plant operators who need compliant emission rate calculations for regulatory reporting. The tool supports conversion between multiple concentration units (ppm, mg/m³, lb/MMBtu) with automatic O₂ correction to reference oxygen levels, and provides annual emission estimations based on flue gas flow rate, operating hours, and load factor."
         blocks={[
           {
             type: 'list',
             heading: 'What You Can Calculate',
             items: [
-              'NOx emission rates (as NO₂) per EPA Method 19',
-              'CO and CO₂ emission rates from fuel combustion',
-              'SO₂ emissions based on fuel sulfur content',
-              'Greenhouse gas inventory data per IPCC 2006',
-              'Emission factors for compliance with EU IED',
-              'Mass-based and heat-input-based emission rates',
+              'NOx emission rates (as NO₂) per EPA Method 19 with O₂ correction',
+              'CO and CO₂ emission rates from fuel combustion in multiple units',
+              'SO₂ emissions based on fuel sulfur content and flue gas measurements',
+              'Greenhouse gas inventory data per IPCC 2006 Guidelines Vol. 2 Energy',
+              'Emission factors for compliance with EU IED 2010/75/EU',
+              'Mass-based (kg/h, tons/year) and heat-input-based (lb/MMBtu) emission rates',
+              'Compliance check against EPA 40 CFR Part 60 and EU IED emission limits',
+              'Annual, monthly, and hourly emission estimates for sustainability reporting',
+              'Multi-pollutant emission summary tables for environmental impact assessment',
             ],
           },
           {
             type: 'paragraph',
+            heading: 'EPA Method 19 Calculation Methodology',
+            text: 'EPA Method 19 is the primary U.S. standard for calculating emission rates from stationary combustion sources. The method uses the following calculation principles: (1) O₂ correction: measured pollutant concentrations are corrected to a reference oxygen level (typically 3% O₂ for most combustion sources) to normalize for varying excess air levels. The correction formula is C_corrected = C_measured × (20.9 - O₂_ref) / (20.9 - O₂_measured). (2) Unit conversion: concentrations are converted between ppm, mg/m³, and lb/MMBtu using molecular weights, the ideal gas volume (22.4 L/mol at standard conditions), and EPA\'s FD factor (heat input conversion factor) and K factor (conversion factor for specific pollutants). (3) Mass emission calculation: Emission rate (kg/h) = Concentration (mg/m³) × Flue Gas Flow (m³/h) × 10⁻⁶. The FD factor varies by fuel type: natural gas uses 8710, diesel and heavy oil use 9190, and coal uses 9780 kg/MMBtu.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'IPCC 2006 Guidelines and EU IED Compliance',
+            text: 'The Intergovernmental Panel on Climate Change (IPCC) 2006 Guidelines provide the international standard for national greenhouse gas inventory reporting. Volume 2 (Energy) specifically covers stationary combustion emissions using the Tier 1 method, which uses default emission factors per fuel type. For NOx and CO, the tool calculates both mass-based and heat-input-based rates following IPCC guidance. The EU Industrial Emissions Directive (2010/75/EU) establishes emission limit values (ELVs) for large combustion plants. The tool checks compliance against EU ELVs for natural gas (200 mg/m³ NOx, 150 mg/m³ CO at 3% O₂), heavy oil (450 mg/m³ NOx, 150 mg/m³ CO), and solid fuels (650 mg/m³ NOx, 200 mg/m³ CO at 6% O₂). These limits must be met for plants above certain capacity thresholds, with stricter requirements for new installations.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Annual Emission Estimation and Applications',
+            text: 'The annual emission calculation is essential for environmental reporting, carbon footprint accounting, and regulatory compliance. The formula for annual emissions is: Annual Emission (tons) = Concentration (mg/m³) × Flue Gas Flow (m³/h) × Operating Hours (h) × Load Factor × 10⁻⁹. The load factor accounts for the actual operating load as a fraction of maximum capacity. Typical annual operating hours for continuous processes range from 7,000 to 8,760 hours (80-100% utilization). Results can be used for: (1) EPA Annual Report (Form 2) submissions, (2) EU ETS (Emissions Trading Scheme) monitoring plans, (3) IPCC national inventory reports, (4) corporate sustainability reports (GRI, CDP), (5) environmental impact assessments (EIA) for new projects, and (6) emission reduction target setting and tracking.',
+          },
+          {
+            type: 'paragraph',
             heading: 'Standards & Compliance',
-            text: 'Calculations follow 40 CFR Part 60 (EPA Method 19), IPCC 2006 Vol. 2 Energy, and EU Directive 2010/75/EU. Results can be exported as PDF compliance reports with Pro plan.',
+            text: 'Calculations follow 40 CFR Part 60 (EPA Method 19), IPCC 2006 Vol. 2 Energy, and EU Directive 2010/75/EU. Results can be exported as PDF compliance reports with Pro plan. The tool provides reference values and formulas for each calculation step, allowing engineers to trace results back to standard methods. Compliance limits are based on typical regulatory thresholds; actual applicable limits should be verified with local regulatory authorities. Professional environmental engineering judgment is required for interpretation and regulatory submission.',
           },
         ]}
       />

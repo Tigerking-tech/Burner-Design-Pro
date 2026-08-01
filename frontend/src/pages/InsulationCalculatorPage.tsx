@@ -1909,18 +1909,43 @@ function InsulationCalculatorPage() {
       <SeoContentSection
         ariaLabel="About Insulation Calculator"
         title="Pipe Insulation Thickness Calculator"
-        intro="The Insulation Calculator determines optimal insulation thickness for pipes and flat surfaces according to ISO 12241 (Thermal insulation for building and industrial installations) and ASTM C680 (standard practice for estimate of the heat gain or loss and the surface temperatures of insulated flat and cylindrical systems). This Pro tool helps engineers optimize thermal insulation for energy efficiency, personnel protection, and process temperature control."
+        intro="The Insulation Calculator determines optimal insulation thickness for pipes and flat surfaces according to ISO 12241 (Thermal insulation for building and industrial installations) and ASTM C680 (standard practice for estimate of the heat gain or loss and the surface temperatures of insulated flat and cylindrical systems). This Pro tool helps engineers optimize thermal insulation for energy efficiency, personnel protection, and process temperature control. The calculator supports 14 insulation material types including mineral wool, glass wool, calcium silicate, polyurethane, polyisocyanurate, phenolic foam, cellular glass, vermiculite, perlite, ceramic fiber, aerogel, fiberglass, foam glass, and elastomeric foam, with a custom material option for proprietary specifications."
         blocks={[
           {
             type: 'list',
             heading: 'What You Can Calculate',
             items: [
-              'Optimal insulation thickness for pipes (cylindrical geometry)',
-              'Insulation thickness for flat surfaces (planar geometry)',
-              'Heat loss/gain per unit length or area',
-              'Surface temperature for personnel safety assessment',
-              'Multi-layer insulation system analysis',
+              'Optimal insulation thickness for pipes (cylindrical geometry) per ISO 12241',
+              'Insulation thickness for flat surfaces (planar geometry) per ASTM C680',
+              'Heat loss/gain per unit length (W/m) or per unit area (W/m²)',
+              'Surface temperature for personnel safety assessment (prevents burns)',
+              'Multi-layer insulation system analysis with different materials',
+              'Condensation risk analysis and dew point temperature calculation',
+              'Annual heat loss and energy cost estimation',
+              'CO₂ emission reduction from insulation energy savings',
+              'Freeze protection analysis for cold weather applications',
+              'Economic thickness optimization (minimum total cost over lifetime)',
             ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Calculation Methodology and Standards',
+            text: 'The insulation calculation uses the ISO 12241:2019 standard method for cylindrical geometry and ASTM C680-19 for flat surfaces. The heat transfer calculation follows the principles of heat conduction through composite materials: for flat surfaces, Q = k × A × ΔT / d (where k is thermal conductivity, A is area, ΔT is temperature difference, and d is insulation thickness); for cylindrical pipes, the calculation accounts for the logarithmic temperature distribution: Q = 2π × k × L × (T1 - T2) / ln(r2/r1), where r1 and r2 are the inner and outer radii of the insulation. Each insulation material has specific thermal conductivity (k-value) that varies with temperature, and the tool uses the mean temperature for property evaluation per the standards. The user can specify operating temperature, ambient temperature, surface orientation (horizontal, vertical), and environmental conditions (indoor, outdoor calm, outdoor moderate, outdoor strong wind).',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Insulation Material Selection Guide',
+            text: 'The tool supports 14 insulation material types, each with different temperature limits, thermal conductivities, and applications: Mineral wool (rock/slag wool): excellent fire resistance (up to 650°C), suitable for high-temperature industrial applications; Glass wool: good thermal performance (up to 450°C), cost-effective for building and process piping; Calcium silicate: rigid board material (up to 1000°C), used in furnace and boiler insulation; Polyurethane (PUR): low-temperature applications (below 110°C), excellent for refrigeration; Polyisocyanurate (PIR): higher temperature rating (up to 150°C), common in HVAC; Phenolic foam: fire-resistant (up to 120°C), used in aircraft and marine; Cellular glass: impervious to moisture (up to 450°C), ideal for cryogenic applications; Aerogel: ultra-high performance (up to 650°C), used in space and high-value applications; Ceramic fiber: ultra-high temperature (up to 1400°C), for furnace linings; Elastomeric foam: flexible, moisture-resistant (up to 110°C), for HVAC and refrigeration. Custom material option allows entering user-specified thermal conductivity and maximum temperature limits.',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Energy Savings and Emission Reduction',
+            text: 'Proper thermal insulation is one of the most cost-effective energy efficiency measures in industry. The tool calculates annual heat loss (in kWh/m or MWh/m for pipes, kWh/m² for flat surfaces) and estimates the annual energy cost savings based on user-specified fuel type (electricity, natural gas, steam, hot water, or oil) and unit energy price. CO₂ emission reductions are calculated using standard emission factors: natural gas = 0.186 tCO₂/MWh, oil = 0.268 tCO₂/MWh, electricity = 0.407 tCO₂/MWh (grid average). Payback period analysis helps determine the economic feasibility of insulation investments. Typical industrial insulation projects achieve energy savings of 10-30% with payback periods of 1-3 years. The tool also calculates the insulation thickness required to prevent condensation (surface temperature must remain above dew point) and freeze protection (maintain temperature above 0°C for water-containing pipes).',
+          },
+          {
+            type: 'paragraph',
+            heading: 'Standards & Safety Considerations',
+            text: 'All calculations follow ISO 12241:2019 and ASTM C680-19 methodologies. Surface temperature calculations are essential for personnel safety: hot surfaces above 70°C can cause burns, and the tool flags surfaces exceeding 60°C with appropriate warnings. Outdoor installation wind conditions affect convective heat loss coefficients (moderate wind = 12 W/m²·K, strong wind = 25 W/m²·K), significantly affecting required insulation thickness. Results are for thermal analysis only; structural design considerations (weight support, vibration resistance, fire rating) should be addressed separately. Professional engineering consultation is recommended for critical applications including high-temperature processes, cryogenic systems, and outdoor installations with extreme weather conditions.',
           },
         ]}
       />
