@@ -45,6 +45,7 @@ export default function AccountPage() {
   const [deletePassword, setDeletePassword] = useState("")
   const [deletingAccount, setDeletingAccount] = useState(false)
   const [removingDevice, setRemovingDevice] = useState<string | null>(null)
+  const [confirmingDevice, setConfirmingDevice] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authAPI.isAuthenticated()) {
@@ -294,14 +295,12 @@ export default function AccountPage() {
   }
 
   const handleRemoveDevice = async (deviceId: string) => {
-    if (!confirm("Are you sure you want to remove this device? You will receive an email notification if it logs in again.")) {
-      return
-    }
+    setConfirmingDevice(null)
     setRemovingDevice(deviceId)
     try {
       const result = await authAPI.removeTrustedDevice(deviceId)
       setSuccess(result.message)
-      setTrustedDevices(trustedDevices.filter(d => d.id !== deviceId))
+      setTrustedDevices(prev => prev.filter(d => d.id !== deviceId))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove device")
     } finally {
@@ -499,13 +498,32 @@ export default function AccountPage() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleRemoveDevice(device.id)}
-                      disabled={removingDevice === device.id}
-                      className="px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-500/10 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                    >
-                      {removingDevice === device.id ? 'Removing...' : 'Remove'}
-                    </button>
+                    {confirmingDevice === device.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-amber-600 dark:text-amber-400">Remove?</span>
+                        <button
+                          onClick={() => handleRemoveDevice(device.id)}
+                          disabled={removingDevice === device.id}
+                          className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          {removingDevice === device.id ? 'Removing...' : 'Yes'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmingDevice(null)}
+                          className="px-2.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmingDevice(device.id)}
+                        disabled={removingDevice === device.id}
+                        className="px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-500/10 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        {removingDevice === device.id ? 'Removing...' : 'Remove'}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
