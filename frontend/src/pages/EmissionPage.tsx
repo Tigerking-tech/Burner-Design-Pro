@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, Download } from 'lucide-react'
 import { jsPDF } from 'jspdf'
 import { Navbar } from '../components/Navbar'
+import SeoContentSection from '../components/SeoContentSection'
+import { useSEO } from '../hooks/useSEO'
 import {
   addCoverPage,
   drawPageHeader,
@@ -178,6 +180,23 @@ const formatNumber = (num: number, decimals: number = 2) => {
 };
 
 export default function EmissionPage() {
+  useSEO({
+    title: 'Emission Calculator — NOx, CO, CO₂, SO₂ | EPA Method 19',
+    description:
+      'Calculate combustion emissions per EPA Method 19, IPCC 2006 & EU IED. Free online emission analysis tool for compliance reporting.',
+    canonicalPath: '/emission',
+    ogTitle: 'Emission Calculator | EPA Method 19',
+    ogDescription:
+      'Calculate NOx, CO, CO₂, SO₂ emissions per EPA Method 19 & EU IED for compliance reporting.',
+    jsonLd: {
+      name: 'Emission Analysis — NOx, CO, CO₂, SO₂ Calculator',
+      url: 'https://burnerdesignpro.com/emission',
+      description:
+        'Calculate combustion emissions per EPA Method 19, IPCC 2006 & EU IED for compliance reporting.',
+      offers: { price: '0', priceCurrency: 'USD' },
+    },
+  })
+
   const [pollutant, setPollutant] = useState('NOx')
   const [value, setValue] = useState('100')
   const [fromUnit, setFromUnit] = useState('ppm')
@@ -791,6 +810,31 @@ export default function EmissionPage() {
           </div>
         </div>
       </div>
+
+      <SeoContentSection
+        ariaLabel="About Emission Analysis"
+        title="Combustion Emission Calculator"
+        intro="The Emission Analysis tool calculates combustion emissions including NOx, CO, CO₂, and SO₂ based on EPA Method 19 (determination of sulfur dioxide removal efficiency and particulate matter emission rate), IPCC 2006 Guidelines for national greenhouse gas inventories, and EU IED 2010/75/EU (Industrial Emissions Directive). This tool is built for environmental engineers and plant operators who need compliant emission rate calculations for regulatory reporting."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'What You Can Calculate',
+            items: [
+              'NOx emission rates (as NO₂) per EPA Method 19',
+              'CO and CO₂ emission rates from fuel combustion',
+              'SO₂ emissions based on fuel sulfur content',
+              'Greenhouse gas inventory data per IPCC 2006',
+              'Emission factors for compliance with EU IED',
+              'Mass-based and heat-input-based emission rates',
+            ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Standards & Compliance',
+            text: 'Calculations follow 40 CFR Part 60 (EPA Method 19), IPCC 2006 Vol. 2 Energy, and EU Directive 2010/75/EU. Results can be exported as PDF compliance reports with Pro plan.',
+          },
+        ]}
+      />
     </div>
   );
 }

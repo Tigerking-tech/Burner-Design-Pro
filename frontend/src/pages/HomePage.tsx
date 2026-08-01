@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
+import { useSEO } from '../hooks/useSEO'
 import { Navbar } from '../components/Navbar'
 import {
   Leaf,
@@ -180,6 +181,39 @@ const testimonials = [
 export default function HomePage() {
   const navigate = useNavigate()
   const isLoggedIn = authAPI.isAuthenticated()
+
+  useSEO({
+    canonicalPath: '/',
+    jsonLd: {
+      name: 'BurnerDesignPro',
+      url: 'https://burnerdesignpro.com',
+      description:
+        'Free online thermal engineering calculator with ISO, EPA and ASTM compliant combustion, emission, and flow calculations.',
+      browserRequirements: 'Requires JavaScript',
+      offers: [
+        {
+          name: 'Free Plan',
+          price: '0',
+          priceCurrency: 'USD',
+          description: '20 calculations per month with basic tools',
+        },
+        {
+          name: 'Pro Plan',
+          price: '19',
+          priceCurrency: 'USD',
+          description: 'Unlimited calculations, all tools, PDF report export',
+        },
+      ],
+      featureList: [
+        'Fuel Manager (ISO 6976, ASTM D4868)',
+        'Emission Analysis (EPA Method 19, IPCC 2006, EU IED)',
+        'Unit Converter (ISO 80000)',
+        'Orifice Calculator (ISO 5167-1)',
+        'Flame Temperature Calculator (NASA GRC)',
+        'Insulation Calculator (ISO 12241, ASTM C680)',
+      ],
+    },
+  })
 
   const handleStartFreeClick = (e: React.MouseEvent) => {
     if (isLoggedIn) {

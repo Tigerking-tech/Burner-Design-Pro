@@ -5,6 +5,8 @@ import { Download } from 'lucide-react'
 
 import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
+import SeoContentSection from '../components/SeoContentSection'
+import { useSEO } from '../hooks/useSEO'
 
 import { Cylinder, Square, BrickWall, AlertTriangle, Thermometer, Droplets, Zap, Snowflake, Settings, Layers, ThermometerSun, Wind, Clock, ChevronDown, ChevronUp, Cloud, Calculator } from 'lucide-react'
 import {
@@ -135,6 +137,21 @@ const pipeWallThicknessStd: Record<string, number> = {
 }
 
 function InsulationCalculatorPage() {
+  useSEO({
+    title: 'Pipe Insulation Thickness Calculator | ISO 12241 & ASTM C680',
+    description:
+      'Calculate optimal insulation thickness for pipes and flat surfaces per ISO 12241 & ASTM C680. Free online tool.',
+    canonicalPath: '/insulation-calculator',
+    ogTitle: 'Insulation Thickness Calculator',
+    ogDescription: 'Calculate insulation per ISO 12241 & ASTM C680 for pipes and flat surfaces.',
+    jsonLd: {
+      name: 'Insulation Thickness Calculator — ISO 12241 & ASTM C680',
+      url: 'https://burnerdesignpro.com/insulation-calculator',
+      description:
+        'Calculate optimal insulation thickness for pipes and flat surfaces per ISO 12241 & ASTM C680.',
+      offers: { price: '19', priceCurrency: 'USD' },
+    },
+  })
   const { requirePro, modal } = useProAccess(
     'Insulation Thickness Calculator',
     'Subscribe to Pro to calculate insulation thickness and export PDF reports.',
@@ -1888,6 +1905,25 @@ function InsulationCalculatorPage() {
           </div>
         </div>
       </div>
+
+      <SeoContentSection
+        ariaLabel="About Insulation Calculator"
+        title="Pipe Insulation Thickness Calculator"
+        intro="The Insulation Calculator determines optimal insulation thickness for pipes and flat surfaces according to ISO 12241 (Thermal insulation for building and industrial installations) and ASTM C680 (standard practice for estimate of the heat gain or loss and the surface temperatures of insulated flat and cylindrical systems). This Pro tool helps engineers optimize thermal insulation for energy efficiency, personnel protection, and process temperature control."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'What You Can Calculate',
+            items: [
+              'Optimal insulation thickness for pipes (cylindrical geometry)',
+              'Insulation thickness for flat surfaces (planar geometry)',
+              'Heat loss/gain per unit length or area',
+              'Surface temperature for personnel safety assessment',
+              'Multi-layer insulation system analysis',
+            ],
+          },
+        ]}
+      />
 
       {modal}
     </ProGuard>

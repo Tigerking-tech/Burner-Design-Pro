@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import SeoContentSection from '../components/SeoContentSection';
+import { useSEO } from '../hooks/useSEO';
 import { usePersistentState } from '../hooks/usePersistentState';
 
 const UNITS = {
@@ -295,6 +297,23 @@ const formatNumber = (num: number): string => {
 };
 
 export default function UnitConverterPage() {
+  useSEO({
+    title: 'Engineering Unit Converter | Flow, Pressure, Temperature',
+    description:
+      'Convert flow, pressure, temperature & viscosity units per ISO 80000, ASTM D2161 & ISO 13443. Free, instant, browser-based.',
+    canonicalPath: '/unit-converter',
+    ogTitle: 'Engineering Unit Converter',
+    ogDescription:
+      'Convert flow, pressure, temperature units per ISO 80000. Free, instant, browser-based.',
+    jsonLd: {
+      name: 'Engineering Unit Converter',
+      url: 'https://burnerdesignpro.com/unit-converter',
+      description:
+        'Convert flow, pressure, temperature & viscosity units per ISO 80000, ASTM D2161 & ISO 13443.',
+      offers: { price: '0', priceCurrency: 'USD' },
+    },
+  })
+
   const [category, setCategory] = usePersistentState<string>("unitconverter_category", "Pressure");
   const [value, setValue] = usePersistentState<string>("unitconverter_value", "1");
   const [fromUnit, setFromUnit] = usePersistentState<string>("unitconverter_fromUnit", "kPa");
@@ -530,7 +549,24 @@ export default function UnitConverterPage() {
         </div>
       </div>
 
-
+      <SeoContentSection
+        ariaLabel="About Unit Converter"
+        title="Engineering Unit Converter"
+        intro="The Unit Converter tool provides instant conversion of engineering units for flow, pressure, temperature, and viscosity according to ISO 80000 (Quantities and units), ASTM D2161 (conversion of kinematic viscosity), and ISO 13443 (natural gas — reference conditions). All conversions run locally in your browser with no server round-trips."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'Supported Unit Categories',
+            items: [
+              'Flow rate: m³/h, m³/s, L/min, SCFM, GPM, and more',
+              'Pressure: bar, Pa, kPa, MPa, psi, atm, mmHg',
+              'Temperature: °C, °F, K, °R',
+              'Viscosity: cSt, mm²/s, Saybolt Universal (per ASTM D2161)',
+              'Energy & power: J, kJ, MJ, kWh, BTU, hp',
+            ],
+          },
+        ]}
+      />
     </div>
   );
 }

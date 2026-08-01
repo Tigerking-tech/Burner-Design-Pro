@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
+import SeoContentSection from '../components/SeoContentSection'
+import { useSEO } from '../hooks/useSEO'
 import GasComposition, { GasComponent, GasPreset, defaultGasComponents } from '../components/GasComposition'
 
 import { Thermometer, AlertTriangle, Download, Zap, Flame } from 'lucide-react'
@@ -482,6 +484,22 @@ function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0, P: nu
 }
 
 export default function FlameTemperaturePage() {
+  useSEO({
+    title: 'Flame Temperature Calculator | NASA GRC Data',
+    description:
+      'Calculate adiabatic flame temperature per NASA GRC thermochemical data & Gibbs equilibrium minimization. Professional engineering tool.',
+    canonicalPath: '/flame-temperature',
+    ogTitle: 'Flame Temperature Calculator',
+    ogDescription: 'Calculate flame temperature per NASA GRC thermochemical data & Gibbs equilibrium.',
+    jsonLd: {
+      name: 'Flame Temperature Calculator — NASA GRC',
+      url: 'https://burnerdesignpro.com/flame-temperature',
+      description:
+        'Calculate flame temperature per NASA GRC thermochemical data & Gibbs equilibrium minimization.',
+      offers: { price: '19', priceCurrency: 'USD' },
+    },
+  })
+
   const { requirePro, modal } = useProAccess(
     'Flame Temperature Calculator',
     'Subscribe to Pro to calculate flame temperatures and export PDF reports.',
@@ -1050,6 +1068,29 @@ export default function FlameTemperaturePage() {
           </div>
         </div>
       </div>
+
+      <SeoContentSection
+        ariaLabel="About Flame Temperature Calculator"
+        title="Adiabatic Flame Temperature Calculator"
+        intro="The Flame Temperature tool calculates adiabatic flame temperature using NASA GRC thermochemical data and Gibbs free energy minimization for equilibrium composition. This Pro tool is essential for combustion engineers designing burners, furnaces, and gas turbines who need to predict peak flame temperatures for material selection and NOx formation analysis."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'What You Can Calculate',
+            items: [
+              'Adiabatic flame temperature for various fuels (natural gas, oil, hydrogen, etc.)',
+              'Equilibrium combustion product composition',
+              'Effect of excess air / equivalence ratio on flame temperature',
+              'Dissociation effects at high temperatures',
+            ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Data Source',
+            text: 'Thermodynamic properties are based on NASA Glenn Research Center polynomial coefficients, the same data used by NASA CEA (Chemical Equilibrium with Applications).',
+          },
+        ]}
+      />
 
       {modal}
     </ProGuard>

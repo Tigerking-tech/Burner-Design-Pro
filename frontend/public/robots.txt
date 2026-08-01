@@ -1,9 +1,14 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://burnerdesignpro.com/sitemap.xml
-
-# Disallow admin and internal pages
+# Disallow private / user-only pages
+Disallow: /api/
 Disallow: /admin
 Disallow: /account
 Disallow: /verify-email
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /subscription/success
+
+# Sitemap
+Sitemap: https://burnerdesignpro.com/sitemap.xml

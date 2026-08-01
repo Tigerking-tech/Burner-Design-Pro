@@ -42,8 +42,13 @@ interface Subscription {
 
 const SubscriptionPage: React.FC = () => {
   useSEO({
-    title: 'Pricing & Subscription',
-    description: 'Choose the perfect plan for your burner design needs. Start free, upgrade to Pro for unlimited calculations, PDF export, and advanced tools.',
+    title: 'Pricing | Free & Pro Plans | Engineering Calculator',
+    description:
+      'Start free with 20 calculations per month. Pro plan at $19/mo for unlimited calculations, PDF reports, and compliance exports.',
+    canonicalPath: '/subscription',
+    ogTitle: 'Pricing | Free & Pro Plans | BurnerDesignPro',
+    ogDescription:
+      'Free plan with 20 calculations/month. Pro plan $19/mo with unlimited calculations and PDF reports.',
   })
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])

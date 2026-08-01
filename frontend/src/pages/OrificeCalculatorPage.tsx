@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import ProGuard, { useProAccess } from '../components/ProGuard'
 import { Navbar } from '../components/Navbar'
+import SeoContentSection from '../components/SeoContentSection'
+import { useSEO } from '../hooks/useSEO'
 import { Gauge, Download, Info, AlertCircle, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { jsPDF } from 'jspdf'
@@ -288,6 +290,21 @@ function MeasuringOrificeDiagram() {
 }
 
 export default function OrificeCalculatorPage() {
+  useSEO({
+    title: 'Orifice Plate Calculator | ISO 5167-1:2003',
+    description:
+      'Design orifice plates per ISO 5167-1:2003 with discharge coefficients. Professional online calculator with PDF report export.',
+    canonicalPath: '/orifice-calculator',
+    ogTitle: 'Orifice Plate Calculator | ISO 5167-1',
+    ogDescription: 'Design orifice plates per ISO 5167-1:2003 with discharge coefficients.',
+    jsonLd: {
+      name: 'Orifice Plate Calculator — ISO 5167-1',
+      url: 'https://burnerdesignpro.com/orifice-calculator',
+      description: 'Design orifice plates per ISO 5167-1:2003 with discharge coefficients.',
+      offers: { price: '19', priceCurrency: 'USD' },
+    },
+  })
+
   const { requirePro, modal } = useProAccess(
     'Orifice Calculator',
     'Subscribe to Pro to run orifice calculations and export PDF reports.',
@@ -1400,6 +1417,31 @@ export default function OrificeCalculatorPage() {
           </div>
         </div>
       </div>
+
+      <SeoContentSection
+        ariaLabel="About Orifice Calculator"
+        title="Orifice Plate Flow Calculator — ISO 5167-1"
+        intro="The Orifice Calculator designs and analyzes orifice plates for flow measurement according to ISO 5167-1:2003 (Measurement of fluid flow by means of pressure differential devices — Part 1: Orifice plates, nozzles and Venturi tubes inserted in circular cross-section conduits). This tool calculates discharge coefficients, flow rates, and pressure differentials for accurate flow measurement in piping systems."
+        blocks={[
+          {
+            type: 'list',
+            heading: 'What You Can Calculate',
+            items: [
+              'Orifice plate diameter and beta ratio (d/D)',
+              'Discharge coefficient per ISO 5167-1 (Reader-Harris/Gallagher equation)',
+              'Volumetric and mass flow rate from measured differential pressure',
+              'Pressure differential for a given flow rate',
+              'Expansibility factor for compressible fluids',
+              'Uncertainty analysis per ISO 5167-1 Annex',
+            ],
+          },
+          {
+            type: 'paragraph',
+            heading: 'Pro Feature',
+            text: 'This is a Pro tool. Export calculation results as a professional PDF report with all input parameters, formulas, and results for engineering documentation.',
+          },
+        ]}
+      />
 
       {modal}
     </ProGuard>
