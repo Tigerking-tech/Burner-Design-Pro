@@ -69,6 +69,11 @@ export function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500 mb-4">Resources</h4>
             <ul className="space-y-3">
               <li>
+                <Link to="/blog" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link to="/faq" className="block text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   FAQ
                 </Link>

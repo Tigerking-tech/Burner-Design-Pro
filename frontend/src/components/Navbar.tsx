@@ -38,6 +38,7 @@ export function Navbar() {
       <div className="hidden md:flex gap-8 items-center">
         <Link to="/" className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Home</Link>
         <a href="/#features" className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Features</a>
+        <Link to="/blog" className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Blog</Link>
         <a href="/#pricing" className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Pricing</a>
         <button
           onClick={toggleTheme}
@@ -83,6 +84,7 @@ export function Navbar() {
         <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-900 flex flex-col gap-4 px-4 py-6 shadow-xl border-b border-slate-200 dark:border-slate-700 md:hidden">
           <Link to="/" onClick={closeMobileMenu} className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Home</Link>
           <a href="/#features" onClick={closeMobileMenu} className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Features</a>
+          <Link to="/blog" onClick={closeMobileMenu} className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Blog</Link>
           <a href="/#pricing" onClick={closeMobileMenu} className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">Pricing</a>
           {isLoggedIn ? (
             <>
