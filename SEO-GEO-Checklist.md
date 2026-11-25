@@ -1,92 +1,74 @@
-# BurnerDesignPro SEO/GEO 行动清单
+# BurnerDesignPro SEO/GEO 剩余行动清单
 
-> 用法：按顺序逐项完成，做完在 `[ ]` 里打 `x`。带 ⭐ 的是最关键项。
-> 代码侧优化已全部完成并推送到 GitHub main（2026-11-25）。以下是你需要手动做的事。
-
----
-
-## 第 1 步：确认部署成功 ~~（今天，10 分钟）~~ ✅ 已完成（2026-11-25 自动验证）
-
-- [x] llms.txt 已上线（text/plain 正常返回）✅
-- [x] IndexNow 密钥文件已上线 ✅
-- [x] 新文章 /blog/excess-air-calculation-combustion-o2 已上线 ✅
-- [ ] 打开任一工具页（如 /flame-temperature）→ 页面底部有 "Frequently Asked Questions" 折叠区（你打开网页肉眼确认一下）
-- [ ] 用 https://search.google.com/test/rich-results 测试首页 → 能识别 WebApplication/Organization（点链接、贴入网址即可）
-
-## 第 2 步：Google Search Console（⭐最重要，今天）
-
-4 个月零订单最可能的原因是**网站没被充分索引**。这一步解决它：
-
-- [ ] 打开 https://search.google.com/search-console 用 Google 账号登录
-- [ ] 「添加资源」→ 选「网址前缀」→ 输入 `https://burnerdesignpro.com`
-- [ ] 验证所有权（推荐 HTML 标记方式）：复制 Google 给的 meta 标签 → 发给我（或贴到 frontend/index.html 的 `<head>` 里）→ 重新部署 → 点「验证」
-- [ ] 验证成功后：左侧「站点地图」→ 输入 `sitemap.xml` → 提交
-- [ ] 左侧「网址检查」→ 逐个粘贴以下 URL 并点「请求编入索引」：
-  - [ ] https://burnerdesignpro.com/
-  - [ ] https://burnerdesignpro.com/flame-temperature
-  - [ ] https://burnerdesignpro.com/insulation-calculator
-  - [ ] https://burnerdesignpro.com/orifice-calculator
-  - [ ] https://burnerdesignpro.com/fuel-manager
-  - [ ] https://burnerdesignpro.com/emission
-  - [ ] https://burnerdesignpro.com/efficiency
-- [ ] 一周后回来：左侧「编制索引 → 网页」确认页面已被收录（目标：30 个 URL 全部收录）
-
-## 第 3 步：Bing + IndexNow（⭐）
-
-- [x] **IndexNow 批量提交已完成**（2026-11-25，14 个 URL 一次提交，返回 202 Accepted）✅
-- [ ] 打开 https://www.bing.com/webmasters 登录（可用 Google 账号直接导入 Search Console 站点，最省事）
-- [ ] 在 Bing 后台提交 sitemap.xml
-
-## 第 4 步：数据与转化自测（本周，1 小时）
-
-- [ ] 打开 https://analytics.google.com → 确认 G-XKBRLTVH6C 有实时数据（自己访问网站，看实时面板有没有 1 个用户）
-- [ ] 在 GA4「管理 → 事件」中把 signup（注册）和 purchase（购买）标记为「关键事件/转化」
-- [ ] ⭐ 用一个测试邮箱完整走一遍：注册 → 使用免费计算 → 点升级 → 进入 Creem 支付页 → 确认能到达真实付款界面（**不用真付款**）。如果任何一步卡住，截图发我，这可能就是零订单的直接原因
-- [ ] 检查定价页：免费 20 次/月是否够用、Pro 版 $19/月 的价值点是否写清楚（PDF 导出、无限次）
-
-## 第 5 步：外链建设（⭐流量核心，每周持续做）
-
-新域名没有外链几乎不可能有排名。每周做 2-3 个，一个月见效：
-
-- [ ] Product Hunt 提交产品：https://www.producthunt.com/posts/new （标题建议：BurnerDesignPro — Free engineering calculators for combustion & insulation）
-- [ ] AlternativeTo 提交：https://alternativeto.net/software/burnerdesignpro/（作为 Aspen/Cantera/3E Plus 的轻量替代品提交）
-- [ ] Reddit 回答问题时引用文章（先认真回答，文末附链接，不要硬广）：
-  - [ ] r/ChemicalEngineering —— 回答 excess air / flame temperature 类问题 → 链到新文章
-  - [ ] r/HVAC 或 r/MEPEngineering —— 保温厚度问题 → 链到 pipe-insulation-thickness-guide
-  - [ ] r/MechanicalEngineering —— 孔板/流量问题 → 链到 orifice 文章
-- [ ] Quora：搜 "excess air calculation"、"wobbe index"、"pipe insulation thickness"，写 3-5 个带链接的回答
-- [ ] Eng-Tips 论坛（https://www.eng-tips.com）相关版块参与讨论并附工具链接
-- [ ] LinkedIn：用公司主页发 6 篇新文章的英文介绍帖（每篇一条，间隔 2-3 天）
-
-## 第 6 步：AI 搜索（GEO）专项（本月）
-
-- [ ] 在 ChatGPT / Perplexity 里提问："how to calculate excess air from flue gas O2"、"adiabatic flame temperature of methane" → 看是否引用你的网站；两周后复查
-- [ ] 把 llms-full.txt 链接发给做工程内容的博主/YouTuber，说明 AI 可直接读取（这是内容合作钩子）
-- [ ] 每月发新文章后重新部署即可（llms.txt 会自动重新生成，无需手动维护）
-
-## 第 7 步：每月例行（长期坚持）
-
-- [ ] 每月 2-4 篇新文章（告诉我方向，我来写；优先写 Search Console「效果」里已有展示但排名 10-50 的词）
-- [ ] 每月看一次 Search Console：展示量 / 点击量 / 收录量趋势
-- [ ] 每月更新 sitemap 的 lastmod（我来做，你只要告诉我"更新 sitemap"）
-- [ ] 检查 robots.txt 和 llms.txt 仍可访问
+> 更新于 2026-11-25。**我能做的已全部做完**（代码优化、部署验证、IndexNow 提交、浏览器实测）。
+> 以下是经过逐一排除后，**确实只有你本人能完成**的事项。
 
 ---
 
-## 已完成的代码优化（不需要你操作，仅供了解）
+## ✅ 已完成（我已完成，无需你操作）
 
-- ✅ 6 篇长尾关键词博客文章 + FAQ 结构化内容
-- ✅ 6 个工具页各 5 条 FAQ + FAQPage JSON-LD
-- ✅ llms.txt / llms-full.txt（AI 搜索引擎可读全文，构建自动生成）
-- ✅ robots.txt 放行 9 个 AI 爬虫
-- ✅ Organization / WebSite / BreadcrumbList / BlogPosting 结构化数据
-- ✅ 修复 title 重复拼接 bug、旧文章温度单位错误
-- ✅ 路由懒加载（首屏提速）、sitemap 扩至 30 URL
-- ✅ og-image.png 从 1.6MB 压缩到 191KB
-- ✅ 全部已推送 GitHub main
+- [x] 全部 SEO/GEO 代码优化并推送 GitHub main（6 篇长尾文章、FAQ 结构化数据、llms.txt、robots.txt、sitemap、懒加载、bug 修复）
+- [x] og-image.png 压缩 1.6MB → 191KB
+- [x] Vercel 自动部署验证通过（llms.txt / 密钥文件 / 新文章均上线）
+- [x] **IndexNow 批量提交 14 个 URL**（Bing/Yandex 等已通知，返回 202 Accepted）
+- [x] 浏览器实测：工具页 FAQ 折叠区正常渲染和展开
+- [x] 浏览器实测：页面含 5 种结构化数据（WebApplication×2、FAQPage、Organization、WebSite），全部有效
+- [x] 浏览器实测：定价页正常（Free $0 / Pro $19），Upgrade 按钮正确跳转注册页
+- [x] 浏览器实测：新博客文章表格、FAQ、内链全部正常渲染
 
-## 预期时间线（供参考，不保证）
+---
 
-- 第 1-2 周：完成收录，Search Console 出现展示数据
-- 第 1-2 月：长尾词开始有排名，外链开始起效
-- 第 3 月起：稳定自然流量；若届时仍无订单，重点排查第 4 步的转化问题
+## 📋 你必须做的（共 5 项，按优先级排序）
+
+### ⭐ 1. Bing 站长工具登录（5 分钟，我已在浏览器里等你）
+
+我已经打开了 Bing Webmaster Tools 并点到了 Microsoft 登录页，
+**但两次把浏览器交给你都没有完成登录**。登录后剩下的（添加站点、提交 sitemap）我来操作。
+
+- [ ] 告诉我"准备好登录 Bing"，我会重新打开浏览器交给你，你输入账号密码即可
+
+### ⭐ 2. Google Search Console（15 分钟，最可能解决零流量问题）
+
+**我的沙箱网络访问不了 google.com，这一步只能你在自己电脑/手机上做：**
+
+- [ ] 打开 https://search.google.com/search-console 登录 Google 账号
+- [ ] 添加资源 → 选「网址前缀」→ 输入 `https://burnerdesignpro.com`
+- [ ] 选「HTML 标记」验证方式 → 复制那串 meta 标签 → **粘贴发给我**，我帮你写进代码并推送部署
+- [ ] 部署完成后回到 Search Console 点「验证」
+- [ ] 左侧「站点地图」→ 输入 `sitemap.xml` → 提交
+- [ ] 左侧「网址检查」→ 粘贴 `https://burnerdesignpro.com/` → 点「请求编入索引」
+- [ ] 同样方法请求索引：`/flame-temperature`、`/insulation-calculator`、`/orifice-calculator`、`/fuel-manager`、`/emission`、`/efficiency`
+
+### ⭐ 3. 支付流程自测（10 分钟，排查零订单的直接原因）
+
+需要一个你能收信的邮箱（收验证码），我无法代做：
+
+- [ ] 用测试邮箱在 https://burnerdesignpro.com/signup 注册
+- [ ] 完成邮箱验证 → 登录
+- [ ] 做几次免费计算，确认第 21 次时正确提示升级（免费额度 20 次/月）
+- [ ] 点 Upgrade to Pro → **确认能跳到 Creem 的真实付款页面**（不用真付款，看到付款界面即可）
+- [ ] 如果任何一步卡住/报错 → 截图发我，立即修
+
+### 4. GA4 数据确认（2 分钟）
+
+- [ ] 打开 https://analytics.google.com → 左边「报告 → 实时」→ 自己访问一下网站 → 确认实时用户数 ≥ 1
+- [ ] 若显示 0：说明 GA 没装上或 ID 不对，截图发我
+
+### 5. 外链建设（每周 2-3 个，长期坚持）
+
+这些需要注册你的账号、代表你的品牌发声，必须你来做：
+
+- [ ] Product Hunt 提交产品：https://www.producthunt.com/posts/new
+- [ ] AlternativeTo 提交：https://alternativeto.net （作为 Aspen/Cantera/3E Plus 的轻量免费替代品）
+- [ ] Reddit 回答问题时附文章链接（r/ChemicalEngineering、r/HVAC、r/MechanicalEngineering，先认真回答再附链接）
+- [ ] Quora 搜 "excess air calculation" / "wobbe index" / "pipe insulation thickness" 写带链接的回答
+- [ ] LinkedIn 公司主页发 6 篇新文章介绍帖（每篇一条，间隔 2-3 天）
+
+---
+
+## 之后随时叫我做的事
+
+- 写好 Search Console 的 meta 验证标签 → 发我，我嵌入并部署
+- Bing 准备好登录 → 我开浏览器交给你，登录后我来完成剩余操作
+- 每月想发新文章 → 告诉我关键词方向，我来写并更新 sitemap/llms.txt
+- Search Console 里看到有展示量的关键词 → 发我，我针对性写内容
