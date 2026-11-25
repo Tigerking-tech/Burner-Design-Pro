@@ -1,34 +1,34 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import UnitConverterPage from './pages/UnitConverterPage'
-import EmissionPage from './pages/EmissionPage'
-import ThermodynamicPage from './pages/ThermodynamicPage'
-import EfficiencyPage from './pages/EfficiencyPage'
-import DatabasePage from './pages/DatabasePage'
-import SignUpPage from './pages/SignUpPage'
-import LoginPage from './pages/LoginPage'
-import VerifyEmailPage from './pages/VerifyEmailPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
-import FuelManagerPage from './pages/FuelManagerPage'
-import FlameTemperaturePage from './pages/FlameTemperaturePage'
-import OrificeCalculatorPage from './pages/OrificeCalculatorPage'
-import AccountPage from './pages/AccountPage'
-import AdminPage from './pages/AdminPage'
-import InsulationCalculatorPage from './pages/InsulationCalculatorPage'
-import SubscriptionPage from './pages/SubscriptionPage'
-import SubscriptionSuccessPage from './pages/SubscriptionSuccessPage'
-import TermsOfServicePage from './pages/TermsOfServicePage'
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
-import RefundPolicyPage from './pages/RefundPolicyPage'
-import FAQPage from './pages/FAQPage'
-import ContactPage from './pages/ContactPage'
-import AboutPage from './pages/AboutPage'
-import ChangelogPage from './pages/ChangelogPage'
-import BlogListPage from './pages/BlogListPage'
-import BlogPostPage from './pages/BlogPostPage'
-import NotFoundPage from './pages/NotFoundPage'
+const UnitConverterPage = lazy(() => import('./pages/UnitConverterPage'))
+const EmissionPage = lazy(() => import('./pages/EmissionPage'))
+const ThermodynamicPage = lazy(() => import('./pages/ThermodynamicPage'))
+const EfficiencyPage = lazy(() => import('./pages/EfficiencyPage'))
+const DatabasePage = lazy(() => import('./pages/DatabasePage'))
+const SignUpPage = lazy(() => import('./pages/SignUpPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
+const FuelManagerPage = lazy(() => import('./pages/FuelManagerPage'))
+const FlameTemperaturePage = lazy(() => import('./pages/FlameTemperaturePage'))
+const OrificeCalculatorPage = lazy(() => import('./pages/OrificeCalculatorPage'))
+const AccountPage = lazy(() => import('./pages/AccountPage'))
+const AdminPage = lazy(() => import('./pages/AdminPage'))
+const InsulationCalculatorPage = lazy(() => import('./pages/InsulationCalculatorPage'))
+const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'))
+const SubscriptionSuccessPage = lazy(() => import('./pages/SubscriptionSuccessPage'))
+const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'))
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'))
+const RefundPolicyPage = lazy(() => import('./pages/RefundPolicyPage'))
+const FAQPage = lazy(() => import('./pages/FAQPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage'))
+const BlogListPage = lazy(() => import('./pages/BlogListPage'))
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 import { wakeUpService } from './services/wakeUpService'
 import { ToastProvider, useToast } from './components/Toast'
 import { tokenManager } from './services/tokenManager'
@@ -141,7 +141,14 @@ function AppRoutes() {
       <GATracker />
       <ScrollToTop />
       <CookieConsent />
-      <Routes>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-300">
+            Loading…
+          </div>
+        }
+      >
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -173,7 +180,8 @@ function AppRoutes() {
         <Route path="/blog" element={<BlogListPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </>
   )
 }

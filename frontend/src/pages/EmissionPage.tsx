@@ -812,6 +812,29 @@ export default function EmissionPage() {
       </div>
 
       <SeoContentSection
+        pagePath="/emission"
+        faqs={[
+          {
+            question: 'How do I convert ppm to mg/m³ for flue gas?',
+            answer: 'mg/m³ = ppm × (molar mass / molar volume). At 25°C and 1 atm the molar volume is 24.45 L/mol, so for NO2: 1 ppm ≈ 46/24.45 ≈ 1.88 mg/m³. Always state the reference temperature and pressure with the result.',
+          },
+          {
+            question: 'What is O2 correction of emissions?',
+            answer: 'Measured concentrations are normalized to a reference oxygen level so results cannot be diluted with excess air: C_ref = C_meas × (21 − O2_ref)/(21 − O2_meas). Common reference levels: 3% O2 (gas turbines), 6% (boilers), 11% (engines).',
+          },
+          {
+            question: 'What is the CO2 emission factor for natural gas?',
+            answer: 'About 56 kg CO2 per GJ of fuel energy (IPCC 2006 default), equivalent to roughly 2.0 kg CO2 per m³ of typical natural gas or 0.18–0.20 kg CO2 per kWh.',
+          },
+          {
+            question: 'What is EPA Method 19?',
+            answer: 'EPA Method 19 (40 CFR Part 60, Appendix A) is the standard US method for determining SO2 removal efficiency and particulate/F-factor emission rates from stationary sources. This tool implements its F-factor methodology for emission-rate conversion.',
+          },
+          {
+            question: 'How are NOx emissions reported?',
+            answer: 'NOx is reported as the mass of NO2-equivalent (NO + NO2 expressed as NO2), in mg/m³, ppm or lb/MMBtu, at the regulated reference O2 level.',
+          },
+        ]}
         ariaLabel="About Emission Analysis"
         title="Combustion Emission Calculator"
         intro="The Emission Analysis tool calculates combustion emissions including NOx, CO, CO₂, and SO₂ based on EPA Method 19 (determination of sulfur dioxide removal efficiency and particulate matter emission rate), IPCC 2006 Guidelines for national greenhouse gas inventories, and EU IED 2010/75/EU (Industrial Emissions Directive). This tool is built for environmental engineers and plant operators who need compliant emission rate calculations for regulatory reporting. The tool supports conversion between multiple concentration units (ppm, mg/m³, lb/MMBtu) with automatic O₂ correction to reference oxygen levels, and provides annual emission estimations based on flue gas flow rate, operating hours, and load factor."

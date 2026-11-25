@@ -1907,6 +1907,29 @@ function InsulationCalculatorPage() {
       </div>
 
       <SeoContentSection
+        pagePath="/insulation-calculator"
+        faqs={[
+          {
+            question: 'How thick should pipe insulation be?',
+            answer: 'Typical industrial practice: 25–40 mm for hot water (~80°C), 40–50 mm for low-pressure steam (~150°C), 50–65 mm for medium-pressure steam (~200°C), and 65–100 mm above 250°C. The exact value depends on your economic or personnel-protection objective — this calculator computes heat loss and surface temperature for any thickness.',
+          },
+          {
+            question: 'What pipe surface temperature is safe to touch?',
+            answer: 'Around 60°C is the widely used personnel-protection limit for brief contact with metal-like surfaces (per EN ISO 13732-1 guidance). Use the calculator to size insulation that keeps the jacket below this limit.',
+          },
+          {
+            question: 'How much heat does pipe insulation save?',
+            answer: 'The first insulation layer removes 80–90% of the bare-pipe heat loss. Example: a DN80 pipe at 150°C loses ~650 W/m bare but only ~80 W/m with 30 mm of mineral wool. Additional thickness gives diminishing returns.',
+          },
+          {
+            question: 'What is the thermal conductivity (k-value) of mineral wool?',
+            answer: 'About 0.035–0.040 W/m·K at 50°C mean temperature, rising to 0.045–0.055 W/m·K at 150°C mean temperature. Always use the k-value at the mean insulation temperature; this calculator applies temperature-corrected conductivity curves.',
+          },
+          {
+            question: 'What is the difference between ASTM C680 and ISO 12241?',
+            answer: 'Both standardize heat-loss and surface-temperature estimation for insulated systems — ASTM C680 is the US practice, ISO 12241 the international one. Their thermal-resistance networks are equivalent; results typically agree within a few percent.',
+          },
+        ]}
         ariaLabel="About Insulation Calculator"
         title="Pipe Insulation Thickness Calculator"
         intro="The Insulation Calculator determines optimal insulation thickness for pipes and flat surfaces according to ISO 12241 (Thermal insulation for building and industrial installations) and ASTM C680 (standard practice for estimate of the heat gain or loss and the surface temperatures of insulated flat and cylindrical systems). This Pro tool helps engineers optimize thermal insulation for energy efficiency, personnel protection, and process temperature control. The calculator supports 14 insulation material types including mineral wool, glass wool, calcium silicate, polyurethane, polyisocyanurate, phenolic foam, cellular glass, vermiculite, perlite, ceramic fiber, aerogel, fiberglass, foam glass, and elastomeric foam, with a custom material option for proprietary specifications."

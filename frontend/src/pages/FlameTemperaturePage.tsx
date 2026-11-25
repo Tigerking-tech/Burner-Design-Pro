@@ -1070,6 +1070,29 @@ export default function FlameTemperaturePage() {
       </div>
 
       <SeoContentSection
+        pagePath="/flame-temperature"
+        faqs={[
+          {
+            question: 'What is the adiabatic flame temperature of natural gas (methane)?',
+            answer: 'About 1,950°C (equilibrium, with dissociation) for stoichiometric combustion in air at 25°C and 1 atm. The frozen (no-dissociation) value is about 2,054°C. Real flames are typically 100–300°C lower due to radiation and mixing losses.',
+          },
+          {
+            question: 'How does excess air affect flame temperature?',
+            answer: 'Excess air dilutes the flame. For methane, going from stoichiometric (λ=1.0) to 20% excess air (λ=1.2) lowers the equilibrium flame temperature by roughly 190°C. This is the main lever for controlling furnace temperature and thermal NOx.',
+          },
+          {
+            question: 'What is the difference between frozen and equilibrium flame temperature?',
+            answer: 'Frozen temperature assumes products do not dissociate; equilibrium temperature accounts for endothermic dissociation of CO2 and H2O above ~1,500°C via Gibbs free-energy minimization. The equilibrium value is the physically realistic one (typically 4–8% lower).',
+          },
+          {
+            question: 'How much does air preheat raise the flame temperature?',
+            answer: 'Roughly +150–190°C of flame temperature per +200°C of combustion air preheat for natural gas, which is why recuperative and regenerative burners reach much higher furnace temperatures.',
+          },
+          {
+            question: 'Which common fuel has the highest flame temperature in air?',
+            answer: 'Acetylene (~2,300°C equilibrium in air). Hydrogen is often assumed to be hottest but reaches only ~2,110°C in air because it requires the largest air mass per kg of fuel (34.3:1), which dilutes the flame.',
+          },
+        ]}
         ariaLabel="About Flame Temperature Calculator"
         title="Adiabatic Flame Temperature Calculator"
         intro="The Flame Temperature tool calculates adiabatic flame temperature using NASA GRC thermochemical data and Gibbs free energy minimization for equilibrium composition. This Pro tool is essential for combustion engineers designing burners, furnaces, and gas turbines who need to predict peak flame temperatures for material selection and NOx formation analysis. The tool supports air, pure oxygen, and custom oxidizer mixtures, and provides both frozen (no dissociation) and equilibrium (with dissociation) temperature calculations to show the effect of chemical equilibrium on peak flame temperatures."

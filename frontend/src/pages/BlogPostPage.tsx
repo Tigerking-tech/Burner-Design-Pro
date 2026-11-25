@@ -64,7 +64,7 @@ export default function BlogPostPage() {
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`
 
   useSEO({
-    title: `${post?.title || 'Article'} | BurnerDesignPro Blog`,
+    title: post?.title || 'Article',
     description: post?.description,
     keywords: post?.keywords || (post?.tags ? post.tags.join(', ') : undefined),
     canonicalPath,
@@ -72,7 +72,8 @@ export default function BlogPostPage() {
     ogDescription: post?.description,
     ogImage: fullOgImage,
     jsonLd: post
-      ? {
+      ? [
+        {
           '@context': 'https://schema.org',
           '@type': 'BlogPosting',
           headline: post.title,
@@ -98,7 +99,17 @@ export default function BlogPostPage() {
             '@type': 'WebPage',
             '@id': canonicalUrl,
           },
-        }
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_ORIGIN },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_ORIGIN}/blog` },
+            { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+          ],
+        },
+      ]
       : undefined,
   })
 

@@ -1419,6 +1419,29 @@ export default function OrificeCalculatorPage() {
       </div>
 
       <SeoContentSection
+        pagePath="/orifice-calculator"
+        faqs={[
+          {
+            question: 'What is the beta ratio of an orifice plate?',
+            answer: 'Beta (β) is the ratio of orifice bore diameter to pipe internal diameter (d/D). The practical design range is β = 0.2–0.75; most new installations use β ≈ 0.5–0.7 for a good balance of signal strength, permanent pressure loss and uncertainty.',
+          },
+          {
+            question: 'How much permanent pressure loss does an orifice plate cause?',
+            answer: 'Approximately (1 − β²) × the measured differential pressure. At β = 0.5 about 75% of the ΔP is unrecoverable; at β = 0.7 about 51%. This is the main operating cost of orifice metering.',
+          },
+          {
+            question: 'What is a typical discharge coefficient for an orifice plate?',
+            answer: 'About 0.60–0.61 for turbulent flow in standard configurations. The exact value comes from the Reader-Harris/Gallagher equation in ISO 5167-2 as a function of β, Reynolds number and tapping type — this calculator evaluates it directly.',
+          },
+          {
+            question: 'What is the turndown ratio of an orifice flow meter?',
+            answer: 'Typically 3:1 to 4:1, because differential pressure scales with the square of flow. Below ~25% of design flow the ΔP signal becomes too small for accurate measurement.',
+          },
+          {
+            question: 'When must I use the expansibility factor?',
+            answer: 'For compressible fluids (gas, steam) whenever ΔP exceeds a few percent of absolute upstream pressure. The expansibility factor ε corrects for density change across the plate and is included automatically in this calculator.',
+          },
+        ]}
         ariaLabel="About Orifice Calculator"
         title="Orifice Plate Flow Calculator — ISO 5167-1"
         intro="The Orifice Calculator designs and analyzes orifice plates for flow measurement according to ISO 5167-1:2003 (Measurement of fluid flow by means of pressure differential devices — Part 1: Orifice plates, nozzles and Venturi tubes inserted in circular cross-section conduits). This tool calculates discharge coefficients, flow rates, and pressure differentials for accurate flow measurement in piping systems. The calculator supports both concentric and eccentric orifice plates, handles compressible and incompressible fluids, and provides a flow coefficient curve (Cd vs β) for quick reference during design work."

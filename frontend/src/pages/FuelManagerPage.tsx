@@ -1780,6 +1780,29 @@ const LATENT_HEAT_WATER = 2.442
       </div>
 
       <SeoContentSection
+        pagePath="/fuel-manager"
+        faqs={[
+          {
+            question: 'What is the calorific value of natural gas?',
+            answer: 'Typical pipeline natural gas has a gross calorific value of about 38–41 MJ/m³ (≈ 1,000–1,100 BTU/ft³) at reference conditions, or ~55 MJ/kg. The exact value depends on composition — enter your gas analysis to get an ISO 6976 result.',
+          },
+          {
+            question: 'What is the Wobbe index and why does it matter?',
+            answer: 'The Wobbe index is the calorific value divided by the square root of relative density (WI = H/√d). It determines the heat input a burner receives at a fixed gas pressure, so it is the primary criterion for gas interchangeability. Typical natural gas WI ≈ 50 MJ/m³ gross.',
+          },
+          {
+            question: 'What is the difference between HHV and LHV?',
+            answer: 'The higher heating value (HHV, gross) includes the latent heat recovered by condensing the water vapor in the flue gas; the lower heating value (LHV, net) excludes it. For natural gas the difference is about 10–11%.',
+          },
+          {
+            question: 'How do I calculate properties of a fuel gas mixture?',
+            answer: 'Provide the mole fractions of each component (CH4, C2H6, CO2, N2, H2, ...). The calculator applies ISO 6976 mixing rules to derive calorific value, density, relative density and Wobbe index of the blend.',
+          },
+          {
+            question: 'Can I model hydrogen-enriched natural gas?',
+            answer: 'Yes. Add hydrogen as a component; the tool recomputes calorific value, Wobbe index and stoichiometric air requirement. Note that adding H2 lowers the Wobbe index and raises flame speed — both critical for burner retrofit assessment.',
+          },
+        ]}
         ariaLabel="About Fuel Manager"
         title="Fuel Gas Properties Calculator"
         intro="The Fuel Manager tool calculates thermodynamic properties of fuel gases and oils according to ISO 6976 (natural gas — calculation of calorific values, density, relative density and Wobbe index) and ASTM D4868 (standard test method for estimation of net and gross heat of combustion of burner and diesel fuels). This free online calculator is designed for combustion engineers, process engineers, and energy analysts who need accurate fuel property data for burner design and emission calculations. The tool supports 25+ gas presets from around the world including North Sea, Russian, Dutch natural gases, as well as coke oven gas, blast furnace gas, biogas, hydrogen, and common hydrocarbons. The combustion calculation mode determines flue gas composition, air requirements, and energy output for burner capacity sizing."

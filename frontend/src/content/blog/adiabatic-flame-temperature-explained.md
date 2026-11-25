@@ -35,9 +35,9 @@ The dissociation problem is the largest source of error in textbook AFT calculat
 **Equilibrium AFT:** Accounts for product dissociation via Gibbs free energy minimization across ~10–20 species simultaneously. This is the physically realistic value at high T.
 
 **Percentage difference for methane-air at stoichiometric, 1 bar, 25°C reactants:**
-- Frozen AFT ≈ 2,327°C
-- Equilibrium AFT ≈ 2,140°C
-- **Difference ≈ 187°C (~8%)**
+- Frozen AFT ≈ 2,327 K (≈ 2,054°C)
+- Equilibrium AFT ≈ 2,226 K (≈ 1,953°C)
+- **Difference ≈ 101 K (~4.5%)**
 
 For lean φ=0.6, the difference drops to <20°C because the lower peak temperature barely triggers dissociation. **When to use which:**
 - For refractory selection, heat flux, or thermal NOₓ correlation: **always use equilibrium AFT**.

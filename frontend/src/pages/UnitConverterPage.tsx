@@ -550,6 +550,29 @@ export default function UnitConverterPage() {
       </div>
 
       <SeoContentSection
+        pagePath="/unit-converter"
+        faqs={[
+          {
+            question: 'What is the difference between Nm³ and Sm³?',
+            answer: 'Nm³ (normal cubic meter) refers to gas volume at 0°C and 101.325 kPa; Sm³ (standard cubic meter) usually refers to 15°C and 101.325 kPa per ISO 13443 (some industries use 60°F). 1 Sm³ ≈ 1.055 Nm³.',
+          },
+          {
+            question: 'How many SCFM is 1 m³/h?',
+            answer: '1 m³/h ≈ 0.589 SCFM (standard cubic feet per minute at 60°F, 1 atm). Conversely, 1 SCFM ≈ 1.699 m³/h.',
+          },
+          {
+            question: 'How do I convert kPa to psi?',
+            answer: '1 psi = 6.895 kPa, so divide kPa by 6.895. Example: 100 kPa ≈ 14.50 psi (≈ 1 bar).',
+          },
+          {
+            question: 'What reference conditions does ISO 13443 define?',
+            answer: 'ISO 13443 defines standard reference conditions for natural gas as 15°C (288.15 K) and 101.325 kPa, used for volumetric energy and flow metering conversions.',
+          },
+          {
+            question: 'How do I convert kinematic viscosity to Saybolt Universal Seconds?',
+            answer: 'Per ASTM D2161, SUS ≈ 4.632 × cSt for viscosities above ~75 cSt; below that a corrected polynomial applies. The converter implements the full ASTM D2161 relationship.',
+          },
+        ]}
         ariaLabel="About Unit Converter"
         title="Engineering Unit Converter"
         intro="The Unit Converter tool provides instant conversion of engineering units for flow, pressure, temperature, and viscosity according to ISO 80000 (Quantities and units), ASTM D2161 (conversion of kinematic viscosity), and ISO 13443 (natural gas — reference conditions). All conversions run locally in your browser with no server round-trips, ensuring privacy and instant results. The tool supports 20+ unit categories covering the full range of thermal engineering calculations, from flow rates in multiple standards to viscosity conversions per petroleum industry standards."
