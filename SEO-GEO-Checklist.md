@@ -5,17 +5,13 @@
 
 ---
 
-## 第 1 步：确认部署成功（今天，10 分钟）
+## 第 1 步：确认部署成功 ~~（今天，10 分钟）~~ ✅ 已完成（2026-11-25 自动验证）
 
-代码已推送 main。如果 Vercel 连接了该仓库会自动部署，稍等 2-5 分钟后逐项验证：
-
-- [ ] 打开 https://burnerdesignpro.com/llms.txt → 应显示文本索引（不是网页）
-- [ ] 打开 https://burnerdesignpro.com/llms-full.txt → 应显示大段文本
-- [ ] 打开 https://burnerdesignpro.com/sitemap.xml → 应包含 30 个 URL（含 6 篇新文章）
-- [ ] 打开 https://burnerdesignpro.com/blog/excess-air-calculation-combustion-o2 → 新文章正常显示
-- [ ] 打开任一工具页（如 /flame-temperature）→ 页面底部有 "Frequently Asked Questions" 折叠区
-- [ ] 用 https://search.google.com/test/rich-results 测试首页 → 能识别 WebApplication/Organization
-- [ ] 如果 Vercel 没有自动部署：登录 Vercel 后台 → 项目 → Deployments → 手动 Redeploy
+- [x] llms.txt 已上线（text/plain 正常返回）✅
+- [x] IndexNow 密钥文件已上线 ✅
+- [x] 新文章 /blog/excess-air-calculation-combustion-o2 已上线 ✅
+- [ ] 打开任一工具页（如 /flame-temperature）→ 页面底部有 "Frequently Asked Questions" 折叠区（你打开网页肉眼确认一下）
+- [ ] 用 https://search.google.com/test/rich-results 测试首页 → 能识别 WebApplication/Organization（点链接、贴入网址即可）
 
 ## 第 2 步：Google Search Console（⭐最重要，今天）
 
@@ -35,23 +31,11 @@
   - [ ] https://burnerdesignpro.com/efficiency
 - [ ] 一周后回来：左侧「编制索引 → 网页」确认页面已被收录（目标：30 个 URL 全部收录）
 
-## 第 3 步：Bing + IndexNow（⭐，明天，30 分钟）
+## 第 3 步：Bing + IndexNow（⭐）
 
+- [x] **IndexNow 批量提交已完成**（2026-11-25，14 个 URL 一次提交，返回 202 Accepted）✅
 - [ ] 打开 https://www.bing.com/webmasters 登录（可用 Google 账号直接导入 Search Console 站点，最省事）
-- [ ] 提交 sitemap.xml
-- [ ] IndexNow 快速收录：把下面链接逐条粘贴到浏览器地址栏访问（显示 200/202 即成功），每篇文章一条，把 URL 换成文章地址即可：
-
-```
-https://api.indexnow.org/indexnow?url=https://burnerdesignpro.com/blog/excess-air-calculation-combustion-o2&key=5b44315ff2032743152ace8f4162279a
-```
-
-  - [ ] excess-air-calculation-combustion-o2（用上面链接）
-  - [ ] wobbe-index-gas-interchangeability（替换 url= 后面的部分）
-  - [ ] pipe-insulation-thickness-guide
-  - [ ] orifice-plate-beta-ratio-selection
-  - [ ] adiabatic-flame-temperature-of-common-fuels
-  - [ ] combustion-efficiency-vs-thermal-efficiency
-  - [ ] 首页和 6 个工具页同样各提交一次
+- [ ] 在 Bing 后台提交 sitemap.xml
 
 ## 第 4 步：数据与转化自测（本周，1 小时）
 
