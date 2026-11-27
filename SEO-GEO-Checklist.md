@@ -20,12 +20,12 @@
 
 ## 📋 你必须做的（共 5 项，按优先级排序）
 
-### ⭐ 1. Bing 站长工具登录（5 分钟，我已在浏览器里等你）
+### ✅ 1. Bing 站长工具（已完成 2026-11-27）
 
-我已经打开了 Bing Webmaster Tools 并点到了 Microsoft 登录页，
-**但两次把浏览器交给你都没有完成登录**。登录后剩下的（添加站点、提交 sitemap）我来操作。
-
-- [ ] 告诉我"准备好登录 Bing"，我会重新打开浏览器交给你，你输入账号密码即可
+- [x] Microsoft 账号登录 ✅
+- [x] 添加站点 `https://burnerdesignpro.com` ✅
+- [x] XML 文件验证通过（`BingSiteAuth.xml` 已部署）✅
+- [ ] 左侧 `Sitemaps` → 提交 `https://burnerdesignpro.com/sitemap.xml`（等你操作）
 
 ### ⭐ 2. Google Search Console（15 分钟，最可能解决零流量问题）
 
