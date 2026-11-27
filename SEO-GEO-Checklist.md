@@ -25,7 +25,9 @@
 - [x] Microsoft 账号登录 ✅
 - [x] 添加站点 `https://burnerdesignpro.com` ✅
 - [x] XML 文件验证通过（`BingSiteAuth.xml` 已部署）✅
-- [ ] 左侧 `Sitemaps` → 提交 `https://burnerdesignpro.com/sitemap.xml`（等你操作）
+- [x] 左侧 `Sitemaps` → 提交 `https://burnerdesignpro.com/sitemap.xml` → **Status: Success，发现 31 个 URL** ✅
+- [x] 首页已被 Bing 收录（Indexed successfully）✅
+- [x] 修复 Bing 报的 2 个问题：标题过长（76→54 字符）、缺 H1（已在静态 HTML 中加入）✅
 
 ### ⭐ 2. Google Search Console（15 分钟，最可能解决零流量问题）
 
