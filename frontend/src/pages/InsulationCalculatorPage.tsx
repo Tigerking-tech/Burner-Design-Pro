@@ -138,7 +138,7 @@ const pipeWallThicknessStd: Record<string, number> = {
 
 function InsulationCalculatorPage() {
   useSEO({
-    title: 'Pipe Insulation Thickness Calculator | ISO 12241 & ASTM C680',
+    title: 'Pipe Insulation Calculator | ISO 12241',
     description:
       'Calculate optimal insulation thickness for pipes and flat surfaces per ISO 12241 & ASTM C680. Free online tool.',
     canonicalPath: '/insulation-calculator',

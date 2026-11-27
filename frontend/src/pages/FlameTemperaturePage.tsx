@@ -485,7 +485,7 @@ function productEnthalpy(b: ElementVector, T: number, arMoles: number = 0, P: nu
 
 export default function FlameTemperaturePage() {
   useSEO({
-    title: 'Flame Temperature Calculator | NASA GRC Data',
+    title: 'Adiabatic Flame Temperature Calculator',
     description:
       'Calculate adiabatic flame temperature per NASA GRC thermochemical data & Gibbs equilibrium minimization. Professional engineering tool.',
     canonicalPath: '/flame-temperature',

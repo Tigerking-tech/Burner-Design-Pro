@@ -64,7 +64,7 @@ export default function BlogListPage() {
   }
 
   useSEO({
-    title: 'Thermal Engineering Blog — Combustion, Emissions & Design Guides',
+    title: 'Combustion & Emissions Engineering Blog',
     description:
       'Expert thermal engineering blog on combustion calculation, NOx emissions reduction, flame temperature, orifice plate metering, and insulation best practices — ISO 6976, EPA Method 19, ISO 5167 compliant.',
     canonicalPath: '/blog',

@@ -291,7 +291,7 @@ function MeasuringOrificeDiagram() {
 
 export default function OrificeCalculatorPage() {
   useSEO({
-    title: 'Orifice Plate Calculator | ISO 5167-1:2003',
+    title: 'Orifice Plate Calculator | ISO 5167',
     description:
       'Design orifice plates per ISO 5167-1:2003 with discharge coefficients. Professional online calculator with PDF report export.',
     canonicalPath: '/orifice-calculator',

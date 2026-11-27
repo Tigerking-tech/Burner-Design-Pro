@@ -42,7 +42,7 @@ interface Subscription {
 
 const SubscriptionPage: React.FC = () => {
   useSEO({
-    title: 'Pricing | Free & Pro Plans | Engineering Calculator',
+    title: 'Pricing — Free & Pro Plans | BurnerDesignPro',
     description:
       'Start free with 20 calculations per month. Pro plan at $19/mo for unlimited calculations, PDF reports, and compliance exports.',
     canonicalPath: '/subscription',

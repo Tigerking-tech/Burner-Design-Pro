@@ -181,7 +181,7 @@ const formatNumber = (num: number, decimals: number = 2) => {
 
 export default function EmissionPage() {
   useSEO({
-    title: 'Emission Calculator — NOx, CO, CO₂, SO₂ | EPA Method 19',
+    title: 'Emission Calculator | EPA Method 19',
     description:
       'Calculate combustion emissions per EPA Method 19, IPCC 2006 & EU IED. Free online emission analysis tool for compliance reporting.',
     canonicalPath: '/emission',

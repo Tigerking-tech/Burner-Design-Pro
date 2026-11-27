@@ -34,13 +34,16 @@ interface SEOProps {
 const SITE_ORIGIN = 'https://burnerdesignpro.com'
 const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/og-image.png`
 
-const DEFAULT_TITLE = 'BurnerDesignPro — Free Thermal Engineering Calculator | ISO & EPA Compliant'
+const DEFAULT_TITLE = 'Free Thermal Engineering Calculators | BurnerDesignPro'
 const DEFAULT_DESCRIPTION =
   'Free online engineering calculators for combustion, emissions, and flow. ISO 5167-1, EPA Method 19, ISO 6976 compliant. No signup required for basic tools.'
 const DEFAULT_KEYWORDS =
   'burner design software, thermal engineering tool, combustion calculation, orifice plate ISO 5167, flame temperature calculator, emission analysis, industrial engineering software, thermal insulation calculator, ASTM C680, engineering calculator, SaaS software'
 
 const JSONLD_SCRIPT_ID = 'page-json-ld'
+const BRAND_SUFFIX = ' | BurnerDesignPro'
+// Search engines truncate titles beyond ~60 characters.
+const MAX_TITLE_LENGTH = 60
 
 function buildWebApplicationSchema(schema: WebApplicationSchema) {
   const offers = Array.isArray(schema.offers) ? schema.offers : schema.offers ? [schema.offers] : undefined
@@ -81,7 +84,11 @@ export function useSEO({
   jsonLd,
 }: SEOProps = {}) {
   useEffect(() => {
-    const fullTitle = title ? `${title} | BurnerDesignPro` : DEFAULT_TITLE
+    const fullTitle = title
+      ? title.length + BRAND_SUFFIX.length <= MAX_TITLE_LENGTH
+        ? `${title}${BRAND_SUFFIX}`
+        : title
+      : DEFAULT_TITLE
     const currentUrl = ogUrl || (canonicalPath ? `${SITE_ORIGIN}${canonicalPath}` : window.location.href)
     const canonicalUrl = canonicalPath ? `${SITE_ORIGIN}${canonicalPath}` : currentUrl
 

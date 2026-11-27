@@ -321,7 +321,7 @@ const defaultOilElements: OilElement[] = (() => {
 
 export default function FuelManagerPage() {
   useSEO({
-    title: 'Fuel Gas Properties Calculator | ISO 6976 & ASTM D4868',
+    title: 'Fuel Gas Properties | ISO 6976',
     description:
       'Calculate gas calorific value, Wobbe index, and fuel mixtures per ISO 6976 & ASTM D4868. Free online tool for engineers.',
     canonicalPath: '/fuel-manager',
