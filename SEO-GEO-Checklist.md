@@ -15,6 +15,11 @@
 - [x] 浏览器实测：页面含 5 种结构化数据（WebApplication×2、FAQPage、Organization、WebSite），全部有效
 - [x] 浏览器实测：定价页正常（Free $0 / Pro $19），Upgrade 按钮正确跳转注册页
 - [x] 浏览器实测：新博客文章表格、FAQ、内链全部正常渲染
+- [x] **构建期预渲染 29 个路由的静态 HTML**（每个页面独立的 title/description/canonical/H1）——修复了"所有工具页 canonical 指向首页、被 Bing 判定为重复页不予收录"的致命问题
+- [x] 静态加载壳加入真实 H1 + 关键词描述（不执行 JS 的爬虫与 AI 机器人也能读到内容）
+- [x] 全部页面标题控制在 60 字符内（含 11 篇文章的短 SEO 标题，正文 H1 保留完整标题）
+- [x] 修复 `vercel.json` 的 SPA 兜底重写：改为按扩展名排除，静态文件（xml/txt/png）不会再被吞掉
+- [x] 线上抽查 11 个 URL：canonical / H1 / 标题长度 / JS 加载 全部正确
 
 ---
 
