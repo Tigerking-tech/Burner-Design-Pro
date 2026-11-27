@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "generate:llms": "node scripts/generate-llms.mjs",
-    "build": "npm run generate:llms && vite build",
+    "build": "npm run generate:llms && vite build && node scripts/prerender.mjs",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
