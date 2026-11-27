@@ -178,7 +178,7 @@ for (const file of readdirSync(blogDir).filter((f) => f.endsWith('.md'))) {
   if (!fm.title) continue
   ROUTES.push({
     path: `/blog/${file.replace(/\.md$/, '')}`,
-    title: fm.title,
+    title: fm.seoTitle || fm.title,
     description: fm.description || '',
     h1: fm.title,
     tagline: fm.description || '',

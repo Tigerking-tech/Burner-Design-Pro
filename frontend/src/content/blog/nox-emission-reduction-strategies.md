@@ -1,5 +1,6 @@
 ---
 title: "NOx Emission Reduction Strategies for Industrial Burners: 2026 Update"
+seoTitle: "NOx Emission Reduction Strategies"
 description: "Explore proven NOx emission reduction strategies including low-NOx burners, flue gas recirculation, selective catalytic reduction, and compliance with EPA Method 19."
 date: "2026-07-20"
 tags: ["NOx", "emissions", "EPA Method 19", "SCR", "SNCR", "low-NOx burners"]

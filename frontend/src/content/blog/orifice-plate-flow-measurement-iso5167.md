@@ -1,5 +1,6 @@
 ---
 title: "Orifice Plate Flow Measurement per ISO 5167-1: Engineer's Reference"
+seoTitle: "Orifice Plate Flow Measurement | ISO 5167"
 description: "A practical reference for orifice plate gas flow measurement following ISO 5167-1. Covers beta ratio selection, pressure tapping locations, discharge coefficient, and uncertainty analysis."
 date: "2026-07-05"
 tags: ["orifice plate", "ISO 5167", "flow measurement", "discharge coefficient", "uncertainty"]

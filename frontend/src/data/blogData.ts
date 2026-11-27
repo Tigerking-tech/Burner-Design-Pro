@@ -1,6 +1,7 @@
 export interface BlogPost {
   slug: string;
   title: string;
+  seoTitle?: string;
   description: string;
   date: string;
   tags: string[];
@@ -156,6 +157,7 @@ function buildPosts(): BlogPost[] {
     const coverImage = typeof frontmatter.coverImage === 'string' ? frontmatter.coverImage : undefined;
     const author = typeof frontmatter.author === 'string' ? frontmatter.author : 'BurnerDesignPro Team';
     const keywords = typeof frontmatter.keywords === 'string' ? frontmatter.keywords : undefined;
+    const seoTitle = typeof frontmatter.seoTitle === 'string' ? frontmatter.seoTitle : undefined;
 
     const readingTime = calculateReadingTime(content);
     const excerpt = generateExcerpt(content, 160);
@@ -163,6 +165,7 @@ function buildPosts(): BlogPost[] {
     posts.push({
       slug,
       title,
+      seoTitle,
       description,
       date,
       tags,

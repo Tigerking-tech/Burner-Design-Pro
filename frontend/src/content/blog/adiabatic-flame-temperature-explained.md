@@ -1,5 +1,6 @@
 ---
 title: "Adiabatic Flame Temperature: Theory, Calculation, and Engineering Applications"
+seoTitle: "Adiabatic Flame Temperature Explained"
 description: "Understand adiabatic flame temperature calculation using NASA CEA data. Learn the difference between frozen and equilibrium conditions, and how to optimize your burner design."
 date: "2026-07-12"
 tags: ["flame temperature", "adiabatic", "NASA CEA", "thermodynamics", "burner design"]

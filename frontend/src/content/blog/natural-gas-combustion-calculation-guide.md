@@ -1,5 +1,6 @@
 ---
 title: "Natural Gas Combustion Calculation: A Complete Guide for Engineers"
+seoTitle: "Natural Gas Combustion Calculation Guide"
 description: "Master the fundamentals of natural gas combustion calculation with our step-by-step guide. Learn stoichiometric air, excess oxygen, and flue gas analysis per ISO 6976."
 date: "2026-07-28"
 tags: ["natural gas", "combustion", "stoichiometry", "ISO 6976", "flue gas"]

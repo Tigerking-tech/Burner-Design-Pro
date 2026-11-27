@@ -1,5 +1,6 @@
 ---
 title: "Wobbe Index Explained: The Key Number Behind Gas Interchangeability"
+seoTitle: "Wobbe Index & Gas Interchangeability"
 description: "What the Wobbe index is, how to calculate it per ISO 6976, typical values for natural gas, LPG and hydrogen, and why it decides whether a burner can accept a new gas."
 date: "2026-11-21"
 tags: ["Wobbe index", "gas interchangeability", "ISO 6976", "natural gas", "hydrogen blending"]

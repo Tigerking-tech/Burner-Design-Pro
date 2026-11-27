@@ -1,5 +1,6 @@
 ---
 title: "Industrial Thermal Insulation: Best Practices for Energy Savings and Safety"
+seoTitle: "Industrial Insulation Best Practices"
 description: "A comprehensive guide to industrial furnace and pipe insulation selection, thickness calculation per ISO 12241 and ASTM C680, and realizing true energy cost savings."
 date: "2026-06-28"
 tags: ["insulation", "ISO 12241", "ASTM C680", "energy savings", "thermal design"]

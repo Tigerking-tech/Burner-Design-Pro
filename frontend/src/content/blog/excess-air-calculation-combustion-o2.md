@@ -1,5 +1,6 @@
 ---
 title: "Excess Air Calculation for Combustion: Formula, O2 Chart and Worked Examples"
+seoTitle: "Excess Air Calculation from Flue Gas O2"
 description: "How to calculate excess air ratio from flue gas O2 readings. Includes the lambda formula, O2-to-excess-air chart for natural gas, and step-by-step worked examples."
 date: "2026-11-24"
 tags: ["excess air", "combustion", "flue gas O2", "lambda", "stoichiometry"]

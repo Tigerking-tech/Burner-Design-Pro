@@ -1,5 +1,6 @@
 ---
 title: "How Thick Should Pipe Insulation Be? Selection Guide with Typical Thickness Table"
+seoTitle: "Pipe Insulation Thickness Guide"
 description: "How to choose insulation thickness for hot pipes: economic thickness, personnel protection limits, typical k-values of mineral wool and calcium silicate, and a worked ASTM C680 example."
 date: "2026-11-18"
 tags: ["pipe insulation", "insulation thickness", "ASTM C680", "heat loss", "energy savings"]

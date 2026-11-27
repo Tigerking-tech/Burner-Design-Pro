@@ -64,11 +64,11 @@ export default function BlogPostPage() {
   const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`
 
   useSEO({
-    title: post?.title || 'Article',
+    title: post?.seoTitle || post?.title || 'Article',
     description: post?.description,
     keywords: post?.keywords || (post?.tags ? post.tags.join(', ') : undefined),
     canonicalPath,
-    ogTitle: post?.title,
+    ogTitle: post?.seoTitle || post?.title,
     ogDescription: post?.description,
     ogImage: fullOgImage,
     jsonLd: post

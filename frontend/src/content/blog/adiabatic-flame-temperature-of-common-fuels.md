@@ -1,5 +1,6 @@
 ---
 title: "Adiabatic Flame Temperature of 12 Common Fuels: Hydrogen, Methane, Propane Table"
+seoTitle: "Flame Temperatures of Common Fuels"
 description: "Reference table of adiabatic flame temperatures in air for hydrogen, methane, propane, butane, CO, methanol and more — equilibrium values with dissociation, plus effects of excess air and preheat."
 date: "2026-11-11"
 tags: ["flame temperature", "adiabatic", "hydrogen", "methane", "NASA CEA"]

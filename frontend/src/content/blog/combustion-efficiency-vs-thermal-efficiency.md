@@ -1,5 +1,6 @@
 ---
 title: "Combustion Efficiency vs Thermal Efficiency: Definitions, Formulas and Stack Loss"
+seoTitle: "Combustion vs Thermal Efficiency | BurnerDesignPro"
 description: "The precise difference between combustion efficiency and thermal efficiency, how to calculate stack loss with the Siegert formula from flue gas O2/CO2 and temperature, and typical values for boilers."
 date: "2026-11-07"
 tags: ["combustion efficiency", "thermal efficiency", "stack loss", "Siegert", "boiler"]

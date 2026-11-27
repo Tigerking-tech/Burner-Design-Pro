@@ -1,5 +1,6 @@
 ---
 title: "Orifice Plate Beta Ratio (β) Selection: d/D Trade-offs and Permanent Pressure Loss"
+seoTitle: "Orifice Beta Ratio Selection | ISO 5167"
 description: "How to choose the orifice beta ratio per ISO 5167: the 0.2–0.75 validity range, permanent pressure loss vs beta, signal strength, and a sizing worked example."
 date: "2026-11-14"
 tags: ["orifice plate", "beta ratio", "ISO 5167", "flow measurement", "differential pressure"]
