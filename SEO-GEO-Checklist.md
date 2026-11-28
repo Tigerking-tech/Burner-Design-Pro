@@ -34,17 +34,18 @@
 - [x] 首页已被 Bing 收录（Indexed successfully）✅
 - [x] 修复 Bing 报的 2 个问题：标题过长（76→54 字符）、缺 H1（已在静态 HTML 中加入）✅
 
-### ⭐ 2. Google Search Console（15 分钟，最可能解决零流量问题）
+### ⭐ 2. Google Search Console（已验证，从 2026-07 就有账号）
 
-**我的沙箱网络访问不了 google.com，这一步只能你在自己电脑/手机上做：**
+**GSC 早已验证通过**（首页是目前唯一被索引的页面）。剩余操作：
 
-- [ ] 打开 https://search.google.com/search-console 登录 Google 账号
-- [ ] 添加资源 → 选「网址前缀」→ 输入 `https://burnerdesignpro.com`
-- [ ] 选「HTML 标记」验证方式 → 复制那串 meta 标签 → **粘贴发给我**，我帮你写进代码并推送部署
-- [ ] 部署完成后回到 Search Console 点「验证」
-- [ ] 左侧「站点地图」→ 输入 `sitemap.xml` → 提交
-- [ ] 左侧「网址检查」→ 粘贴 `https://burnerdesignpro.com/` → 点「请求编入索引」
-- [ ] 同样方法请求索引：`/flame-temperature`、`/insulation-calculator`、`/orifice-calculator`、`/fuel-manager`、`/emission`、`/efficiency`
+- [ ] 左侧「站点地图」→ 确认 `sitemap.xml` 已提交且状态成功；没提交就补上
+- [ ] 左侧「网址检查」→ 逐个请求编入索引：`/`、`/flame-temperature`、`/insulation-calculator`、`/orifice-calculator`、`/fuel-manager`、`/emission`、`/efficiency`（每天约 10 条额度）
+- [ ] 「网页索引编制」报告里点开「网页会自动重定向」→ 截图 URL 列表发我确认（www 空页面问题已于 2026-11-28 通过 Vercel 后台 308 跳转修复）
+
+### ✅ www 域名问题（已完成 2026-11-28）
+
+- [x] 发现 www.burnerdesignpro.com 返回 200 空页面（重复页 + 空内容）
+- [x] Vercel 后台添加 www → 308 重定向到主域名，路径保留，线上验证通过
 
 ### ⭐ 3. 支付流程自测（10 分钟，排查零订单的直接原因）
 
