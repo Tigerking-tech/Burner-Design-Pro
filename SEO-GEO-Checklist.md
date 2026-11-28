@@ -38,7 +38,7 @@
 
 **GSC 早已验证通过**（首页是目前唯一被索引的页面）。剩余操作：
 
-- [ ] 左侧「站点地图」→ 确认 `sitemap.xml` 已提交且状态成功；没提交就补上
+- [x] 左侧「站点地图」→ 已重新提交 `https://burnerdesignpro.com/sitemap.xml`（修复了之前误提交 http:// 变体的问题），状态成功，已发现 31 个网页 ✅ 2026-11-28
 - [ ] 左侧「网址检查」→ 逐个请求编入索引：`/`、`/flame-temperature`、`/insulation-calculator`、`/orifice-calculator`、`/fuel-manager`、`/emission`、`/efficiency`（每天约 10 条额度）
 - [ ] 「网页索引编制」报告里点开「网页会自动重定向」→ 截图 URL 列表发我确认（www 空页面问题已于 2026-11-28 通过 Vercel 后台 308 跳转修复）
 
