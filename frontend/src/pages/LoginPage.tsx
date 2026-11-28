@@ -4,6 +4,7 @@ import { authAPI } from "../services/api"
 import { wakeUpService } from "../services/wakeUpService"
 import PasswordInput from "../components/PasswordInput"
 import { useSEO } from '../hooks/useSEO'
+import { trackEvent } from '../services/analytics'
 import { useTheme } from '../components/ThemeProvider'
 
 export default function LoginPage() {
@@ -31,6 +32,7 @@ export default function LoginPage() {
     try {
       await wakeUpService.wakeUp()
       await authAPI.login(email, password)
+      trackEvent('login', { method: 'email' })
       navigate("/")
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed"

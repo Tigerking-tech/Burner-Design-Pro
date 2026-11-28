@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { authAPI, subscriptionAPI } from '../services/api'
+import { trackEvent } from '../services/analytics'
 import { CheckCircle, Loader, ArrowRight, RefreshCw } from 'lucide-react'
 
 const SubscriptionSuccessPage: React.FC = () => {
@@ -13,6 +14,19 @@ const SubscriptionSuccessPage: React.FC = () => {
 
   const checkoutId = searchParams.get('checkout_id') || ''
   const orderId = searchParams.get('order_id') || ''
+  const purchaseTracked = useRef(false)
+
+  useEffect(() => {
+    if (status === 'success' && !purchaseTracked.current) {
+      purchaseTracked.current = true
+      trackEvent('purchase', {
+        transaction_id: orderId || checkoutId || undefined,
+        currency: 'USD',
+        value: 19,
+        items: [{ item_id: 'pro', item_name: 'Pro Plan', price: 19 }],
+      })
+    }
+  }, [status, orderId, checkoutId])
 
   useEffect(() => {
     confirmPayment()

@@ -38,6 +38,171 @@ Flow, pressure, temperature, viscosity and energy unit conversions per ISO 80000
 
 # Engineering Guides
 
+## Hydrogen Blending in Natural Gas: How 20% H₂ Changes Wobbe Index, Flame Temperature and Air Demand
+URL: https://burnerdesignpro.com/blog/hydrogen-blending-natural-gas-combustion
+Date: 2026-11-28
+
+## Quick Answer
+
+Blending 20 vol% hydrogen into a typical natural gas **lowers the volumetric heat content by roughly 13% and the Wobbe index by only about 4%**, because hydrogen's low density partially compensates for its low heating value. **Stoichiometric air demand per m³ of blend falls by ~15%**, while laminar flame speed rises sharply and adiabatic flame temperature stays slightly higher than pure methane. The practical consequence: appliances and burners certified for natural gas usually tolerate 20% H₂ without re-jetting, but flashback and NOx behavior must be re-checked.
+
+## Why this is the hottest burner topic in 2026
+
+EU member states are piloting hydrogen-ready boilers, and burner manufacturers (e.g. SAACKE, Weishaupt) have filed safety certifications for 20% hydrogen operation. The bridge strategy widely cited for industrial furnaces is: **start at 20% H₂ in 2026, move to ~50% around 2028–2029, and reach 100% near 2032–2035** as green hydrogen approaches cost parity. If you design or operate combustion equipment, hydrogen-blend property calculations are now a routine task.
+
+## Worked example: 20% H₂ blend vs pure methane
+
+Illustrative numbers for a methane-rich natural gas; use the [Fuel Gas Properties calculator](/fuel-manager) for your actual gas composition.
+
+| Property | Pure CH₄ | 80% CH₄ + 20% H₂ | Change |
+|---|---|---|---|
+| HHV (volumetric) | ~37.7 MJ/m³ | ~32.7 MJ/m³ | **−13%** |
+| Density | ~0.717 kg/m³ | ~0.590 kg/m³ | −18% |
+| Specific gravity (air=1) | ~0.586 | ~0.482 | −18% |
+| **Wobbe index (HHV)** | **~49.2 MJ/m³** | **~47.1 MJ/m³** | **−4%** |
+| Stoichiometric air | ~9.53 m³/m³ | ~8.10 m³/m³ | **−15%** |
+| Adiabatic flame temp. | ~2,227 K | ~2,280 K (est.) | slightly ↑ |
+| Laminar flame speed | ~0.4 m/s | rises 2–3× locally | **↑↑** |
+
+**Why Wobbe barely moves:** Wobbe = HHV / √SG. Blending cuts HHV by 13% but also cuts specific gravity, and the square root softens the impact. This is why a 20% blend typically stays inside the appliance acceptance band — see our [Wobbe index guide](/blog/wobbe-index-gas-interchangeability) for the interchangeability rules.
+
+## What actually changes at the burner
+
+1. **Air demand drops ~15% per m³ of blend.** Because the blend's volumetric heat content is lower, you will also pass more cubic meters of fuel for the same heat input — recalculate both the fuel flow and the combustion air, not just the ratio. The excess-air setting then has to be verified from flue gas O₂; our [excess air calculation guide](/blog/excess-air-calculation-combustion-o2) shows the lambda formula.
+2. **Flame speed rises and the flame shortens.** Hydrogen's laminar burning velocity is roughly 6–7× methane's, so even a 20% blend measurably increases the mixture's burning velocity. This is what drives **flashback risk** in premixed burners and why certification bodies test the blend rather than extrapolating from natural gas.
+3. **Flame temperature and NOx.** The adiabatic flame temperature stays comparable to or slightly above methane's — check yours with the [Flame Temperature calculator](/flame-temperature). Locally hotter zones can increase thermal NOx even though the fuel itself is carbon-free; monitor NOx during commissioning.
+4. **CO and CO₂ fall.** Carbon emissions per m³ of blend drop roughly 20% (only the methane part contains carbon), which is the entire point of the transition.
+
+## FAQ
+
+**Does a 20% hydrogen blend require re-jetting appliances?**
+Usually not. The ~4% Wobbe shift is inside the typical ±5–10% interchangeability tolerance, but it must be confirmed against the appliance's specified Wobbe band.
+
+**Is the flame temperature much higher with hydrogen?**
+Pure hydrogen's adiabatic flame temperature in air (~2,400 K) is only ~170 K above methane's. At 20% blending the difference is a few tens of kelvin. Calculate it for your mixture with the [Flame Temperature calculator](/flame-temperature).
+
+**How do I compute the blend's properties?**
+Mass/volume-weight the component properties (HHV, density), then Wobbe = HHV/√SG. Our [Fuel Gas Properties calculator](/fuel-manager) does this per ISO 6976 for custom mixtures including H₂.
+
+**Does hydrogen blending reduce CO₂ at the stack?**
+Yes — roughly in proportion to the carbon-free fraction, ~20% less CO₂ per m³ of blend at 20% H₂, before accounting for the higher volumetric fuel flow at constant heat input.
+
+---
+
+## CBAM Embedded Emissions: Calculating Direct Emissions from Fuel Combustion (2026 Definitive Regime)
+URL: https://burnerdesignpro.com/blog/cbam-embedded-emissions-calculation
+Date: 2026-11-28
+
+## Quick Answer
+
+Under CBAM's definitive regime (in force since **1 January 2026**), importers must report the **embedded direct emissions** of covered goods and surrender certificates. For on-site fuel combustion, direct emissions are calculated the same way as in the EU ETS standard method: **CO₂ = activity data × net calorific value × emission factor × oxidation factor**. For natural gas that works out to roughly **1.9 kg CO₂ per m³ burned** (56.1 t CO₂/TJ at ~38 MJ/m³ NCV), and our [Emission Calculator](/emission) automates the O₂-corrected flue gas side of the calculation.
+
+## Who has to do this now
+
+CBAM covers imports of **cement, iron and steel, aluminium, fertilizers, electricity and hydrogen** into the EU. Since 1 January 2026 the transitional phase ended: importers must be authorised CBAM declarants, report embedded emissions, and buy and surrender CBAM certificates. The **annual CBAM declaration** for the preceding calendar year is due by **30 September** (Regulation (EU) 2025/2083). If you are a non-EU producer, EU customers will ask you for installation-level emission data — that is where the combustion calculations land on your desk.
+
+## The standard calculation method for direct emissions
+
+For each fuel stream at the installation:
+
+```text
+CO₂ emitted = activity data × NCV × emission factor × oxidation factor
+```
+
+| Term | Meaning | Typical value (natural gas) |
+|---|---|---|
+| Activity data | Fuel consumed in the period | e.g. 120,000 m³/year |
+| NCV | Net calorific value | ~38 MJ/m³ (≈ 0.038 GJ/m³) |
+| Emission factor | t CO₂ per TJ | **56.1 t CO₂/TJ** (IPCC default) |
+| Oxidation factor | Fraction oxidised to CO₂ | 1.0 (≈100% for gas combustion) |
+
+**Worked example:** 120,000 m³ × 0.038 GJ/m³ × 0.0561 t CO₂/GJ × 1.0 = **255.8 t CO₂/year**. Per cubic meter that is ≈ 1.9 kg CO₂ — the number most declarants use as a sanity check.
+
+The same structure applies to fuel oil, LPG and coal with their own NCVs and emission factors. If the installation monitors emissions by measurement (e.g. continuous flue gas monitoring), measured values can replace the calculation method where the rules allow.
+
+## Direct vs indirect embedded emissions
+
+- **Direct emissions** — fuel combustion on site (burners, boilers, furnaces), plus process emissions where relevant (e.g. calcination in cement). This guide's formula covers the combustion part.
+- **Indirect emissions** — electricity consumed in producing the goods. Electricity has its own default emission factors; actual values may be used under specified conditions.
+
+Precursors matter too: for "complex goods", the embedded emissions of covered precursor inputs are added to the attributed emissions of the final good. If a carbon price was already paid in the production country, that can reduce the CBAM obligation — but it must be reported.
+
+## Where a combustion calculator helps
+
+Declarants are often asked for **flue-gas-based verification** of the calculated numbers. That means converting stack measurements (O₂, CO, NOx at reference oxygen) into emission concentrations and mass rates — exactly what our [Emission Calculator](/emission) does per EPA Method 19 / EU IED conventions, and what the [natural gas combustion guide](/blog/natural-gas-combustion-calculation-guide) explains step by step.
+
+## FAQ
+
+**Is there a minimum threshold?**
+Yes — a de-minimis exemption applies to small import quantities (50 tonnes per year threshold for the covered goods), so most industrial importers are inside the regime.
+
+**Can I use default emission factors?**
+Defaults (IPCC/Commission factors) are acceptable in defined cases, but installation-specific actual data gives lower and more defensible numbers where your fuel quality differs from default.
+
+**What if my fuel is a hydrogen blend?**
+Recalculate the emission factor from the actual gas composition — a 20% H₂ blend cuts CO₂ per m³ by about 20%. Our [hydrogen blending article](/blog/hydrogen-blending-natural-gas-combustion) shows the property math.
+
+**Do I report per shipment or per year?**
+Under the definitive regime the declaration is **annual**, covering all covered imports of the preceding calendar year, submitted by 30 September.
+
+---
+
+## Ammonia Co-Firing: Combustion Properties, the NOx Challenge, and What It Means for Burner Calculations
+URL: https://burnerdesignpro.com/blog/ammonia-co-firing-combustion-properties
+Date: 2026-11-28
+
+## Quick Answer
+
+Ammonia (NH₃) burns without producing CO₂, but it is a difficult fuel: **slow flame speed (~7 cm/s vs ~40 cm/s for methane), a narrow flammability range (15–28 vol% in air), a lower flame temperature, and a strong tendency to produce NOx from fuel-bound nitrogen**. Pilot data from a 4 MW facility shows NOx climbing from ~146 mg/m³ (pure coal) to ~760 mg/m³ (pure ammonia) as the NH₃ ratio rises — so co-firing works best at moderate ratios (around 20%) with staged combustion, exactly the level already demonstrated on a 1000 MW commercial unit.
+
+## Why ammonia is being co-fired at all
+
+Co-firing ammonia in existing coal plants lets operators cut CO₂ without replacing the boiler. Japan's IHI demonstrated ammonia firing at commercial scale, and a 20% ammonia fuel ratio has been successfully demonstrated on a **1000 MW** power plant. China has also completed a high-ratio ammonia co-firing engineering demonstration on a 320 MW unit under a national R&D program. The technology is real — the combustion engineering is the hard part.
+
+## Combustion properties you must recalculate
+
+| Property | Methane (reference) | Ammonia (NH₃) | Design consequence |
+|---|---|---|---|
+| LHV | ~50 MJ/kg | ~18.6 MJ/kg | More fuel mass per MW |
+| Laminar flame speed | ~40 cm/s | **~7 cm/s** | Flame stability, need pilot/co-fire support |
+| Flammability range in air | 5–15 vol% | **15–28 vol%** | Harder ignition, longer ignition delay |
+| Adiabatic flame temp. | ~2,227 K | **lower (~2,075 K est.)** | Check with the [Flame Temperature calculator](/flame-temperature) |
+| Fuel-bound nitrogen | none | **high** | NOx formation pathway dominates |
+| CO₂ per unit energy | baseline | **zero** | The point of co-firing |
+
+**Practical implications:** at 20% co-firing the boiler keeps most of its coal flame characteristics, ignition is supported by the coal flame, and NOx stays manageable with air staging. As the ammonia ratio increases, flame visibility and main-zone temperature drop and NOx rises monotonically — which is why demonstrations cluster at the 20% level.
+
+## The NOx problem in numbers
+
+In 4 MW pilot tests, moving from pure coal to pure ammonia combustion raised NOx from **146 to 760 mg/m³**, driven primarily by fuel-bound nitrogen rather than thermal NOx. The countermeasures are the standard ones from our [NOx reduction guide](/blog/nox-emission-reduction-strategies), applied more aggressively:
+
+1. **Air staging / OFA** — push primary zone stoichiometry below 1.0 so fuel-N converts to N₂ instead of NO.
+2. **Low primary-zone ammonia slip control** — unburned NH₃ in flue gas is itself a regulated pollutant and an SCR interference risk.
+3. **Flue gas monitoring** — track NOx, O₂ and residual NH₃ continuously; convert measurements to reference-oxygen concentrations with the [Emission Calculator](/emission).
+
+## Checklist before a co-firing trial
+
+- Recalculate the fuel flow at target heat input (NH₃ LHV is ~37% of methane's).
+- Re-check burner flame stabilization margin against the slower flame speed.
+- Update the combustion air and excess-air settings — see the [excess air calculation guide](/blog/excess-air-calculation-combustion-o2).
+- Baseline NOx at coal-only operation, then map NOx vs NH₃ ratio during the trial.
+
+## FAQ
+
+**Why is ammonia's flame so slow?**
+NH₃ has high ignition energy and a narrow flammability window; its laminar burning velocity is roughly one-sixth of methane's, which is why co-firing with a stable coal or gas flame is used as the pilot.
+
+**Does ammonia co-firing increase or decrease flame temperature?**
+It decreases the main-zone flame temperature (ammonia's adiabatic flame temperature is lower than hydrocarbons'), which changes heat transfer distribution in the furnace — recheck with the [Flame Temperature calculator](/flame-temperature).
+
+**Is the extra NOx from the air or the fuel?**
+Mostly the fuel. With ammonia, fuel-bound nitrogen dominates NOx formation, unlike natural gas combustion where thermal NOx dominates.
+
+**What co-firing ratio is commercially proven?**
+Around 20% by fuel ratio, demonstrated on a 1000 MW commercial unit; higher ratios are at demonstration stage on smaller units.
+
+---
+
 ## Excess Air Calculation for Combustion: Formula, O2 Chart and Worked Examples
 URL: https://burnerdesignpro.com/blog/excess-air-calculation-combustion-o2
 Date: 2026-11-24

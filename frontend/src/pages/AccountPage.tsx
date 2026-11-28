@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { authAPI, subscriptionAPI, pricingAPI, PricingTier, Subscription, Order, TrustedDevice, ApiError } from "../services/api"
 import PasswordInput from "../components/PasswordInput"
 import { Navbar } from "../components/Navbar"
+import { trackEvent } from "../services/analytics"
 import { RefreshCw } from "lucide-react"
 
 function isAuthError(err: any): boolean {
@@ -175,6 +176,11 @@ export default function AccountPage() {
     try {
       const checkout = await subscriptionAPI.createCheckout(tierId)
       if (checkout.success && checkout.checkout_url) {
+        trackEvent('begin_checkout', {
+          currency: 'USD',
+          value: 19,
+          items: [{ item_id: tierId, item_name: 'Pro Plan', price: 19 }],
+        })
         window.location.href = checkout.checkout_url
       } else {
         setError("Failed to create checkout session")

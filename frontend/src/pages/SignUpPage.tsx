@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
 import PasswordInput from '../components/PasswordInput'
 import { useSEO } from '../hooks/useSEO'
+import { trackEvent } from '../services/analytics'
 import { useTheme } from '../components/ThemeProvider'
 
 export default function SignUpPage() {
@@ -81,6 +82,7 @@ export default function SignUpPage() {
 
     try {
       const result = await authAPI.register(email, password, undefined, agreedToTerms)
+      trackEvent('sign_up', { method: 'email' })
       navigate(`/verify-email?email=${encodeURIComponent(result.email)}`)
     } catch (error) {
       console.error('Registration failed:', error)
