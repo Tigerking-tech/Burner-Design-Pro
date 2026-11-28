@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 const UnitConverterPage = lazy(() => import('./pages/UnitConverterPage'))
@@ -37,7 +37,14 @@ import CookieConsent from './components/CookieConsent'
 
 function GATracker() {
   const location = useLocation()
+  const isFirstRender = useRef(true)
   useEffect(() => {
+    // index.html 的 gtag('config') 已经发送了首次加载的 page_view，
+    // 跳过首次渲染，避免落地页被重复统计
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const gtag = (window as any).gtag
     if (gtag) {
       gtag('event', 'page_view', {
